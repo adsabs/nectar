@@ -8,6 +8,7 @@ import { rateLimit } from '@/rateLimit';
 import { isLegacySearchURL, legacySearchURLMiddleware } from '@/middlewares/legacySearchURLMiddleware';
 import { ErrorSource, handleError } from '@/lib/errorHandler.edge';
 import { getUserLogId, sanitizeHeaderValue } from '@/utils/logging';
+import { mapPathToDisciplineParam } from '@/utils/appMode';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
@@ -301,16 +302,13 @@ export async function middleware(req: NextRequest) {
   const ip = getIp(req);
   const userAgent = sanitizeHeaderValue(req.headers.get('user-agent')) || 'unknown';
   const referer = req.headers.get('referer') || '';
-  const tracingHeaders = TRACING_HEADERS.reduce(
-    (acc, key) => {
-      const value = req.headers.get(key);
-      if (value) {
-        acc[key] = sanitizeHeaderValue(value);
-      }
-      return acc;
-    },
-    {} as Record<string, string>,
-  );
+  const tracingHeaders = TRACING_HEADERS.reduce((acc, key) => {
+    const value = req.headers.get(key);
+    if (value) {
+      acc[key] = sanitizeHeaderValue(value);
+    }
+    return acc;
+  }, {} as Record<string, string>);
 
   log.info(
     {
@@ -329,6 +327,15 @@ export async function middleware(req: NextRequest) {
   if (maybeAbsRewrite) {
     log.info({ path, duration: Date.now() - startTime }, 'Abs path rewrite applied');
     return maybeAbsRewrite;
+  }
+
+  // Discipline route handling - redirect /astrophysics, /heliophysics, etc. to /?forceMode=X
+  const disciplineParam = mapPathToDisciplineParam(path);
+  if (disciplineParam) {
+    const url = new URL('/', req.url);
+    url.searchParams.set('forceMode', disciplineParam);
+    log.info({ path, disciplineParam, duration: Date.now() - startTime }, 'Discipline route redirect');
+    return NextResponse.redirect(url);
   }
 
   const res = NextResponse.next();
