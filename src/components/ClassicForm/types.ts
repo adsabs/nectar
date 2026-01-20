@@ -45,4 +45,5 @@ export interface IClassicFormQueryParams {
   fq?: string[];
   fq_database?: string;
   fq_property?: string;
+  [key: string]: string | string[] | undefined;
 }
