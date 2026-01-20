@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AppMode } from '@/types';
-import { getAppModeLabel, mapDisciplineParamToAppMode } from '../appMode';
+import { getAppModeLabel, mapDisciplineParamToAppMode, mapPathToDisciplineParam } from '../appMode';
 
 describe('mapDisciplineParamToAppMode', () => {
   it('maps supported disciplines', () => {
@@ -33,5 +33,28 @@ describe('getAppModeLabel', () => {
     expect(getAppModeLabel(AppMode.PLANET_SCIENCE)).toBe('Planetary Science');
     expect(getAppModeLabel(AppMode.EARTH_SCIENCE)).toBe('Earth Science');
     expect(getAppModeLabel(AppMode.BIO_PHYSICAL)).toBe('Biological & Physical Science');
+  });
+});
+
+describe('mapPathToDisciplineParam', () => {
+  it('returns discipline param for valid paths', () => {
+    expect(mapPathToDisciplineParam('/astrophysics')).toBe('astrophysics');
+    expect(mapPathToDisciplineParam('/heliophysics')).toBe('heliophysics');
+    expect(mapPathToDisciplineParam('/planetary')).toBe('planetary');
+    expect(mapPathToDisciplineParam('/earth')).toBe('earth');
+    expect(mapPathToDisciplineParam('/biophysical')).toBe('biophysical');
+    expect(mapPathToDisciplineParam('/general')).toBe('general');
+  });
+
+  it('returns null for invalid paths', () => {
+    expect(mapPathToDisciplineParam('/search')).toBeNull();
+    expect(mapPathToDisciplineParam('/abs/foobar')).toBeNull();
+    expect(mapPathToDisciplineParam('/')).toBeNull();
+    expect(mapPathToDisciplineParam('/invalid')).toBeNull();
+  });
+
+  it('is case-insensitive', () => {
+    expect(mapPathToDisciplineParam('/ASTROPHYSICS')).toBe('astrophysics');
+    expect(mapPathToDisciplineParam('/Heliophysics')).toBe('heliophysics');
   });
 });
