@@ -40,7 +40,14 @@ import {
   when,
 } from 'ramda';
 import { isNilOrEmpty, isNotEmpty } from 'ramda-adjunct';
-import { CollectionChoice, IClassicFormState, IRawClassicFormState, LogicChoice, PropertyChoice } from './types';
+import {
+  CollectionChoice,
+  IClassicFormQueryParams,
+  IClassicFormState,
+  IRawClassicFormState,
+  LogicChoice,
+  PropertyChoice,
+} from './types';
 import { getTerms } from '@/query';
 import { APP_DEFAULTS } from '@/config';
 import { makeSearchParams } from '@/utils/common/search';
@@ -297,6 +304,120 @@ export const getBibstems = (bibstems: string) => {
     unless(isEmpty, pipe(joinItemsWithLogic('or'), wrapWithField('bibstem')))(noPrefixTerms),
     unless(isEmpty, pipe(joinItemsWithLogic('or'), notWrapWithField('bibstem')))(prefixedTerms),
   ]);
+};
+
+const makeFQHeader = (name: string) => `{!type=aqp v=$fq_${name}}`;
+
+/**
+ * Generate database filter from collection choices
+ * @example
+ * getDatabaseFilter(['astronomy', 'physics']) // 'database: (astronomy OR physics)'
+ */
+export const getDatabaseFilter = (limit: CollectionChoice[]): string | undefined => {
+  const limits = ['astronomy', 'physics', 'general', 'earthscience'];
+  const isLimit = (limit: string): limit is CollectionChoice => allPass([isString, includes(__, limits)])(limit);
+  const limitIsValid = both(isNotEmpty, all(isLimit));
+
+  if (!limitIsValid(limit)) {
+    return undefined;
+  }
+  return `database: (${limit.join(' OR ')})`;
+};
+
+/**
+ * Generate property filter from property choices
+ * @example
+ * getPropertyFilter(['refereed-only', 'articles-only']) // 'property: (refereed AND article)'
+ */
+export const getPropertyFilter = (property: PropertyChoice[]): string | undefined => {
+  const convertNames = map(
+    cond([
+      [equals('refereed-only'), always('refereed')],
+      [equals('articles-only'), always('article')],
+      [T, identity],
+    ]),
+  );
+  const properties = ['refereed-only', 'articles-only'];
+  const isProperty = (property: string): property is PropertyChoice =>
+    allPass([isString, includes(__, properties)])(property);
+  const isValidListOfProperties = both(pipe(length, lt(0)), all(isProperty));
+
+  if (!isValidListOfProperties(property)) {
+    return undefined;
+  }
+  return `property: (${convertNames(property).join(' AND ')})`;
+};
+
+/**
+ * Run classic form parameters through parsers and generate structured query params
+ * Returns an object with q, fq array, and individual fq_* params for filters
+ */
+export const getSearchQueryParams = (
+  params: IRawClassicFormState,
+  options: { mode?: AppMode } = {},
+): IClassicFormQueryParams => {
+  const d = options.mode;
+  if (isEmpty(params)) {
+    return { q: APP_DEFAULTS.EMPTY_QUERY, sort: ['date desc'], d };
+  }
+
+  // sanitize strings
+  const purify = (v: string) => DOMPurify.sanitize(v);
+
+  // run all params through a sanitizer
+  const cleanParams = map<IRawClassicFormState, IRawClassicFormState>((param) => {
+    if (typeof param === 'string') {
+      return purify(param);
+    }
+    if (Array.isArray(param)) {
+      return map(purify, param);
+    }
+    return param;
+  }, params) as IClassicFormState;
+
+  // Build the q param (without collection and property)
+  const query = pipe(
+    reject(isEmpty),
+    join(' '),
+  )([
+    getPubdate(cleanParams.pubdate_start, cleanParams.pubdate_end),
+    getAuthor(cleanParams.author, cleanParams.logic_author),
+    getObject(cleanParams.object, cleanParams.logic_object),
+    getTitle(cleanParams.title, cleanParams.logic_title),
+    getAbs(cleanParams.abstract_keywords, cleanParams.logic_abstract_keywords),
+    getBibstems(cleanParams.bibstems),
+  ]);
+
+  // Build filter params
+  const fq_database = getDatabaseFilter(cleanParams.limit);
+  const fq_property = getPropertyFilter(cleanParams.property);
+
+  // Build fq header array
+  const fq: string[] = [];
+  if (fq_database) {
+    fq.push(makeFQHeader('database'));
+  }
+  if (fq_property) {
+    fq.push(makeFQHeader('property'));
+  }
+
+  const result: IClassicFormQueryParams = {
+    q: query || APP_DEFAULTS.EMPTY_QUERY,
+    sort: cleanParams.sort,
+    d,
+  };
+
+  if (fq.length > 0) {
+    result.fq = fq;
+  }
+  if (fq_database) {
+    result.fq_database = fq_database;
+  }
+  if (fq_property) {
+    result.fq_property = fq_property;
+  }
+
+  return result;
 };
 
 /**
