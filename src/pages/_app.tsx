@@ -87,6 +87,19 @@ const AppModeRouter = (): ReactElement => {
     }
   }, [mode, router.asPath, isClient, router]);
 
+  // Clean forceMode from URL after it has been applied to the store.
+  // The param is only needed for initial SSR load; keeping it in the URL
+  // would cause issues with bookmarking and sharing.
+  useEffect(() => {
+    if (isClient) {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('forceMode')) {
+        url.searchParams.delete('forceMode');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  }, [isClient]);
+
   return <></>;
 };
 
