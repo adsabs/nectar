@@ -7,7 +7,7 @@ import { useSettings } from '@/lib/useSettings';
  *
  * - Non-authenticated users: returns default (4)
  * - Authenticated users: returns their minAuthorsPerResult preference
- * - "all" preference: returns DETAILS_MAX_AUTHORS (capped for UX/performance)
+ * - "all" preference: returns MAX_AUTHORS_PER_RESULT_OPTION (capped for UX/performance)
  */
 export function useAuthorsPerResult(): number {
   const { isAuthenticated } = useSession();
@@ -19,8 +19,9 @@ export function useAuthorsPerResult(): number {
 
   const value = settings.minAuthorsPerResult;
 
+  // Backwards compatibility: treat legacy "all" as max
   if (value?.toLowerCase() === 'all') {
-    return APP_DEFAULTS.DETAILS_MAX_AUTHORS;
+    return APP_DEFAULTS.MAX_AUTHORS_PER_RESULT_OPTION;
   }
 
   const parsed = parseInt(value, 10);
