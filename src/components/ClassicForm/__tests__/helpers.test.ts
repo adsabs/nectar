@@ -7,6 +7,7 @@ import {
   getProperty,
   getPubdate,
   getSearchQuery,
+  getSearchQueryParams,
   getTitle,
 } from '../helpers';
 import { CollectionChoice, IRawClassicFormState, LogicChoice, PropertyChoice } from '../types';
@@ -147,5 +148,31 @@ describe('Classic Form Query Handling', () => {
       `collection:(astronomy OR physics) pubdate:[2020-12 TO 2022-01] author:("Smith, A" "Jones, B" ="Jones, Bob") object:(IRAS HIP) property:(refereed article) title:("Black Hole" -"Milky Way" -star) abs:("Event Horizon" Singularity) bibstem:(PhRvL) -bibstem:(Apj)`,
     );
     expect(result.getAll('sort')).toStrictEqual(['score desc', 'date desc']);
+  });
+
+  test('getSearchQueryParams returns structured params with filters', () => {
+    const state: IRawClassicFormState = {
+      limit: ['astronomy', 'physics'],
+      author: 'Smith, A',
+      logic_author: 'and',
+      object: '',
+      logic_object: 'and',
+      pubdate_start: '',
+      pubdate_end: '',
+      title: '',
+      logic_title: 'and',
+      abstract_keywords: '',
+      logic_abstract_keywords: 'and',
+      property: ['refereed-only'],
+      bibstems: '',
+      sort: ['date desc'],
+    };
+    const result = getSearchQueryParams(state);
+
+    expect(result.q).toBe('author:("Smith, A")');
+    expect(result.fq).toContain('{!type=aqp v=$fq_database}');
+    expect(result.fq).toContain('{!type=aqp v=$fq_property}');
+    expect(result.fq_database).toBe('database: (astronomy OR physics)');
+    expect(result.fq_property).toBe('property: (refereed)');
   });
 });
