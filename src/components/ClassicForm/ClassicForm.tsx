@@ -326,7 +326,7 @@ const CurrentQuery = (props: { control: Control<IClassicFormState> }) => {
   const { control } = props;
   const values = useWatch<IClassicFormState>({ control });
 
-  const { query, filters } = useMemo(() => {
+  const { query, filters } = useMemo((): { query: string | React.ReactNode; filters: string[] } => {
     try {
       const params = getSearchQueryParams(values as IRawClassicFormState);
       const filterList: string[] = [];
