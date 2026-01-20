@@ -424,39 +424,6 @@ export const getSearchQueryParams = (
  * Run classic form parameters through parsers and generate URL query string
  */
 export const getSearchQuery = (params: IRawClassicFormState, options: { mode?: AppMode } = {}): string => {
-  const d = options.mode;
-  if (isEmpty(params)) {
-    return makeSearchParams({ q: APP_DEFAULTS.EMPTY_QUERY, sort: ['date desc'], d });
-  }
-
-  // sanitize strings
-  const purify = (v: string) => DOMPurify.sanitize(v);
-
-  // run all params through a sanitizer
-  const cleanParams = map<IRawClassicFormState, IRawClassicFormState>((param) => {
-    if (typeof param === 'string') {
-      return purify(param);
-    }
-    if (Array.isArray(param)) {
-      return map(purify, param);
-    }
-    return param;
-  }, params) as IClassicFormState;
-
-  // gather all strings and join them with space (excepting sort)
-  const query = pipe(
-    reject(isEmpty),
-    join(' '),
-  )([
-    getLimit(cleanParams.limit),
-    getPubdate(cleanParams.pubdate_start, cleanParams.pubdate_end),
-    getAuthor(cleanParams.author, cleanParams.logic_author),
-    getObject(cleanParams.object, cleanParams.logic_object),
-    getProperty(cleanParams.property),
-    getTitle(cleanParams.title, cleanParams.logic_title),
-    getAbs(cleanParams.abstract_keywords, cleanParams.logic_abstract_keywords),
-    getBibstems(cleanParams.bibstems),
-  ]);
-
-  return makeSearchParams({ q: query, sort: cleanParams.sort, d });
+  const queryParams = getSearchQueryParams(params, options);
+  return makeSearchParams(queryParams);
 };
