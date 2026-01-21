@@ -144,11 +144,11 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
   };
 
   return (
-    <Flex direction="row" id="tour-quick-icons">
+    <Flex direction="row" id="tour-quick-icons" gap={{ base: 1, md: 0 }}>
       {/* orcid menu */}
       <SimpleAction doc={doc} />
       {/* full resources menu */}
-      <Tooltip label="Full text sources" shouldWrapChildren>
+      <Tooltip label="Full text sources" shouldWrapChildren openDelay={500}>
         <Menu variant="compact">
           <MenuButton
             as={IconButton}
@@ -156,7 +156,9 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
             icon={<DocumentTextIcon width="20px" height="20px" />}
             isDisabled={fullSourceItems.length === 0}
             variant="link"
-            size="sm"
+            size={{ base: 'md', md: 'sm' }}
+            minW={{ base: '44px', md: 'auto' }}
+            minH={{ base: '44px', md: 'auto' }}
           />
           {fullSourceItems.length > 0 && (
             <MenuList>
@@ -171,7 +173,7 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
       </Tooltip>
 
       {/* reference and citation items menu */}
-      <Tooltip label="References and citations" shouldWrapChildren>
+      <Tooltip label="References and citations" shouldWrapChildren openDelay={500}>
         <Menu variant="compact">
           <MenuButton
             as={IconButton}
@@ -179,7 +181,9 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
             icon={<Bars4Icon width="20px" height="20" />}
             isDisabled={referenceItems.length === 0}
             variant="link"
-            size="sm"
+            size={{ base: 'md', md: 'sm' }}
+            minW={{ base: '44px', md: 'auto' }}
+            minH={{ base: '44px', md: 'auto' }}
           />
           {referenceItems.length > 0 && (
             <MenuList>
@@ -194,7 +198,7 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
       </Tooltip>
 
       {/* data product items menu */}
-      <Tooltip label="Data products" shouldWrapChildren>
+      <Tooltip label="Data products" shouldWrapChildren openDelay={500}>
         <Menu variant="compact">
           <MenuButton
             as={IconButton}
@@ -202,7 +206,9 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
             icon={<CircleStackIcon width="20px" height="20px" />}
             isDisabled={dataProductItems.length === 0}
             variant="link"
-            size="sm"
+            size={{ base: 'md', md: 'sm' }}
+            minW={{ base: '44px', md: 'auto' }}
+            minH={{ base: '44px', md: 'auto' }}
           />
           {dataProductItems.length > 0 && (
             <MenuList>
@@ -216,14 +222,16 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
         </Menu>
       </Tooltip>
       {/* share menu */}
-      <Tooltip label="Share options" shouldWrapChildren>
+      <Tooltip label="Share options" shouldWrapChildren openDelay={500}>
         <Menu variant="compact">
           <MenuButton
             as={IconButton}
             aria-label="share options"
             icon={<ShareIcon width="20px" height="20px" />}
             variant="link"
-            size="sm"
+            size={{ base: 'md', md: 'sm' }}
+            minW={{ base: '44px', md: 'auto' }}
+            minH={{ base: '44px', md: 'auto' }}
           />
           <MenuList>
             <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>

@@ -73,6 +73,7 @@ export const theme = extendTheme(
           fontSize: 'md',
           fontWeight: 'normal',
           backgroundColor: mode('white', 'gray.800')(props),
+          overflowX: 'hidden',
         },
         a: {
           color: mode('blue.500', 'blue.200')(props),
