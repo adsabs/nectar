@@ -91,7 +91,11 @@ const AppSettingsPage = () => {
   }, [params, updateSettings]);
 
   const selectedValues = useMemo(() => {
-    const authorsVisible = parseInt(settings.minAuthorsPerResult);
+    // Map legacy "all" to max value for slider display
+    const authorsVisible =
+      settings.minAuthorsPerResult?.toLowerCase() === 'all'
+        ? APP_DEFAULTS.MAX_AUTHORS_PER_RESULT_OPTION
+        : parseInt(settings.minAuthorsPerResult);
     const externalLinksAction = externalLinksOptions.find((option) => option.id === settings.externalLinkAction);
     const databases = {
       databases: settings.defaultDatabase ?? [],
