@@ -17,12 +17,21 @@ export interface IMaxAuthorCutoffFieldProps {
   onChange: (v: number) => void;
 }
 
-export const MaxAuthorCutoffField = ({ value: defaultValue, onChange }: IMaxAuthorCutoffFieldProps) => {
-  const [value, setValue] = useState(defaultValue);
+export const MaxAuthorCutoffField = ({ value: propValue, onChange }: IMaxAuthorCutoffFieldProps) => {
+  const [value, setValue] = useState(propValue);
   const [debouncedValue] = useDebounce(value, 500);
 
+  // Sync local state when prop changes (e.g., after reset)
   useEffect(() => {
-    if (debouncedValue >= APP_DEFAULTS.MIN_AUTHORCUTOFF && debouncedValue <= APP_DEFAULTS.MAX_AUTHORCUTOFF) {
+    setValue(propValue);
+  }, [propValue]);
+
+  useEffect(() => {
+    if (
+      debouncedValue !== propValue &&
+      debouncedValue >= APP_DEFAULTS.MIN_AUTHORCUTOFF &&
+      debouncedValue <= APP_DEFAULTS.MAX_AUTHORCUTOFF
+    ) {
       onChange(debouncedValue);
     }
   }, [debouncedValue]);
@@ -40,7 +49,7 @@ export const MaxAuthorCutoffField = ({ value: defaultValue, onChange }: IMaxAuth
           {content}
           <NumberInput
             id="authorcutoff-input"
-            defaultValue={defaultValue}
+            value={value}
             min={APP_DEFAULTS.MIN_AUTHORCUTOFF}
             max={APP_DEFAULTS.MAX_AUTHORCUTOFF}
             onChange={(v) => {

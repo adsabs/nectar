@@ -17,12 +17,21 @@ export interface IMaxAuthorFieldProps {
   onChange: (v: number) => void;
 }
 
-export const MaxAuthorField = ({ value: defaultValue, onChange }: IMaxAuthorFieldProps) => {
-  const [value, setValue] = useState(defaultValue);
+export const MaxAuthorField = ({ value: propValue, onChange }: IMaxAuthorFieldProps) => {
+  const [value, setValue] = useState(propValue);
   const [debouncedValue] = useDebounce(value, 500);
 
+  // Sync local state when prop changes (e.g., after reset)
   useEffect(() => {
-    if (debouncedValue >= APP_DEFAULTS.MIN_EXPORT_AUTHORS && debouncedValue <= APP_DEFAULTS.MAX_EXPORT_AUTHORS) {
+    setValue(propValue);
+  }, [propValue]);
+
+  useEffect(() => {
+    if (
+      debouncedValue !== propValue &&
+      debouncedValue >= APP_DEFAULTS.MIN_EXPORT_AUTHORS &&
+      debouncedValue <= APP_DEFAULTS.MAX_EXPORT_AUTHORS
+    ) {
       onChange(debouncedValue);
     }
   }, [debouncedValue]);
@@ -40,7 +49,7 @@ export const MaxAuthorField = ({ value: defaultValue, onChange }: IMaxAuthorFiel
           {content}
           <NumberInput
             id="maxauthor-input"
-            defaultValue={defaultValue}
+            value={value}
             min={APP_DEFAULTS.MIN_EXPORT_AUTHORS}
             max={APP_DEFAULTS.MAX_EXPORT_AUTHORS}
             onChange={(v) => {

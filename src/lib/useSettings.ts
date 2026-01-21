@@ -2,7 +2,6 @@ import { isNil, mergeLeft } from 'ramda';
 import { useDebouncedCallback } from 'use-debounce';
 import { useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
-import { useEffect } from 'react';
 import { isNotEmpty } from 'ramda-adjunct';
 import { useSession } from '@/lib/useSession';
 import { IADSApiUserDataParams, IADSApiUserDataResponse } from '@/api/user/types';
@@ -21,9 +20,26 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>, 
     placeholderData: DEFAULT_USER_DATA,
     ...options,
   });
+
+  const showToast = isNil(hideToast) || hideToast === false;
+
   const { mutate, ...updateSettingsState } = useUpdateUserSettings({
     onSuccess: (data) => {
       queryClient.setQueryData<IADSApiUserDataResponse>(userKeys.getUserSettings(), data);
+      if (showToast) {
+        toast({
+          title: 'Settings Updated.',
+          status: 'success',
+        });
+      }
+    },
+    onError: () => {
+      if (showToast) {
+        toast({
+          title: 'Something went wrong.',
+          status: 'error',
+        });
+      }
     },
   });
 
@@ -39,37 +55,6 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>, 
       ? settingsdata.defaultCitationFormat
       : DEFAULT_CITATION_FORMAT,
   };
-
-  useEffect(() => {
-    if (isNil(hideToast) || hideToast === false) {
-      if (updateSettingsState.isError) {
-        if (toast.isActive('settings')) {
-          toast.update('settings', {
-            title: 'Something went wrong.',
-            status: 'error',
-          });
-        } else {
-          toast({
-            title: 'Something went wrong.',
-            status: 'error',
-          });
-        }
-      }
-      if (updateSettingsState.isSuccess) {
-        if (toast.isActive('settings')) {
-          toast.update('settings', {
-            title: 'Settings Updated.',
-            status: 'success',
-          });
-        } else {
-          toast({
-            title: 'Settings Updated.',
-            status: 'success',
-          });
-        }
-      }
-    }
-  }, [updateSettingsState.isSuccess, updateSettingsState.isError, toast, hideToast]);
 
   const updateSettings = useDebouncedCallback((params: IADSApiUserDataParams) => {
     if (isNotEmpty(params)) {
