@@ -17,6 +17,7 @@ import {
   CustomFormatsTabPanel,
   GeneralTabPanel,
   QuickExportFormatTabPane,
+  ResetSettingsButton,
 } from '@/components/Settings';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { CustomFormat, IADSApiUserDataResponse, JournalFormatName, UserDataKeys } from '@/api/user/types';
@@ -117,9 +118,25 @@ const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, actio
   }
 };
 
+const exportSettingsKeys = [
+  UserDataKeys.DEFAULT_EXPORT_FORMAT,
+  UserDataKeys.DEFAULT_CITATION_FORMAT,
+  UserDataKeys.BIBTEX_FORMAT,
+  UserDataKeys.BIBTEX_MAX_AUTHORS,
+  UserDataKeys.BIBTEX_AUTHOR_CUTOFF,
+  UserDataKeys.ABS_FORMAT,
+  UserDataKeys.ABS_MAX_AUTHORS,
+  UserDataKeys.ABS_AUTHOR_CUTOFF,
+  UserDataKeys.BIBTEX_JOURNAL_FORMAT,
+];
+
 export const Page: NextPage = () => {
   return (
-    <SettingsLayout title="Export Settings" maxW={{ base: 'container.sm', lg: 'container.lg' }}>
+    <SettingsLayout
+      title="Export Settings"
+      maxW={{ base: 'container.sm', lg: 'container.lg' }}
+      headerAction={<ResetSettingsButton settingsKeys={exportSettingsKeys} label="Reset to defaults" />}
+    >
       <QueryErrorResetBoundary>
         {({ reset }) => (
           <ErrorBoundary

@@ -18,6 +18,7 @@ import {
   defaultActionExternalLinksDescription,
   defaultCollectionsDescription,
   NumberSlider,
+  ResetSettingsButton,
 } from '@/components/Settings';
 import { DescriptionCollapse } from '@/components/CitationExporter';
 import { parseAPIError } from '@/utils/common/parseAPIError';
@@ -52,9 +53,21 @@ const useGetOptions = () => {
 
 const defaultLandingPageDescription = `Choose which search form to display when starting a new search. "Auto" remembers the last form you used. This setting only applies to the Astrophysics discipline, which has multiple search form options.`;
 
+const applicationSettingsKeys = [
+  UserDataKeys.PREFERRED_SEARCH_SORT,
+  UserDataKeys.MIN_AUTHOR_RESULT,
+  UserDataKeys.EXTERNAL_LINK_ACTION,
+  UserDataKeys.DEFAULT_DATABASE,
+  UserDataKeys.HOMEPAGE,
+];
+
 const Page = () => {
   return (
-    <SettingsLayout title="Search Settings" maxW={{ base: 'container.sm', lg: 'container.lg' }}>
+    <SettingsLayout
+      title="Search Settings"
+      maxW={{ base: 'container.sm', lg: 'container.lg' }}
+      headerAction={<ResetSettingsButton settingsKeys={applicationSettingsKeys} label="Reset to defaults" />}
+    >
       <QueryErrorResetBoundary>
         {({ reset }) => (
           <ErrorBoundary

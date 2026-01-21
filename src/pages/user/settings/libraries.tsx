@@ -1,4 +1,4 @@
-import { FormLabel, Spinner, Stack, Text } from '@chakra-ui/react';
+import { FormLabel, Spinner, Text } from '@chakra-ui/react';
 
 import { composeNextGSSP } from '@/ssr-utils';
 import { GetServerSideProps } from 'next';
@@ -12,15 +12,21 @@ import { logger } from '@/logger';
 import { biblibSortOptions } from '@/components/Sort/model';
 import { SettingsLayout } from '@/components/Layout';
 import { Select, SelectOption } from '@/components/Select';
-
+import { ResetSettingsButton } from '@/components/Settings';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IADSApiUserDataParams, UserDataKeys } from '@/api/user/types';
 import { BiblibSortField } from '@/api/models';
 import { fetchUserSettings, userKeys } from '@/api/user/user';
 
+const librarySettingsKeys = [UserDataKeys.PREFERRED_LIB_SORT];
+
 const Page = () => {
   return (
-    <SettingsLayout title="Libraries Settings" maxW={{ base: 'container.sm', lg: 'container.lg' }}>
+    <SettingsLayout
+      title="Libraries Settings"
+      maxW={{ base: 'container.sm', lg: 'container.lg' }}
+      headerAction={<ResetSettingsButton settingsKeys={librarySettingsKeys} label="Reset to defaults" />}
+    >
       <QueryErrorResetBoundary>
         {({ reset }) => (
           <ErrorBoundary
@@ -68,19 +74,15 @@ const LibsSettingsPage = () => {
     </>
   );
   return (
-    <>
-      <Stack direction="column" spacing={5}>
-        <Select<SelectOption<BiblibSortField>>
-          label={label}
-          hideLabel={false}
-          value={preferredSortOption}
-          options={biblibSortOptions}
-          stylesTheme="default"
-          onChange={handleApplyPreferredSort}
-          id="preferred-lib-sort"
-        />
-      </Stack>
-    </>
+    <Select<SelectOption<BiblibSortField>>
+      label={label}
+      hideLabel={false}
+      value={preferredSortOption}
+      options={biblibSortOptions}
+      stylesTheme="default"
+      onChange={handleApplyPreferredSort}
+      id="preferred-lib-sort"
+    />
   );
 };
 
