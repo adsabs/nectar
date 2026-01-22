@@ -5,19 +5,35 @@
   },
   "facets": {
     "database": {
-      "numBuckets": 3,
+      "numBuckets": 7,
       "buckets": [
         {
-          "val": "physics",
-          "count": 766836
+          "val": "astronomy",
+          "count": 621955
         },
         {
-          "val": "astronomy",
-          "count": 144621
+          "val": "physics",
+          "count": 106236
+        },
+        {
+          "val": "earthscience",
+          "count": 16114
+        },
+        {
+          "val": "astrophysics",
+          "count": 11242
         },
         {
           "val": "general",
-          "count": 144156
+          "count": 10651
+        },
+        {
+          "val": "heliophysics",
+          "count": 1279
+        },
+        {
+          "val": "planetary",
+          "count": 1269
         }
       ]
     },
@@ -429,11 +445,19 @@
       ],
       "database": [
         "astronomy",
-        540774,
+        621955,
         "physics",
-        84440,
+        106236,
+        "earthscience",
+        16114,
+        "astrophysics",
+        11242,
         "general",
-        17116
+        10651,
+        "heliophysics",
+        1279,
+        "planetary",
+        1269
       ],
       "property": [
         "article",

@@ -21,12 +21,12 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
   collections: {
     label: 'Collections',
     field: 'database' as FacetField,
-
     // collections should not have an exclude option (always additive)
     logic: {
       single: ['limit to'],
       multiple: ['and', 'or'],
     },
+    filter: ['astronomy', 'physics', 'general', 'earthscience'],
     storeId: 'collections',
     isLowerCase: false,
   },
