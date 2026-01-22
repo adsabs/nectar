@@ -82,8 +82,6 @@ export const convertDocType = (docType: string) => {
       return 'BOOK_CHAPTER';
     case 'circular':
       return 'RESEARCH_TOOL';
-    case 'misc':
-      return 'OTHER';
     case 'book':
     case 'proceedings':
       return 'BOOK';
@@ -91,25 +89,31 @@ export const convertDocType = (docType: string) => {
       return 'BOOK_REVIEW';
     case 'erratum':
       return 'JOURNAL_ARTICLE';
-    case 'proposal':
-      return 'OTHER';
     case 'newsletter':
       return 'NEWSLETTER_ARTICLE';
     case 'catalog':
-      return 'DATA_SET';
+      return 'DATA-SET';
     case 'intechreport':
       return 'RESEARCH_TECHNIQUE';
     case 'mastersthesis':
       return 'DISSERTATION';
-    case 'obituary':
-    case 'pressrelease':
-      return 'OTHER';
     case 'software':
       return 'RESEARCH_TECHNIQUE';
     case 'talk':
       return 'LECTURE_SPEECH';
+    case 'dataset':
+      return 'DATA-SET';
+    case 'instrument':
+      return 'PHYSICAL-OBJECT';
+    case 'service':
+      return 'DATA-SET';
+    case 'obituary':
+    case 'pressrelease':
+    case 'proposal':
+    case 'editorial':
+    case 'misc':
     default:
-      return 'JOURNAL_ARTICLE';
+      return 'OTHER';
   }
 };
 
