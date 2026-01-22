@@ -198,7 +198,14 @@ export enum Esources {
   Zenodo = 'Zenodo',
 }
 
-export type Database = 'astronomy' | 'physics' | 'general' | 'earthscience';
+export type Database =
+  | 'astronomy'
+  | 'physics'
+  | 'general'
+  | 'earthscience'
+  | 'astrophysics'
+  | 'heliophysics'
+  | 'planetary';
 
 export interface IDocsEntity {
   /**
