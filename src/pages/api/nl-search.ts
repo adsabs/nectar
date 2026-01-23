@@ -1,10 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { constrainQueryOutput, validateFieldConstraints, type FieldCorrection } from '@/lib/field-constraints';
 
-// Hybrid NER pipeline endpoint (preferred - deterministic, no LLM for basic queries)
-const PIPELINE_ENDPOINT = 'https://sjarmak--v1-chat-completions.modal.run';
-// Fallback vLLM endpoint (used if pipeline fails)
-const VLLM_ENDPOINT = 'https://sjarmak--nls-finetune-serve-vllm-serve.modal.run/v1/chat/completions';
+// Modal endpoints for NL search inference
+// These should be set in environment variables for production deployments
+// See: https://github.com/adsabs/nectar/blob/sj/fine-tune/FEATURE_BRANCH_SETUP.md
+const PIPELINE_ENDPOINT = process.env.NL_SEARCH_PIPELINE_ENDPOINT || 'https://sjarmak--v1-chat-completions.modal.run';
+const VLLM_ENDPOINT =
+  process.env.NL_SEARCH_VLLM_ENDPOINT || 'https://sjarmak--nls-finetune-serve-vllm-serve.modal.run/v1/chat/completions';
 
 const ADS_AUTOCOMPLETE_URL = 'https://api.adsabs.harvard.edu/v1/autocomplete';
 const SIMBAD_TAP_URL = 'https://simbad.cds.unistra.fr/simbad/sim-tap/sync';
