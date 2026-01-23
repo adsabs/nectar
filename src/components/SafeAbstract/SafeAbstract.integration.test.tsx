@@ -1,10 +1,11 @@
 import { render, screen } from '@testing-library/react';
+import { type ReactNode } from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { SafeAbstract } from './SafeAbstract';
 
 // Mock MathJax - passes through HTML content for testing
 vi.mock('better-react-mathjax', () => ({
-  MathJax: ({ children, ...props }: { children?: React.ReactNode }) => (
+  MathJax: ({ children, ...props }: { children?: ReactNode }) => (
     <span data-testid="mathjax" {...props}>
       {children}
     </span>
