@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { type ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SafeAbstract } from './SafeAbstract';
 
@@ -6,7 +7,7 @@ import { SafeAbstract } from './SafeAbstract';
 let shouldMathJaxThrow = false;
 
 vi.mock('better-react-mathjax', () => ({
-  MathJax: ({ children, ...props }: { children?: React.ReactNode }) => {
+  MathJax: ({ children, ...props }: { children?: ReactNode }) => {
     if (shouldMathJaxThrow) {
       throw new Error('MathJax failed');
     }
