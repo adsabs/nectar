@@ -14,7 +14,7 @@ const AUTOCOMPLETE_TIMEOUT_MS = 200;
 const SIMBAD_TIMEOUT_MS = 100;
 const PIPELINE_TIMEOUT_MS = 2000; // Pipeline should respond in <500ms, 2s for safety
 
-const SYSTEM_PROMPT = 'Convert natural language to ADS search query. Output ONLY the query, no explanation or JSON.';
+const SYSTEM_PROMPT = 'Convert natural language to ADS search query. Output JSON: {"query": "..."}';
 
 /**
  * Pre-computed synonym table for common astronomy terms.
