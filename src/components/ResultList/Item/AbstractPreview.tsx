@@ -1,6 +1,6 @@
 import { Collapse, Flex, IconButton, Text, Tooltip, useToast, VStack } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
-import { MathJax } from 'better-react-mathjax';
+import { SafeAbstract } from '@/components/SafeAbstract';
 import { ReactElement, useState } from 'react';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetAbstractPreview } from '@/api/search/search';
@@ -37,13 +37,13 @@ export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): ReactElemen
     <Flex direction="column" justifyContent="center" alignContent="center">
       {isSuccess && (
         <Collapse in={show} animateOpacity>
-          <Text
-            as={MathJax}
-            fontSize="md"
-            mt={1}
-            dangerouslySetInnerHTML={{ __html: data.docs[0]?.abstract ?? text.noAbstract }}
-            wordBreak="break-word"
-          />
+          {data.docs[0]?.abstract ? (
+            <SafeAbstract html={data.docs[0].abstract} fontSize="md" mt={1} wordBreak="break-word" />
+          ) : (
+            <Text fontSize="md" mt={1}>
+              {text.noAbstract}
+            </Text>
+          )}
         </Collapse>
       )}
       <VStack>
