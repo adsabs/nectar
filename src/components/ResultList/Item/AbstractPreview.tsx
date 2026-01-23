@@ -12,9 +12,6 @@ export interface IAbstractPreviewProps {
 const text = {
   error: 'Problem loading abstract preview' as const,
   noAbstract: 'No Abstract' as const,
-  hideAbstract: 'Hide Abstract Preview' as const,
-  showAbstract: 'Show Abstract Preview' as const,
-  seeFullAbstract: 'See full abstract' as const,
 };
 
 export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): ReactElement => {

@@ -50,7 +50,5 @@ describe('escapeMathHtml', () => {
     const input = 'rate at $10<z_\\mathrm{phot}<12$ in the';
     const result = escapeMathHtml(input);
     expect(result).toBe('rate at $10&lt;z_\\mathrm{phot}&lt;12$ in the');
-    // Verify the full string is preserved (no truncation)
-    expect(result).toContain('in the');
   });
 });
