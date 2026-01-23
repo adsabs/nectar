@@ -23,6 +23,7 @@ declare global {
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: string;
       NEXT_PUBLIC_API_MOCKING: string;
       NEXT_PUBLIC_SENTRY_DSN: string;
+      NEXT_PUBLIC_NL_SEARCH: string;
       SENTRY_PROJECT_ID: string;
       GIT_SHA: string;
       CSP_REPORT_URI: string;

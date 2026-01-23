@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react';
 
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
+import { NLSearchWithFlag } from '@/components/NLSearch';
 import { useStore } from '@/store';
 import { NextPage } from 'next';
 import Image from 'next/image';
@@ -175,6 +176,9 @@ const HomePage: NextPage = () => {
         <Flex direction="column">
           <Box my={2}>
             <SearchBar isLoading={isLoading} query={query} queryAddition={queryAddition} />
+          </Box>
+          <Box my={4}>
+            <NLSearchWithFlag />
           </Box>
           {isScreenSmall && isClient ? (
             <>
