@@ -1,106 +1,68 @@
-# NL Search Feature Branch Setup Guide
+# NL Search Feature Setup Guide
 
-This guide helps you checkout and run the `sj/fine-tune` feature branch which adds Natural Language Search capabilities to the ADS/SciX interface.
+This guide helps you set up the Natural Language Search feature for ADS/SciX, which converts natural language queries to ADS search syntax using a fine-tuned LLM.
 
 ## Prerequisites
 
 - **Node.js** >= 22.21.1 (use [Volta](https://volta.sh/) or nvm)
 - **pnpm** package manager
-- **Docker** or **Podman** for backend services
 - **Redis** (local install or containerized)
 - **Git** access to ADS repos
 
+For model inference:
+- A running inference endpoint (see [Deployment Options](#deployment-options))
+
 ## Quick Start
 
-### 1. Clone/Update Repos and Checkout Feature Branch
-
-```bash
-cd ~/ads-dev
-
-# For each repo, fetch and checkout the feature branch
-for repo in nectar adsabs adsws api_gateway bumblebee BeeHive; do
-  echo "=== $repo ==="
-  cd ~/ads-dev/$repo
-  git fetch origin
-  git checkout sj/fine-tune 2>/dev/null || git checkout -b sj/fine-tune origin/sj/fine-tune
-  cd ..
-done
-```
-
-### 2. Install Dependencies
+### 1. Clone and Install
 
 ```bash
 cd ~/ads-dev/nectar
+git fetch origin
+git checkout sj/fine-tune
 pnpm install
 ```
 
-### 3. Configure Environment
+### 2. Configure Environment
 
 ```bash
-# Copy sample env file
-cp ~/ads-dev/nectar/.env.local.sample ~/ads-dev/nectar/.env.local
-
-# Edit as needed - the defaults point to production ADS API
-# which works for testing the NL search feature
+cp .env.local.sample .env.local
 ```
 
-Key environment variables in `.env.local`:
+Edit `.env.local`:
 ```bash
-# API endpoints (defaults to production ADS API)
+# API endpoints
 API_HOST_CLIENT=https://api.adsabs.harvard.edu/v1
 API_HOST_SERVER=https://api.adsabs.harvard.edu/v1
 
-# Redis for sessions
+# Redis
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 
-# NL Search feature (enable the feature)
+# Enable NL Search feature
 NEXT_PUBLIC_NL_SEARCH=enabled
 
-# Modal endpoints (optional - defaults to shared endpoints)
-# Set these if you deploy your own Modal inference endpoints
-# NL_SEARCH_PIPELINE_ENDPOINT=https://your-workspace--v1-chat-completions.modal.run
-# NL_SEARCH_VLLM_ENDPOINT=https://your-workspace--nls-finetune-serve-vllm-serve.modal.run/v1/chat/completions
+# Model inference endpoint (REQUIRED - set to your deployment)
+NL_SEARCH_PIPELINE_ENDPOINT=https://your-endpoint.example.com/v1/chat/completions
+# Optional vLLM fallback endpoint
+# NL_SEARCH_VLLM_ENDPOINT=https://your-vllm-endpoint.example.com/v1/chat/completions
 ```
 
-### 4. Start Services
+### 3. Start Development Server
 
 ```bash
-# Use the startup script
-~/ads-dev/START_DEV.sh
-
-# Or manually:
-# Start PostgreSQL
-docker start ads_postgres
-
-# Start Redis (if not running locally)
-redis-server &
-
-# Start the frontend
-cd ~/ads-dev/nectar && pnpm dev
+pnpm dev
 ```
 
-### 5. Access the Application
+Open http://localhost:8000
 
-- **Frontend**: http://localhost:8000
-- **API Proxy**: http://localhost:5001 (if running adsws)
-- **Bootstrap endpoint**: http://localhost:5001/v1/accounts/bootstrap
-
-## Feature: Natural Language Search
-
-The NL Search feature allows users to type natural language queries like:
-- "papers about exoplanets published in 2023"
-- "articles by John Smith on machine learning"
-- "highly cited papers about dark matter"
-
-These get converted to ADS search syntax via a fine-tuned LLM hosted on Modal.
-
-### Architecture
+## Architecture
 
 ```
 User Input → NL Search Component → /api/nl-search API Route
                                           ↓
-                                   Modal LLM Endpoint
+                                   LLM Inference Endpoint
+                                   (vLLM, TGI, SageMaker, etc.)
                                           ↓
                               Post-processing Pipeline:
                               1. Field constraint validation
@@ -112,140 +74,226 @@ User Input → NL Search Component → /api/nl-search API Route
                               Multiple query suggestions returned
 ```
 
-### Key Files
+## Fine-tuned Model
+
+| Property | Value |
+|----------|-------|
+| **Model** | `adsabs/scix-nls-translator` |
+| **Base** | Qwen3-1.7B |
+| **Training data** | 4,600+ NL→query pairs |
+| **HuggingFace** | https://huggingface.co/adsabs/scix-nls-translator |
+
+### Training Dataset
+
+The training dataset is available at:
+- **HuggingFace**: https://huggingface.co/datasets/adsabs/scix-query-pairs
+- **Source**: `nls-finetune-scix/data/datasets/raw/gold_examples.json`
+
+Format:
+```json
+{"natural_language": "papers about exoplanets", "ads_query": "abs:exoplanet", "category": "topic"}
+```
+
+## Deployment Options
+
+The NL search API expects an OpenAI-compatible chat completions endpoint. Choose one:
+
+### Option 1: vLLM (Recommended)
+
+```bash
+pip install vllm
+
+# Serve the model
+vllm serve adsabs/scix-nls-translator \
+  --max-model-len 512 \
+  --port 8000
+
+# Endpoint: http://localhost:8000/v1/chat/completions
+```
+
+### Option 2: Text Generation Inference (TGI)
+
+```bash
+docker run --gpus all -p 8080:80 \
+  -e MODEL_ID=adsabs/scix-nls-translator \
+  ghcr.io/huggingface/text-generation-inference:latest
+
+# Endpoint: http://localhost:8080/v1/chat/completions
+```
+
+### Option 3: AWS SageMaker
+
+```python
+from sagemaker.huggingface import HuggingFaceModel
+
+hub = {
+    'HF_MODEL_ID': 'adsabs/scix-nls-translator',
+    'HF_TASK': 'text-generation',
+}
+
+model = HuggingFaceModel(
+    env=hub,
+    role=role,
+    transformers_version='4.37',
+    pytorch_version='2.1',
+    py_version='py310',
+)
+
+predictor = model.deploy(
+    instance_type='ml.g5.xlarge',
+    initial_instance_count=1,
+)
+
+# Use the endpoint URL in NL_SEARCH_PIPELINE_ENDPOINT
+```
+
+### Option 4: AWS EC2 with vLLM
+
+```bash
+# On an EC2 g5.xlarge (or similar GPU instance):
+pip install vllm
+
+vllm serve adsabs/scix-nls-translator \
+  --max-model-len 512 \
+  --host 0.0.0.0 \
+  --port 8000
+
+# Configure security group to allow traffic on port 8000
+# Endpoint: http://<ec2-public-ip>:8000/v1/chat/completions
+```
+
+### Option 5: Local GPU (Development)
+
+```bash
+# Requires CUDA GPU with 8GB+ VRAM
+pip install vllm
+
+vllm serve adsabs/scix-nls-translator \
+  --max-model-len 512 \
+  --gpu-memory-utilization 0.8
+
+# Endpoint: http://localhost:8000/v1/chat/completions
+```
+
+## Training Your Own Model
+
+If you want to retrain the model with updated data:
+
+### Using Google Colab (Free GPU)
+
+1. Open `nls-finetune-scix/scripts/train_colab.ipynb` in Google Colab
+2. Upload your `train.jsonl` file
+3. Run all cells
+4. Download the merged model or push directly to HuggingFace
+
+### Using AWS/EC2
+
+```bash
+# On a GPU instance (g5.xlarge recommended)
+git clone https://github.com/adsabs/nls-finetune-scix.git
+cd nls-finetune-scix
+
+pip install torch transformers datasets peft accelerate trl
+pip install "unsloth[cu121] @ git+https://github.com/unslothai/unsloth.git"
+
+python scripts/train_standalone.py \
+  --output-dir ./output \
+  --epochs 3 \
+  --push-to-hub adsabs/scix-nls-translator
+```
+
+### Training Data Format
+
+The training data (`train.jsonl`) uses chat format:
+```json
+{"messages": [
+  {"role": "system", "content": "Convert natural language to ADS search query. Output JSON: {\"query\": \"...\"}"},
+  {"role": "user", "content": "Query: papers about exoplanets\nDate: 2025-01-23"},
+  {"role": "assistant", "content": "{\"query\": \"abs:exoplanet\"}"}
+]}
+```
+
+## Key Files
 
 | File | Description |
 |------|-------------|
 | `src/components/NLSearch/index.tsx` | React component for NL search input |
 | `src/components/NLSearch/useNLSearch.ts` | Hook with search logic and state |
-| `src/pages/api/nl-search.ts` | API route that proxies to Modal endpoint |
-| `src/lib/field-constraints.ts` | TypeScript port of field validation |
+| `src/pages/api/nl-search.ts` | API route that calls inference endpoint |
+| `src/lib/field-constraints.ts` | TypeScript field validation |
 | `e2e/tests/nl-search.spec.ts` | Playwright E2E tests |
 
-### Feature Flag
-
-The NL search component is controlled by a feature flag. To enable:
+## Testing
 
 ```bash
-# In .env.local
-NEXT_PUBLIC_NL_SEARCH=enabled
-```
-
-### Modal Inference Endpoints
-
-The NL search feature requires Modal endpoints for query generation. By default, it uses shared endpoints, but you can deploy your own.
-
-**Default (shared) endpoints** - work out of the box for testing:
-- Pipeline: `https://sjarmak--v1-chat-completions.modal.run`
-- vLLM fallback: `https://sjarmak--nls-finetune-serve-vllm-serve.modal.run`
-
-**Deploy your own endpoints:**
-
-1. **Clone the finetune repo** (if not already):
-   ```bash
-   git clone https://github.com/adsabs/nls-finetune-scix.git
-   cd nls-finetune-scix
-   ```
-
-2. **Install Modal CLI**:
-   ```bash
-   pip install modal
-   modal setup  # Authenticate with Modal
-   ```
-
-3. **Deploy the pipeline endpoint** (CPU-only, fast):
-   ```bash
-   modal deploy packages/finetune/src/finetune/modal/serve_pipeline.py
-   ```
-
-4. **Deploy the vLLM endpoint** (GPU, for fallback):
-   ```bash
-   # Requires a fine-tuned model in Modal volume
-   modal deploy packages/finetune/src/finetune/modal/serve_vllm.py
-   ```
-
-5. **Update your environment**:
-   ```bash
-   # In nectar/.env.local
-   NL_SEARCH_PIPELINE_ENDPOINT=https://your-workspace--v1-chat-completions.modal.run
-   NL_SEARCH_VLLM_ENDPOINT=https://your-workspace--nls-finetune-serve-vllm-serve.modal.run/v1/chat/completions
-   ```
-
-### Fine-tuned Model
-
-The vLLM endpoint serves a fine-tuned **Qwen3-1.7B** model trained on ADS query pairs.
-
-**Model location**: Stored in Modal volume `scix-finetune-runs`
-
-**Training data**: `nls-finetune-scix/data/datasets/raw/gold_examples.json` (4000+ curated examples)
-
-**To train your own model**:
-```bash
-cd nls-finetune-scix
-mise run train  # Uses Modal for GPU training
-```
-
-See `nls-finetune-scix/DEVELOPMENT.md` for detailed training instructions
-
-### Testing the Feature
-
-```bash
-# Run unit tests
-cd ~/ads-dev/nectar
+# Unit tests
 pnpm test
 
-# Run E2E tests (requires dev server running)
+# E2E tests (requires dev server and inference endpoint)
 pnpm test:e2e
 
-# Run E2E tests with browser visible
+# E2E with visible browser
 pnpm test:e2e:headed
 ```
 
-## Commits on Feature Branch (nectar)
-
-The `sj/fine-tune` branch includes 3 squashed commits:
-
-| Commit | Files | Description |
-|--------|-------|-------------|
-| `feat: add natural language search component and API` | 7 | Core NL search: React component, API route, post-processing pipeline |
-| `feat: add field constraint validation` | 2 | TypeScript port of field validation (doctype, property, bibgroup, etc.) |
-| `test: add Playwright E2E tests` | 2 | End-to-end tests for NL search flow and operator queries |
-
 ## Troubleshooting
 
-### "Module not found" errors
+### NL Search returns errors
+
+1. Check that `NL_SEARCH_PIPELINE_ENDPOINT` is set and reachable:
+   ```bash
+   curl -X POST $NL_SEARCH_PIPELINE_ENDPOINT \
+     -H "Content-Type: application/json" \
+     -d '{"model": "adsabs/scix-nls-translator", "messages": [{"role": "user", "content": "test"}]}'
+   ```
+
+2. Check the inference endpoint logs for errors
+
+### Model returns malformed queries
+
+The post-processing pipeline should catch most issues. If you see problems:
+1. Check `src/lib/field-constraints.ts` for field validation
+2. Check the operator post-processing in `src/pages/api/nl-search.ts`
+3. Consider retraining with updated gold examples
+
+### Feature flag not working
+
+Ensure `.env.local` has:
 ```bash
-cd ~/ads-dev/nectar
-rm -rf node_modules
-pnpm install
+NEXT_PUBLIC_NL_SEARCH=enabled
 ```
 
-### Redis connection errors
-```bash
-# Check if Redis is running
-redis-cli ping  # Should return PONG
+Restart the dev server after changing env vars.
 
-# Start Redis if needed
-redis-server &
+## API Reference
+
+### POST /api/nl-search
+
+Request:
+```json
+{
+  "query": "papers about exoplanets by Smith",
+  "expand": true,
+  "resolveObjects": true
+}
 ```
 
-### API returns 401/403
-The default config uses the production ADS API which requires authentication for some endpoints. For full local development, you may need:
-- An ADS API key in your environment
-- The adsws backend running locally
-
-### Port already in use
-```bash
-# Find and kill process on port 8000
-lsof -ti:8000 | xargs kill -9
+Response:
+```json
+{
+  "query": "abs:exoplanet author:\"Smith\"",
+  "queries": [
+    {"query": "abs:exoplanet author:\"Smith\"", "description": "Basic search"},
+    {"query": "abs:exoplanet ^author:\"Smith\"", "description": "First author only"}
+  ],
+  "corrections": [],
+  "constraintViolations": []
+}
 ```
 
-## Related Documentation
+## Related Resources
 
-- `~/ads-dev/AGENTS.md` - Development conventions and CLI tools
-- `~/ads-dev/DEBUG_SEARCH.md` - Search functionality debugging guide
-- `~/ads-dev/NEXT_SESSION.md` - Infrastructure status and setup details
-
-## Contact
-
-For questions about this feature branch, contact the author or check the commit history for context.
+- [HuggingFace Model](https://huggingface.co/adsabs/scix-nls-translator)
+- [Training Dataset](https://huggingface.co/datasets/adsabs/scix-query-pairs)
+- [ADS Search Syntax](https://ui.adsabs.harvard.edu/help/search/search-syntax)
+- [Training Scripts](https://github.com/adsabs/nls-finetune-scix/tree/main/scripts)
