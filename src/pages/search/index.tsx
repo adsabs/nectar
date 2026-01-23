@@ -293,7 +293,7 @@ const SearchPage: NextPage = () => {
   const loading = isLoading || isFetching;
   const noResults = !loading && isSuccess && data?.response.numFound === 0;
   const hasResults = !loading && isSuccess && data?.response.numFound > 0;
-  const showFilters = !isPrint && isClient && hasResults;
+  const showFilters = !isPrint && isClient;
   const showListActions = !isPrint && (loading || hasResults);
 
   return (
