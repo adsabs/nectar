@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { isNil, path } from 'ramda';
 import { useShepherd } from 'react-shepherd';
-import { MathJax } from 'better-react-mathjax';
+import { SafeAbstract } from '@/components/SafeAbstract';
 
 import { IAllAuthorsModalProps } from '@/components/AllAuthorsModal';
 import { useGetAuthors } from '@/components/AllAuthorsModal/useGetAuthors';
@@ -167,11 +167,7 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
               <VisuallyHidden as="h2" id="abstract">
                 Abstract
               </VisuallyHidden>
-              {isNil(doc?.abstract) ? (
-                <Text>No Abstract</Text>
-              ) : (
-                <Text as={MathJax} dangerouslySetInnerHTML={{ __html: doc.abstract }} />
-              )}
+              {isNil(doc?.abstract) ? <Text>No Abstract</Text> : <SafeAbstract html={doc.abstract} />}
             </Box>
             <AbstractDetails doc={doc} />
             <Flex justifyContent="end">
