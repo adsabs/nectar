@@ -8,7 +8,7 @@ export const isNLSearchEnabled = (): boolean => {
   return process.env.NEXT_PUBLIC_NL_SEARCH === 'enabled';
 };
 
-import { ArrowForwardIcon, CheckIcon, CopyIcon } from '@chakra-ui/icons';
+import { ArrowForwardIcon, CheckIcon, CopyIcon, WarningIcon } from '@chakra-ui/icons';
 import {
   Badge,
   Box,
@@ -20,12 +20,22 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Radio,
   RadioGroup,
+  Select,
   Spinner,
   Stack,
   Text,
+  Textarea,
   Tooltip,
+  useDisclosure,
   useToast,
   VStack,
 } from '@chakra-ui/react';
@@ -51,6 +61,17 @@ const formatResultCount = (count: number): string => {
   return count.toLocaleString();
 };
 
+const ISSUE_CATEGORIES = [
+  { value: 'author_duplication', label: 'Author name in wrong fields' },
+  { value: 'wrong_operator', label: 'Wrong or missing operator' },
+  { value: 'wrong_field', label: 'Wrong field used' },
+  { value: 'missing_field', label: 'Expected field missing' },
+  { value: 'extra_field', label: 'Unexpected field added' },
+  { value: 'syntax_error', label: 'Malformed query syntax' },
+  { value: 'date_handling', label: 'Incorrect date parsing' },
+  { value: 'other', label: 'Other issue' },
+];
+
 export const NLSearch: FC<INLSearchProps> = ({ onQueryGenerated, onApplyQuery, debounceMs = 500 }) => {
   const [input, setInput] = useState('');
   const [debouncedInput] = useDebounce(input, debounceMs);
@@ -59,6 +80,13 @@ export const NLSearch: FC<INLSearchProps> = ({ onQueryGenerated, onApplyQuery, d
     useNLSearch(debouncedInput, onQueryGenerated);
   const router = useRouter();
   const toast = useToast();
+
+  // Issue reporting state
+  const { isOpen: isIssueOpen, onOpen: onIssueOpen, onClose: onIssueClose } = useDisclosure();
+  const [expectedQuery, setExpectedQuery] = useState('');
+  const [issueCategory, setIssueCategory] = useState('other');
+  const [issueNotes, setIssueNotes] = useState('');
+  const [isSubmittingIssue, setIsSubmittingIssue] = useState(false);
 
   // Get the currently selected query
   const selectedQuery = queries[selectedIndex]?.query || query;
@@ -97,6 +125,63 @@ export const NLSearch: FC<INLSearchProps> = ({ onQueryGenerated, onApplyQuery, d
       void router.push({ pathname: '/search', search });
     }
   }, [selectedQuery, onApplyQuery, router]);
+
+  const openIssueModal = useCallback(() => {
+    setExpectedQuery(selectedQuery || '');
+    setIssueCategory('other');
+    setIssueNotes('');
+    onIssueOpen();
+  }, [selectedQuery, onIssueOpen]);
+
+  const submitIssue = useCallback(async () => {
+    if (!input || !selectedQuery || !expectedQuery) {
+      toast({
+        title: 'Missing information',
+        description: 'Please fill in the expected query',
+        status: 'warning',
+        duration: 3000,
+      });
+      return;
+    }
+
+    setIsSubmittingIssue(true);
+    try {
+      const response = await fetch('/api/nl-report-issue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input: input,
+          actual: selectedQuery,
+          expected: expectedQuery,
+          category: issueCategory,
+          notes: issueNotes || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: 'Issue reported',
+          description: `Issue ${data.id} logged for training data improvement`,
+          status: 'success',
+          duration: 4000,
+        });
+        onIssueClose();
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (err) {
+      toast({
+        title: 'Failed to report issue',
+        description: err instanceof Error ? err.message : 'Unknown error',
+        status: 'error',
+        duration: 4000,
+      });
+    } finally {
+      setIsSubmittingIssue(false);
+    }
+  }, [input, selectedQuery, expectedQuery, issueCategory, issueNotes, toast, onIssueClose]);
 
   return (
     <VStack spacing={3} align="stretch" w="100%">
@@ -146,6 +231,17 @@ export const NLSearch: FC<INLSearchProps> = ({ onQueryGenerated, onApplyQuery, d
                 )}
               </HStack>
               <HStack spacing={1}>
+                <Tooltip label="Report issue with this query">
+                  <IconButton
+                    aria-label="Report issue"
+                    icon={<WarningIcon />}
+                    size="sm"
+                    variant="ghost"
+                    colorScheme="orange"
+                    onClick={openIssueModal}
+                    data-testid="nl-search-report-btn"
+                  />
+                </Tooltip>
                 <Tooltip label={hasCopied ? 'Copied!' : 'Copy to clipboard'}>
                   <IconButton
                     aria-label="Copy query to clipboard"
@@ -204,6 +300,75 @@ export const NLSearch: FC<INLSearchProps> = ({ onQueryGenerated, onApplyQuery, d
           </VStack>
         </Box>
       )}
+
+      {/* Issue Report Modal */}
+      <Modal isOpen={isIssueOpen} onClose={onIssueClose} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Report Query Issue</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack spacing={4} align="stretch">
+              <FormControl>
+                <FormLabel fontSize="sm">Natural Language Input</FormLabel>
+                <Input value={input} isReadOnly bg="gray.100" _dark={{ bg: 'gray.600' }} />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel fontSize="sm">Generated Query (Actual)</FormLabel>
+                <Input
+                  value={selectedQuery || ''}
+                  isReadOnly
+                  bg="gray.100"
+                  _dark={{ bg: 'gray.600' }}
+                  fontFamily="mono"
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel fontSize="sm">Expected Query (Correct)</FormLabel>
+                <Textarea
+                  value={expectedQuery}
+                  onChange={(e) => setExpectedQuery(e.target.value)}
+                  placeholder="Enter the correct ADS query"
+                  fontFamily="mono"
+                  rows={2}
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel fontSize="sm">Issue Category</FormLabel>
+                <Select value={issueCategory} onChange={(e) => setIssueCategory(e.target.value)}>
+                  {ISSUE_CATEGORIES.map((cat) => (
+                    <option key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl>
+                <FormLabel fontSize="sm">Notes (optional)</FormLabel>
+                <Textarea
+                  value={issueNotes}
+                  onChange={(e) => setIssueNotes(e.target.value)}
+                  placeholder="Any additional context about the issue"
+                  rows={2}
+                />
+              </FormControl>
+            </VStack>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={onIssueClose}>
+              Cancel
+            </Button>
+            <Button colorScheme="orange" onClick={submitIssue} isLoading={isSubmittingIssue}>
+              Report Issue
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </VStack>
   );
 };
