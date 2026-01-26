@@ -137,4 +137,6 @@ storybook-static/
 # Sentry Config File
 .sentryclirc
 .pnpm-store/
-.worktrees
+
+# Git worktrees
+.worktrees/
