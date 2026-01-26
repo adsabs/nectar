@@ -48,14 +48,14 @@ const buildAuthors = (doc: IDocsEntity, includeAff: boolean): string[][] => {
   if (includeAff) {
     return map(
       compose(
-        without(['-']),
+        without(['-', '']),
         adjust(2, (v) => (v === '-' ? '' : v)),
       ),
       transpose([authorIndex, author, aff ?? repeat('', len), orcid_other, orcid_pub, orcid_user]),
     );
   }
 
-  return map(without(['-']), transpose([authorIndex, author, orcid_other, orcid_pub, orcid_user]));
+  return map(without(['-', '']), transpose([authorIndex, author, orcid_other, orcid_pub, orcid_user]));
 };
 
 export const useGetAuthors = (props: IUseAuthorsProps): string[][] => {
