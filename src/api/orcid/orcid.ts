@@ -9,6 +9,7 @@ import { asyncDelay } from '@/components/Orcid/helpers';
 import { ADSMutation, ADSQuery } from '@/api/types';
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
+import { trackUserFlow, PERF_SPANS } from '@/lib/performance';
 
 export enum OrcidKeys {
   EXCHANGE_TOKEN = 'orcid/exchange-token',
@@ -186,8 +187,10 @@ export const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ m
     },
   };
 
-  const { data } = await api.request<IOrcidResponse['profile']>(config);
-  return data;
+  return trackUserFlow(PERF_SPANS.ORCID_PROFILE_LOAD, async () => {
+    const { data } = await api.request<IOrcidResponse['profile']>(config);
+    return data;
+  });
 };
 
 const removeWorks: MutationFunction<IOrcidResponse['removeWorks'], IOrcidMutationParams['removeWorks']> = async ({
@@ -335,24 +338,26 @@ const getWork: QueryFunction<IOrcidResponse['getWork']> = async ({ meta }) => {
   return data;
 };
 
-const setPreferences: MutationFunction<IOrcidResponse['setPreferences'], IOrcidMutationParams['setPreferences']> =
-  async ({ params, variables }) => {
-    const { user } = params;
-    const { preferences } = variables;
+const setPreferences: MutationFunction<
+  IOrcidResponse['setPreferences'],
+  IOrcidMutationParams['setPreferences']
+> = async ({ params, variables }) => {
+  const { user } = params;
+  const { preferences } = variables;
 
-    if (!isValidIOrcidUser(user)) {
-      throw new Error('Invalid ORCiD User');
-    }
+  if (!isValidIOrcidUser(user)) {
+    throw new Error('Invalid ORCiD User');
+  }
 
-    const config: ApiRequestConfig = {
-      method: 'POST',
-      url: `${ApiTargets.ORCID_PREFERENCES}/${user.orcid}`,
-      data: preferences,
-      headers: {
-        'orcid-authorization': `Bearer ${user.access_token}`,
-      },
-    };
-
-    const { data } = await api.request<IOrcidResponse['setPreferences']>(config);
-    return data;
+  const config: ApiRequestConfig = {
+    method: 'POST',
+    url: `${ApiTargets.ORCID_PREFERENCES}/${user.orcid}`,
+    data: preferences,
+    headers: {
+      'orcid-authorization': `Bearer ${user.access_token}`,
+    },
   };
+
+  const { data } = await api.request<IOrcidResponse['setPreferences']>(config);
+  return data;
+};
