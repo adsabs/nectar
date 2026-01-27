@@ -11,6 +11,7 @@ import { theme } from './theme';
 import shallow from 'zustand/shallow';
 import * as Sentry from '@sentry/nextjs';
 import { IADSApiSearchParams } from './api/search/types';
+import { PERF_SPANS, getResultCountBucket, getQueryType } from '@/lib/performance';
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 import { ShepherdJourneyProvider } from 'react-shepherd';
 
@@ -86,7 +87,7 @@ const Telemetry: FC = () => {
 
       if (docs && docs.length > 0) {
         logger.debug({ docs }, 'Telemetry: docs');
-        sendResultsLoaded();
+        sendResultsLoaded(query, docs.length);
       }
     } catch (err) {
       logger.error({ err }, 'Telemetry: error');
@@ -107,8 +108,26 @@ const sendQueryAsTags = (query: IADSApiSearchParams) => {
   });
 };
 
-const sendResultsLoaded = () => {
+const sendResultsLoaded = (query: IADSApiSearchParams, docCount: number) => {
   const loadedTime = performance.now();
   const duration = loadedTime - windowState.navigationStart;
+
+  // Keep existing measurement for backwards compatibility
   Sentry.setMeasurement('timing.results.shown', duration, 'millisecond');
+
+  // Add new span-based tracking
+  Sentry.startSpan(
+    {
+      name: PERF_SPANS.SEARCH_SUBMIT_TOTAL,
+      op: 'user.flow',
+      startTime: windowState.navigationStart / 1000,
+      attributes: {
+        query_type: getQueryType(query.q ?? ''),
+        result_count_bucket: getResultCountBucket(docCount),
+      },
+    },
+    (span) => {
+      span.end(loadedTime / 1000);
+    },
+  );
 };
