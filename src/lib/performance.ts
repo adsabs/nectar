@@ -1,8 +1,11 @@
 import * as Sentry from '@sentry/nextjs';
 
+export type ResultCountBucket = '0' | '1-10' | '11-100' | '100+';
+export type QueryType = 'simple' | 'fielded' | 'boolean';
+
 export interface PerformanceSpanTags {
-  query_type?: 'simple' | 'fielded' | 'boolean';
-  result_count_bucket?: '0' | '1-10' | '11-100' | '100+';
+  query_type?: QueryType;
+  result_count_bucket?: ResultCountBucket;
   [key: string]: string | undefined;
 }
 
@@ -41,7 +44,7 @@ export function startRenderSpan(name: string, tags?: PerformanceSpanTags): { end
   };
 }
 
-export function getResultCountBucket(count: number): '0' | '1-10' | '11-100' | '100+' {
+export function getResultCountBucket(count: number): ResultCountBucket {
   if (count === 0) {
     return '0';
   }
@@ -54,7 +57,7 @@ export function getResultCountBucket(count: number): '0' | '1-10' | '11-100' | '
   return '100+';
 }
 
-export function getQueryType(query: string): 'simple' | 'fielded' | 'boolean' {
+export function getQueryType(query: string): QueryType {
   if (/\b(AND|OR|NOT)\b/.test(query)) {
     return 'boolean';
   }
