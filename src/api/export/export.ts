@@ -3,6 +3,7 @@ import api, { ApiRequestConfig } from '../api';
 import { ExportApiFormatKey, ExportFormatsApiResponse, IExportApiParams, IExportApiResponse } from './types';
 import { ADSQuery } from '@/api/types';
 import { ApiTargets } from '@/api/models';
+import { trackUserFlow, PERF_SPANS } from '@/lib/performance';
 
 export type UseExportCitationResult = UseQueryResult<Partial<IExportApiResponse>>;
 
@@ -59,7 +60,8 @@ export const fetchExportCitation: QueryFunction<IExportApiResponse> = async ({ m
     },
   };
 
-  const { data } = await api.request<IExportApiResponse>(config);
-
-  return data;
+  return trackUserFlow(PERF_SPANS.EXPORT_API_REQUEST, async () => {
+    const { data } = await api.request<IExportApiResponse>(config);
+    return data;
+  });
 };
