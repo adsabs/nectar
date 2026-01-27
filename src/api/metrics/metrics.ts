@@ -8,6 +8,7 @@ import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
 import { IADSApiMetricsParams } from '@/api/metrics/types';
 import { logger } from '@/logger';
+import { trackUserFlow, PERF_SPANS } from '@/lib/performance';
 
 const MAX_RETRIES = 3;
 
@@ -95,7 +96,10 @@ export const fetchMetrics: QueryFunction<IADSApiMetricsResponse> = async ({ meta
     data: params,
   };
 
-  const { data: metrics } = await api.request<IADSApiMetricsResponse>(config);
+  const metrics = await trackUserFlow(PERF_SPANS.ABSTRACT_METRICS_REQUEST, async () => {
+    const { data } = await api.request<IADSApiMetricsResponse>(config);
+    return data;
+  });
 
   if (isNil(metrics) || metrics[MetricsResponseKey.E]) {
     return null;
