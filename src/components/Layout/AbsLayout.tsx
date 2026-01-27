@@ -12,6 +12,7 @@ import { AbstractSources } from '@/components/AbstractSources';
 import { AbstractSideNav } from '@/components/AbstractSideNav';
 import { stripHtml, unwrapStringValue } from '@/utils/common/formatters';
 import { IDocsEntity } from '@/api/search/types';
+import { AbstractSearchForm } from '@/components/AbstractSearchForm';
 
 interface IAbsLayoutProps {
   doc?: IDocsEntity;
@@ -37,6 +38,7 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
         children
       ) : (
         <>
+          <AbstractSearchForm />
           {showBackLink && (
             <Flex>
               <Button
