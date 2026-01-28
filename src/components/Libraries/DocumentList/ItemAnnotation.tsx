@@ -73,6 +73,7 @@ export const ItemAnnotation = ({
       <VStack>
         <IconButton
           aria-label={open ? 'hide abstract' : 'show abstract'}
+          size="xs"
           onClick={() => (open ? onClose() : onOpen())}
           disabled={false}
           variant="unstyled"
