@@ -7,20 +7,22 @@ import { initialState, reducer } from '@/components/SearchBar/searchInputReducer
 import { QuickFields } from '@/components/SearchBar/QuickFields';
 import { SimpleLink } from '@/components/SimpleLink';
 import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
+import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
 
 interface SearchBarProps extends Omit<ISearchInputProps, 'dispatch' | 'state'> {
   query?: string;
   isLoading?: boolean;
   queryAddition?: string;
-  showStartNewSearchLink?: boolean;
+  showBackLinkAs?: 'new_search' | 'results' | 'none';
 }
 
 export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((props, ref) => {
-  const { query, queryAddition, isLoading, showStartNewSearchLink = false, ...rest } = props;
+  const { query, queryAddition, isLoading, showBackLinkAs = 'none', ...rest } = props;
   const [state, dispatch] = useReducer(reducer, initialState);
   const inputRef = useRef<HTMLInputElement>(null);
   const refs = useMergeRefs(inputRef, ref);
   const { landingFormUrl } = useLandingFormPreference();
+  const { getSearchHref, show: showBackLink } = useBackToSearchResults();
 
   useEffect(() => {
     if (query !== undefined) {
@@ -36,7 +38,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((props, re
 
   return (
     <VStack as="section" direction="column" spacing={2} align="stretch">
-      {showStartNewSearchLink ? (
+      {showBackLinkAs === 'new_search' ? (
         <Button
           as={SimpleLink}
           href={landingFormUrl}
@@ -47,6 +49,17 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((props, re
           data-testid="start-new-search"
         >
           Start new search
+        </Button>
+      ) : showBackLinkAs === 'results' && showBackLink ? (
+        <Button
+          as={SimpleLink}
+          variant="link"
+          size="sm"
+          leftIcon={<ArrowLeftIcon />}
+          alignSelf="flex-start"
+          href={getSearchHref()}
+        >
+          Return to results
         </Button>
       ) : null}
       <QuickFields isLoading={isLoading} dispatch={dispatch} />
