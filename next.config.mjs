@@ -124,6 +124,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/feedback/correctabstract',
+        destination: '/feedback/missingrecord',
+        permanent: true,
+      },
+      {
         has: [
           {
             type: 'host',
