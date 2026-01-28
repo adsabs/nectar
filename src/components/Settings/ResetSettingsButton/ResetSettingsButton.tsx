@@ -16,9 +16,10 @@ import { DEFAULT_USER_DATA } from '@/api/user/models';
 export interface ResetSettingsButtonProps {
   settingsKeys: UserDataKeys[];
   label: string;
+  tabName?: string;
 }
 
-export const ResetSettingsButton = ({ settingsKeys, label }: ResetSettingsButtonProps) => {
+export const ResetSettingsButton = ({ settingsKeys, label, tabName }: ResetSettingsButtonProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef<HTMLButtonElement>(null);
   const { updateSettings, updateSettingsState } = useSettings();
@@ -54,7 +55,8 @@ export const ResetSettingsButton = ({ settingsKeys, label }: ResetSettingsButton
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              Are you sure? This will restore these settings to their default values. This action cannot be undone.
+              Are you sure? This will restore {tabName ? `${tabName} settings` : 'these settings'} to their default
+              values. This action cannot be undone.
             </AlertDialogBody>
 
             <AlertDialogFooter>

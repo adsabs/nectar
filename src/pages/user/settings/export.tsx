@@ -2,7 +2,7 @@ import { Spinner, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/rea
 
 import { useSettings } from '@/lib/useSettings';
 import { GetServerSideProps, NextPage } from 'next';
-import { Reducer, Suspense, useEffect, useReducer } from 'react';
+import { Reducer, Suspense, useEffect, useReducer, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { dehydrate, QueryClient, QueryErrorResetBoundary } from '@tanstack/react-query';
 import { omit, pathOr } from 'ramda';
@@ -118,9 +118,11 @@ const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, actio
   }
 };
 
-const exportSettingsKeys = [
-  UserDataKeys.DEFAULT_EXPORT_FORMAT,
-  UserDataKeys.DEFAULT_CITATION_FORMAT,
+const defaultFormatSettingsKeys = [UserDataKeys.DEFAULT_EXPORT_FORMAT];
+
+const customFormatsSettingsKeys = [UserDataKeys.CUSTOM_FORMATS];
+
+const bibtexSettingsKeys = [
   UserDataKeys.BIBTEX_FORMAT,
   UserDataKeys.BIBTEX_MAX_AUTHORS,
   UserDataKeys.BIBTEX_AUTHOR_CUTOFF,
@@ -130,12 +132,31 @@ const exportSettingsKeys = [
   UserDataKeys.BIBTEX_JOURNAL_FORMAT,
 ];
 
+const citationFormatSettingsKeys = [UserDataKeys.DEFAULT_CITATION_FORMAT];
+
+const exportSettingsKeysByTab = [
+  defaultFormatSettingsKeys,
+  customFormatsSettingsKeys,
+  bibtexSettingsKeys,
+  citationFormatSettingsKeys,
+];
+
+const exportTabNames = ['Default Format', 'Custom Formats', 'BibTeX', 'Default Copy Citation Format'];
+
 export const Page: NextPage = () => {
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
+
   return (
     <SettingsLayout
       title="Export Settings"
       maxW={{ base: 'container.sm', lg: 'container.lg' }}
-      headerAction={<ResetSettingsButton settingsKeys={exportSettingsKeys} label="Reset to defaults" />}
+      headerAction={
+        <ResetSettingsButton
+          settingsKeys={exportSettingsKeysByTab[activeTabIndex]}
+          label="Reset to defaults"
+          tabName={exportTabNames[activeTabIndex]}
+        />
+      }
     >
       <QueryErrorResetBoundary>
         {({ reset }) => (
@@ -147,7 +168,7 @@ export const Page: NextPage = () => {
             })}
           >
             <Suspense fallback={<Spinner />}>
-              <ExportSettings />
+              <ExportSettings onTabChange={setActiveTabIndex} />
             </Suspense>
           </ErrorBoundary>
         )}
@@ -156,7 +177,7 @@ export const Page: NextPage = () => {
   );
 };
 
-const ExportSettings = () => {
+const ExportSettings = ({ onTabChange }: { onTabChange: (index: number) => void }) => {
   // params used to update user data
   const [params, dispatch] = useReducer(reducer, {});
 
@@ -182,7 +203,7 @@ const ExportSettings = () => {
   const sampleBib = pathOr<string>(null, ['docs', '0', 'bibcode'], data);
 
   return (
-    <Tabs variant="enclosed">
+    <Tabs variant="enclosed" onChange={onTabChange}>
       <TabList>
         <Tab>Default Format</Tab>
         <Tab>Custom Formats</Tab>
