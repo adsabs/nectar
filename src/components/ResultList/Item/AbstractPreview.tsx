@@ -47,6 +47,7 @@ export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): ReactElemen
         <Tooltip label={show ? 'Hide abstract' : 'Show abstract'}>
           <IconButton
             aria-label={show ? 'hide abstract' : 'show abstract'}
+            size="xs"
             onClick={() => setShow(!show)}
             disabled={false}
             variant="unstyled"
