@@ -172,12 +172,7 @@ export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
       />
 
       {/* Small viewports */}
-      <TopNavigationMenu
-        menuItems={menuItems}
-        activeItem={activeItem}
-        display={{ base: 'initial', lg: 'none' }}
-        mx={2}
-      />
+      <TopNavigationMenu menuItems={menuItems} activeItem={activeItem} display={{ base: 'initial', lg: 'none' }} />
     </div>
   );
 };
