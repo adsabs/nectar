@@ -10,38 +10,54 @@ export interface PerformanceSpanTags {
 }
 
 export async function trackUserFlow<T>(name: string, fn: () => Promise<T>, tags?: PerformanceSpanTags): Promise<T> {
-  return Sentry.startSpan(
-    {
-      name,
-      op: 'user.flow',
-      attributes: tags,
-    },
-    async (span) => {
-      try {
-        const result = await fn();
-        span.setStatus({ code: 1 });
-        return result;
-      } catch (error) {
-        span.setStatus({
-          code: 2,
-          message: error instanceof Error ? error.message : 'Unknown error',
-        });
-        throw error;
-      }
-    },
-  );
+  try {
+    return Sentry.startSpan(
+      {
+        name,
+        op: 'user.flow',
+        attributes: tags,
+      },
+      async (span) => {
+        try {
+          const result = await fn();
+          span.setStatus({ code: 1 });
+          return result;
+        } catch (error) {
+          span.setStatus({
+            code: 2,
+            message: error instanceof Error ? error.message : 'Unknown error',
+          });
+          throw error;
+        }
+      },
+    );
+  } catch {
+    // If Sentry fails, execute the function without tracking
+    return fn();
+  }
 }
 
 export function startRenderSpan(name: string, tags?: PerformanceSpanTags): { end: () => void } {
-  const span = Sentry.startInactiveSpan({
-    name,
-    op: 'ui.render',
-    attributes: tags,
-  });
+  try {
+    const span = Sentry.startInactiveSpan({
+      name,
+      op: 'ui.render',
+      attributes: tags,
+    });
 
-  return {
-    end: () => span?.end(),
-  };
+    return {
+      end: () => {
+        try {
+          span?.end();
+        } catch {
+          // Silently ignore span end errors
+        }
+      },
+    };
+  } catch {
+    // If Sentry fails, return a no-op
+    return { end: () => {} };
+  }
 }
 
 export function getResultCountBucket(count: number): ResultCountBucket {
