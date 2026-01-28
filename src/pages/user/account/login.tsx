@@ -29,6 +29,7 @@ import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IUserCredentials } from '@/api/user/types';
 import { NotificationId } from '@/store/slices';
 import { useStore } from '@/store';
+import { trackUserFlow, PERF_SPANS } from '@/lib/performance';
 
 const initialParams: IUserCredentials = { email: '', password: '' };
 
@@ -50,33 +51,35 @@ const Login: NextPage = () => {
   } = useMutation<ILoginResponse, AxiosError<ILoginResponse> | Error, IUserCredentials>(
     ['login'],
     async (params) => {
-      const { data } = await axios.post<ILoginResponse>('/api/auth/login', params);
+      return trackUserFlow(PERF_SPANS.AUTH_LOGIN_TOTAL, async () => {
+        const { data } = await axios.post<ILoginResponse>('/api/auth/login', params);
 
-      if (data?.error) {
-        throw new Error(data.error);
-      }
-
-      // reset the user
-      await resetUser();
-
-      // redirect to the next page if provided, otherwise reload
-      const next = router.query.next as string | undefined;
-      if (next) {
-        try {
-          const decodedNext = decodeURIComponent(next);
-          // security: only allow relative paths (starts with / but not //)
-          if (decodedNext.startsWith('/') && !decodedNext.startsWith('//')) {
-            await router.push(decodedNext);
-            return undefined;
-          }
-        } catch {
-          // invalid URL encoding, fall through to reload
+        if (data?.error) {
+          throw new Error(data.error);
         }
-      }
-      reload();
 
-      // the returned data is not being used
-      return undefined;
+        // reset the user
+        await resetUser();
+
+        // redirect to the next page if provided, otherwise reload
+        const next = router.query.next as string | undefined;
+        if (next) {
+          try {
+            const decodedNext = decodeURIComponent(next);
+            // security: only allow relative paths (starts with / but not //)
+            if (decodedNext.startsWith('/') && !decodedNext.startsWith('//')) {
+              await router.push(decodedNext);
+              return undefined;
+            }
+          } catch {
+            // invalid URL encoding, fall through to reload
+          }
+        }
+        reload();
+
+        // the returned data is not being used
+        return undefined;
+      });
     },
     {
       cacheTime: 0,

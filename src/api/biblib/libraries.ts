@@ -1,6 +1,7 @@
 import { MutationFunction, QueryFunction, useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { omit } from 'ramda';
+import { trackUserFlow, PERF_SPANS } from '@/lib/performance';
 import {
   IADSApiLibraryAddAnnotationParams,
   IADSApiLibraryAddAnnotationResponse,
@@ -96,8 +97,10 @@ export const fetchLibraries: QueryFunction<IADSApiLibraryResponse> = async ({ me
     params,
   };
 
-  const { data } = await api.request<IADSApiLibraryResponse>(config);
-  return data;
+  return trackUserFlow(PERF_SPANS.LIBRARY_LIST_LOAD, async () => {
+    const { data } = await api.request<IADSApiLibraryResponse>(config);
+    return data;
+  });
 };
 
 export const useAddLibrary: ADSMutation<IADSApiLibraryAddResponse, undefined, IADSApiLibraryAddParams> = (
@@ -118,8 +121,10 @@ export const addLibrary: MutationFunction<IADSApiLibraryAddResponse, IADSApiLibr
     data: params,
   };
 
-  const { data } = await api.request<IADSApiLibraryAddResponse>(config);
-  return data;
+  return trackUserFlow(PERF_SPANS.LIBRARY_CREATE_TOTAL, async () => {
+    const { data } = await api.request<IADSApiLibraryAddResponse>(config);
+    return data;
+  });
 };
 
 export const useGetLibraryEntity: ADSQuery<IADSApiLibraryEntityParams, IADSApiLibraryEntityResponse> = (
@@ -171,14 +176,17 @@ export const deleteLibrary: MutationFunction<IADSApiLibraryDeleteResponse, IADSA
   return data;
 };
 
-export const useEditLibraryMeta: ADSMutation<IADSApiLibraryEditMetaResponse, undefined, IADSApiLibraryEditMetaParams> =
-  (_, options) => {
-    return useMutation({
-      mutationKey: librariesKeys.edit(),
-      mutationFn: editLibraryMeta,
-      ...options,
-    });
-  };
+export const useEditLibraryMeta: ADSMutation<
+  IADSApiLibraryEditMetaResponse,
+  undefined,
+  IADSApiLibraryEditMetaParams
+> = (_, options) => {
+  return useMutation({
+    mutationKey: librariesKeys.edit(),
+    mutationFn: editLibraryMeta,
+    ...options,
+  });
+};
 
 export const editLibraryMeta: MutationFunction<IADSApiLibraryEditMetaResponse, IADSApiLibraryEditMetaParams> = async (
   params,
@@ -205,17 +213,21 @@ export const useEditLibraryDocuments: ADSMutation<
   });
 };
 
-export const editLibraryDocuments: MutationFunction<IADSApiLibraryDocumentResponse, IADSApiLibraryDocumentParams> =
-  async (params) => {
-    const config: ApiRequestConfig = {
-      method: 'POST',
-      url: `${ApiTargets.DOCUMENTS}/${params.id}`,
-      data: omit(['id'], params),
-    };
+export const editLibraryDocuments: MutationFunction<
+  IADSApiLibraryDocumentResponse,
+  IADSApiLibraryDocumentParams
+> = async (params) => {
+  const config: ApiRequestConfig = {
+    method: 'POST',
+    url: `${ApiTargets.DOCUMENTS}/${params.id}`,
+    data: omit(['id'], params),
+  };
 
+  return trackUserFlow(PERF_SPANS.LIBRARY_ADD_TOTAL, async () => {
     const { data } = await api.request<IADSApiLibraryDocumentResponse>(config);
     return data;
-  };
+  });
+};
 
 // operations
 
@@ -415,17 +427,19 @@ export const useAddAnnotation: ADSMutation<
   });
 };
 
-export const addAnnotation: MutationFunction<IADSApiLibraryAddAnnotationResponse, IADSApiLibraryAddAnnotationParams> =
-  async (params) => {
-    const config: ApiRequestConfig = {
-      method: 'POST',
-      url: `${ApiTargets.LIBRARY_NOTES}/${params.library}/${params.bibcode}`,
-      data: { content: params.content },
-    };
-
-    const { data } = await api.request<IADSApiLibraryAddAnnotationResponse>(config);
-    return data;
+export const addAnnotation: MutationFunction<
+  IADSApiLibraryAddAnnotationResponse,
+  IADSApiLibraryAddAnnotationParams
+> = async (params) => {
+  const config: ApiRequestConfig = {
+    method: 'POST',
+    url: `${ApiTargets.LIBRARY_NOTES}/${params.library}/${params.bibcode}`,
+    data: { content: params.content },
   };
+
+  const { data } = await api.request<IADSApiLibraryAddAnnotationResponse>(config);
+  return data;
+};
 
 // update annotation
 

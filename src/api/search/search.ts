@@ -40,6 +40,7 @@ import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
 import { logger } from '@/logger';
 import { normalizeFields } from '@/api/search/utils';
+import { trackUserFlow, PERF_SPANS } from '@/lib/performance';
 
 type PostTransformer = (data: IADSApiSearchResponse) => IADSApiSearchResponse;
 
@@ -491,7 +492,12 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }
     url: ApiTargets.SEARCH,
     params: finalParams,
   };
-  const { data } = await api.request<IADSApiSearchResponse>(config);
+
+  // Wrap API request in performance span
+  const data = await trackUserFlow(PERF_SPANS.SEARCH_QUERY_REQUEST, async () => {
+    const response = await api.request<IADSApiSearchResponse>(config);
+    return response.data;
+  });
 
   // apply post transformers if any
   if (postTransformers && data) {
