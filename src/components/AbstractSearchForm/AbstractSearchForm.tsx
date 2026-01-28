@@ -72,7 +72,7 @@ export const AbstractSearchForm = () => {
 
   return (
     <form method="get" action="/search" onSubmit={handleOnSubmit}>
-      <SearchBar />
+      <SearchBar showBackLinkAs="results" />
     </form>
   );
 };
