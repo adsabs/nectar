@@ -66,4 +66,28 @@ describe('ResetSettingsButton', () => {
     });
     expect(mockUpdateSettings).not.toHaveBeenCalled();
   });
+
+  it('displays tab-specific text when tabName is provided', async () => {
+    render(
+      <ResetSettingsButton
+        settingsKeys={[UserDataKeys.PREFERRED_SEARCH_SORT]}
+        label="Reset to defaults"
+        tabName="Search"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /reset to defaults/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    });
+    expect(screen.getByText(/search settings/i)).toBeInTheDocument();
+  });
+
+  it('displays generic text when tabName is not provided', async () => {
+    render(<ResetSettingsButton settingsKeys={[UserDataKeys.PREFERRED_SEARCH_SORT]} label="Reset to defaults" />);
+    fireEvent.click(screen.getByRole('button', { name: /reset to defaults/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    });
+    expect(screen.getByText(/these settings/i)).toBeInTheDocument();
+  });
 });
