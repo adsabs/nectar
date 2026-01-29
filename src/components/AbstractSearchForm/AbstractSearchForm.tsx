@@ -13,6 +13,7 @@ export const AbstractSearchForm = () => {
   const { settings } = useSettings();
   const submitQuery = useStore((state) => state.submitQuery);
   const sort = [`${settings.preferredSearchSort} desc` as SolrSort];
+  const query = useStore((state) => state.query.q);
 
   /**
    * Take in a query object and apply any FQ filters
@@ -72,7 +73,7 @@ export const AbstractSearchForm = () => {
 
   return (
     <form method="get" action="/search" onSubmit={handleOnSubmit}>
-      <SearchBar showBackLinkAs="results" />
+      <SearchBar query={query} showBackLinkAs="results" />
     </form>
   );
 };
