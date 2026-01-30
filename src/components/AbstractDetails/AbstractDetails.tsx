@@ -182,9 +182,9 @@ const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
   return (
     <Detail label={pluralize('Keyword', keywords?.length ?? 0)} value={keywords}>
       {(keywords) => (
-        <Flex flexWrap={'wrap'}>
+        <Flex flexWrap={'wrap'} wordBreak="break-all">
           {keywords.map((keyword) => (
-            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" px={2} py={1} key={keyword}>
+            <Tag size="md" variant="subtle" m="1" px={2} py={1} key={keyword}>
               <HStack spacing="1">
                 <Text>{keyword}</Text>
                 <SearchQueryLink
