@@ -107,6 +107,7 @@ export interface ILibraryListTableProps extends TableProps {
   showSettings?: boolean;
   hideCols?: Column[];
   showDescription?: boolean;
+  selected?: LibraryIdentifier[];
   onChangeSort: (sort: ILibraryListTableSort) => void;
   onChangePageIndex: (index: number) => void;
   onChangePageSize: (size: NumPerPageType) => void;
@@ -125,6 +126,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
     showSettings = true,
     hideCols = [],
     showDescription = true,
+    selected = [],
     onChangeSort,
     onChangePageIndex,
     onChangePageSize,
@@ -141,7 +143,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
 
   const allHiddenCols = useMemo(() => {
     return isMobile ? uniq([...hideColsSmallDisplay, ...hideCols]) : [...hideCols];
-  }, [isMobile]);
+  }, [hideCols, isMobile]);
 
   const { mutate: deleteLibrary } = useDeleteLibrary();
 
@@ -254,6 +256,11 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                         onLibrarySelect(id);
                       }
                     }}
+                    role="row"
+                    aria-selected={selected.includes(id)}
+                    backgroundColor={selected.includes(id) ? colors.highlightBackground : 'transparent'}
+                    color={selected.includes(id) ? colors.highlightForeground : colors.text}
+                    style={{ backgroundColor: colors.highlightBackground, color: colors.highlightForeground }}
                   >
                     {showIndex && !isMobile && <Td>{pageSize * pageIndex + index + 1}</Td>}
                     {allHiddenCols.indexOf('public') === -1 && (
