@@ -37,8 +37,6 @@ export const SimpleLink = forwardRef(
         href={href}
         prefetch={prefetch}
         passHref={passHref}
-        onTouchStart={onTouchStart}
-        onMouseEnter={onMouseEnter}
         onNavigate={onNavigate}
         locale={locale}
         shallow={shallow}
@@ -50,6 +48,8 @@ export const SimpleLink = forwardRef(
         <chakra.a
           ref={ref}
           onClick={onClick}
+          onMouseEnter={onMouseEnter}
+          onTouchStart={onTouchStart}
           target={newTab || isExternal ? '_blank' : undefined}
           rel={isExternal ? 'noopener' : undefined}
           {...rest}
