@@ -1,13 +1,11 @@
 import { Alert, AlertIcon, Box, Flex, Text, VisuallyHidden } from '@chakra-ui/react';
 import { useIsClient } from '@/lib/useIsClient';
 import PT from 'prop-types';
-import { HTMLAttributes, ReactElement, useMemo } from 'react';
+import { HTMLAttributes, ReactElement } from 'react';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { Item, IItemProps } from './Item';
 import { useHighlights } from './useHighlights';
 import { IDocsEntity } from '@/api/search/types';
-import { useGetExportCitation } from '@/api/export/export';
-import { useSettings } from '@/lib/useSettings';
 import { handleBoundaryError } from '@/lib/errorHandler';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
@@ -45,7 +43,9 @@ const ItemErrorFallback = ({ bibcode }: { bibcode: string } & FallbackProps) => 
  */
 const SafeItem = (props: IItemProps) => (
   <ErrorBoundary
-    onError={(error, errorInfo) => handleBoundaryError(error, errorInfo, { component: 'Item', bibcode: props.doc.bibcode })}
+    onError={(error, errorInfo) =>
+      handleBoundaryError(error, errorInfo, { component: 'Item', bibcode: props.doc.bibcode })
+    }
     fallbackRender={(fallbackProps) => <ItemErrorFallback {...fallbackProps} bibcode={props.doc.bibcode} />}
   >
     <Item {...props} />
@@ -67,32 +67,6 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   const start = indexStart + 1;
 
   const { highlights, showHighlights, isFetchingHighlights } = useHighlights();
-
-  const { settings } = useSettings();
-  const { defaultCitationFormat } = settings;
-
-  const bibcodes = docs.map((d) => d.bibcode).sort();
-
-  const { data: citationData } = useGetExportCitation(
-    {
-      format: defaultCitationFormat,
-      bibcode: bibcodes,
-      sort: ['bibcode asc'],
-      outputformat: 2,
-    },
-    { enabled: !!settings?.defaultCitationFormat },
-  );
-
-  // a map from bibcode to citation
-  const defaultCitations = useMemo(() => {
-    const citationSet = new Map<string, string>();
-    if (!!citationData) {
-      citationData.docs.map((doc) => {
-        citationSet.set(doc.bibcode, doc.reference);
-      });
-    }
-    return citationSet;
-  }, [citationData]);
 
   return (
     <Flex
@@ -117,7 +91,6 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
           highlights={highlights?.[index] ?? {}}
           isFetchingHighlights={allowHighlight && isFetchingHighlights}
           useNormCite={useNormCite}
-          defaultCitation={defaultCitations?.get(doc.bibcode)}
         />
       ))}
     </Flex>
