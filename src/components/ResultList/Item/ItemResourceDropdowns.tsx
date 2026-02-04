@@ -7,6 +7,7 @@ import {
   MenuList,
   Tooltip,
   useClipboard,
+  useDisclosure,
   useToast,
 } from '@chakra-ui/react';
 import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
@@ -18,9 +19,12 @@ import { MouseEventHandler, ReactElement, useEffect } from 'react';
 import { isBrowser } from '@/utils/common/guards';
 import { IDocsEntity } from '@/api/search/types';
 import { CopyMenuItem } from '@/components/CopyButton';
+import { useGetExportCitation } from '@/api/export/export';
+import { useSettings } from '@/lib/useSettings';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
+  /** @deprecated No longer used — citation is fetched lazily. */
   defaultCitation?: string;
 }
 
@@ -30,9 +34,21 @@ export interface IItem {
   path?: string;
 }
 
-export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDropdownsProps): ReactElement => {
+export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): ReactElement => {
   const router = useRouter();
   const toast = useToast();
+  const { isOpen: isShareOpen, onOpen: onShareOpen, onClose: onShareClose } = useDisclosure();
+  const { settings } = useSettings();
+
+  const { data: citationData } = useGetExportCitation(
+    {
+      format: settings.defaultCitationFormat,
+      bibcode: [doc.bibcode],
+    },
+    { enabled: isShareOpen && !!doc.bibcode },
+  );
+
+  const citation = citationData?.export ?? '';
 
   const { hasCopied, onCopy, setValue, value } = useClipboard('');
 
@@ -136,7 +152,7 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
   };
 
   const handleCitationCopied = () => {
-    if (!!defaultCitation) {
+    if (!!citation) {
       toast({ status: 'info', title: 'Copied to Clipboard' });
     } else {
       toast({ status: 'error', title: 'There was a problem fetching citation. Try reloading the page.' });
@@ -217,7 +233,7 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
       </Tooltip>
       {/* share menu */}
       <Tooltip label="Share options" shouldWrapChildren>
-        <Menu variant="compact">
+        <Menu variant="compact" isOpen={isShareOpen} onOpen={onShareOpen} onClose={onShareClose}>
           <MenuButton
             as={IconButton}
             aria-label="share options"
@@ -227,12 +243,7 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
           />
           <MenuList>
             <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
-            <CopyMenuItem
-              text={defaultCitation ?? ''}
-              onCopyComplete={handleCitationCopied}
-              label="Copy Citation"
-              asHtml
-            />
+            <CopyMenuItem text={citation} onCopyComplete={handleCitationCopied} label="Copy Citation" asHtml />
           </MenuList>
         </Menu>
       </Tooltip>
