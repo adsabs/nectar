@@ -1,23 +1,21 @@
-import { AbstractRefList } from '@/components/AbstractRefList';
-import { AbsLayout } from '@/components/Layout/AbsLayout';
-import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
-import { useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { path } from 'ramda';
-import { ItemsSkeleton } from '@/components/ResultList/ItemsSkeleton';
-import { parseAPIError } from '@/utils/common/parseAPIError';
-import { StandardAlertMessage } from '@/components/Feedbacks';
-import { useGetAbstract, useGetToc } from '@/api/search/search';
-import { IDocsEntity } from '@/api/search/types';
 import { getTocParams } from '@/api/search/models';
+import { useGetAbstract, useGetToc } from '@/api/search/search';
+import { AbstractRefList } from '@/components/AbstractRefList';
+import { EmptyStatePanel, StandardAlertMessage } from '@/components/Feedbacks';
+import { AbsLayout } from '@/components/Layout';
+import { ItemsSkeleton } from '@/components/ResultList';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
-import { NumPerPageType } from '@/types';
+import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const VolumePage: NextPage = () => {
   const router = useRouter();
-  const { data: abstractResult } = useGetAbstract({ id: router.query.id as string });
-  const doc = path<IDocsEntity>(['docs', 0], abstractResult);
+  const id = router.query.id as string;
+
+  const { data: abstractDoc } = useGetAbstract({ id });
+  const doc = abstractDoc?.docs?.[0];
 
   const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
   const { rows } = getParams();
@@ -26,31 +24,34 @@ const VolumePage: NextPage = () => {
     enabled: !!getParams && !!doc?.bibcode,
   });
 
-  const handlePageSizeChange = (n: NumPerPageType) => {
-    onPageSizeChange(n);
-  };
-
-  const tocParams = useMemo(() => {
-    if (doc?.bibcode) {
-      return getTocParams(doc.bibcode, 0, rows);
-    }
-  }, [doc, rows]);
+  const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);
+  const tocParams = doc?.bibcode ? getTocParams(doc.bibcode, 0, rows) : undefined;
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers in the same volume as" label="Volume Content">
       {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
-      {isError ? <StandardAlertMessage title={parseAPIError(error)} /> : null}
-      {isSuccess ? (
+      {isError && <StandardAlertMessage title={parseAPIError(error)} />}
+      {isEmpty && (
+        <EmptyStatePanel
+          title="No volume content"
+          description="Table of contents is not available for this record."
+          secondaryAction={{
+            label: 'Back to Abstract',
+            href: `/abs/${id}/abstract`,
+          }}
+        />
+      )}
+      {isSuccess && !isEmpty && (
         <AbstractRefList
           doc={doc}
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
           pageSize={rows}
-          onPageSizeChange={handlePageSizeChange}
+          onPageSizeChange={onPageSizeChange}
           searchLinkParams={tocParams}
         />
-      ) : null}
+      )}
     </AbsLayout>
   );
 };
@@ -58,26 +59,3 @@ const VolumePage: NextPage = () => {
 export default VolumePage;
 
 export const getServerSideProps = createAbsGetServerSideProps('toc');
-// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-//   try {
-//     const { id } = ctx.params as { id: string };
-//     const queryClient = new QueryClient();
-//     await queryClient.prefetchQuery({
-//       queryKey: searchKeys.toc({ bibcode: id, start: 0 }),
-//       queryFn: fetchSearch,
-//       meta: { params: getTocParams(id, 0) },
-//     });
-//     return {
-//       props: {
-//         dehydratedState: dehydrate(queryClient),
-//       },
-//     };
-//   } catch (err) {
-//     logger.error({ err, url: ctx.resolvedUrl }, 'Error fetching details');
-//     return {
-//       props: {
-//         pageError: parseAPIError(err),
-//       },
-//     };
-//   }
-// });

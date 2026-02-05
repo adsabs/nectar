@@ -1,70 +1,65 @@
-import { getCreditsParams } from '@/api/search/models';
-import { useGetAbstract, useGetCredits } from '@/api/search/search';
-import { IDocsEntity } from '@/api/search/types';
-import { AbstractRefList } from '@/components/AbstractRefList';
-import { AbsLayout } from '@/components/Layout';
-import { ItemsSkeleton } from '@/components/ResultList';
-import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
-import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
-import { Alert, AlertIcon } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { path } from 'ramda';
-import { NumPerPageType } from '@/types';
+import { getCreditsParams } from '@/api/search/models';
+import { useGetAbstract, useGetCredits } from '@/api/search/search';
+import { AbstractRefList } from '@/components/AbstractRefList';
+import { EmptyStatePanel, StandardAlertMessage } from '@/components/Feedbacks';
+import { AbsLayout } from '@/components/Layout';
+import { ItemsSkeleton } from '@/components/ResultList';
+import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const CreditsPage: NextPage = () => {
   const router = useRouter();
-  const {
-    data: abstractDoc,
-    error: abstractError,
-    isLoading: absLoading,
-    isFetching: absFetching,
-  } = useGetAbstract({ id: router.query.id as string });
-  const doc = path<IDocsEntity>(['docs', 0], abstractDoc);
+  const id = router.query.id as string;
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
+
+  const { data: abstractDoc, error: abstractError } = useGetAbstract({ id });
+  const doc = abstractDoc?.docs?.[0];
+
   const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
   const { rows } = getParams();
 
-  // get the primary response from server (or cache)
   const {
     data,
     isSuccess,
     error: creditsError,
-    isLoading: creditsLoading,
-    isFetching: creditsFetching,
-  } = useGetCredits({ ...getParams(), start: pageIndex * rows });
+    isLoading,
+    isFetching,
+  } = useGetCredits({
+    ...getParams(),
+    start: pageIndex * rows,
+  });
 
-  const isLoading = absLoading || absFetching || creditsLoading || creditsFetching;
+  const hasError = abstractError || creditsError;
+  const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);
   const creditsParams = getCreditsParams(doc?.bibcode, 0, rows);
-
-  const handlePageSizeChange = (n: NumPerPageType) => {
-    onPageSizeChange(n);
-  };
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers that credited" label="Credits">
-      {isLoading ? (
-        <ItemsSkeleton count={10} />
-      ) : (
-        <>
-          {(abstractError || creditsError) && (
-            <Alert status="error">
-              <AlertIcon />
-              {abstractError?.message || creditsError?.message}
-            </Alert>
-          )}
-          {isSuccess && (
-            <AbstractRefList
-              doc={doc}
-              docs={data.docs}
-              totalResults={data.numFound}
-              onPageChange={onPageChange}
-              pageSize={rows}
-              onPageSizeChange={handlePageSizeChange}
-              searchLinkParams={creditsParams}
-            />
-          )}
-        </>
+      {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
+      {hasError && <StandardAlertMessage title={parseAPIError(hasError)} />}
+      {isEmpty && (
+        <EmptyStatePanel
+          title="No credits found"
+          description="Papers that credit this record will appear here."
+          secondaryAction={{
+            label: 'Back to Abstract',
+            href: `/abs/${id}/abstract`,
+          }}
+        />
+      )}
+      {isSuccess && !isEmpty && (
+        <AbstractRefList
+          doc={doc}
+          docs={data.docs}
+          totalResults={data.numFound}
+          onPageChange={onPageChange}
+          pageSize={rows}
+          onPageSizeChange={onPageSizeChange}
+          searchLinkParams={creditsParams}
+        />
       )}
     </AbsLayout>
   );

@@ -1,70 +1,65 @@
-import { getMentionsParams } from '@/api/search/models';
-import { useGetAbstract, useGetMentions } from '@/api/search/search';
-import { IDocsEntity } from '@/api/search/types';
-import { AbstractRefList } from '@/components/AbstractRefList';
-import { AbsLayout } from '@/components/Layout';
-import { ItemsSkeleton } from '@/components/ResultList';
-import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
-import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
-import { Alert, AlertIcon } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { path } from 'ramda';
-import { NumPerPageType } from '@/types';
+import { getMentionsParams } from '@/api/search/models';
+import { useGetAbstract, useGetMentions } from '@/api/search/search';
+import { AbstractRefList } from '@/components/AbstractRefList';
+import { EmptyStatePanel, StandardAlertMessage } from '@/components/Feedbacks';
+import { AbsLayout } from '@/components/Layout';
+import { ItemsSkeleton } from '@/components/ResultList';
+import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const MentionsPage: NextPage = () => {
   const router = useRouter();
-  const {
-    data: abstractDoc,
-    error: abstractError,
-    isLoading: absLoading,
-    isFetching: absFetching,
-  } = useGetAbstract({ id: router.query.id as string });
-  const doc = path<IDocsEntity>(['docs', 0], abstractDoc);
+  const id = router.query.id as string;
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
+
+  const { data: abstractDoc, error: abstractError } = useGetAbstract({ id });
+  const doc = abstractDoc?.docs?.[0];
+
   const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
   const { rows } = getParams();
 
-  // get the primary response from server (or cache)
   const {
     data,
     isSuccess,
     error: mentionsError,
-    isLoading: mentionsLoading,
-    isFetching: mentionsFetching,
-  } = useGetMentions({ ...getParams(), start: pageIndex * rows });
+    isLoading,
+    isFetching,
+  } = useGetMentions({
+    ...getParams(),
+    start: pageIndex * rows,
+  });
 
-  const isLoading = absLoading || absFetching || mentionsLoading || mentionsFetching;
+  const hasError = abstractError || mentionsError;
+  const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);
   const mentionsParams = getMentionsParams(doc?.bibcode, 0, rows);
 
-  const handlePageSizeChange = (n: NumPerPageType) => {
-    onPageSizeChange(n);
-  };
-
   return (
-    <AbsLayout doc={doc} titleDescription="Papers mentioned by" label="mentions">
-      {isLoading ? (
-        <ItemsSkeleton count={10} />
-      ) : (
-        <>
-          {(abstractError || mentionsError) && (
-            <Alert status="error">
-              <AlertIcon />
-              {abstractError?.message || mentionsError?.message}
-            </Alert>
-          )}
-          {isSuccess && (
-            <AbstractRefList
-              doc={doc}
-              docs={data.docs}
-              totalResults={data.numFound}
-              onPageChange={onPageChange}
-              pageSize={rows}
-              onPageSizeChange={handlePageSizeChange}
-              searchLinkParams={mentionsParams}
-            />
-          )}
-        </>
+    <AbsLayout doc={doc} titleDescription="Papers mentioned by" label="Mentions">
+      {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
+      {hasError && <StandardAlertMessage title={parseAPIError(hasError)} />}
+      {isEmpty && (
+        <EmptyStatePanel
+          title="No mentions found"
+          description="Papers mentioned by this record will appear here."
+          secondaryAction={{
+            label: 'Back to Abstract',
+            href: `/abs/${id}/abstract`,
+          }}
+        />
+      )}
+      {isSuccess && !isEmpty && (
+        <AbstractRefList
+          doc={doc}
+          docs={data.docs}
+          totalResults={data.numFound}
+          onPageChange={onPageChange}
+          pageSize={rows}
+          onPageSizeChange={onPageSizeChange}
+          searchLinkParams={mentionsParams}
+        />
       )}
     </AbsLayout>
   );
