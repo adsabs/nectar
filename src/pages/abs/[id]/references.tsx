@@ -1,62 +1,63 @@
-import { Alert, AlertIcon } from '@chakra-ui/react';
-import { AbstractRefList } from '@/components/AbstractRefList';
-import { AbsLayout } from '@/components/Layout/AbsLayout';
-import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { path } from 'ramda';
-import { ItemsSkeleton } from '@/components/ResultList/ItemsSkeleton';
-import { useGetAbstract, useGetReferences } from '@/api/search/search';
-import { IDocsEntity } from '@/api/search/types';
 import { getReferencesParams } from '@/api/search/models';
+import { useGetAbstract, useGetReferences } from '@/api/search/search';
+import { AbstractRefList } from '@/components/AbstractRefList';
+import { EmptyStatePanel, StandardAlertMessage } from '@/components/Feedbacks';
+import { AbsLayout } from '@/components/Layout';
+import { ItemsSkeleton } from '@/components/ResultList';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
-import { NumPerPageType } from '@/types';
+import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const ReferencesPage: NextPage = () => {
   const router = useRouter();
-  const {
-    data: abstractDoc,
-    error: abstractError,
-    isLoading: absLoading,
-    isFetching: absFetching,
-  } = useGetAbstract({ id: router.query.id as string });
-  const doc = path<IDocsEntity>(['docs', 0], abstractDoc);
+  const id = router.query.id as string;
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
+
+  const { data: abstractDoc, error: abstractError } = useGetAbstract({ id });
+  const doc = abstractDoc?.docs?.[0];
+
   const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
   const { rows } = getParams();
 
   const {
     data,
     isSuccess,
-    isLoading: refLoading,
-    isFetching: refFetching,
+    isLoading,
+    isFetching,
     error: referencesError,
-  } = useGetReferences({ ...getParams(), start: pageIndex * rows });
+  } = useGetReferences({
+    ...getParams(),
+    start: pageIndex * rows,
+  });
 
-  const isLoading = refLoading || refFetching || absLoading || absFetching;
+  const hasError = abstractError || referencesError;
+  const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);
   const referencesParams = getReferencesParams(doc?.bibcode, 0, rows);
-
-  const handlePageSizeChange = (n: NumPerPageType) => {
-    onPageSizeChange(n);
-  };
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers referenced by" label="References">
-      {isLoading ? <ItemsSkeleton count={10} /> : null}
-      {(abstractError || referencesError) && (
-        <Alert status="error">
-          <AlertIcon />
-          {abstractError?.message || referencesError?.message}
-        </Alert>
+      {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
+      {hasError && <StandardAlertMessage title={parseAPIError(hasError)} />}
+      {isEmpty && (
+        <EmptyStatePanel
+          title="No references listed"
+          description="This paper does not have indexed references."
+          secondaryAction={{
+            label: 'Back to Abstract',
+            href: `/abs/${id}/abstract`,
+          }}
+        />
       )}
-      {isSuccess && (
+      {isSuccess && !isEmpty && (
         <AbstractRefList
           doc={doc}
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
           pageSize={rows}
-          onPageSizeChange={handlePageSizeChange}
+          onPageSizeChange={onPageSizeChange}
           searchLinkParams={referencesParams}
         />
       )}
@@ -67,26 +68,3 @@ const ReferencesPage: NextPage = () => {
 export default ReferencesPage;
 
 export const getServerSideProps = createAbsGetServerSideProps('references');
-// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-//   try {
-//     const { id } = ctx.params as { id: string };
-//     const queryClient = new QueryClient();
-//     await queryClient.prefetchQuery({
-//       queryKey: searchKeys.references({ bibcode: id, start: 0 }),
-//       queryFn: fetchSearch,
-//       meta: { params: getReferencesParams(id, 0) },
-//     });
-//     return {
-//       props: {
-//         dehydratedState: dehydrate(queryClient),
-//       },
-//     };
-//   } catch (err) {
-//     logger.error({ err, url: ctx.resolvedUrl }, 'Error fetching details');
-//     return {
-//       props: {
-//         pageError: parseAPIError(err),
-//       },
-//     };
-//   }
-// });

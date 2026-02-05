@@ -1,21 +1,22 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
+import { getCoreadsParams } from '@/api/search/models';
+import { useGetAbstract, useGetCoreads } from '@/api/search/search';
+import { AbstractRefList } from '@/components/AbstractRefList';
+import { EmptyStatePanel, StandardAlertMessage } from '@/components/Feedbacks';
 import { AbsLayout } from '@/components/Layout';
 import { ItemsSkeleton } from '@/components/ResultList';
-import { StandardAlertMessage } from '@/components/Feedbacks';
-import { parseAPIError } from '@/utils/common/parseAPIError';
-import { AbstractRefList } from '@/components/AbstractRefList';
-import { useGetAbstract, useGetCoreads } from '@/api/search/search';
-import { getCoreadsParams } from '@/api/search/models';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
-import { NumPerPageType } from '@/types';
+import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const CoreadsPage: NextPage = () => {
   const router = useRouter();
-  const { data: abstractDoc } = useGetAbstract({ id: router.query.id as string });
-  const doc = abstractDoc?.docs?.[0];
+  const id = router.query.id as string;
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
+
+  const { data: abstractDoc } = useGetAbstract({ id });
+  const doc = abstractDoc?.docs?.[0];
 
   const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
   const { rows } = getParams();
@@ -24,27 +25,35 @@ const CoreadsPage: NextPage = () => {
     ...getParams(),
     start: pageIndex * rows,
   });
-  const coreadsParams = getCoreadsParams(doc?.bibcode, 0, rows);
 
-  const handlePageSizeChange = (n: NumPerPageType) => {
-    onPageSizeChange(n);
-  };
+  const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);
+  const coreadsParams = getCoreadsParams(doc?.bibcode, 0, rows);
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers also read by those who read" label="Coreads">
       {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
-      {isError ? <StandardAlertMessage title={parseAPIError(error)} /> : null}
-      {isSuccess ? (
+      {isError && <StandardAlertMessage title={parseAPIError(error)} />}
+      {isEmpty && (
+        <EmptyStatePanel
+          title="No co-reads available"
+          description="Co-reads show papers frequently read alongside this one. Requires read activity data."
+          secondaryAction={{
+            label: 'Back to Abstract',
+            href: `/abs/${id}/abstract`,
+          }}
+        />
+      )}
+      {isSuccess && !isEmpty && (
         <AbstractRefList
           doc={doc}
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
           pageSize={rows}
-          onPageSizeChange={handlePageSizeChange}
+          onPageSizeChange={onPageSizeChange}
           searchLinkParams={coreadsParams}
         />
-      ) : null}
+      )}
     </AbsLayout>
   );
 };
@@ -52,26 +61,3 @@ const CoreadsPage: NextPage = () => {
 export default CoreadsPage;
 
 export const getServerSideProps = createAbsGetServerSideProps('coreads');
-// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-//   try {
-//     const { id } = ctx.params as { id: string };
-//     const queryClient = new QueryClient();
-//     await queryClient.prefetchQuery({
-//       queryKey: searchKeys.coreads({ bibcode: id, start: 0 }),
-//       queryFn: fetchSearch,
-//       meta: { params: getCoreadsParams(id, 0) },
-//     });
-//     return {
-//       props: {
-//         dehydratedState: dehydrate(queryClient),
-//       },
-//     };
-//   } catch (err) {
-//     logger.error({ err, url: ctx.resolvedUrl }, 'Error fetching details');
-//     return {
-//       props: {
-//         pageError: parseAPIError(err),
-//       },
-//     };
-//   }
-// });

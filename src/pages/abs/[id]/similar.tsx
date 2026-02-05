@@ -1,24 +1,23 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-
-import { path } from 'ramda';
-import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
+import { getSimilarParams } from '@/api/search/models';
+import { useGetAbstract, useGetSimilar } from '@/api/search/search';
+import { AbstractRefList } from '@/components/AbstractRefList';
+import { EmptyStatePanel, StandardAlertMessage } from '@/components/Feedbacks';
 import { AbsLayout } from '@/components/Layout';
 import { ItemsSkeleton } from '@/components/ResultList';
-import { StandardAlertMessage } from '@/components/Feedbacks';
-import { parseAPIError } from '@/utils/common/parseAPIError';
-import { AbstractRefList } from '@/components/AbstractRefList';
-import { useGetAbstract, useGetSimilar } from '@/api/search/search';
-import { IDocsEntity } from '@/api/search/types';
-import { getSimilarParams } from '@/api/search/models';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
-import { NumPerPageType } from '@/types';
+import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const SimilarPage: NextPage = () => {
   const router = useRouter();
-  const { data: abstractResult } = useGetAbstract({ id: router.query.id as string });
-  const doc = path<IDocsEntity>(['docs', 0], abstractResult);
+  const id = router.query.id as string;
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
+
+  const { data: abstractDoc } = useGetAbstract({ id });
+  const doc = abstractDoc?.docs?.[0];
+
   const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
   const { rows } = getParams();
 
@@ -27,27 +26,34 @@ const SimilarPage: NextPage = () => {
     start: pageIndex * rows,
   });
 
-  const handlePageSizeChange = (n: NumPerPageType) => {
-    onPageSizeChange(n);
-  };
-
+  const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);
   const similarParams = getSimilarParams(doc?.bibcode, 0, rows);
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers similar to" label="Similar Papers">
       {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
-      {isError ? <StandardAlertMessage title={parseAPIError(error)} /> : null}
-      {isSuccess ? (
+      {isError && <StandardAlertMessage title={parseAPIError(error)} />}
+      {isEmpty && (
+        <EmptyStatePanel
+          title="No similar papers found"
+          description="Similar papers are identified from the abstract text."
+          secondaryAction={{
+            label: 'Back to Abstract',
+            href: `/abs/${id}/abstract`,
+          }}
+        />
+      )}
+      {isSuccess && !isEmpty && (
         <AbstractRefList
           doc={doc}
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
           pageSize={rows}
-          onPageSizeChange={handlePageSizeChange}
+          onPageSizeChange={onPageSizeChange}
           searchLinkParams={similarParams}
         />
-      ) : null}
+      )}
     </AbsLayout>
   );
 };
@@ -55,26 +61,3 @@ const SimilarPage: NextPage = () => {
 export default SimilarPage;
 
 export const getServerSideProps = createAbsGetServerSideProps('similar');
-// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-//   try {
-//     const { id } = ctx.params as { id: string };
-//     const queryClient = new QueryClient();
-//     await queryClient.prefetchQuery({
-//       queryKey: searchKeys.similar({ bibcode: id, start: 0 }),
-//       queryFn: fetchSearch,
-//       meta: { params: getSimilarParams(id, 0) },
-//     });
-//     return {
-//       props: {
-//         dehydratedState: dehydrate(queryClient),
-//       },
-//     };
-//   } catch (err) {
-//     logger.error({ err, url: ctx.resolvedUrl }, 'Error fetching details');
-//     return {
-//       props: {
-//         pageError: parseAPIError(err),
-//       },
-//     };
-//   }
-// });
