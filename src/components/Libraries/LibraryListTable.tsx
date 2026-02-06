@@ -11,6 +11,7 @@ import {
   Box,
   Button,
   Center,
+  Checkbox,
   Flex,
   IconButton,
   Menu,
@@ -108,6 +109,7 @@ export interface ILibraryListTableProps extends TableProps {
   hideCols?: Column[];
   showDescription?: boolean;
   selected?: LibraryIdentifier[];
+  selectable?: boolean;
   onChangeSort: (sort: ILibraryListTableSort) => void;
   onChangePageIndex: (index: number) => void;
   onChangePageSize: (size: NumPerPageType) => void;
@@ -127,6 +129,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
     hideCols = [],
     showDescription = true,
     selected = [],
+    selectable = false,
     onChangeSort,
     onChangePageIndex,
     onChangePageSize,
@@ -189,7 +192,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
           <Table variant="simple" {...tableProps} data-testid="libraries-table">
             <Thead>
               <Tr>
-                {showIndex && !isMobile && <Th aria-label="index"></Th>}
+                {!isMobile && (selectable || showIndex) && <Th aria-label="index"></Th>}
                 {columns.map((column) => (
                   <Fragment key={`col-${column.id}`}>
                     {allHiddenCols.indexOf(column.id) === -1 && (
@@ -252,7 +255,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                     onClick={() => onLibrarySelect(id)}
                     tabIndex={0}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+                      if (e.key === 'Enter' || e.key === ' ') {
                         onLibrarySelect(id);
                       }
                     }}
@@ -262,7 +265,14 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                     color={selected.includes(id) ? colors.highlightForeground : colors.text}
                     style={{ backgroundColor: colors.highlightBackground, color: colors.highlightForeground }}
                   >
-                    {showIndex && !isMobile && <Td>{pageSize * pageIndex + index + 1}</Td>}
+                    {!isMobile && (selectable || showIndex) && (
+                      <Td>
+                        {showIndex && `${pageSize * pageIndex + index + 1} `}
+                        {selectable && (
+                          <Checkbox isChecked={selected.includes(id)} pointerEvents="none" tabIndex={-1} />
+                        )}
+                      </Td>
+                    )}
                     {allHiddenCols.indexOf('public') === -1 && (
                       <Td>
                         {isPublic ? (

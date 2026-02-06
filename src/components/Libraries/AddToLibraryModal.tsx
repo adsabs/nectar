@@ -252,7 +252,12 @@ const AddToExistingLibraryPane = ({
           <Text fontSize="sm">
             {selectedLibs.length === 0
               ? 'No libraries selected'
-              : `${selectedLibs.length} ${selectedLibs.length > 1 ? 'libraries' : 'library'} selected`}
+              : `${selectedLibs.length} ${selectedLibs.length > 1 ? 'libraries' : 'library'} selected`}{' '}
+            {selectedLibs.length > 0 && (
+              <Button size="sm" ml={2} variant="link" onClick={() => setSelectedLibs([])}>
+                remove all
+              </Button>
+            )}
           </Text>
           <LibraryListTable
             libraries={libraries}
@@ -264,6 +269,7 @@ const AddToExistingLibraryPane = ({
             showSettings={false}
             showDescription={false}
             hideCols={['public', 'num_users', 'permission', 'date_created']}
+            selectable
             selected={selectedLibs}
             onChangeSort={handleSortChange}
             onChangePageIndex={handlePageIndexChange}
