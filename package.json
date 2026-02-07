@@ -181,7 +181,7 @@
     "vite-tsconfig-paths": "^4.2.0",
     "vitest": "^0.34.5",
     "wait-on": "^8.0.5",
-    "webpack": "^5.94.0"
+    "webpack": "^5.104.1"
   },
   "volta": {
     "node": ">=v22.21.1",
