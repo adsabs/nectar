@@ -1,5 +1,6 @@
 import { ChevronDownIcon, Icon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import {
+  Badge,
   Box,
   BoxProps,
   Button,
@@ -12,6 +13,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Tag,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
@@ -21,6 +23,7 @@ import { HtmlFileIcon } from '@/components/icons/HtmlFileIcon';
 import { PdfFileIcon } from '@/components/icons/PdfFileIcon';
 import { SimpleLink } from '@/components/SimpleLink';
 import { AcademicCapIcon } from '@heroicons/react/24/solid';
+import { getAccessLabel, getGroupAccessLabel } from './accessLabel';
 import { IFullTextSource } from './types';
 import { Fragment } from 'react';
 import { Esources } from '@/api/search/types';
@@ -39,12 +42,12 @@ export type FullTextResourceType = {
 
 export interface IAbstractSourceItemsProps extends BoxProps {
   resources: AbstractResourceType[];
-  type: 'list' | 'menu'; // List is used in an accordion, menu is a button and dropdown style
+  type: 'list' | 'menu';
 }
 
 export interface IFullTextSourceItemsProps extends BoxProps {
   resources: FullTextResourceType[];
-  type: 'list' | 'menu'; // List is used in an accordion, menu is a button and dropdown style
+  type: 'list' | 'menu';
 }
 
 export const AbstractSourceItems = ({ resources, type, ...boxProps }: IAbstractSourceItemsProps) => {
@@ -92,18 +95,32 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
             <MenuList>
               {resources.map((group) => (
                 <Fragment key={group.label}>
-                  {group.links.map((link) => (
-                    <MenuItem key={link.rawType} as={SimpleLink} href={link.path} newTab>
-                      {link.rawType === Esources.INSTITUTION ? (
-                        <Icon as={AcademicCapIcon} mr={1} fontSize="2xl" />
-                      ) : link.open ? (
-                        <UnlockIcon color="green.600" mr={1} />
-                      ) : (
-                        <LockIcon mr={1} />
-                      )}
-                      {`${group.label} ${link.type.toLocaleUpperCase()}`}
-                    </MenuItem>
-                  ))}
+                  {group.links.map((link) => {
+                    const access = getAccessLabel(link.open, link.rawType);
+                    const typeLabel = link.type.toLocaleUpperCase();
+
+                    return (
+                      <MenuItem key={link.rawType} as={SimpleLink} href={link.path} newTab>
+                        {link.rawType === Esources.INSTITUTION ? (
+                          <Icon as={AcademicCapIcon} mr={1} boxSize={6} color="gray.600" />
+                        ) : link.open ? (
+                          <UnlockIcon color="green.600" mr={1} />
+                        ) : (
+                          <LockIcon mr={1} />
+                        )}
+                        <Flex direction="row" justifyContent="space-between" alignItems="center" flex={1}>
+                          <Text>
+                            {link.rawType === Esources.INSTITUTION ? group.label : `${group.label} ${typeLabel}`}
+                          </Text>
+                          {access && (
+                            <Tag size="sm" variant="subtle" colorScheme={access.colorScheme} ml={2}>
+                              {access.badge}
+                            </Tag>
+                          )}
+                        </Flex>
+                      </MenuItem>
+                    );
+                  })}
                 </Fragment>
               ))}
             </MenuList>
@@ -111,41 +128,69 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
         </Menu>
       ) : (
         <List variant="accordion">
-          {resources.map((group) => (
-            <ListItem key={group.label}>
-              <Flex direction="row" justifyContent="space-between">
-                <Text>{group.label}</Text>
-                <HStack>
-                  {group.links.map((link) => (
-                    <Tooltip
-                      label={`${group.label} ${link.type.toLocaleUpperCase()}`}
-                      shouldWrapChildren
-                      key={link.rawType}
-                    >
-                      <IconButton
-                        aria-label={`${group.label} ${link.type}`}
-                        icon={
-                          link.rawType === Esources.INSTITUTION ? (
-                            <Icon as={AcademicCapIcon} fontSize="2xl" />
-                          ) : link.type === 'pdf' ? (
-                            <PdfFileIcon fill={link.open ? 'green' : 'gray'} />
-                          ) : link.type === 'html' ? (
-                            <HtmlFileIcon fill={link.open ? 'green' : 'gray'} />
-                          ) : (
-                            <GenericFileIcon fill={link.open ? 'green' : 'gray'} />
-                          )
-                        }
-                        variant="unstyled"
-                        as={SimpleLink}
-                        href={link.path}
-                        newTab
-                      />
-                    </Tooltip>
-                  ))}
-                </HStack>
-              </Flex>
-            </ListItem>
-          ))}
+          {resources.map((group) => {
+            const access = getGroupAccessLabel(group.links);
+
+            return (
+              <ListItem key={group.label}>
+                <Flex direction="row" justifyContent="space-between" alignItems="center">
+                  <HStack spacing={2} minW={0}>
+                    <Text noOfLines={1}>{group.label}</Text>
+                    {access && (
+                      <Badge
+                        variant="subtle"
+                        colorScheme={access.colorScheme}
+                        borderRadius="full"
+                        px={2}
+                        py={0.5}
+                        fontSize="2xs"
+                        whiteSpace="nowrap"
+                        title={access.badge}
+                      >
+                        {access.badge}
+                      </Badge>
+                    )}
+                  </HStack>
+                  <HStack spacing={1}>
+                    {group.links.map((link) => {
+                      const linkAccess = getAccessLabel(link.open, link.rawType);
+                      const isInstitution = link.rawType === Esources.INSTITUTION;
+                      const accessText = isInstitution
+                        ? ''
+                        : linkAccess
+                        ? `${link.type.toLocaleUpperCase()} — ${linkAccess.badge}`
+                        : link.type.toLocaleUpperCase();
+                      const label = isInstitution ? group.label : `${group.label} ${accessText}`;
+
+                      return (
+                        <Tooltip label={label} shouldWrapChildren key={link.rawType}>
+                          <IconButton
+                            aria-label={label}
+                            icon={
+                              link.rawType === Esources.INSTITUTION ? (
+                                <Icon as={AcademicCapIcon} boxSize={6} color="gray.600" />
+                              ) : link.type === 'pdf' ? (
+                                <PdfFileIcon fill={link.open ? 'green' : 'gray'} />
+                              ) : link.type === 'html' ? (
+                                <HtmlFileIcon fill={link.open ? 'green' : 'gray'} />
+                              ) : (
+                                <GenericFileIcon fill={link.open ? 'green' : 'gray'} />
+                              )
+                            }
+                            variant="unstyled"
+                            as={SimpleLink}
+                            href={link.path}
+                            newTab
+                            size="xs"
+                          />
+                        </Tooltip>
+                      );
+                    })}
+                  </HStack>
+                </Flex>
+              </ListItem>
+            );
+          })}
         </List>
       )}
     </Box>

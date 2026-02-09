@@ -54,10 +54,8 @@ const docWithoutProperty = {
 
 describe('AbstractSources', () => {
   beforeEach(() => {
-    // Reset all handlers before each test
     server.resetHandlers();
 
-    // Add a default mock for export endpoint to prevent errors
     server.use(
       rest.get('/export/manifest', (req, res, ctx) => {
         return res(ctx.json([]));
@@ -74,7 +72,6 @@ describe('AbstractSources', () => {
   });
 
   test('makes associated request when property contains ASSOCIATED', async () => {
-    // Set up a spy on the resolver endpoint that only captures associated requests
     const resolverSpy = vi.fn();
     server.use(
       rest.get(apiHandlerRoute(ApiTargets.RESOLVER, '/:bibcode/associated'), (req, res, ctx) => {
@@ -92,7 +89,6 @@ describe('AbstractSources', () => {
 
     render(<AbstractSources doc={docWithAssociated} style="accordion" />);
 
-    // Wait for the component to make the API call
     await waitFor(() => {
       expect(resolverSpy).toHaveBeenCalledWith({
         bibcode: '2004AdM....16.2049S',
@@ -102,7 +98,6 @@ describe('AbstractSources', () => {
   });
 
   test('does NOT make associated request when property does not contain ASSOCIATED', async () => {
-    // Set up a spy on the resolver endpoint that only captures associated requests
     const resolverSpy = vi.fn();
     server.use(
       rest.get(apiHandlerRoute(ApiTargets.RESOLVER, '/:bibcode/associated'), (req, res, ctx) => {
@@ -120,15 +115,12 @@ describe('AbstractSources', () => {
 
     render(<AbstractSources doc={docWithoutAssociated} style="accordion" />);
 
-    // Wait a bit to ensure no API call is made
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    // Verify that no call to the associated endpoint was made
     expect(resolverSpy).not.toHaveBeenCalled();
   });
 
   test('does NOT make associated request when property field is undefined', async () => {
-    // Set up a spy on the resolver endpoint that only captures associated requests
     const resolverSpy = vi.fn();
     server.use(
       rest.get(apiHandlerRoute(ApiTargets.RESOLVER, '/:bibcode/associated'), (req, res, ctx) => {
@@ -146,10 +138,74 @@ describe('AbstractSources', () => {
 
     render(<AbstractSources doc={docWithoutProperty} style="accordion" />);
 
-    // Wait a bit to ensure no API call is made
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    // Verify that no call to the associated endpoint was made
     expect(resolverSpy).not.toHaveBeenCalled();
+  });
+
+  test('accordion shows "Available" badge for open sources', () => {
+    const doc = {
+      ...baseDoc,
+      esources: ['EPRINT_PDF'],
+      property: ['EPRINT_OPENACCESS'],
+      bibcode: '2004AdM....16.2049S',
+    } as IDocsEntity;
+
+    const { getByText, getByLabelText } = render(<AbstractSources doc={doc} style="accordion" />);
+
+    expect(getByText('Available')).toBeDefined();
+    expect(getByLabelText(/Preprint.*PDF.*Available/i)).toBeDefined();
+  });
+
+  test('accordion shows "Login required" badge for closed sources', () => {
+    const doc = {
+      ...baseDoc,
+      esources: ['PUB_HTML'],
+      property: [],
+      bibcode: '2004AdM....16.2049S',
+    } as IDocsEntity;
+
+    const { getByText, getByLabelText } = render(<AbstractSources doc={doc} style="accordion" />);
+
+    expect(getByText('Login required')).toBeDefined();
+    expect(getByLabelText(/Publisher.*HTML.*Login required/i)).toBeDefined();
+  });
+
+  test('menu shows "Available" tag for open sources', async () => {
+    const doc = {
+      ...baseDoc,
+      esources: ['EPRINT_PDF'],
+      property: ['EPRINT_OPENACCESS'],
+      bibcode: '2004AdM....16.2049S',
+    } as IDocsEntity;
+
+    const { getByRole, getByText } = render(<AbstractSources doc={doc} style="menu" />);
+
+    const button = getByRole('button', { name: /Full Text Sources/i });
+    button.click();
+
+    await waitFor(() => {
+      expect(getByText(/Preprint PDF/)).toBeDefined();
+      expect(getByText('Available')).toBeDefined();
+    });
+  });
+
+  test('menu shows "Login required" tag for closed sources', async () => {
+    const doc = {
+      ...baseDoc,
+      esources: ['PUB_HTML'],
+      property: [],
+      bibcode: '2004AdM....16.2049S',
+    } as IDocsEntity;
+
+    const { getByRole, getByText } = render(<AbstractSources doc={doc} style="menu" />);
+
+    const button = getByRole('button', { name: /Full Text Sources/i });
+    button.click();
+
+    await waitFor(() => {
+      expect(getByText(/Publisher HTML/)).toBeDefined();
+      expect(getByText('Login required')).toBeDefined();
+    });
   });
 });
