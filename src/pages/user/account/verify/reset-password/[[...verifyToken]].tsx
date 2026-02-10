@@ -35,7 +35,7 @@ const ResetPasswordPage: NextPage = () => {
   const { ref, ...passwordProps } = register('password', {
     required: true,
     validate: passwordValidators,
-    minLength: 4,
+    minLength: 8,
   });
 
   useEffect(() => {
