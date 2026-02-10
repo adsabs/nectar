@@ -12,13 +12,17 @@ import { useGetAbstract } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { useExportFormats } from '@/lib/useExportFormats';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { feedbackItems } from '@/components/NavBar';
+import { RecordNotFound } from '@/components/RecordNotFound';
 
 const ExportCitationPage: NextPage = () => {
   const router = useRouter();
 
   const { isValidFormat } = useExportFormats();
 
-  const { data } = useGetAbstract({ id: router.query.id as string });
+  const id = router.query.id as string;
+
+  const { data } = useGetAbstract({ id });
 
   const doc = path<IDocsEntity>(['docs', 0], data);
 
@@ -47,19 +51,29 @@ const ExportCitationPage: NextPage = () => {
           maxauthor: parseInt(settings.bibtexMaxAuthors, 10),
         };
 
+  const handleMissingRecordFeedback = () => {
+    void router.push({
+      pathname: feedbackItems.record.path,
+    });
+  };
+
   return (
     <AbsLayout doc={doc} titleDescription="Export citation for" label="Export Citations">
-      <Box pt="1">
-        <CitationExporter
-          initialFormat={format}
-          keyformat={keyformat}
-          journalformat={JournalFormatMap[journalformat]}
-          maxauthor={maxauthor}
-          authorcutoff={authorcutoff}
-          records={doc?.bibcode ? [doc.bibcode] : []}
-          singleMode
-        />
-      </Box>
+      {!doc ? (
+        <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
+      ) : (
+        <Box pt="1">
+          <CitationExporter
+            initialFormat={format}
+            keyformat={keyformat}
+            journalformat={JournalFormatMap[journalformat]}
+            maxauthor={maxauthor}
+            authorcutoff={authorcutoff}
+            records={doc?.bibcode ? [doc.bibcode] : []}
+            singleMode
+          />
+        </Box>
+      )}
     </AbsLayout>
   );
 };

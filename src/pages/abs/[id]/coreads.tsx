@@ -9,6 +9,8 @@ import { ItemsSkeleton } from '@/components/ResultList';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { feedbackItems } from '@/components/NavBar';
+import { RecordNotFound } from '@/components/RecordNotFound';
 
 const CoreadsPage: NextPage = () => {
   const router = useRouter();
@@ -29,30 +31,42 @@ const CoreadsPage: NextPage = () => {
   const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);
   const coreadsParams = getCoreadsParams(doc?.bibcode, 0, rows);
 
+  const handleMissingRecordFeedback = () => {
+    void router.push({
+      pathname: feedbackItems.record.path,
+    });
+  };
+
   return (
     <AbsLayout doc={doc} titleDescription="Papers also read by those who read" label="Coreads">
-      {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
-      {isError && <StandardAlertMessage title={parseAPIError(error)} />}
-      {isEmpty && (
-        <EmptyStatePanel
-          title="No co-reads available"
-          description="Co-reads show papers frequently read alongside this one. Requires read activity data."
-          secondaryAction={{
-            label: 'Back to Abstract',
-            href: `/abs/${id}/abstract`,
-          }}
-        />
-      )}
-      {isSuccess && !isEmpty && (
-        <AbstractRefList
-          doc={doc}
-          docs={data.docs}
-          totalResults={data.numFound}
-          onPageChange={onPageChange}
-          pageSize={rows}
-          onPageSizeChange={onPageSizeChange}
-          searchLinkParams={coreadsParams}
-        />
+      {!doc ? (
+        <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
+      ) : (
+        <>
+          {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
+          {isError && <StandardAlertMessage title={parseAPIError(error)} />}
+          {isEmpty && (
+            <EmptyStatePanel
+              title="No co-reads available"
+              description="Co-reads show papers frequently read alongside this one. Requires read activity data."
+              secondaryAction={{
+                label: 'Back to Abstract',
+                href: `/abs/${id}/abstract`,
+              }}
+            />
+          )}
+          {isSuccess && !isEmpty && (
+            <AbstractRefList
+              doc={doc}
+              docs={data.docs}
+              totalResults={data.numFound}
+              onPageChange={onPageChange}
+              pageSize={rows}
+              onPageSizeChange={onPageSizeChange}
+              searchLinkParams={coreadsParams}
+            />
+          )}
+        </>
       )}
     </AbsLayout>
   );

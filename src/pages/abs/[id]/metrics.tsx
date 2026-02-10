@@ -10,10 +10,13 @@ import { useGetAbstract } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetMetrics } from '@/api/metrics/metrics';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { feedbackItems } from '@/components/NavBar';
+import { RecordNotFound } from '@/components/RecordNotFound';
 
 const MetricsPage: NextPage = () => {
   const router = useRouter();
-  const { data } = useGetAbstract({ id: router.query.id as string });
+  const id = router.query.id as string;
+  const { data } = useGetAbstract({ id });
   const doc = path<IDocsEntity>(['docs', 0], data);
 
   const {
@@ -26,19 +29,33 @@ const MetricsPage: NextPage = () => {
   const hasCitations = isSuccess && metrics && metrics[MetricsResponseKey.CS][CitationsStatsKey.TNC] > 0;
   const hasReads = isSuccess && metrics && metrics[MetricsResponseKey.BS][BasicStatsKey.TNR] > 0;
 
+  const handleMissingRecordFeedback = () => {
+    void router.push({
+      pathname: feedbackItems.record.path,
+    });
+  };
+
   return (
     <AbsLayout doc={doc} titleDescription="Metrics for" label="Metrics">
-      {isError && (
-        <Box mt={5} fontSize="xl">
-          Unable to fetch metrics
-        </Box>
-      )}
-      {!isError && !isLoading && !hasCitations && !hasReads ? (
-        <Box mt={5} fontSize="xl">
-          No metrics data
-        </Box>
+      {!doc ? (
+        <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
       ) : (
-        <>{isLoading ? <LoadingMessage message="Loading" /> : <MetricsPane metrics={metrics} isAbstract={true} />} </>
+        <>
+          {isError && (
+            <Box mt={5} fontSize="xl">
+              Unable to fetch metrics
+            </Box>
+          )}
+          {!isError && !isLoading && !hasCitations && !hasReads ? (
+            <Box mt={5} fontSize="xl">
+              No metrics data
+            </Box>
+          ) : (
+            <>
+              {isLoading ? <LoadingMessage message="Loading" /> : <MetricsPane metrics={metrics} isAbstract={true} />}{' '}
+            </>
+          )}
+        </>
       )}
     </AbsLayout>
   );

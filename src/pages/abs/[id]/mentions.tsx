@@ -9,6 +9,8 @@ import { ItemsSkeleton } from '@/components/ResultList';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { feedbackItems } from '@/components/NavBar';
+import { RecordNotFound } from '@/components/RecordNotFound';
 
 const MentionsPage: NextPage = () => {
   const router = useRouter();
@@ -36,30 +38,42 @@ const MentionsPage: NextPage = () => {
   const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);
   const mentionsParams = getMentionsParams(doc?.bibcode, 0, rows);
 
+  const handleMissingRecordFeedback = () => {
+    void router.push({
+      pathname: feedbackItems.record.path,
+    });
+  };
+
   return (
     <AbsLayout doc={doc} titleDescription="Papers mentioned by" label="Mentions">
-      {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
-      {hasError && <StandardAlertMessage title={parseAPIError(hasError)} />}
-      {isEmpty && (
-        <EmptyStatePanel
-          title="No mentions found"
-          description="Papers mentioned by this record will appear here."
-          secondaryAction={{
-            label: 'Back to Abstract',
-            href: `/abs/${id}/abstract`,
-          }}
-        />
-      )}
-      {isSuccess && !isEmpty && (
-        <AbstractRefList
-          doc={doc}
-          docs={data.docs}
-          totalResults={data.numFound}
-          onPageChange={onPageChange}
-          pageSize={rows}
-          onPageSizeChange={onPageSizeChange}
-          searchLinkParams={mentionsParams}
-        />
+      {!doc ? (
+        <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
+      ) : (
+        <>
+          {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
+          {hasError && <StandardAlertMessage title={parseAPIError(hasError)} />}
+          {isEmpty && (
+            <EmptyStatePanel
+              title="No mentions found"
+              description="Papers mentioned by this record will appear here."
+              secondaryAction={{
+                label: 'Back to Abstract',
+                href: `/abs/${id}/abstract`,
+              }}
+            />
+          )}
+          {isSuccess && !isEmpty && (
+            <AbstractRefList
+              doc={doc}
+              docs={data.docs}
+              totalResults={data.numFound}
+              onPageChange={onPageChange}
+              pageSize={rows}
+              onPageSizeChange={onPageSizeChange}
+              searchLinkParams={mentionsParams}
+            />
+          )}
+        </>
       )}
     </AbsLayout>
   );

@@ -9,6 +9,8 @@ import { ItemsSkeleton } from '@/components/ResultList';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { RecordNotFound } from '@/components/RecordNotFound';
+import { feedbackItems } from '@/components/NavBar';
 
 const CitationsPage: NextPage = () => {
   const router = useRouter();
@@ -36,30 +38,42 @@ const CitationsPage: NextPage = () => {
   const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);
   const citationsParams = getCitationsParams(doc?.bibcode, 0, rows);
 
+  const handleMissingRecordFeedback = () => {
+    void router.push({
+      pathname: feedbackItems.record.path,
+    });
+  };
+
   return (
     <AbsLayout doc={doc} titleDescription="Papers that cite" label="Citations">
-      {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
-      {hasError && <StandardAlertMessage title={parseAPIError(hasError)} />}
-      {isEmpty && (
-        <EmptyStatePanel
-          title="No citations yet"
-          description="Papers that cite this work will appear here as they are indexed."
-          secondaryAction={{
-            label: 'Back to Abstract',
-            href: `/abs/${id}/abstract`,
-          }}
-        />
-      )}
-      {isSuccess && !isEmpty && (
-        <AbstractRefList
-          doc={doc}
-          docs={data.docs}
-          totalResults={data.numFound}
-          onPageChange={onPageChange}
-          pageSize={rows}
-          onPageSizeChange={onPageSizeChange}
-          searchLinkParams={citationsParams}
-        />
+      {!doc ? (
+        <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
+      ) : (
+        <>
+          {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
+          {hasError && <StandardAlertMessage title={parseAPIError(hasError)} />}
+          {isEmpty && (
+            <EmptyStatePanel
+              title="No citations yet"
+              description="Papers that cite this work will appear here as they are indexed."
+              secondaryAction={{
+                label: 'Back to Abstract',
+                href: `/abs/${id}/abstract`,
+              }}
+            />
+          )}
+          {isSuccess && !isEmpty && (
+            <AbstractRefList
+              doc={doc}
+              docs={data.docs}
+              totalResults={data.numFound}
+              onPageChange={onPageChange}
+              pageSize={rows}
+              onPageSizeChange={onPageSizeChange}
+              searchLinkParams={citationsParams}
+            />
+          )}
+        </>
       )}
     </AbsLayout>
   );
