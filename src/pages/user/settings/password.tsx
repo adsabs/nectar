@@ -64,7 +64,7 @@ const ChangePasswordPage = () => {
               autoComplete="new-password"
               {...register('password', {
                 required: true,
-                minLength: 4,
+                minLength: 8,
                 validate: passwordValidators,
               })}
             />

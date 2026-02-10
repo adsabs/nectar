@@ -53,7 +53,7 @@ export const PasswordRequirements = ({ password }: { password: string }) => {
       </Stack>
       <Stack dir="column">
         <Req message="One number." valid={dirty && passwordValidators.digit(password)} />
-        <Req message="At least 4 characters." valid={dirty && password.length >= 4} />
+        <Req message="At least 8 characters." valid={dirty && password.length >= 8} />
       </Stack>
     </Stack>
   );
