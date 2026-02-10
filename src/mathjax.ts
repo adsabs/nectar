@@ -1,13 +1,27 @@
 import { MathJax3Config, MathJaxContext } from 'better-react-mathjax';
-import { createElement, FC, ReactElement, useState, useCallback, Fragment } from 'react';
+import { createElement, FC, ReactElement, useState, useCallback, useMemo, Fragment } from 'react';
 import { logger } from './logger';
 import * as Sentry from '@sentry/nextjs';
 
-const config: MathJax3Config = {
+// Explicit fontURL prevents auto-detection failures in dynamically
+// loaded scripts that cause font-src CSP violations.
+const CDN_SOURCES = [
+  {
+    src: 'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js',
+    fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2',
+  },
+  {
+    src: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js',
+    fontURL: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2',
+  },
+];
+
+const buildConfig = (fontURL: string): MathJax3Config => ({
   startup: {
     elements: null,
     typeset: false,
   },
+  chtml: { fontURL },
   loader: { load: ['[tex]/html'] },
   tex: {
     packages: { '[+]': ['html'] },
@@ -21,22 +35,16 @@ const config: MathJax3Config = {
     ],
     processEscapes: true,
   },
-};
-
-// Multiple CDN sources for fallback
-const CDN_SOURCES = [
-  'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js',
-  'https://unpkg.com/mathjax@3.2.2/es5/tex-mml-chtml.js',
-];
+});
 
 export const MathJaxProvider: FC = ({ children }): ReactElement => {
   const [cdnIndex, setCdnIndex] = useState(0);
   const [hasError, setHasError] = useState(false);
+  const config = useMemo(() => buildConfig(CDN_SOURCES[cdnIndex].fontURL), [cdnIndex]);
 
   const handleError = useCallback(
     (error: unknown) => {
-      const currentCdn = CDN_SOURCES[cdnIndex];
+      const currentCdn = CDN_SOURCES[cdnIndex].src;
       logger.error({ error, cdn: currentCdn, cdnIndex }, 'MathJax failed to load from CDN');
 
       Sentry.captureException(error, {
@@ -48,13 +56,11 @@ export const MathJaxProvider: FC = ({ children }): ReactElement => {
         level: 'warning',
       });
 
-      // Try next CDN source if available
       if (cdnIndex < CDN_SOURCES.length - 1) {
-        logger.info({ nextCdn: CDN_SOURCES[cdnIndex + 1] }, 'Attempting to load MathJax from fallback CDN');
+        logger.info({ nextCdn: CDN_SOURCES[cdnIndex + 1].src }, 'Attempting to load MathJax from fallback CDN');
         setCdnIndex(cdnIndex + 1);
         setHasError(false);
       } else {
-        // All CDN sources failed
         logger.error('All MathJax CDN sources failed to load');
         Sentry.captureMessage('All MathJax CDN sources failed', {
           level: 'error',
@@ -71,11 +77,10 @@ export const MathJaxProvider: FC = ({ children }): ReactElement => {
 
   const handleLoad = useCallback(() => {
     if (cdnIndex > 0) {
-      logger.info({ cdn: CDN_SOURCES[cdnIndex], cdnIndex }, 'MathJax loaded successfully from fallback CDN');
+      logger.info({ cdn: CDN_SOURCES[cdnIndex].src, cdnIndex }, 'MathJax loaded successfully from fallback CDN');
     }
   }, [cdnIndex]);
 
-  // If all CDNs failed, render children without MathJax
   if (hasError) {
     logger.warn('Rendering without MathJax support due to CDN failures');
     return createElement(Fragment, null, children);
@@ -86,7 +91,7 @@ export const MathJaxProvider: FC = ({ children }): ReactElement => {
     {
       version: 3,
       config,
-      src: CDN_SOURCES[cdnIndex],
+      src: CDN_SOURCES[cdnIndex].src,
       onError: handleError,
       onLoad: handleLoad,
     },
