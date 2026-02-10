@@ -25,7 +25,7 @@ import {
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { useStore } from '@/store';
 
@@ -65,71 +65,39 @@ export const AddToLibraryModal = ({
   const toast = useToast();
 
   const handleAddToLibrary = (ids: LibraryIdentifier[]) => {
-    if (bibcodes?.length > 0 || selectedDocs?.length > 0) {
-      // add selected
-      for (let i = 0; i < ids.length; i++) {
-        const id = ids[i];
+    const promises =
+      bibcodes?.length > 0 || selectedDocs?.length > 0
+        ? ids.map((id) =>
+            editDocs({
+              id,
+              bibcode: bibcodes ?? selectedDocs,
+              action: 'add',
+            }),
+          )
+        : ids.map((id) =>
+            addDocsByQuery({
+              id,
+              params: { q: query.q },
+              action: 'add',
+            }),
+          );
 
-        editDocs(
-          {
-            id,
-            bibcode: bibcodes ?? selectedDocs,
-            action: 'add',
-          },
-          {
-            onSettled(data, error) {
-              if (error) {
-                toast({
-                  status: 'error',
-                  title: 'Error adding to library',
-                  description: parseAPIError(error),
-                });
-              } else {
-                toast({
-                  status: 'success',
-                  title: `${data.number_added} papers added to ${ids.length} ${
-                    id.length > 1 ? 'libraries' : 'library'
-                  } `,
-                });
-                clearSelections();
-                onClose(true);
-              }
-            },
-          },
-        );
-      }
-    } else {
-      for (let i = 0; i < ids.length; i++) {
-        const id = ids[i];
-        addDocsByQuery(
-          {
-            id,
-            params: { q: query.q },
-            action: 'add',
-          },
-          {
-            onSettled(data, error) {
-              if (data) {
-                toast({
-                  status: 'success',
-                  title: `${data.number_added} papers added to ${ids.length} ${
-                    id.length > 1 ? 'libraries' : 'library'
-                  }`,
-                });
-                clearSelections();
-                onClose(true);
-              } else if (error) {
-                toast({
-                  status: 'error',
-                  title: 'Error adding to library',
-                  description: parseAPIError(error),
-                });
-              }
-            },
-          },
-        );
-      }
-    }
+    Promise.all(promises).then(
+      () => {
+        toast({
+          status: 'success',
+          title: `Paper(s) added to ${ids.length > 1 ? 'libraries' : 'library'} `,
+        });
+        clearSelections();
+        onClose(true);
+      },
+      () => {
+        toast({
+          status: 'error',
+          title: 'Error adding to library',
+        });
+      },
+    );
   };
 
   return (
@@ -191,24 +159,19 @@ const AddToExistingLibraryPane = ({
 
   const [selectedLibs, setSelectedLibs] = useState<LibraryIdentifier[]>([]);
 
-  const { data: librariesData, isLoading: isLoadingLibraries } = useGetLibraries({
-    start: pageIndex * pageSize,
-    rows: pageSize,
-    sort: sort.col,
-    order: sort.dir,
-  });
+  const { data: librariesData, isLoading: isLoadingLibraries } = useGetLibraries(
+    {
+      start: pageIndex * pageSize,
+      rows: pageSize,
+      sort: sort.col,
+      order: sort.dir,
+    },
+    { staleTime: 0, cacheTime: 0 },
+  );
 
-  const libraries = useMemo(() => {
-    if (librariesData) {
-      return librariesData.libraries;
-    }
-  }, [librariesData]);
+  const libraries = librariesData?.libraries ?? [];
 
-  const entries = useMemo(() => {
-    if (librariesData) {
-      return librariesData.count;
-    }
-  }, [librariesData]);
+  const entries = librariesData?.count ?? 0;
 
   const handleSortChange = (sort: ILibraryListTableSort) => {
     setSort(sort);
