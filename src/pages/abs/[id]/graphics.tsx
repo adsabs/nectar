@@ -13,10 +13,13 @@ import { useGetGraphics } from '@/api/graphics/graphics';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { feedbackItems } from '@/components/NavBar';
+import { RecordNotFound } from '@/components/RecordNotFound';
 
 const GraphicsPage: NextPage = () => {
   const router = useRouter();
-  const { data } = useGetAbstract({ id: router.query.id as string });
+  const id = router.query.id as string;
+  const { data } = useGetAbstract({ id });
   const doc = path<IDocsEntity>(['docs', 0], data);
 
   const {
@@ -25,62 +28,75 @@ const GraphicsPage: NextPage = () => {
     isError,
     isSuccess,
   } = useGetGraphics(doc?.bibcode, { enabled: !!doc?.bibcode, keepPreviousData: true, retry: false });
+
+  const handleMissingRecordFeedback = () => {
+    void router.push({
+      pathname: feedbackItems.record.path,
+    });
+  };
+
   return (
     <AbsLayout doc={doc} titleDescription="Graphics from" label="Graphics">
-      {isError && (
-        <Box mt={5} fontSize="xl">
-          Unable to fetch graphics
-        </Box>
-      )}
-      {!isError && !isLoading && !graphics && (
-        <Center mt={10}>
-          <Flex direction="column" align="center" gap={4}>
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              w={{ base: 24, md: 28 }}
-              h={{ base: 24, md: 28 }}
-              borderRadius="full"
-              bg="gray.100"
-              color="gray.400"
-              boxShadow="inner"
-              role="img"
-              aria-label="No graphics available"
-            >
-              <FontAwesomeIcon icon={faImage} size="2x" aria-hidden="true" />
-            </Box>
-            <Text fontSize="lg" color="gray.500">
-              No graphics available
-            </Text>
-          </Flex>
-        </Center>
-      )}
-      {isLoading && <LoadingMessage message="Loading" />}
-      {isSuccess && graphics && (
+      {!doc ? (
+        <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
+      ) : (
         <>
-          <Box dangerouslySetInnerHTML={{ __html: graphics.header }}></Box>
-          <Flex wrap="wrap">
-            {graphics.figures.map((figure) => {
-              return (
-                <Flex
-                  key={figure.figure_label}
-                  direction="column"
+          {isError && (
+            <Box mt={5} fontSize="xl">
+              Unable to fetch graphics
+            </Box>
+          )}
+          {!isError && !isLoading && !graphics && (
+            <Center mt={10}>
+              <Flex direction="column" align="center" gap={4}>
+                <Box
+                  display="flex"
                   alignItems="center"
-                  borderWidth={1}
-                  borderColor="gray.100"
-                  borderRadius="md"
-                  p={2}
-                  m={2}
-                  as={SimpleLink}
-                  href={figure.images[0].highres}
+                  justifyContent="center"
+                  w={{ base: 24, md: 28 }}
+                  h={{ base: 24, md: 28 }}
+                  borderRadius="full"
+                  bg="gray.100"
+                  color="gray.400"
+                  boxShadow="inner"
+                  role="img"
+                  aria-label="No graphics available"
                 >
-                  <NextImage src={figure.images[0].thumbnail} width="150" height="150" alt={figure.figure_label} />
-                  <Box aria-hidden="true">{figure.figure_label}</Box>
-                </Flex>
-              );
-            })}
-          </Flex>
+                  <FontAwesomeIcon icon={faImage} size="2x" aria-hidden="true" />
+                </Box>
+                <Text fontSize="lg" color="gray.500">
+                  No graphics available
+                </Text>
+              </Flex>
+            </Center>
+          )}
+          {isLoading && <LoadingMessage message="Loading" />}
+          {isSuccess && graphics && (
+            <>
+              <Box dangerouslySetInnerHTML={{ __html: graphics.header }}></Box>
+              <Flex wrap="wrap">
+                {graphics.figures.map((figure) => {
+                  return (
+                    <Flex
+                      key={figure.figure_label}
+                      direction="column"
+                      alignItems="center"
+                      borderWidth={1}
+                      borderColor="gray.100"
+                      borderRadius="md"
+                      p={2}
+                      m={2}
+                      as={SimpleLink}
+                      href={figure.images[0].highres}
+                    >
+                      <NextImage src={figure.images[0].thumbnail} width="150" height="150" alt={figure.figure_label} />
+                      <Box aria-hidden="true">{figure.figure_label}</Box>
+                    </Flex>
+                  );
+                })}
+              </Flex>
+            </>
+          )}
         </>
       )}
     </AbsLayout>
