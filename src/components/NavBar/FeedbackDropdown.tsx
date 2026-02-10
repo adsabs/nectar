@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { HStack, List, ListItem, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { Fragment, MouseEvent, ReactElement } from 'react';
+import { MouseEvent, ReactElement } from 'react';
 import { ListType } from './types';
 
 export const feedbackItems = {
@@ -37,7 +37,7 @@ interface IFeedbackDropdownProps {
  * `from` query parameter (with any existing `from` stripped).
  */
 const buildHref = (path: string, asPath: string): string => {
-  const cleaned = asPath.replace(/from=[^&]+(&|$)/, '');
+  const cleaned = asPath.replace(/from=[^&]+(&|$)/, '').replace(/[?&]$/, '');
   return `${path}?from=${encodeURIComponent(cleaned)}`;
 };
 
@@ -77,17 +77,15 @@ export const FeedbackDropdown = (props: IFeedbackDropdownProps): ReactElement =>
   ) : (
     <List variant="navbar" role="menu">
       {items.map((item) => (
-        <Fragment key={item.id}>
-          <ListItem role="menuitem" id={`feedback-item-${item.id}`}>
-            <a
-              href={buildHref(item.path, router.asPath)}
-              onClick={handleAccordionClick}
-              style={{ display: 'block', width: '100%' }}
-            >
-              {item.label}
-            </a>
-          </ListItem>
-        </Fragment>
+        <ListItem key={item.id} role="menuitem" id={`feedback-item-${item.id}`}>
+          <a
+            href={buildHref(item.path, router.asPath)}
+            onClick={handleAccordionClick}
+            style={{ display: 'block', width: '100%' }}
+          >
+            {item.label}
+          </a>
+        </ListItem>
       ))}
     </List>
   );

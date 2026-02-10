@@ -91,8 +91,8 @@ describe('FeedbackDropdown', () => {
 
       // The "from" value should not contain the original from param
       expect(href).not.toContain('from=%2Fabs%2F1234');
-      // It should contain the cleaned path
-      expect(href).toContain(`from=${encodeURIComponent('/search?q=star&')}`);
+      // It should contain the cleaned path (trailing & stripped)
+      expect(href).toContain(`from=${encodeURIComponent('/search?q=star')}`);
     });
   });
 
