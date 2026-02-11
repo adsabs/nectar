@@ -240,7 +240,11 @@ const Carousel = (props: { onSelectExample: (text: string) => void }) => {
               />
               <Text fontSize="xl">
                 SciX covers and unifies the fields of Earth science, planetary science, astrophysics, heliophysics, and
-                the NASA-funded biological and physical sciences. <SimpleLink href="/home">Learn More</SimpleLink>.
+                the NASA-funded biological and physical sciences.{' '}
+                <SimpleLink href="/home" fontWeight="semibold">
+                  Learn More
+                </SimpleLink>
+                .
               </Text>
             </Stack>
           ),
@@ -416,7 +420,10 @@ const IntroVideoSection = () => {
       <Text fontSize="lg">
         The team behind the NASA Astrophysics Data System (ADS) has officially launched SciX, a powerful modern
         interface to our dramatically expanded database.{' '}
-        <SimpleLink href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29">
+        <SimpleLink
+          href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29"
+          fontWeight="semibold"
+        >
           Watch our launch video here
         </SimpleLink>
         .
