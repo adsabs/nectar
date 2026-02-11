@@ -129,7 +129,6 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
       <PopoverAnchor>
         <InputGroup
           display="flex"
-          aria-labelledby="search-box-label"
           sx={{
             '&:has(input:focus)': {
               boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.6)',
@@ -140,6 +139,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
           <VisuallyHidden id="search-box-label">Search Database</VisuallyHidden>
           <InputGroup>
             <Input
+              aria-labelledby="search-box-label"
               ref={refs}
               type="search"
               role="combobox"
