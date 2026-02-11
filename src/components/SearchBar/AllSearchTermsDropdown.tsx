@@ -177,6 +177,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
           },
         })}
         data-testid="allSearchTermsMenu"
+        style={{ display: isOpen ? 'block' : 'none' }}
       >
         {isOpen &&
           items.map((term, index) => (
