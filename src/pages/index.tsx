@@ -167,11 +167,9 @@ const HomePage: NextPage = () => {
   );
 
   return (
-    <Flex direction="column" aria-labelledby="form-title" my={8} alignItems="center" w="full">
+    <Flex direction="column" my={8} alignItems="center" w="full">
       <form method="get" action="/search" onSubmit={handleOnSubmit}>
-        <VisuallyHidden as="h2" id="form-title">
-          Modern Search Form
-        </VisuallyHidden>
+        <VisuallyHidden as="h2">Modern Search Form</VisuallyHidden>
         <Flex direction="column">
           <Box my={2}>
             <SearchBar isLoading={isLoading} query={query} queryAddition={queryAddition} />
