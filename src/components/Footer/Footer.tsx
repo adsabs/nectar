@@ -60,7 +60,7 @@ export const Footer: FC = () => {
           </SimpleLink>
         </HStack>
 
-        <Text fontStyle="italic" fontSize="xx-small">
+        <Text fontSize="xx-small">
           *The material contained in this document is based upon work supported by a National Aeronautics and Space
           Administration (NASA) grant or cooperative agreement. Any opinions, findings, conclusions or recommendations
           expressed in this material are those of the author and do not necessarily reflect the views of NASA.
