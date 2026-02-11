@@ -352,28 +352,28 @@ const Stats = () => {
         <StatLabel color="brand.200">
           <Icon as={FolderIcon} w={{ base: 10, md: 50 }} h={{ base: 10, md: 50 }} />
         </StatLabel>
-        <StatNumber color="brand.200">30M+</StatNumber>
+        <StatNumber>30M+</StatNumber>
         <StatHelpText>Scientific Documents</StatHelpText>
       </Stat>
       <Stat textAlign="center">
         <StatLabel color="brand.300">
           <Icon as={ChatBubbleBottomCenterIcon} w={{ base: 10, md: 50 }} h={{ base: 10, md: 50 }} />
         </StatLabel>
-        <StatNumber color="brand.300">300M+</StatNumber>
+        <StatNumber>300M+</StatNumber>
         <StatHelpText>Citations</StatHelpText>
       </Stat>
       <Stat textAlign="center">
         <StatLabel color="brand.400">
           <Icon as={DocumentIcon} w={{ base: 10, md: 50 }} h={{ base: 10, md: 50 }} />
         </StatLabel>
-        <StatNumber color="brand.400">~8000</StatNumber>
+        <StatNumber>~8000</StatNumber>
         <StatHelpText>Peer Reviewed Journals</StatHelpText>
       </Stat>
       <Stat textAlign="center">
         <StatLabel color="brand.500">
           <Icon as={UserIcon} w={{ base: 10, md: 50 }} h={{ base: 10, md: 50 }} />
         </StatLabel>
-        <StatNumber color="brand.500">16M+</StatNumber>
+        <StatNumber>16M+</StatNumber>
         <StatHelpText>Annual Users</StatHelpText>
       </Stat>
     </StatGroup>
@@ -436,7 +436,6 @@ const FloatingIntroLink = () => {
   return (
     <SimpleLink href="/home" style={{ textDecoration: 'none' }}>
       <Button
-        bgColor="brand.200"
         size="sm"
         position="fixed"
         bottom="4"
