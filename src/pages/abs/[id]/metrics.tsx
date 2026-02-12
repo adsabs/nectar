@@ -12,8 +12,9 @@ import { useGetMetrics } from '@/api/metrics/metrics';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { feedbackItems } from '@/components/NavBar';
 import { RecordNotFound } from '@/components/RecordNotFound';
+import { ServiceUnavailable } from '@/components/ServiceUnavailable';
 
-const MetricsPage: NextPage = () => {
+const MetricsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
   const router = useRouter();
   const id = router.query.id as string;
   const { data } = useGetAbstract({ id });
@@ -37,7 +38,9 @@ const MetricsPage: NextPage = () => {
 
   return (
     <AbsLayout doc={doc} titleDescription="Metrics for" label="Metrics">
-      {!doc ? (
+      {!doc && statusCode !== undefined && statusCode >= 500 ? (
+        <ServiceUnavailable recordId={id || 'N/A'} statusCode={statusCode} />
+      ) : !doc ? (
         <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
       ) : (
         <>

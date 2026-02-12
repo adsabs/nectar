@@ -11,8 +11,9 @@ import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { feedbackItems } from '@/components/NavBar';
 import { RecordNotFound } from '@/components/RecordNotFound';
+import { ServiceUnavailable } from '@/components/ServiceUnavailable';
 
-const CreditsPage: NextPage = () => {
+const CreditsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
   const router = useRouter();
   const id = router.query.id as string;
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
@@ -46,7 +47,9 @@ const CreditsPage: NextPage = () => {
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers that credited" label="Credits">
-      {!doc ? (
+      {!doc && statusCode !== undefined && statusCode >= 500 ? (
+        <ServiceUnavailable recordId={id || 'N/A'} statusCode={statusCode} />
+      ) : !doc ? (
         <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
       ) : (
         <>

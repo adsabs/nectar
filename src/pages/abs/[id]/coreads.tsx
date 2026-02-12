@@ -11,8 +11,9 @@ import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { feedbackItems } from '@/components/NavBar';
 import { RecordNotFound } from '@/components/RecordNotFound';
+import { ServiceUnavailable } from '@/components/ServiceUnavailable';
 
-const CoreadsPage: NextPage = () => {
+const CoreadsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
   const router = useRouter();
   const id = router.query.id as string;
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
@@ -39,7 +40,9 @@ const CoreadsPage: NextPage = () => {
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers also read by those who read" label="Coreads">
-      {!doc ? (
+      {!doc && statusCode !== undefined && statusCode >= 500 ? (
+        <ServiceUnavailable recordId={id || 'N/A'} statusCode={statusCode} />
+      ) : !doc ? (
         <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
       ) : (
         <>
