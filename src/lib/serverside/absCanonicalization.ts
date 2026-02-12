@@ -19,6 +19,7 @@ type AbsProps = {
   initialDoc?: IDocsEntity | null;
   isAuthenticated?: boolean;
   pageError?: string;
+  statusCode?: number;
 };
 
 type IncomingGSSPResult = GetServerSidePropsResult<AbsProps>;
@@ -96,7 +97,7 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
         context: { bootstrapError: bootstrapResult.error, url: ctx.resolvedUrl },
         tags: { feature: 'abs-canonical', stage: 'bootstrap' },
       });
-      return { props: { pageError: bootstrapResult.error, initialDoc: null } };
+      return { props: { pageError: bootstrapResult.error, initialDoc: null, statusCode: 500 } };
     }
 
     const params = getAbstractParams(requestedId);
@@ -127,6 +128,7 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
           props: {
             pageError: 'Failed to load abstract data',
             initialDoc: null,
+            statusCode: response.status,
           },
         };
       }
@@ -166,6 +168,7 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
         props: {
           pageError: 'Failed to load abstract data',
           initialDoc: null,
+          statusCode: 500,
         },
       };
     }
