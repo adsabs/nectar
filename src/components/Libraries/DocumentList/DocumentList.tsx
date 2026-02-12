@@ -75,7 +75,7 @@ export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
       id="results"
       {...divProps}
     >
-      <VisuallyHidden as="h2" id="results-title">
+      <VisuallyHidden as="h3" id="results-title">
         Results
       </VisuallyHidden>
       {docs.map((doc, index) => (

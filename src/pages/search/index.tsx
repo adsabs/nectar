@@ -301,7 +301,7 @@ const SearchPage: NextPage = () => {
       <Head>
         <title>{`${params.q} - ${BRAND_NAME_FULL} Search`}</title>
       </Head>
-      <Stack direction="column" aria-labelledby="search-form-title" spacing={10}>
+      <Stack direction="column" spacing={10}>
         <HideOnPrint pt={10}>
           <form method="get" action="/search" onSubmit={handleOnSubmit}>
             <Flex direction="column" width="full">

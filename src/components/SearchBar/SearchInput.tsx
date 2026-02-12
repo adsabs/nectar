@@ -144,7 +144,6 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
               type="search"
               role="combobox"
               placeholder="Search..."
-              aria-label="Search"
               title="Search"
               id="tour-search-input"
               maxLength={SEARCHBAR_MAX_LENGTH}
@@ -153,6 +152,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
               aria-owns="search-listbox"
               aria-haspopup="listbox"
               aria-expanded={state.isOpen}
+              aria-controls="search-listbox"
               aria-autocomplete="list"
               aria-activedescendant={state.focused > -1 ? `search-item-${state.focused}` : undefined}
               autoFocus

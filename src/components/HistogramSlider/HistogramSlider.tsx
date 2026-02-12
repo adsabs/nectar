@@ -65,7 +65,6 @@ export const HistogramSlider = ({
         <>{range[0]}</>
       ) : (
         <Slider
-          aria-label="histogram slider"
           range={range}
           values={values}
           onUpdate={handleUpdateValues}
