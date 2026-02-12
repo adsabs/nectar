@@ -14,6 +14,7 @@ import { useGetAuthors } from '@/components/AllAuthorsModal/useGetAuthors';
 import { OrcidActiveIcon } from '@/components/icons/Orcid';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { RecordNotFound } from '@/components/RecordNotFound';
+import { ServiceUnavailable } from '@/components/ServiceUnavailable';
 import { feedbackItems, getAbstractSteps } from '@/components/NavBar';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { AbstractSources } from '@/components/AbstractSources';
@@ -55,9 +56,10 @@ const safeDecode = (value?: string) => {
 interface AbstractPageProps {
   initialDoc?: IDocsEntity | null;
   isAuthenticated?: boolean;
+  statusCode?: number;
 }
 
-const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated }) => {
+const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated, statusCode }) => {
   const router = useRouter();
   const { data } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], data) ?? initialDoc ?? undefined;
@@ -86,7 +88,9 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
   return (
     <AbsLayout doc={doc} titleDescription={''} label="Abstract">
       <Box as="article" aria-labelledby="title">
-        {!doc ? (
+        {!doc && statusCode !== undefined && statusCode >= 500 ? (
+          <ServiceUnavailable recordId={identifier || 'N/A'} statusCode={statusCode} />
+        ) : !doc ? (
           <RecordNotFound recordId={identifier || 'N/A'} onFeedback={handleFeedback} />
         ) : (
           <Stack direction="column" gap={2}>
