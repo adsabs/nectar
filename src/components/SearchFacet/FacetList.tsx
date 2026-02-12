@@ -548,6 +548,8 @@ export const ExpandButton = (props: { isExpanded: boolean; onExpand: () => void 
       onClick={onExpand}
       data-testid="search-facet-expand"
       tabIndex={-1}
+      aria-hidden
+      aria-label=""
     />
   );
 };

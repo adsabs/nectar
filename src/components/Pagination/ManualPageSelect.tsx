@@ -80,7 +80,7 @@ export const ManualPageSelect = ({
     >
       <PopoverTrigger>
         <Button
-          aria-label={`current page is ${currentPage}, update page`}
+          aria-label={`${currentPage} of ${totalPages}, update page`}
           variant="pageBetween"
           data-testid="pagination-select-page"
           isDisabled={isDisabled}

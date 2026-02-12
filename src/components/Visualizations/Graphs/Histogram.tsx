@@ -65,6 +65,8 @@ export const Histogram = ({
       d3.selectAll('.histogram-tooltip').remove();
 
       svg.classed('histogram-svg', true);
+      svg.attr('role', 'img');
+      svg.attr('aria-label', 'histogram of results by year');
 
       // append the svg object to the body of the page
       const g = svg

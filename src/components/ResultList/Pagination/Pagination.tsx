@@ -110,7 +110,7 @@ export const Pagination = (props: PaginationProps): ReactElement => {
    */
   const perPageChangeHandler = useCallback(
     ({ value }: SelectOption) => {
-      const numPerPage = parseInt(value, 10) as typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
+      const numPerPage = parseInt(value, 10) as (typeof APP_DEFAULTS)['PER_PAGE_OPTIONS'][number];
       if (typeof onPerPageSelect === 'function') {
         onPerPageSelect(numPerPage);
       }
@@ -344,7 +344,7 @@ const ManualPageSelect = ({
     >
       <PopoverTrigger>
         <Button
-          aria-label={`current page is ${currentPage}, update page`}
+          aria-label={`${currentPage} of ${totalPages} , update page`}
           variant="pageBetween"
           data-testid="pagination-select-page"
         >
