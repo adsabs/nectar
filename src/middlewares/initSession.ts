@@ -7,8 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import setCookie from 'set-cookie-parser';
 import { botCheck } from '@/middlewares/botCheck';
 import { createErrorHandler, ErrorSource } from '@/lib/errorHandler.edge';
-import { TRACING_HEADERS } from '@/config';
-import { sanitizeHeaderValue } from '@/utils/logging';
+import { pickTracingHeadersEdge } from '@/utils/tracing.edge';
 
 const log = edgeLogger.child({}, { msgPrefix: '[initSession] ' });
 const handleMiddlewareError = createErrorHandler({
@@ -213,13 +212,7 @@ export const initSession = async (req: NextRequest, res: NextResponse, session: 
   const testHeaders = testScenario ? { 'x-test-scenario': testScenario } : undefined;
 
   // extract tracing headers from the request
-  const tracingHeaders = TRACING_HEADERS.reduce((acc, key) => {
-    const value = req.headers.get(key);
-    if (value) {
-      acc[key] = sanitizeHeaderValue(value);
-    }
-    return acc;
-  }, {} as Record<string, string>);
+  const tracingHeaders = pickTracingHeadersEdge(req.headers);
 
   // bootstrap a new token, passing in the current session cookie value and tracing headers
   const bootstrapResult = await bootstrap(adsSessionCookie, testHeaders, tracingHeaders);
