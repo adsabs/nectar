@@ -98,6 +98,25 @@ describe('verifyMiddleware', () => {
     expect((res as NextResponse).headers.get('location')).toContain('notify=verify-account-failed');
   });
 
+  it('forwards tracing headers to the verify API', async () => {
+    const session = makeSession();
+    const fetchSpy = mockFetch({ message: 'success' });
+    const req = new NextRequest('https://example.com/user/account/verify/change-email/tok', {
+      headers: {
+        cookie: `${cookieName}=cookie-value`,
+        'X-Amzn-Trace-Id': 'Root=1-abc-def',
+        'X-Forwarded-For': '10.0.0.1',
+      },
+    });
+
+    await verifyMiddleware(req, NextResponse.next(), session);
+
+    const fetchCall = fetchSpy.mock.calls[0];
+    const headers = fetchCall[1].headers;
+    expect(headers.get('X-Amzn-Trace-Id')).toBe('Root=1-abc-def');
+    expect(headers.get('X-Forwarded-For')).toBe('10.0.0.1');
+  });
+
   describe('msw contract coverage', () => {
     it('calls the verify API with bearer and session cookie and forwards Set-Cookie', async () => {
       const setCookieValue = `${cookieName}=verified; Domain=example.com; Secure; Path=/; SameSite=None; HttpOnly`;
