@@ -1,3 +1,4 @@
+import { IncomingHttpHeaders } from 'node:http';
 import { IronSessionOptions } from 'iron-session';
 import { SolrSort } from '@/api/models';
 
@@ -77,3 +78,20 @@ export const EXTERNAL_URLS = {
 };
 
 export const TRACING_HEADERS = ['X-Original-Uri', 'X-Original-Forwarded-For', 'X-Forwarded-For', 'X-Amzn-Trace-Id'];
+
+/**
+ * Extracts tracing headers from Node.js IncomingHttpHeaders.
+ *
+ * IncomingMessage lowercases all header keys, but downstream services
+ * expect the canonical casing. This function matches case-insensitively
+ * and returns headers with the original TRACING_HEADERS key casing.
+ */
+export const pickTracingHeaders = (headers: IncomingHttpHeaders): Record<string, string> => {
+  return TRACING_HEADERS.reduce<Record<string, string>>((acc, key) => {
+    const value = headers[key.toLowerCase()];
+    if (typeof value === 'string') {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+};
