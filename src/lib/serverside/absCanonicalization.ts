@@ -6,6 +6,7 @@ import { searchKeys } from '@/api/search/search';
 import { getAbstractParams } from '@/api/search/models';
 import { IADSApiSearchResponse, IDocsEntity } from '@/api/search/types';
 import { stringifySearchParams } from '@/utils/common/search';
+import { pickTracingHeaders } from '@/config';
 import { bootstrap } from './bootstrap';
 import { logger } from '@/logger';
 import { composeNextGSSP } from '@/ssr-utils';
@@ -107,8 +108,12 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
     const queryClient = new QueryClient();
 
     try {
+      const tracingHeaders = pickTracingHeaders(ctx.req.headers);
       const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${bootstrapResult.token.access_token}` },
+        headers: {
+          Authorization: `Bearer ${bootstrapResult.token.access_token}`,
+          ...tracingHeaders,
+        },
       });
 
       if (!response.ok) {
