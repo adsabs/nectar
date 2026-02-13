@@ -281,6 +281,7 @@ describe('middleware route integration', () => {
     await middleware(req);
     expect(fetchSpy).toHaveBeenCalledWith('https://base.example.com/link_gateway/123%2F456/abstract', {
       method: 'GET',
+      headers: expect.any(Object),
     });
     fetchSpy.mockRestore();
   });

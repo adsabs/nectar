@@ -10,6 +10,7 @@ import { ErrorSource, handleError } from '@/lib/errorHandler.edge';
 import { getUserLogId, sanitizeHeaderValue } from '@/utils/logging';
 import { mapPathToDisciplineParam } from '@/utils/appMode';
 import { isFromLegacyApp } from '@/utils/legacyAppDetection';
+import { pickTracingHeadersEdge } from '@/utils/tracing.edge';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
@@ -264,7 +265,10 @@ const emitAnalytics = async (req: NextRequest): Promise<void> => {
 
     try {
       const startTime = Date.now();
-      const response = await fetch(url, { method: 'GET' });
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: pickTracingHeadersEdge(req.headers),
+      });
       const duration = Date.now() - startTime;
 
       if (response.ok) {
