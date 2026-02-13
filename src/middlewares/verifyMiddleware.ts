@@ -4,6 +4,7 @@ import { edgeLogger } from '@/logger';
 import { ApiTargets } from '@/api/models';
 import { IVerifyAccountResponse } from '@/api/user/types';
 import { createErrorHandler, ErrorSource, ErrorSeverity } from '@/lib/errorHandler.edge';
+import { pickTracingHeadersEdge } from '@/utils/tracing.edge';
 import setCookie from 'set-cookie-parser';
 
 const log = edgeLogger.child({}, { msgPrefix: '[verifyMiddleware] ' });
@@ -62,6 +63,12 @@ export const verifyMiddleware = async (req: NextRequest, res: NextResponse, sess
       if (testScenario) {
         headers.set('x-test-scenario', testScenario);
       }
+
+      // Forward tracing headers for distributed tracing
+      const tracingHeaders = pickTracingHeadersEdge(req.headers);
+      Object.entries(tracingHeaders).forEach(([key, value]) => {
+        headers.set(key, value);
+      });
 
       const result = await fetch(url, {
         method: 'GET',
