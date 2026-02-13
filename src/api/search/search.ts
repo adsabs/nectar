@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { omit, pick } from 'ramda';
+import { omit } from 'ramda';
 import {
   MutationFunction,
   QueryFunction,
@@ -32,7 +32,7 @@ import {
 import { resolveObjectQuery, resolveObjectQuerySSR } from '@/api/objects/objects';
 import { GetServerSidePropsContext } from 'next';
 import { defaultRequestConfig } from '../config';
-import { APP_DEFAULTS, TRACING_HEADERS } from '@/config';
+import { APP_DEFAULTS, pickTracingHeaders } from '@/config';
 import { isString } from '@/utils/common/guards';
 import { IADSApiSearchParams, IADSApiSearchResponse, IBigQueryMutationParams, IDocsEntity } from '@/api/search/types';
 import { ADSMutation, ADSQuery, InfiniteADSQuery } from '@/api/types';
@@ -548,7 +548,7 @@ export const fetchSearchSSR = async (
     headers: {
       ...defaultRequestConfig.headers,
       Authorization: `Bearer ${token}`,
-      ...pick(TRACING_HEADERS, ctx.req.headers),
+      ...pickTracingHeaders(ctx.req.headers),
     },
   };
 
