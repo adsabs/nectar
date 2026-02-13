@@ -150,6 +150,38 @@ describe('createAbsGetServerSideProps', () => {
     );
   });
 
+  it('forwards tracing headers to the search API', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        response: { docs: [{ bibcode: 'BIB' }] },
+      }),
+    });
+
+    const ctx = buildCtx({
+      id: 'BIB',
+      resolvedUrl: '/abs/BIB/abstract',
+    });
+    // Simulate lowercase IncomingHttpHeaders (as Node.js delivers them)
+    (ctx.req.headers as Record<string, string>) = {
+      'x-amzn-trace-id': 'Root=1-abc-def',
+      'x-forwarded-for': '10.0.0.1',
+    };
+
+    const gssp = createAbsGetServerSideProps('abstract');
+    await gssp(ctx);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          'X-Amzn-Trace-Id': 'Root=1-abc-def',
+          'X-Forwarded-For': '10.0.0.1',
+        }),
+      }),
+    );
+  });
+
   it('does not redirect when no docs are returned', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
