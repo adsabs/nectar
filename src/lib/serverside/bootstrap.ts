@@ -1,5 +1,5 @@
 import { getIronSession } from 'iron-session/edge';
-import { sessionConfig } from '@/config';
+import { pickTracingHeaders, sessionConfig } from '@/config';
 import { IncomingMessage, ServerResponse } from 'node:http';
 import { isTokenExpired, pickUserData } from '@/auth-utils';
 import { ApiTargets } from '@/api/models';
@@ -16,8 +16,14 @@ export const bootstrap = async (req: IncomingMessage, res: ServerResponse) => {
   }
 
   try {
+    const headers = new Headers({ Cookie: req.headers.cookie });
+    const tracingHeaders = pickTracingHeaders(req.headers);
+    Object.entries(tracingHeaders).forEach(([key, value]) => {
+      headers.append(key, value);
+    });
+
     const bsRes = await fetch(`${process.env.API_HOST_SERVER}${ApiTargets.BOOTSTRAP}`, {
-      headers: new Headers({ Cookie: req.headers.cookie }),
+      headers,
     });
 
     if (!bsRes.ok) {
