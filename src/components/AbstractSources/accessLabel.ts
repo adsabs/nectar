@@ -9,7 +9,7 @@ export const getAccessLabel = (open: boolean, rawType: keyof typeof Esources): A
   if (rawType === Esources.INSTITUTION) {
     return null;
   }
-  return open ? { badge: 'Available', colorScheme: 'green' } : { badge: 'Login required', colorScheme: 'yellow' };
+  return open ? { badge: 'Open', colorScheme: 'green' } : { badge: 'Paid', colorScheme: 'yellow' };
 };
 
 /**
