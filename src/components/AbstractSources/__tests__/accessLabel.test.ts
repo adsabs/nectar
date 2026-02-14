@@ -6,7 +6,7 @@ describe('getAccessLabel', () => {
   test('returns available label when open is true', () => {
     const result = getAccessLabel(true, Esources.EPRINT_PDF);
     expect(result).toEqual({
-      badge: 'Available',
+      badge: 'Open',
       colorScheme: 'green',
     });
   });
@@ -14,7 +14,7 @@ describe('getAccessLabel', () => {
   test('returns login required label when open is false', () => {
     const result = getAccessLabel(false, Esources.PUB_HTML);
     expect(result).toEqual({
-      badge: 'Login required',
+      badge: 'Paid',
       colorScheme: 'yellow',
     });
   });
@@ -32,7 +32,7 @@ describe('getGroupAccessLabel', () => {
       { open: true, rawType: Esources.EPRINT_HTML },
     ];
     expect(getGroupAccessLabel(links)).toEqual({
-      badge: 'Available',
+      badge: 'Open',
       colorScheme: 'green',
     });
   });
@@ -43,7 +43,7 @@ describe('getGroupAccessLabel', () => {
       { open: false, rawType: Esources.PUB_PDF },
     ];
     expect(getGroupAccessLabel(links)).toEqual({
-      badge: 'Login required',
+      badge: 'Paid',
       colorScheme: 'yellow',
     });
   });
