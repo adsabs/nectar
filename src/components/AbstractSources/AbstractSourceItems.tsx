@@ -138,7 +138,7 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
                     <Text noOfLines={1}>{group.label}</Text>
                     {access && (
                       <Badge
-                        variant="subtle"
+                        variant="outline"
                         colorScheme={access.colorScheme}
                         borderRadius="full"
                         px={2}
