@@ -4,7 +4,7 @@ import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
-import { memo, ReactElement, useEffect, useMemo } from 'react';
+import { FC, memo, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { DehydratedState, useQuery, useQueryClient } from '@tanstack/react-query';
 import { IronSession } from 'iron-session';
 import axios from 'axios';
@@ -45,6 +45,50 @@ export type AppPageProps = {
   [key: string]: unknown;
 };
 
+const CacheStatusBadge: FC<{ status?: string }> = ({ status: ssrStatus }) => {
+  const [clientStatus, setClientStatus] = useState<string | null>(null);
+
+  const handleCacheEvent = useCallback((e: Event) => {
+    const detail = (e as CustomEvent<string>).detail;
+    setClientStatus(detail);
+  }, []);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') {
+      return;
+    }
+    window.addEventListener('cache-status', handleCacheEvent);
+    return () => window.removeEventListener('cache-status', handleCacheEvent);
+  }, [handleCacheEvent]);
+
+  const status = clientStatus ?? ssrStatus;
+  if (!status || process.env.NODE_ENV === 'production') {
+    return null;
+  }
+  const isHit = status === 'hit';
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        bottom: 8,
+        right: 8,
+        padding: '4px 8px',
+        borderRadius: 4,
+        fontSize: 11,
+        fontFamily: 'monospace',
+        fontWeight: 600,
+        color: '#fff',
+        backgroundColor: isHit ? '#16a34a' : '#dc2626',
+        opacity: 0.85,
+        zIndex: 9999,
+        pointerEvents: 'none',
+      }}
+    >
+      cache: {status}
+    </div>
+  );
+};
+
 const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   logger.debug('App', { props: pageProps as unknown });
   const router = useRouter();
@@ -65,6 +109,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
         <UserSync />
         <Layout>
           <Component {...pageProps} />
+          <CacheStatusBadge status={(pageProps as Record<string, unknown>).cacheStatus as string} />
           <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
         </Layout>
       </Providers>
