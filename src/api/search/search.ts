@@ -41,6 +41,7 @@ import { ApiTargets } from '@/api/models';
 import { logger } from '@/logger';
 import { normalizeFields } from '@/api/search/utils';
 import { trackUserFlow, PERF_SPANS } from '@/lib/performance';
+import { flattenParams } from '@/lib/proxy-cache';
 
 type PostTransformer = (data: IADSApiSearchResponse) => IADSApiSearchResponse;
 
@@ -94,9 +95,12 @@ export const searchKeys = {
   bigquery: () => [SEARCH_API_KEYS.bigquery] as const,
 };
 
-// default params to omit to keep cache entries more concise
+// Omit params that don't affect query results from the React Query cache key.
+// - fl: field list doesn't change result set
+// - p: page number alias, start/rows already present
+// - d: discipline URL bookmark param, boostType already captures its effect
 const omitParams = (query: IADSApiSearchParams) =>
-  omit<IADSApiSearchParams, string>(['fl', 'p'], query) as IADSApiSearchParams;
+  omit<IADSApiSearchParams, string>(['fl', 'p', 'd'], query) as IADSApiSearchParams;
 
 /**
  * Generic search hook.
@@ -360,7 +364,7 @@ export const useGetSearchFacet: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
   const searchParams: IADSApiSearchParams = getSearchFacetParams(params);
 
   // omit fields from queryKey
-  const { fl, ...cleanParams } = searchParams;
+  const cleanParams = omitParams(searchParams);
 
   return useQuery({
     queryKey: searchKeys.facet(cleanParams),
@@ -380,7 +384,7 @@ export const useGetSearchFacetJSON: SearchADSQuery<
   const searchParams: IADSApiSearchParams = getSearchFacetJSONParams(params);
 
   // omit fields from queryKey
-  const { fl, ...cleanParams } = searchParams;
+  const cleanParams = omitParams(searchParams);
 
   // TODO: this should be done in the API, for now this works to filter out unwanted property data
   const transformData = (data: IADSApiSearchResponse) => {
@@ -462,23 +466,13 @@ export const fetchBigQuerySearch: MutationFunction<
   return data.response;
 };
 
-/**
- * Fetches search results from the API based on provided search parameters.
- *
- * @function
- * @param {Object} options - The function options.
- * @param {Object} options.meta - Metadata for the search query.
- * @param {Object} options.meta.params - The search parameters to be used in the query.
- *
- * @returns {Promise<IADSApiSearchResponse>} - A promise that resolves to the search response data.
- */
 export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }) => {
   const { params, postTransformers } = meta as {
     params: IADSApiSearchParams;
     postTransformers?: Array<PostTransformer>;
   };
 
-  const finalParams = { ...params };
+  const { d: _, ...finalParams } = params;
   if (isString(params.q) && params.q.includes('object:')) {
     const { query } = await resolveObjectQuery({ query: params.q });
     finalParams.q = query;
@@ -487,14 +481,29 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }
   // normalize fields in the query
   finalParams.q = normalizeFields(finalParams.q);
 
-  const config: ApiRequestConfig = {
-    method: 'GET',
-    url: ApiTargets.SEARCH,
-    params: finalParams,
-  };
-
   // Wrap API request in performance span
   const data = await trackUserFlow(PERF_SPANS.SEARCH_QUERY_REQUEST, async () => {
+    // Client-side: route through cache proxy
+    if (typeof window !== 'undefined') {
+      const response = await axios.get<IADSApiSearchResponse>('/api/proxy/search/query', {
+        params: flattenParams(finalParams as Record<string, string | string[] | undefined>),
+        withCredentials: true,
+      });
+      if (process.env.NODE_ENV !== 'production') {
+        const xCache = (response.headers['x-cache'] as string)?.toLowerCase();
+        if (xCache) {
+          window.dispatchEvent(new CustomEvent('cache-status', { detail: xCache }));
+        }
+      }
+      return response.data;
+    }
+
+    // Server-side: direct to upstream via Api class
+    const config: ApiRequestConfig = {
+      method: 'GET',
+      url: ApiTargets.SEARCH,
+      params: finalParams,
+    };
     const response = await api.request<IADSApiSearchResponse>(config);
     return response.data;
   });

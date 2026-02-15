@@ -9,6 +9,11 @@ vi.mock('../bootstrap', () => ({
   bootstrap: vi.fn(),
 }));
 
+vi.mock('@/lib/redis', () => ({
+  getRedisClient: vi.fn(() => null),
+  isRedisAvailable: vi.fn(() => false),
+}));
+
 vi.mock('@/ssr-utils', () => ({
   composeNextGSSP:
     (fn: (ctx: GetServerSidePropsContext) => Promise<unknown>) =>
@@ -78,11 +83,11 @@ beforeEach(() => {
 
 describe('createAbsGetServerSideProps', () => {
   it('redirects to canonical bibcode with encoding and preserves query', async () => {
+    const body = { response: { docs: [{ bibcode: 'canonical&/bib' }] } };
     fetchMock.mockResolvedValue({
       ok: true,
-      json: async () => ({
-        response: { docs: [{ bibcode: 'canonical&/bib' }] },
-      }),
+      status: 200,
+      text: async () => JSON.stringify(body),
     });
 
     const ctx = buildCtx({
@@ -101,11 +106,11 @@ describe('createAbsGetServerSideProps', () => {
   });
 
   it('redirects for other views', async () => {
+    const body = { response: { docs: [{ bibcode: 'BIBCODE' }] } };
     fetchMock.mockResolvedValue({
       ok: true,
-      json: async () => ({
-        response: { docs: [{ bibcode: 'BIBCODE' }] },
-      }),
+      status: 200,
+      text: async () => JSON.stringify(body),
     });
 
     const ctx = buildCtx({
@@ -125,11 +130,11 @@ describe('createAbsGetServerSideProps', () => {
 
   it('returns props when identifier is already canonical', async () => {
     const bibcode = 'MATCHING';
+    const body = { response: { docs: [{ bibcode }] } };
     fetchMock.mockResolvedValue({
       ok: true,
-      json: async () => ({
-        response: { docs: [{ bibcode }] },
-      }),
+      status: 200,
+      text: async () => JSON.stringify(body),
     });
 
     const ctx = buildCtx({
@@ -151,11 +156,11 @@ describe('createAbsGetServerSideProps', () => {
   });
 
   it('does not redirect when no docs are returned', async () => {
+    const body = { response: { docs: [] } };
     fetchMock.mockResolvedValue({
       ok: true,
-      json: async () => ({
-        response: { docs: [] },
-      }),
+      status: 200,
+      text: async () => JSON.stringify(body),
     });
 
     const ctx = buildCtx({
