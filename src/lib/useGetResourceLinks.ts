@@ -3,7 +3,7 @@ import { isValidURL } from '@/utils/common/isValidURL';
 
 export const resourceUrlTypes = ['arXiv', 'PDF', 'DOI', 'HTML', 'Other'] as const;
 
-export type ResourceUrlType = typeof resourceUrlTypes[number];
+export type ResourceUrlType = (typeof resourceUrlTypes)[number];
 
 export interface IResourceUrl {
   type: ResourceUrlType;
@@ -15,14 +15,6 @@ interface IUseResourceLinksProps {
   options?: UseQueryOptions<IResourceUrl[]>;
 }
 
-// TODO: slightly brittle, since these links could change over time
-const SKIP_URLS = [
-  'http://www.cfa.harvard.edu/sao',
-  'https://www.cfa.harvard.edu/',
-  'http://www.si.edu',
-  'http://www.nasa.gov',
-];
-
 const URL_TYPE_MAP: Record<string, ResourceUrlType> = {
   arxiv: 'arXiv',
   pdf: 'PDF',
@@ -31,14 +23,13 @@ const URL_TYPE_MAP: Record<string, ResourceUrlType> = {
 };
 
 const RESOURCE_EXT_REGEX = /\.(jpg|jpeg|png|gif|webp|svg|css|js|ico|woff2?|ttf|otf|eot|map|mp4|webm)(\?|$)/i;
-const URL_REGX = /href="(https?:\/\/[^"]*)"/gi;
 
 /**
  * Transforms a URL into a structured resource link object.
  * @param url
  */
 export const transformUrl = (url: string) => {
-  if (!url || typeof url !== 'string' || !isValidURL(url) || RESOURCE_EXT_REGEX.test(url) || SKIP_URLS.includes(url)) {
+  if (!url || typeof url !== 'string' || !isValidURL(url) || RESOURCE_EXT_REGEX.test(url)) {
     return null;
   }
 
@@ -56,14 +47,14 @@ export const fetchUrl = async (identifier: string): Promise<IResourceUrl[]> => {
   const url = `/link_gateway/${encodeURIComponent(identifier)}/ESOURCE`;
   const res = await fetch(url);
 
-  // check for 302 redirects
-  if (res.status === 302 || res.status === 301) {
-    const redirectUrl = res.headers.get('Location');
-    if (redirectUrl) {
-      const transformedUrl = transformUrl(redirectUrl);
-      return transformedUrl ? [transformedUrl] : [];
-    }
+  if (!res.ok) {
     return [];
+  }
+
+  // single-link resources redirect directly to the target URL
+  if (res.redirected) {
+    const transformedUrl = transformUrl(res.url);
+    return transformedUrl ? [transformedUrl] : [];
   }
 
   const raw = await res.text();
@@ -71,14 +62,22 @@ export const fetchUrl = async (identifier: string): Promise<IResourceUrl[]> => {
     return [];
   }
 
-  const seen = new Set<string>();
-  const result = Array.from(raw.matchAll(URL_REGX), ([, href]) => transformUrl(href));
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(raw, 'text/html');
+  const links = doc.querySelectorAll('.list-group-item a');
 
+  const seen = new Set<string>();
   const output: IResourceUrl[] = [];
-  for (const res of result) {
-    if (res && !seen.has(res.url)) {
-      seen.add(res.url);
-      output.push(res);
+
+  for (const link of links) {
+    const href = link.getAttribute('href');
+    if (!href) {
+      continue;
+    }
+    const transformed = transformUrl(href);
+    if (transformed && !seen.has(transformed.url)) {
+      seen.add(transformed.url);
+      output.push(transformed);
     }
   }
 
