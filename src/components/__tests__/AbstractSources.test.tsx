@@ -143,7 +143,7 @@ describe('AbstractSources', () => {
     expect(resolverSpy).not.toHaveBeenCalled();
   });
 
-  test('accordion shows "Available" badge for open sources', () => {
+  test('accordion shows "Open" badge for open sources', () => {
     const doc = {
       ...baseDoc,
       esources: ['EPRINT_PDF'],
@@ -153,11 +153,11 @@ describe('AbstractSources', () => {
 
     const { getByText, getByLabelText } = render(<AbstractSources doc={doc} style="accordion" />);
 
-    expect(getByText('Available')).toBeDefined();
-    expect(getByLabelText(/Preprint.*PDF.*Available/i)).toBeDefined();
+    expect(getByText('Open')).toBeDefined();
+    expect(getByLabelText(/Preprint.*PDF.*Open/i)).toBeDefined();
   });
 
-  test('accordion shows "Login required" badge for closed sources', () => {
+  test('accordion shows "Paid" badge for closed sources', () => {
     const doc = {
       ...baseDoc,
       esources: ['PUB_HTML'],
@@ -167,11 +167,11 @@ describe('AbstractSources', () => {
 
     const { getByText, getByLabelText } = render(<AbstractSources doc={doc} style="accordion" />);
 
-    expect(getByText('Login required')).toBeDefined();
-    expect(getByLabelText(/Publisher.*HTML.*Login required/i)).toBeDefined();
+    expect(getByText('Paid')).toBeDefined();
+    expect(getByLabelText(/Publisher.*HTML.*Paid/i)).toBeDefined();
   });
 
-  test('menu shows "Available" tag for open sources', async () => {
+  test('menu shows "Open" tag for open sources', async () => {
     const doc = {
       ...baseDoc,
       esources: ['EPRINT_PDF'],
@@ -186,11 +186,11 @@ describe('AbstractSources', () => {
 
     await waitFor(() => {
       expect(getByText(/Preprint PDF/)).toBeDefined();
-      expect(getByText('Available')).toBeDefined();
+      expect(getByText('Open')).toBeDefined();
     });
   });
 
-  test('menu shows "Login required" tag for closed sources', async () => {
+  test('menu shows "Paid" tag for closed sources', async () => {
     const doc = {
       ...baseDoc,
       esources: ['PUB_HTML'],
@@ -205,7 +205,7 @@ describe('AbstractSources', () => {
 
     await waitFor(() => {
       expect(getByText(/Publisher HTML/)).toBeDefined();
-      expect(getByText('Login required')).toBeDefined();
+      expect(getByText('Paid')).toBeDefined();
     });
   });
 });
