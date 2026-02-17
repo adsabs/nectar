@@ -169,6 +169,7 @@
     "iron-session": "^6.3.1",
     "lint-staged": "^11.2.6",
     "msw": "^1.2.3",
+    "node-mocks-http": "^1.17.2",
     "prettier": "^2.3.0",
     "react-dom": "^18.3.1",
     "react-is": "^17.0.2",
