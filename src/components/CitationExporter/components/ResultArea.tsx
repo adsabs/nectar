@@ -134,6 +134,7 @@ export const ResultArea = ({
           value={result.length > 0 ? result : isLoading ? 'Loading...' : 'Press "submit" to generate export.'}
           data-testid="export-output"
           id="export-output"
+          aria-label="result"
         />
       )}
     </Stack>

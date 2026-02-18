@@ -16,7 +16,7 @@ export const ExportContainer: FC<{ header: ReactNode; isLoading?: boolean } & HT
       boxShadow="0px 2px 5.5px rgba(0, 0, 0, 0.02)"
       {...divProps}
     >
-      <Heading as="h2" size="sm" mb="3" data-testid="export-heading" display="flex">
+      <Heading as="h3" size="sm" mb="3" data-testid="export-heading" display="flex">
         <Box flex="1">{header}</Box>
         {isLoading && <Spinner />}
       </Heading>

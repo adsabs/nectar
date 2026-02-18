@@ -33,7 +33,7 @@ export const BarGraph = (props: IBarGraphProps): ReactElement => {
   return (
     <Box width="100%" mt={5}>
       {showGroupOptions && (
-        <RadioGroup defaultChecked onChange={setGroupType} value={groupType}>
+        <RadioGroup defaultChecked onChange={setGroupType} value={groupType} aria-label="bar chart display">
           <Stack direction="row">
             <Radio value="stacked">Stacked</Radio>
             <Radio value="grouped">Grouped</Radio>
