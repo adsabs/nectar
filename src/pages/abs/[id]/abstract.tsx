@@ -95,7 +95,7 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
         ) : (
           <Stack direction="column" gap={2}>
             <Flex wrap="wrap" as="section" aria-labelledby="author-list" id="tour-authors-list">
-              <VisuallyHidden as="h2" id="author-list">
+              <VisuallyHidden as="h3" id="author-list">
                 Authors
               </VisuallyHidden>
               {authors.map(([, author, orcid], index) => {
@@ -168,7 +168,7 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
             </Flex>
 
             <Box as="section" pb="2" aria-labelledby="abstract">
-              <VisuallyHidden as="h2" id="abstract">
+              <VisuallyHidden as="h3" id="abstract">
                 Abstract
               </VisuallyHidden>
               {isNil(doc?.abstract) ? <Text>No Abstract</Text> : <SafeAbstract html={doc.abstract} />}

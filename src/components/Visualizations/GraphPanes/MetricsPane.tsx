@@ -363,8 +363,10 @@ const MetricsGraphs = ({
   graphs,
   showLegend = true,
   showGroupOptions = true,
+  label,
 }: {
   graphs: IMetricsGraphs;
+  label: string;
   showLegend?: boolean;
   showGroupOptions?: boolean;
 }): ReactElement => {
@@ -383,6 +385,8 @@ const MetricsGraphs = ({
             ticks={getBarGraphYearTicks(graphs.totalGraph.data)}
             showLegend={showLegend}
             showGroupOptions={showGroupOptions}
+            ariaLabel={`${label} total`}
+            role="img"
           />
         </TabPanel>
         <TabPanel>
@@ -393,6 +397,8 @@ const MetricsGraphs = ({
             ticks={getBarGraphYearTicks(graphs.normalizedGraph.data)}
             showLegend={showLegend}
             showGroupOptions={showGroupOptions}
+            ariaLabel={`${label} normalized`}
+            role="img"
           />
         </TabPanel>
       </TabPanels>

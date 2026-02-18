@@ -64,7 +64,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
 
   return (
     <Box as="section" border="1px" borderColor="gray.50" borderRadius="md" shadow="sm" aria-labelledby="details">
-      <VisuallyHidden as="h2" id="details">
+      <VisuallyHidden as="h3" id="details">
         Details
       </VisuallyHidden>
       <Table colorScheme="gray" size="md" role="presentation">
@@ -245,7 +245,7 @@ const UATKeywords = memo(({ keywords, ids }: { keywords: Array<string>; ids: Arr
                 >
                   <Tooltip label={desc}>
                     <Center>
-                      <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
+                      <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" ml={2} mr={1} />
                     </Center>
                   </Tooltip>
                 </SearchQueryLink>
@@ -310,7 +310,7 @@ const Bibgroups = memo(({ bibgroups }: { bibgroups: Array<string> }) => {
             }
           >
             <SimpleLink href="https://scixplorer.org/scixhelp/data_faq-scix/Bibgroups">
-              <QuestionIcon ml={2} />
+              <QuestionIcon ml={2} aria-label="Click to learn about bibgroups" />
             </SimpleLink>
           </Tooltip>
         </>

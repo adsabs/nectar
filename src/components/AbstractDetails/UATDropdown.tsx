@@ -99,6 +99,7 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
           ml={1}
           cursor="pointer"
           tabIndex={0}
+          role="button"
         >
           <ChevronDownIcon aria-label="Related keywords" boxSize={4} />
         </Box>
