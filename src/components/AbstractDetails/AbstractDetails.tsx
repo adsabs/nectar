@@ -41,7 +41,7 @@ interface IDetailsProps {
 interface IDetailProps<T = string | Array<string>> {
   label: string | ReactNode;
   href?: string;
-  newTab?: boolean;
+  external?: boolean;
   value: T;
   copiable?: boolean;
   children?: (value: T) => ReactElement;
@@ -98,7 +98,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
             label="arXiv"
             value={arxiv}
             href={createUrlByType(doc?.bibcode, 'arxiv', arxiv?.split(':')[1])}
-            newTab
+            external
           />
           <Detail label="Bibcode" value={doc.bibcode} copiable />
           <Collections collections={doc.database ?? []} />
@@ -117,7 +117,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
 
 // TODO: this should take in a list of deps or the whole doc and show/hide based on that
 const Detail = <T extends string | string[]>(props: IDetailProps<T>): ReactElement => {
-  const { label, href, newTab = false, value, copiable = false, children } = props;
+  const { label, href, external = false, value, copiable = false, children } = props;
 
   // show nothing if no value
   if (isNilOrEmpty(value)) {
@@ -131,8 +131,8 @@ const Detail = <T extends string | string[]>(props: IDetailProps<T>): ReactEleme
       <Td>{label}</Td>
       <Td wordBreak="break-word">
         {href && (
-          <SimpleLink href={href} newTab={newTab}>
-            {normalizedValue}
+          <SimpleLink href={href} isExternal={external}>
+            {normalizedValue} {external && <ExternalLinkIcon aria-label="external link" />}
           </SimpleLink>
         )}
         {typeof children === 'function'
@@ -159,12 +159,14 @@ const Doi = memo(({ doiIDs, bibcode }: { doiIDs: Array<string>; bibcode: string 
           <Tooltip
             label={
               <>
-                Open DOI link <ExternalLinkIcon />
+                Open DOI link <ExternalLinkIcon aria-label="external link" />
               </>
             }
           >
             <SimpleLink href={createUrlByType(bibcode, 'doi', id)} newTab _hover={{ textDecor: 'underline' }}>
-              {id}
+              <Flex alignItems="center">
+                {id} <ExternalLinkIcon mx={1} />
+              </Flex>
             </SimpleLink>
           </Tooltip>
           <Tooltip label="Copy DOI" shouldWrapChildren>
@@ -229,7 +231,13 @@ const UATKeywords = memo(({ keywords, ids }: { keywords: Array<string>; ids: Arr
           {keywords.map((keyword, index) => (
             <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" px={2} py={1} key={keyword}>
               <HStack spacing="1">
-                <Tooltip label={keyword}>
+                <Tooltip
+                  label={
+                    <>
+                      {keyword} <ExternalLinkIcon aria-label="external link" />
+                    </>
+                  }
+                >
                   <SimpleLink href={`https://astrothesaurus.org/uat/${encodeURIComponent(ids[index])}`} newTab>
                     {shortenKeyword(keyword)}
                   </SimpleLink>
@@ -305,7 +313,7 @@ const Bibgroups = memo(({ bibgroups }: { bibgroups: Array<string> }) => {
           <Tooltip
             label={
               <>
-                Click to learn about bibgroups <ExternalLinkIcon />
+                Click to learn about bibgroups <ExternalLinkIcon aria-label="external link" />
               </>
             }
           >
