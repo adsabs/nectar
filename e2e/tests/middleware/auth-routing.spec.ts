@@ -1,257 +1,129 @@
-import { test, expect } from '@playwright/test';
-
-const NECTAR_URL = process.env.NECTAR_URL || process.env.BASE_URL || 'http://127.0.0.1:8000';
-const STUB_URL = process.env.STUB_URL || 'http://127.0.0.1:18080';
+import { test, expect } from '../../fixtures/nectar.fixture';
 
 test.describe('Auth Routing (Suite C)', () => {
-  test.beforeEach(async ({ context, request }) => {
-    await context.clearCookies();
-    await request.post(`${STUB_URL}/__test__/reset`);
+  test.beforeEach(async ({ loginPage, resetStub }) => {
+    await loginPage.clearCookies();
+    await resetStub();
   });
 
-  test('C1: Protected route unauthenticated redirects to login', async ({ page, context }) => {
-    await context.addCookies([
-      {
-        name: 'ads_session',
-        value: 'anonymous-session',
-        url: NECTAR_URL,
-      },
-    ]);
+  test('C1: Protected route unauthenticated redirects to login', async ({ page, loginPage }) => {
+    await loginPage.addSessionCookie('anonymous-session');
+    await loginPage.setScenarioViaRoute('bootstrap-anonymous');
 
-    // Use route interception to add header - ensures header persists through redirects
-    await page.route('**/*', async (route) => {
-      const headers = {
-        ...route.request().headers(),
-        'x-test-scenario': 'bootstrap-anonymous',
-      };
-      await route.continue({ headers });
-    });
+    const response = await page.goto(`${loginPage.baseUrl}/user/libraries`, { waitUntil: 'commit' });
 
-    // Use waitUntil: 'commit' to avoid timeout waiting for full page load
-    const response = await page.goto(`${NECTAR_URL}/user/libraries`, {
-      waitUntil: 'commit',
-    });
-
-    // Check the final URL after redirects
     const finalUrl = response?.url() || page.url();
     expect(finalUrl).toContain('/user/account/login');
     expect(finalUrl).toContain('next=');
     expect(finalUrl).toContain('notify=login-required');
   });
 
-  test('C2: Protected route authenticated allows access', async ({ page, context }) => {
-    await context.addCookies([
-      {
-        name: 'ads_session',
-        value: 'authenticated-session',
-        url: NECTAR_URL,
-      },
-    ]);
+  test('C2: Protected route authenticated allows access', async ({ settingsPage, searchPage }) => {
+    await searchPage.addSessionCookie('authenticated-session');
+    await searchPage.setScenarioHeader('bootstrap-authenticated');
 
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-authenticated',
-    });
-
-    await page.goto(`${NECTAR_URL}/search`);
-
-    const response = await page.goto(`${NECTAR_URL}/user/settings`);
+    await searchPage.goto();
+    const response = await settingsPage.goto();
 
     expect(response?.status()).toBe(200);
-    expect(page.url()).toContain('/user/settings');
+    settingsPage.urlContains('/user/settings');
   });
 
   test('C3: Login route authenticated redirects based on next param - valid relative path', async ({
-    page,
-    context,
+    loginPage,
+    searchPage,
   }) => {
-    await context.addCookies([
-      {
-        name: 'ads_session',
-        value: 'authenticated-session',
-        url: NECTAR_URL,
-      },
-    ]);
+    await searchPage.addSessionCookie('authenticated-session');
+    await searchPage.setScenarioHeader('bootstrap-authenticated');
 
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-authenticated',
-    });
+    await searchPage.goto();
+    await loginPage.gotoWithNext('/user/settings');
 
-    await page.goto(`${NECTAR_URL}/search`);
-    await page.goto(`${NECTAR_URL}/user/account/login?next=%2Fuser%2Fsettings`);
-
-    expect(page.url()).toContain('/user/settings');
-    expect(page.url()).toContain('notify=account-login-success');
+    loginPage.urlContains('/user/settings');
+    loginPage.urlContains('notify=account-login-success');
   });
 
-  test('C3b: Login route authenticated redirects to home for external next param', async ({ page, context }) => {
-    await context.addCookies([
-      {
-        name: 'ads_session',
-        value: 'authenticated-session',
-        url: NECTAR_URL,
-      },
-    ]);
+  test('C3b: Login route authenticated redirects to home for external next param', async ({
+    loginPage,
+    searchPage,
+  }) => {
+    await searchPage.addSessionCookie('authenticated-session');
+    await searchPage.setScenarioHeader('bootstrap-authenticated');
 
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-authenticated',
-    });
+    await searchPage.goto();
+    await loginPage.gotoWithNext('https://evil.example');
 
-    await page.goto(`${NECTAR_URL}/search`);
-    await page.goto(`${NECTAR_URL}/user/account/login?next=https%3A%2F%2Fevil.example`);
-
-    expect(page.url()).toContain('/?notify=account-login-success');
+    loginPage.urlContains('/?notify=account-login-success');
   });
 
-  test('C3c: Login route authenticated redirects to home when no next param', async ({ page, context }) => {
-    await context.addCookies([
-      {
-        name: 'ads_session',
-        value: 'authenticated-session',
-        url: NECTAR_URL,
-      },
-    ]);
+  test('C3c: Login route authenticated redirects to home when no next param', async ({
+    loginPage,
+    searchPage,
+    nectarUrl,
+  }) => {
+    await searchPage.addSessionCookie('authenticated-session');
+    await searchPage.setScenarioHeader('bootstrap-authenticated');
 
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-authenticated',
-    });
+    await searchPage.goto();
+    await loginPage.goto();
 
-    await page.goto(`${NECTAR_URL}/search`);
-    await page.goto(`${NECTAR_URL}/user/account/login`);
-
-    expect(page.url()).toBe(`${NECTAR_URL}/`);
+    loginPage.urlEquals(`${nectarUrl}/`);
   });
 
-  test('C4: Register route authenticated redirects to home', async ({ page, context }) => {
-    await context.addCookies([
-      {
-        name: 'ads_session',
-        value: 'authenticated-session',
-        url: NECTAR_URL,
-      },
-    ]);
+  test('C4: Register route authenticated redirects to home', async ({ registerPage, searchPage, nectarUrl }) => {
+    await searchPage.addSessionCookie('authenticated-session');
+    await searchPage.setScenarioHeader('bootstrap-authenticated');
 
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-authenticated',
-    });
+    await searchPage.goto();
+    await registerPage.goto();
 
-    await page.goto(`${NECTAR_URL}/search`);
-    await page.goto(`${NECTAR_URL}/user/account/register`);
-
-    expect(page.url()).toBe(`${NECTAR_URL}/`);
+    registerPage.urlEquals(`${nectarUrl}/`);
   });
 
-  test('C5: Forgot password route authenticated redirects to home', async ({ page, context }) => {
-    await context.addCookies([
-      {
-        name: 'ads_session',
-        value: 'authenticated-session',
-        url: NECTAR_URL,
-      },
-    ]);
+  test('C5: Forgot password route authenticated redirects to home', async ({ page, searchPage, nectarUrl }) => {
+    await searchPage.addSessionCookie('authenticated-session');
+    await searchPage.setScenarioHeader('bootstrap-authenticated');
 
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-authenticated',
-    });
+    await searchPage.goto();
+    // Middleware redirects from the legacy /user/forgotpassword path.
+    // The actual page lives at /user/account/forgotpassword.
+    await page.goto(`${nectarUrl}/user/forgotpassword`);
 
-    await page.goto(`${NECTAR_URL}/search`);
-    await page.goto(`${NECTAR_URL}/user/forgotpassword`);
-
-    expect(page.url()).toBe(`${NECTAR_URL}/`);
+    expect(page.url()).toBe(`${nectarUrl}/`);
   });
 
-  test('C6: Login form redirects to next param after successful login', async ({ page, context }) => {
-    await context.addCookies([
-      {
-        name: 'ads_session',
-        value: 'anonymous-session',
-        url: NECTAR_URL,
-      },
-    ]);
+  test('C6: Login form redirects to next param after successful login', async ({ loginPage }) => {
+    await loginPage.addSessionCookie('anonymous-session');
+    await loginPage.setScenarioHeader('bootstrap-anonymous');
 
-    // start with anonymous session, then switch to authenticated after login
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-anonymous',
-    });
+    await loginPage.gotoWithNext('/search?q=test');
 
-    // navigate to login with next param
-    await page.goto(`${NECTAR_URL}/user/account/login?next=%2Fsearch%3Fq%3Dtest`);
+    loginPage.urlContains('/user/account/login');
 
-    // verify we're on login page
-    expect(page.url()).toContain('/user/account/login');
+    await loginPage.fillCredentials('test@example.com', 'password123');
+    await loginPage.mockLoginSuccess();
+    await loginPage.setScenarioHeader('bootstrap-authenticated');
+    await loginPage.submit();
 
-    // fill in credentials
-    await page.fill('input[name="email"]', 'test@example.com');
-    await page.fill('input[name="password"]', 'password123');
+    await loginPage.waitForUrl(/\/search/, { waitUntil: 'commit' });
 
-    // intercept and respond to login request, then switch to authenticated scenario
-    await page.route('**/api/auth/login', async (route) => {
-      // simulate successful login by responding to the API call
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ success: true }),
-      });
-    });
-
-    // set authenticated scenario for subsequent requests
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-authenticated',
-    });
-
-    // submit the form
-    await page.click('button[type="submit"]');
-
-    // wait for navigation to complete
-    await page.waitForURL(/\/search/);
-
-    // verify we're redirected to the next URL
-    expect(page.url()).toContain('/search');
-    expect(page.url()).toContain('q=test');
+    loginPage.urlContains('/search');
+    loginPage.urlContains('q=test');
   });
 
-  test('C7: Login form falls back to reload when next param is invalid', async ({ page, context }) => {
-    await context.addCookies([
-      {
-        name: 'ads_session',
-        value: 'anonymous-session',
-        url: NECTAR_URL,
-      },
-    ]);
+  test('C7: Login form falls back to reload when next param is invalid', async ({ loginPage }) => {
+    await loginPage.addSessionCookie('anonymous-session');
+    await loginPage.setScenarioHeader('bootstrap-anonymous');
 
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-anonymous',
-    });
+    await loginPage.gotoWithNext('https://evil.example');
 
-    // navigate to login with an external (invalid) next param
-    await page.goto(`${NECTAR_URL}/user/account/login?next=https%3A%2F%2Fevil.example`);
+    await loginPage.fillCredentials('test@example.com', 'password123');
+    await loginPage.mockLoginSuccess();
+    await loginPage.setScenarioHeader('bootstrap-authenticated');
+    await loginPage.submit();
 
-    // fill in credentials
-    await page.fill('input[name="email"]', 'test@example.com');
-    await page.fill('input[name="password"]', 'password123');
+    await loginPage.waitForLoadState('networkidle');
 
-    // intercept and respond to login request
-    await page.route('**/api/auth/login', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ success: true }),
-      });
-    });
-
-    // set authenticated scenario for subsequent requests
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-authenticated',
-    });
-
-    // submit the form
-    await page.click('button[type="submit"]');
-
-    // wait a bit for reload to happen
-    await page.waitForLoadState('networkidle');
-
-    // should still be on login page (reloaded) or redirected to home by middleware
-    // since external URLs are blocked, we expect a reload or middleware redirect
-    const url = page.url();
-    expect(url).toMatch(/\/(user\/account\/login|\?notify=account-login-success)?$/);
+    loginPage.urlMatches(/\/(user\/account\/login|\?notify=account-login-success)?$/);
   });
 });

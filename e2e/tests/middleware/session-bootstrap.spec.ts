@@ -1,32 +1,20 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/nectar.fixture';
 import { extractCookie } from '../../fixtures/helpers';
 
-const NECTAR_URL = process.env.NECTAR_URL || process.env.BASE_URL || 'http://127.0.0.1:8000';
-const STUB_URL = process.env.STUB_URL || 'http://127.0.0.1:18080';
-
 test.describe('Session Bootstrap (Suite B)', () => {
-  test.beforeEach(async ({ context, request }) => {
-    await context.clearCookies();
-    await request.post(`${STUB_URL}/__test__/reset`);
+  test.beforeEach(async ({ searchPage, resetStub }) => {
+    await searchPage.clearCookies();
+    await resetStub();
   });
 
-  test('B1: Cold start creates sidecar session with cookie rewrite', async ({ page, context }) => {
-    await context.addCookies([
-      {
-        name: 'ads_session',
-        value: 'seed-session',
-        url: NECTAR_URL,
-      },
-    ]);
+  test('B1: Cold start creates sidecar session with cookie rewrite', async ({ searchPage }) => {
+    await searchPage.addSessionCookie('seed-session');
+    await searchPage.setScenarioHeader('bootstrap-rotated-cookie');
 
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-rotated-cookie',
-    });
+    const response = await searchPage.gotoAndExpect();
+    expect(response.status()).toBe(200);
 
-    const response = await page.goto(`${NECTAR_URL}/search`);
-    expect(response?.status()).toBe(200);
-
-    const setCookieHeader = response?.headers()['set-cookie'];
+    const setCookieHeader = response.headers()['set-cookie'];
     const adsSessionCookie = extractCookie(setCookieHeader, 'ads_session');
 
     if (adsSessionCookie) {
@@ -34,83 +22,54 @@ test.describe('Session Bootstrap (Suite B)', () => {
       expect(adsSessionCookie).not.toContain('Domain=');
     }
 
-    const cookies = await context.cookies();
-    const sessionCookie = cookies.find((c) => c.name === 'ads_session');
-    expect(sessionCookie).toBeDefined();
-
-    const sidecarCookie = cookies.find((c) => c.name === 'scix_session');
-    expect(sidecarCookie).toBeDefined();
+    const cookies = await searchPage.getCookies();
+    expect(cookies.find((c) => c.name === 'ads_session')).toBeDefined();
+    expect(cookies.find((c) => c.name === 'scix_session')).toBeDefined();
   });
 
-  test('B2: Fast path skips redundant Set-Cookie when unchanged', async ({ page, context }) => {
-    await context.addCookies([
-      {
-        name: 'ads_session',
-        value: 'unchanged-session',
-        url: NECTAR_URL,
-      },
-    ]);
+  test('B2: Fast path skips redundant Set-Cookie when unchanged', async ({ searchPage }) => {
+    await searchPage.addSessionCookie('unchanged-session');
+    await searchPage.setScenarioHeader('bootstrap-unchanged-cookie');
 
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-unchanged-cookie',
-    });
+    const response = await searchPage.gotoAndExpect();
+    expect(response.status()).toBe(200);
 
-    const response = await page.goto(`${NECTAR_URL}/search`);
-    expect(response?.status()).toBe(200);
-
-    const setCookieHeader = response?.headers()['set-cookie'];
+    const setCookieHeader = response.headers()['set-cookie'];
     const adsSessionCookie = extractCookie(setCookieHeader, 'ads_session');
-
     expect(adsSessionCookie).toBeUndefined();
   });
 
   test('B3: Force refresh via header triggers bootstrap even with valid session', async ({
-    page,
-    context,
+    searchPage,
+    resetStub,
     request,
   }) => {
-    await context.addCookies([
-      {
-        name: 'ads_session',
-        value: 'valid-session',
-        url: NECTAR_URL,
-      },
-    ]);
+    await searchPage.addSessionCookie('valid-session');
+    await searchPage.goto();
 
-    await page.goto(`${NECTAR_URL}/search`);
+    await resetStub();
 
-    await request.post(`${STUB_URL}/__test__/reset`);
+    await searchPage.setExtraHeaders({ 'x-refresh-token': '1' });
+    await searchPage.gotoWithParams('?_refresh=1', { waitUntil: 'load' });
+    await searchPage.waitForLoadState('networkidle');
 
-    await page.setExtraHTTPHeaders({
-      'x-refresh-token': '1',
-    });
-
-    await page.goto(`${NECTAR_URL}/search?_refresh=1`, { waitUntil: 'load' });
-    await page.waitForLoadState('networkidle');
-
-    const response = await request.get(`${STUB_URL}/__test__/calls`);
+    const stubUrl = process.env.STUB_URL || 'http://127.0.0.1:18080';
+    const response = await request.get(`${stubUrl}/__test__/calls`);
     const data = await response.json();
 
     expect(data.count).toBeGreaterThan(0);
     expect(data.calls.some((call: { endpoint: string }) => call.endpoint === '/accounts/bootstrap')).toBe(true);
   });
 
-  test('B4: Bootstrap failure redirects to home with notify param', async ({ page, context }) => {
-    await context.addCookies([
-      {
-        name: 'ads_session',
-        value: 'test-session',
-        url: NECTAR_URL,
-      },
-    ]);
+  test('B4: Bootstrap failure redirects to home with notify param', async ({ searchPage }) => {
+    await searchPage.addSessionCookie('test-session');
+    await searchPage.setScenarioHeader('bootstrap-failure');
 
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-failure',
+    await searchPage.goto({ waitUntil: 'load' });
+    await searchPage.waitForUrl('**/?notify=api-connect-failed', {
+      timeout: 5000,
     });
 
-    await page.goto(`${NECTAR_URL}/search`, { waitUntil: 'load' });
-    await page.waitForURL('**/?notify=api-connect-failed', { timeout: 5000 });
-
-    expect(page.url()).toContain('/?notify=api-connect-failed');
+    searchPage.urlContains('/?notify=api-connect-failed');
   });
 });

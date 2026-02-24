@@ -1,0 +1,15 @@
+export { BasePage } from './base.page';
+export { HomePage } from './home.page';
+export { LoginPage } from './login.page';
+export { SearchPage } from './search.page';
+export { RegisterPage } from './register.page';
+export { ForgotPasswordPage } from './forgot-password.page';
+export { VerifyPage } from './verify.page';
+export { SettingsPage } from './settings.page';
+export { AbstractPage } from './abstract.page';
+export { ClassicFormPage } from './classic-form.page';
+export { PaperFormPage } from './paper-form.page';
+export { JournalsDbPage } from './journals-db.page';
+export { FeedbackPage } from './feedback.page';
+export { LibrariesPage } from './libraries.page';
+export { NotificationsPage } from './notifications.page';

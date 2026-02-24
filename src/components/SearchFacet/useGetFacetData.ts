@@ -80,7 +80,7 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
       }),
     },
     {
-      enabled,
+      enabled: enabled && isNonEmptyString(searchQuery?.q?.trim()),
       keepPreviousData: true,
     },
   );
