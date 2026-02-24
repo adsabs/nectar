@@ -1,9 +1,11 @@
-import type { BarDatum, BarSvgProps } from '@nivo/bar';
+import type { BarDatum, BarSvgProps, BarTooltipProps } from '@nivo/bar';
 import { ResponsiveBar } from '@nivo/bar';
 import type { ReactElement } from 'react';
 import { useState } from 'react';
-import { Box, Radio, RadioGroup, Stack, useColorMode } from '@chakra-ui/react';
+import { Box, Flex, HStack, Radio, RadioGroup, Stack, useColorMode } from '@chakra-ui/react';
 import { useNivoDarkTheme } from '@/lib/useNivoDarkTheme';
+import { categoricalColorSchemes } from '@nivo/colors';
+import { BasicTooltip } from '@nivo/tooltip';
 
 export interface IBarGraphProps extends Omit<BarSvgProps<BarDatum>, 'height' | 'width'> {
   data: BarDatum[];
@@ -14,6 +16,41 @@ export interface IBarGraphProps extends Omit<BarSvgProps<BarDatum>, 'height' | '
   showGroupOptions?: boolean;
   height?: string;
 }
+
+export const BarGraphColors = categoricalColorSchemes.category10;
+
+export const CustomBarTooltip = ({ keys, bar }: { keys: string[]; bar: BarTooltipProps<BarDatum> }) => {
+  const row = bar.data;
+  const getValue = (key: string): number => (row[key] as number) ?? 0;
+  const total = keys.reduce((acc, key) => acc + getValue(key), 0);
+
+  return (
+    <BasicTooltip
+      id={
+        <Flex direction="column" alignItems="start">
+          {keys.map((key, index) => {
+            const color = BarGraphColors[index % BarGraphColors.length];
+            return (
+              <HStack key={key} gap={0}>
+                <Box w={4} h={4} bg={color} border="1px solid" borderColor="gray.300" flexShrink={0} mr={2} />
+                <>
+                  {key}: <strong>{row[key] ?? 0}</strong>
+                </>
+                <br />
+              </HStack>
+            );
+          })}
+          {keys.length > 1 && (
+            <div>
+              Total: <strong>{total}</strong>
+            </div>
+          )}
+        </Flex>
+      }
+      color={bar.color}
+    />
+  );
+};
 
 export const BarGraph = (props: IBarGraphProps): ReactElement => {
   const {
