@@ -34,6 +34,7 @@ import { DataDownloader } from '@/components/DataDownloader';
 import {
   BarGraph,
   CitationsTable,
+  CustomBarTooltip,
   IndicesTable,
   LineGraph,
   PapersTable,
@@ -134,7 +135,7 @@ const PapersSection = ({
             />
           )}
           {papersTable && <PapersTable data={papersTable} />}
-          {isClient && papersGraph && <MetricsGraphs graphs={papersGraph} />}
+          {isClient && papersGraph && <MetricsGraphs graphs={papersGraph} label="Papers graph" />}
         </Box>
       ) : (
         <Text>No data</Text>
@@ -180,7 +181,7 @@ const CitationsSection = ({
             />
           )}
           {citationsTable && <CitationsTable data={citationsTable} isAbstract={isAbstract} />}
-          {isClient && citationsGraphs && <MetricsGraphs graphs={citationsGraphs} />}
+          {isClient && citationsGraphs && <MetricsGraphs graphs={citationsGraphs} label="Citations graph" />}
         </Box>
       ) : (
         <>{!isAbstract && <Text>No data</Text>}</>
@@ -227,7 +228,12 @@ const ReadsSection = ({
           )}
           {readsTable && <ReadsTable data={readsTable} isAbstract={isAbstract} />}
           {isClient && readsGraphs && (
-            <MetricsGraphs graphs={readsGraphs} showGroupOptions={!isAbstract} showLegend={!isAbstract} />
+            <MetricsGraphs
+              graphs={readsGraphs}
+              showGroupOptions={!isAbstract}
+              showLegend={!isAbstract}
+              label="Reads graph"
+            />
           )}
         </Box>
       ) : (
@@ -387,6 +393,7 @@ const MetricsGraphs = ({
             showGroupOptions={showGroupOptions}
             ariaLabel={`${label} total`}
             role="img"
+            tooltip={(bar) => <CustomBarTooltip keys={graphs.totalGraph.keys} bar={bar} />}
           />
         </TabPanel>
         <TabPanel>
@@ -399,6 +406,7 @@ const MetricsGraphs = ({
             showGroupOptions={showGroupOptions}
             ariaLabel={`${label} normalized`}
             role="img"
+            tooltip={(bar) => <CustomBarTooltip keys={graphs.normalizedGraph.keys} bar={bar} />}
           />
         </TabPanel>
       </TabPanels>

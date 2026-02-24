@@ -5,7 +5,7 @@ import { useDebounce } from 'use-debounce';
 import { IBarGraph, YearDatum } from '../types';
 import { getYearGraphTicks, getYearsGraph } from '../utils';
 import { DataDownloader } from '@/components/DataDownloader';
-import { BarGraph } from '@/components/Visualizations';
+import { BarGraph, CustomBarTooltip } from '@/components/Visualizations';
 import { Slider } from '@/components/Slider';
 import { IFacetCountsFields } from '@/api/search/types';
 
@@ -98,6 +98,7 @@ export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps)
             showGroupOptions={false}
             ticks={transformedGraph.ticks}
             padding={0.1}
+            tooltip={(bar) => <CustomBarTooltip keys={transformedGraph.keys} bar={bar} />}
           />
           <Slider
             aria-label="Limit Slider"
