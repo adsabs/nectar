@@ -53,8 +53,34 @@ const nextConfig = {
         });
       }
 
-      if (beforeFiles.length > 0) {
-        return { beforeFiles };
+      // In e2e Docker tests, proxy client-side API calls through the Next.js
+      // server to avoid cross-origin issues (the browser in the Playwright
+      // container cannot resolve Docker service hostnames directly).
+      const afterFiles = [];
+      if (process.env.E2E_API_PROXY && process.env.API_HOST_SERVER) {
+        const apiPrefixes = [
+          'vault', 'accounts', 'biblib', 'resolver', 'graphics',
+          'metrics', 'export', 'reference', 'citation_helper',
+          'vis', 'orcid', 'objects',
+        ];
+        for (const prefix of apiPrefixes) {
+          afterFiles.push({
+            source: `/${prefix}/:path*`,
+            destination: `${process.env.API_HOST_SERVER}/${prefix}/:path*`,
+          });
+        }
+        // /search/query must be explicit to avoid shadowing the /search page
+        afterFiles.push({
+          source: '/search/query',
+          destination: `${process.env.API_HOST_SERVER}/search/query`,
+        });
+      }
+
+      if (beforeFiles.length > 0 || afterFiles.length > 0) {
+        return {
+          ...(beforeFiles.length > 0 ? { beforeFiles } : {}),
+          ...(afterFiles.length > 0 ? { afterFiles } : {}),
+        };
       }
     }
     return {};

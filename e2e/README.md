@@ -141,3 +141,55 @@ pnpm test:e2e:docker
 lsof -ti:8000 | xargs kill -9
 lsof -ti:18080 | xargs kill -9
 ```
+
+## Page Object Model
+
+Tests use the Page Object Model (POM) pattern. Page objects live in `e2e/pages/` and encapsulate selectors and actions for each page.
+
+### Directory structure
+
+```
+e2e/
+├── fixtures/
+│   ├── nectar.fixture.ts   — Playwright fixtures (provides page objects + helpers)
+│   └── helpers.ts           — Cookie/response utility functions
+├── pages/
+│   ├── base.page.ts         — Abstract base class (navigation, cookies, scenarios)
+│   ├── home.page.ts         — Landing page
+│   ├── login.page.ts        — Login form page
+│   ├── search.page.ts       — Search results page
+│   ├── register.page.ts     — Registration page
+│   ├── forgot-password.page.ts — Forgot password page
+│   ├── verify.page.ts       — Email verification page
+│   ├── settings.page.ts     — User settings page
+│   └── index.ts             — Barrel export
+└── tests/
+    ├── middleware/           — Middleware integration tests
+    └── smoke/                — Smoke/navigation tests
+```
+
+### Adding a new page object
+
+1. Create `e2e/pages/my-page.page.ts` extending `BasePage`
+2. Set the `path` property (e.g., `/my-page`)
+3. Add selectors as private readonly properties
+4. Add action methods (e.g., `fillForm`, `submit`)
+5. Export from `e2e/pages/index.ts`
+6. Add a fixture in `e2e/fixtures/nectar.fixture.ts`
+
+### Using page objects in tests
+
+```typescript
+import { test, expect } from '../../fixtures/nectar.fixture';
+
+test('example', async ({ loginPage, searchPage }) => {
+  await loginPage.addSessionCookie('anonymous-session');
+  await loginPage.setScenarioHeader('bootstrap-anonymous');
+  await loginPage.goto();
+
+  await loginPage.fillCredentials('user@example.com', 'pass');
+  await loginPage.submit();
+});
+```
+
+Page objects are provided automatically via Playwright fixtures — destructure them in the test signature.

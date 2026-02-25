@@ -1,31 +1,30 @@
-import { test, expect } from '@playwright/test';
-
-const NECTAR_URL = process.env.NECTAR_URL || process.env.BASE_URL || 'http://127.0.0.1:8000';
-const STUB_URL = process.env.STUB_URL || 'http://127.0.0.1:18080';
+import { test, expect } from '../../fixtures/nectar.fixture';
 
 test.describe('Middleware MVP', () => {
-  test.beforeEach(async ({ context, request }) => {
-    await context.clearCookies();
-    await request.post(`${STUB_URL}/__test__/reset`);
+  test.beforeEach(async ({ searchPage, resetStub }) => {
+    await searchPage.clearCookies();
+    await resetStub();
   });
 
-  test('Bootstrap failure redirects to home with error message', async ({ request, context }) => {
+  test('Bootstrap failure redirects to home with error message', async ({ context, nectarUrl, request }) => {
     const freshPage = await context.newPage();
 
     await freshPage.setExtraHTTPHeaders({
       'x-test-scenario': 'bootstrap-failure',
     });
 
-    await freshPage.goto(`${NECTAR_URL}/search`, { waitUntil: 'load' });
-    await freshPage.waitForURL('**/?notify=api-connect-failed', { timeout: 5000 });
+    await freshPage.goto(`${nectarUrl}/search`, { waitUntil: 'load' });
+    await freshPage.waitForURL('**/?notify=api-connect-failed', {
+      timeout: 5000,
+    });
 
     expect(freshPage.url()).toContain('/?notify=api-connect-failed');
 
-    const response = await request.get(`${STUB_URL}/__test__/calls`);
+    const stubUrl = process.env.STUB_URL || 'http://127.0.0.1:18080';
+    const response = await request.get(`${stubUrl}/__test__/calls`);
     const data = await response.json();
     expect(data.count).toBeGreaterThan(0);
 
-    // Find the bootstrap-failure call (tests run in parallel, so filter by scenario)
     const failureCall = data.calls.find(
       (call: { endpoint: string; scenario: string }) =>
         call.endpoint === '/accounts/bootstrap' && call.scenario === 'bootstrap-failure',
