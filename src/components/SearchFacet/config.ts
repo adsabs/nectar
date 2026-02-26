@@ -58,7 +58,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
   },
   publications: {
     label: 'Publications',
-    field: 'bibstem_facet' as FacetField,
+    field: 'pub_abbrev' as FacetField,
     logic: defaultLogic,
     storeId: 'publications',
     isLowerCase: false,
