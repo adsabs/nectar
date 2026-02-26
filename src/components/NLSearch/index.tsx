@@ -1,11 +1,18 @@
 'use client';
 
 /**
- * Check if the NL Search feature is enabled via environment variable.
- * Set NEXT_PUBLIC_NL_SEARCH=enabled in .env.local to enable this feature.
+ * Check if NL Search is enabled via env var or cookie toggle.
+ * - Global: set NEXT_PUBLIC_NL_SEARCH=enabled in .env.local
+ * - Per-user: visit any page with ?nl_search=1 (disable with ?nl_search=0)
  */
 export const isNLSearchEnabled = (): boolean => {
-  return process.env.NEXT_PUBLIC_NL_SEARCH === 'enabled';
+  if (process.env.NEXT_PUBLIC_NL_SEARCH === 'enabled') {
+    return true;
+  }
+  if (typeof document !== 'undefined') {
+    return document.cookie.split('; ').some((c) => c === 'nl-search-enabled=1');
+  }
+  return false;
 };
 
 import { ArrowForwardIcon, CheckIcon, CopyIcon, WarningIcon } from '@chakra-ui/icons';
@@ -40,7 +47,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { ChangeEvent, FC, useCallback, useState } from 'react';
+import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { makeSearchParams } from '@/utils/common/search';
 import { useNLSearch } from './useNLSearch';
@@ -376,11 +383,31 @@ export const NLSearch: FC<INLSearchProps> = ({ onQueryGenerated, onApplyQuery, d
 NLSearch.displayName = 'NLSearch';
 
 /**
+ * Hook that checks if NL Search is enabled, handling SSR/hydration safely.
+ * Env var is checked immediately (build-time constant); cookie is checked after mount.
+ */
+const useNLSearchEnabled = (): boolean => {
+  const [enabled, setEnabled] = useState(() => process.env.NEXT_PUBLIC_NL_SEARCH === 'enabled');
+
+  useEffect(() => {
+    if (!enabled) {
+      const hasCookie = document.cookie.split('; ').some((c) => c === 'nl-search-enabled=1');
+      if (hasCookie) {
+        setEnabled(true);
+      }
+    }
+  }, [enabled]);
+
+  return enabled;
+};
+
+/**
  * Wrapper component that conditionally renders NLSearch based on feature flag.
- * Only renders when NEXT_PUBLIC_NL_SEARCH=enabled is set.
+ * Enabled globally via NEXT_PUBLIC_NL_SEARCH=enabled, or per-user via ?nl_search=1 cookie.
  */
 export const NLSearchWithFlag: FC<INLSearchProps> = (props) => {
-  if (!isNLSearchEnabled()) {
+  const enabled = useNLSearchEnabled();
+  if (!enabled) {
     return null;
   }
   return <NLSearch {...props} />;

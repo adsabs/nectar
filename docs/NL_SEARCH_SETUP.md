@@ -39,8 +39,8 @@ API_HOST_SERVER=https://api.adsabs.harvard.edu/v1
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 
-# Enable NL Search feature
-NEXT_PUBLIC_NL_SEARCH=enabled
+# Enable NL Search feature (global — or use ?nl_search=1 cookie toggle instead)
+# NEXT_PUBLIC_NL_SEARCH=enabled
 
 # Model inference endpoint (REQUIRED - set to your deployment)
 NL_SEARCH_PIPELINE_ENDPOINT=https://your-endpoint.example.com/v1/chat/completions
@@ -258,12 +258,25 @@ The post-processing pipeline should catch most issues. If you see problems:
 
 ### Feature flag not working
 
-Ensure `.env.local` has:
+There are two ways to enable NL Search:
+
+**Option 1: Cookie toggle (recommended for testing/demos)**
+
+Visit any page with `?nl_search=1` appended to the URL. This sets a browser cookie that persists for 1 year. Disable with `?nl_search=0`.
+
+```
+https://your-site.com/?nl_search=1   # enable
+https://your-site.com/?nl_search=0   # disable
+```
+
+**Option 2: Environment variable (global enable)**
+
+Set in `.env.local`:
 ```bash
 NEXT_PUBLIC_NL_SEARCH=enabled
 ```
 
-Restart the dev server after changing env vars.
+Restart the dev server after changing env vars. This enables the feature for all users.
 
 ## API Reference
 

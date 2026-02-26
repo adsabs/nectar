@@ -324,6 +324,26 @@ export async function middleware(req: NextRequest) {
     'Request received',
   );
 
+  // NL Search feature toggle: ?nl_search=1 enables, ?nl_search=0 disables
+  const nlSearchParam = req.nextUrl.searchParams.get('nl_search');
+  if (nlSearchParam !== null) {
+    const url = req.nextUrl.clone();
+    url.searchParams.delete('nl_search');
+    const response = NextResponse.redirect(url);
+    if (nlSearchParam === '1') {
+      response.cookies.set('nl-search-enabled', '1', {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 365,
+      });
+    } else {
+      response.cookies.delete('nl-search-enabled');
+    }
+    log.info({ nlSearchParam, path }, 'NL search cookie toggle');
+    return response;
+  }
+
   const maybeAbsRewrite = rewriteAbsIdentifier(req);
   if (maybeAbsRewrite) {
     log.info({ path, duration: Date.now() - startTime }, 'Abs path rewrite applied');
