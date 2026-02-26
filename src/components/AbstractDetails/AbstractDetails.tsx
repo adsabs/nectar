@@ -1,7 +1,7 @@
 import { IDocsEntity } from '@/api/search/types';
 import { EXTERNAL_URLS } from '@/config';
 import { getReadablePublDate, pluralize } from '@/utils/common/formatters';
-import { ExternalLinkIcon, QuestionIcon } from '@chakra-ui/icons';
+import { ChatIcon, ExternalLinkIcon, QuestionIcon } from '@chakra-ui/icons';
 import {
   Badge,
   Box,
@@ -10,6 +10,7 @@ import {
   Flex,
   HStack,
   Icon,
+  Spacer,
   Stack,
   Table,
   Tag,
@@ -33,6 +34,8 @@ import { SearchQueryLink } from '../SearchQueryLink';
 import { SimpleLink } from '../SimpleLink';
 import { AbstractCitationModal } from './AbstractCitationModal';
 import { UATDropdown } from './UATDropdown';
+import { useRouter } from 'next/router';
+import { feedbackItems } from '../NavBar';
 
 interface IDetailsProps {
   doc: IDocsEntity;
@@ -61,6 +64,15 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
   const formattedPublicationDate = doc.pubdate ? getReadablePublDate(doc.pubdate) : '';
 
   const { isOpen: isCitationOpen, onOpen: onCitationOpen, onClose: onCitationClose } = useDisclosure();
+
+  const router = useRouter();
+
+  const handleUATFeedback = () => {
+    void router.push({
+      pathname: feedbackItems.general.path,
+      query: { id: doc.bibcode ? doc.bibcode : doc.identifier?.[0], subject: 'UAT keywords feedback' },
+    });
+  };
 
   return (
     <Box as="section" border="1px" borderColor="gray.50" borderRadius="md" shadow="sm" aria-labelledby="details">
@@ -103,7 +115,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
           <Detail label="Bibcode" value={doc.bibcode} copiable />
           <Collections collections={doc.database ?? []} />
           <Keywords keywords={doc.keyword} />
-          <UATKeywords keywords={doc.uat} ids={doc.uat_id} />
+          <UATKeywords keywords={doc.uat} ids={doc.uat_id} feedback={handleUATFeedback} />
           <Bibgroups bibgroups={doc.bibgroup ?? []} />
           <PlanetaryFeatures features={doc.planetary_feature} ids={doc.planetary_feature_id} />
           <Detail label="Comment(s)" value={doc.comment} />
@@ -214,58 +226,69 @@ const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
 }, equals);
 Keywords.displayName = 'Keywords';
 
-const UATKeywords = memo(({ keywords, ids }: { keywords: Array<string>; ids: Array<number> }) => {
-  const desc = `Search for papers that mention this keyword`;
-  const label = (
-    <>
-      {`UAT ${pluralize('Keyword', keywords?.length ?? 0)} (generated)`}
-      <Badge colorScheme="blue" mx={1}>
-        BETA
-      </Badge>
-    </>
-  );
-  return (
-    <Detail label={label} value={keywords}>
-      {(keywords) => (
-        <Flex flexWrap={'wrap'}>
-          {keywords.map((keyword, index) => (
-            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" px={2} py={1} key={keyword}>
-              <HStack spacing="1">
-                <Tooltip
-                  label={
-                    <>
-                      {keyword} <ExternalLinkIcon aria-label="external link" />
-                    </>
-                  }
-                >
-                  <SimpleLink href={`https://astrothesaurus.org/uat/${encodeURIComponent(ids[index])}`} newTab>
-                    {shortenKeyword(keyword)}
-                  </SimpleLink>
-                </Tooltip>
-                <SearchQueryLink
-                  params={{ q: `uat:"${keyword.split('/').pop()}"` }}
-                  textDecoration="none"
-                  _hover={{
-                    color: 'gray.900',
-                  }}
-                  aria-label={desc}
-                  fontSize="md"
-                >
-                  <Tooltip label={desc}>
-                    <Center>
-                      <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" ml={2} mr={1} />
-                    </Center>
-                  </Tooltip>
-                </SearchQueryLink>
-                <UATDropdown keyword={keyword} />
-              </HStack>
-            </Tag>
-          ))}
-        </Flex>
-      )}
-    </Detail>
-  );
-}, equals);
+const UATKeywords = memo(
+  ({ keywords, ids, feedback }: { keywords: Array<string>; ids: Array<number>; feedback: () => void }) => {
+    const desc = `Search for papers that mention this keyword`;
+    const label = (
+      <>
+        {`UAT ${pluralize('Keyword', keywords?.length ?? 0)} (generated)`}
+        <Badge colorScheme="blue" mx={1}>
+          BETA
+        </Badge>
+      </>
+    );
+    return (
+      <Detail label={label} value={keywords}>
+        {(keywords) => (
+          <>
+            <Flex flexWrap={'wrap'}>
+              {keywords.map((keyword, index) => (
+                <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" px={2} py={1} key={keyword}>
+                  <HStack spacing="1">
+                    <Tooltip
+                      label={
+                        <>
+                          {keyword} <ExternalLinkIcon aria-label="external link" />
+                        </>
+                      }
+                    >
+                      <SimpleLink href={`https://astrothesaurus.org/uat/${encodeURIComponent(ids[index])}`} newTab>
+                        {shortenKeyword(keyword)}
+                      </SimpleLink>
+                    </Tooltip>
+                    <SearchQueryLink
+                      params={{ q: `uat:"${keyword.split('/').pop()}"` }}
+                      textDecoration="none"
+                      _hover={{
+                        color: 'gray.900',
+                      }}
+                      aria-label={desc}
+                      fontSize="md"
+                    >
+                      <Tooltip label={desc}>
+                        <Center>
+                          <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" ml={2} mr={1} />
+                        </Center>
+                      </Tooltip>
+                    </SearchQueryLink>
+                    <UATDropdown keyword={keyword} />
+                  </HStack>
+                </Tag>
+              ))}
+              <Spacer />
+              <Flex justifyContent="end" mt={2}>
+                <Button variant="link" size="sm" onClick={feedback}>
+                  <ChatIcon mr={2} /> Feedback
+                </Button>
+              </Flex>
+            </Flex>
+          </>
+        )}
+      </Detail>
+    );
+  },
+  equals,
+);
 UATKeywords.displayName = 'UATKeywords';
 
 const Collections = memo(({ collections }: { collections: Array<string> }) => {
