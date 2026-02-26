@@ -69,10 +69,14 @@ const General: NextPage = () => {
   const { executeRecaptcha } = useGoogleReCaptcha();
   const { isOpen: isAlertOpen, onClose: onAlertClose, onOpen: onAlertOpen } = useDisclosure();
 
+  const router = useRouter();
+
+  const { subject, id } = router.query;
+
   const initialFormValues: FormValues = {
     name: '',
     email: userEmail ?? '',
-    comments: '',
+    comments: !!subject && subject === 'UAT keywords feedback' ? `UAT Keywords feedback on record: ${id}\n\n` : '',
   };
 
   const formMethods = useForm<FormValues>({
@@ -91,8 +95,6 @@ const General: NextPage = () => {
   } = formMethods;
 
   const { mutate, isLoading } = useFeedback();
-
-  const router = useRouter();
 
   const onSubmit = useCallback<SubmitHandler<FormValues>>(
     async (params) => {
@@ -116,7 +118,7 @@ const General: NextPage = () => {
           {
             name,
             _replyto: email,
-            _subject: 'Nectar Feedback',
+            _subject: !!subject ? subject : 'Nectar Feedback',
             'feedback-type': 'feedback',
             'user-agent-string': globalThis?.navigator?.userAgent,
             origin: 'bbb_feedback', // indicate general feedback
