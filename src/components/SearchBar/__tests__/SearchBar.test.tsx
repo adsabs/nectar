@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   useRouter: vi.fn(() => ({
     query: { q: '' },
     events: { on: vi.fn(), off: vi.fn() },
+    back: vi.fn(),
   })),
   useLandingFormPreference: vi.fn(() => ({
     landingFormUrl: '/',
@@ -119,7 +120,8 @@ test('selecting quickfield appends to existing query', async () => {
 });
 
 test('Updates via changes to the search URL', async () => {
-  mocks.useRouter.mockImplementationOnce(() => ({ query: { q: 'URL_QUERY' }, events: { on: vi.fn(), off: vi.fn() } }));
+  const urlRouter = { query: { q: 'URL_QUERY' }, events: { on: vi.fn(), off: vi.fn() }, back: vi.fn() };
+  mocks.useRouter.mockImplementationOnce(() => urlRouter).mockImplementationOnce(() => urlRouter);
   const { getByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input') as HTMLInputElement;
   expect(input.value).toBe('URL_QUERY');

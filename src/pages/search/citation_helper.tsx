@@ -2,7 +2,6 @@ import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 import { composeNextGSSP } from '@/ssr-utils';
 import { SimpleLink } from '@/components/SimpleLink';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
-import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
 import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
 import { ChevronLeftIcon, ExternalLinkIcon, InfoIcon } from '@chakra-ui/icons';
 import {
@@ -17,10 +16,12 @@ import {
   Stack,
   useDisclosure,
   Button,
+  IconButton,
   Tooltip,
 } from '@chakra-ui/react';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { parseQueryFromUrl } from '@/utils/common/search';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { fetchSearch, searchKeys, useSearch } from '@/api/search/search';
@@ -54,7 +55,7 @@ interface ICitationHelperPageProps {
 }
 
 export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, bibcodes, error }) => {
-  const { getSearchHref, show: showSearchHref } = useBackToSearchResults();
+  const router = useRouter();
 
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
@@ -155,11 +156,12 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
       </Head>
       <Flex direction="column">
         <HStack mt={10} mb={4}>
-          {showSearchHref && (
-            <SimpleLink href={getSearchHref()}>
-              <ChevronLeftIcon w={8} h={8} />
-            </SimpleLink>
-          )}
+          <IconButton
+            aria-label="Go back"
+            icon={<ChevronLeftIcon w={8} h={8} />}
+            variant="ghost"
+            onClick={() => router.back()}
+          />
           <Heading as="h2" fontSize="2xl">
             Citation Helper
           </Heading>

@@ -22,7 +22,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((props, re
   const inputRef = useRef<HTMLInputElement>(null);
   const refs = useMergeRefs(inputRef, ref);
   const { landingFormUrl } = useLandingFormPreference();
-  const { getSearchHref, show: showBackLink } = useBackToSearchResults();
+  const { handleBack } = useBackToSearchResults();
 
   useEffect(() => {
     if (query !== undefined) {
@@ -50,16 +50,16 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((props, re
         >
           Start new search
         </Button>
-      ) : showBackLinkAs === 'results' && showBackLink ? (
+      ) : showBackLinkAs === 'results' ? (
         <Button
-          as={SimpleLink}
+          type="button"
           variant="link"
           size="sm"
           leftIcon={<ArrowLeftIcon />}
           alignSelf="flex-start"
-          href={getSearchHref()}
+          onClick={handleBack}
         >
-          Return to results
+          Go back
         </Button>
       ) : null}
       <QuickFields isLoading={isLoading} dispatch={dispatch} />

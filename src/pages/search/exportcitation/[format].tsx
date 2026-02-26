@@ -7,11 +7,11 @@ import { useIsClient } from '@/lib/useIsClient';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { last, map, prop } from 'ramda';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { composeNextGSSP } from '@/ssr-utils';
 import { useSettings } from '@/lib/useSettings';
-import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
 import { logger } from '@/logger';
 import { SimpleLink } from '@/components/SimpleLink';
 import { CitationExporter } from '@/components/CitationExporter';
@@ -58,8 +58,8 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
           maxauthor: parseInt(settings.bibtexMaxAuthors),
         };
 
+  const router = useRouter();
   const { data, fetchNextPage, hasNextPage, error } = useSearchInfinite(query);
-  const { getSearchHref, show: showSearchHref } = useBackToSearchResults();
 
   // TODO: add more error handling here
   if (!data) {
@@ -81,10 +81,14 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
       </Head>
       <Flex direction="column">
         <HStack my={10}>
-          {(referrer || showSearchHref) && (
-            <SimpleLink href={referrer ?? getSearchHref()}>
+          {referrer ? (
+            <SimpleLink href={referrer}>
               <ChevronLeftIcon w={8} h={8} />
             </SimpleLink>
+          ) : (
+            <button type="button" onClick={() => router.back()} aria-label="Go back">
+              <ChevronLeftIcon w={8} h={8} />
+            </button>
           )}
 
           <Heading as="h2" fontSize="2xl">
