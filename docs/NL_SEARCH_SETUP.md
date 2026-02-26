@@ -98,7 +98,18 @@ Format:
 
 The NL search API expects an OpenAI-compatible chat completions endpoint. Choose one:
 
-### Option 1: vLLM (Recommended)
+### Option 1: Google Colab (Quickest — no local GPU needed)
+
+Open [`nls-finetune-scix/scripts/serve_colab.ipynb`](https://github.com/sjarmak/nls-finetune-scix/blob/main/scripts/serve_colab.ipynb) in Google Colab (free T4 GPU). It loads the model and exposes a public URL via ngrok.
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sjarmak/nls-finetune-scix/blob/main/scripts/serve_colab.ipynb)
+
+Set the printed URL in `.env.local`:
+```bash
+NL_SEARCH_VLLM_ENDPOINT=https://<your-ngrok-id>.ngrok-free.app/v1/chat/completions
+```
+
+### Option 2: vLLM (Recommended for production)
 
 ```bash
 pip install vllm
