@@ -2,7 +2,14 @@ import { ADSQuery } from '@/api/types';
 
 export type FeedbackBaseParams = {
   name: string;
-  _subject: 'Updated Record' | 'New Record' | 'Nectar Feedback' | 'Associated Articles' | 'Missing References';
+  _subject:
+    | 'Updated Record'
+    | 'New Record'
+    | 'Nectar Feedback'
+    | 'Associated Articles'
+    | 'Missing References'
+    | 'UAT keywords feedback'
+    | string;
   'g-recaptcha-response': string;
   origin: 'bbb_feedback' | 'user_submission';
   _replyto?: string;
