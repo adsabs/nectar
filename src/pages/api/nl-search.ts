@@ -2,11 +2,10 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { constrainQueryOutput, validateFieldConstraints, type FieldCorrection } from '@/lib/field-constraints';
 
 // Modal endpoints for NL search inference
-// These should be set in environment variables for production deployments
-// See: https://github.com/adsabs/nectar/blob/sj/fine-tune/FEATURE_BRANCH_SETUP.md
-const PIPELINE_ENDPOINT = process.env.NL_SEARCH_PIPELINE_ENDPOINT || 'https://sjarmak--v1-chat-completions.modal.run';
-const VLLM_ENDPOINT =
-  process.env.NL_SEARCH_VLLM_ENDPOINT || 'https://sjarmak--nls-finetune-serve-vllm-serve.modal.run/v1/chat/completions';
+// These must be set in environment variables for deployment
+// See: docs/NL_SEARCH_SETUP.md
+const PIPELINE_ENDPOINT = process.env.NL_SEARCH_PIPELINE_ENDPOINT;
+const VLLM_ENDPOINT = process.env.NL_SEARCH_VLLM_ENDPOINT;
 
 const ADS_AUTOCOMPLETE_URL = 'https://api.adsabs.harvard.edu/v1/autocomplete';
 const SIMBAD_TAP_URL = 'https://simbad.cds.unistra.fr/simbad/sim-tap/sync';
@@ -771,11 +770,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     query: naturalLanguageQuery,
     expand: expandSynonymsOption = true,
     resolveObjects: resolveObjectsOption = true,
-    usePipeline: usePipelineOption = true,
+    usePipeline: usePipelineOption = false,
   } = req.body as NLSearchRequest;
 
   if (!naturalLanguageQuery || typeof naturalLanguageQuery !== 'string') {
     return res.status(400).json({ query: '', error: 'Missing query parameter' });
+  }
+
+  if (!PIPELINE_ENDPOINT && !VLLM_ENDPOINT) {
+    return res.status(503).json({
+      query: '',
+      error: 'NL search not configured. Set NL_SEARCH_PIPELINE_ENDPOINT or NL_SEARCH_VLLM_ENDPOINT.',
+    });
   }
 
   try {

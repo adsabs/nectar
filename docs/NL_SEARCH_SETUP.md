@@ -190,7 +190,7 @@ If you want to retrain the model with updated data:
 
 ```bash
 # On a GPU instance (g5.xlarge recommended)
-git clone https://github.com/adsabs/nls-finetune-scix.git
+git clone https://github.com/sjarmak/nls-finetune-scix.git
 cd nls-finetune-scix
 
 pip install torch transformers datasets peft accelerate trl
