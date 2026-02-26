@@ -29,24 +29,32 @@ pnpm install
 cp .env.local.sample .env.local
 ```
 
-Edit `.env.local`:
+Edit `.env.local` and add the NL Search variables below. Your existing nectar env vars (`API_HOST_CLIENT`, `REDIS_HOST`, etc.) should already be set.
+
 ```bash
-# API endpoints
-API_HOST_CLIENT=https://api.adsabs.harvard.edu/v1
-API_HOST_SERVER=https://api.adsabs.harvard.edu/v1
+# --- NL Search env vars ---
 
-# Redis
-REDIS_HOST=127.0.0.1
-REDIS_PORT=6379
+# Inference endpoint (at least one REQUIRED)
+# Use NL_SEARCH_VLLM_ENDPOINT for Colab / vLLM serving (most common)
+# Use NL_SEARCH_PIPELINE_ENDPOINT for the hybrid NER pipeline
+NL_SEARCH_VLLM_ENDPOINT=https://your-ngrok-id.ngrok-free.app/v1/chat/completions
+# NL_SEARCH_PIPELINE_ENDPOINT=https://your-pipeline-endpoint.example.com/v1/chat/completions
 
-# Enable NL Search feature (global — or use ?nl_search=1 cookie toggle instead)
+# Issue reporting (optional — enables "Report Issue" button → GitHub Issues)
+NL_SEARCH_GITHUB_TOKEN=ghp_your_token_here
+# NL_SEARCH_ISSUE_REPO=sjarmak/nls-finetune-scix  # default
+
+# Global enable (optional — alternative to ?nl_search=1 cookie toggle)
 # NEXT_PUBLIC_NL_SEARCH=enabled
-
-# Model inference endpoint (REQUIRED - set to your deployment)
-NL_SEARCH_PIPELINE_ENDPOINT=https://your-endpoint.example.com/v1/chat/completions
-# Optional vLLM fallback endpoint
-# NL_SEARCH_VLLM_ENDPOINT=https://your-vllm-endpoint.example.com/v1/chat/completions
 ```
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NL_SEARCH_VLLM_ENDPOINT` | Yes (one of) | OpenAI-compatible chat completions URL (vLLM, Colab, etc.) |
+| `NL_SEARCH_PIPELINE_ENDPOINT` | Yes (one of) | Hybrid NER pipeline endpoint |
+| `NL_SEARCH_GITHUB_TOKEN` | No | GitHub PAT with Issues write permission for issue reporting |
+| `NL_SEARCH_ISSUE_REPO` | No | GitHub repo for issues (default: `sjarmak/nls-finetune-scix`) |
+| `NEXT_PUBLIC_NL_SEARCH` | No | Set to `enabled` to show NL search for all users globally |
 
 ### 3. Start Development Server
 
