@@ -232,6 +232,7 @@ The training data (`train.jsonl`) uses chat format:
 | `src/components/NLSearch/useNLSearch.ts` | Hook with search logic and state |
 | `src/pages/api/nl-search.ts` | API route that calls inference endpoint |
 | `src/lib/field-constraints.ts` | TypeScript field validation |
+| `src/pages/api/nl-report-issue.ts` | Issue reporting → GitHub Issues |
 | `e2e/tests/nl-search.spec.ts` | Playwright E2E tests |
 
 ## Testing
@@ -288,6 +289,35 @@ NEXT_PUBLIC_NL_SEARCH=enabled
 ```
 
 Restart the dev server after changing env vars. This enables the feature for all users.
+
+## Reporting Issues
+
+The NL search UI includes a "Report Issue" button that lets users flag bad translations. Reports are filed as GitHub Issues on the training data repo.
+
+### Setup
+
+Add a GitHub token to `.env.local`:
+```bash
+NL_SEARCH_GITHUB_TOKEN=ghp_your_token_here
+```
+
+The token needs **Issues write** permission on the target repo. You can configure the repo via:
+```bash
+NL_SEARCH_ISSUE_REPO=sjarmak/nls-finetune-scix  # default
+```
+
+### How it works
+
+1. User clicks "Report Issue" on any NL search result
+2. Fills in what they expected the query to be, selects a category, and optionally adds notes
+3. A GitHub Issue is created with the original input, model output, and expected query
+4. Issues are labeled `nl-search` and `training-data` for easy filtering
+
+Reported issues can then be used to improve the training dataset for future model versions.
+
+### Viewing reports
+
+All reports are at: https://github.com/sjarmak/nls-finetune-scix/issues?q=label%3Anl-search
 
 ## API Reference
 
