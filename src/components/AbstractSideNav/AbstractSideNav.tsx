@@ -123,7 +123,7 @@ const useGetItems = ({
       href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.GRAPHICS}` },
       label: 'Graphics',
       icon: <PhotographIcon />,
-      rightElement: null,
+      rightElement: <CountBadge count={graphicsCount} />,
       disabled: graphicsCount === 0,
       tooltip: 'View thumbnails of graphics published in this record',
     },
