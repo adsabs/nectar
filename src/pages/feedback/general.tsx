@@ -1,4 +1,7 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   AlertStatus,
   Button,
   Flex,
@@ -94,6 +97,8 @@ const General: NextPage = () => {
 
   const router = useRouter();
 
+  const errorDetails = typeof router.query.error_details === 'string' ? router.query.error_details : undefined;
+
   const onSubmit = useCallback<SubmitHandler<FormValues>>(
     async (params) => {
       if (params === null) {
@@ -130,6 +135,7 @@ const General: NextPage = () => {
             current_page: router.query.from ? (router.query.from as string) : undefined,
             current_query: makeSearchParams(currentQuery),
             url: router.asPath,
+            error_details: errorDetails,
             comments,
           },
           {
@@ -176,6 +182,7 @@ const General: NextPage = () => {
       currentQuery,
       router.query.from,
       router.asPath,
+      errorDetails,
       userEmail,
       engineName,
       engineVersion,
@@ -223,6 +230,14 @@ const General: NextPage = () => {
           </SimpleLink>
           . You can also send general comments and questions to <strong>help [at] scixplorer.org</strong>.
         </Text>
+        {errorDetails && (
+          <Alert status="info" borderRadius="md" my={2}>
+            <AlertIcon />
+            <AlertDescription fontSize="sm">
+              Error details from your search will be included with this submission to help us investigate the issue.
+            </AlertDescription>
+          </Alert>
+        )}
         <Flex direction="column" gap={4}>
           <Stack direction={{ base: 'column', sm: 'row' }} gap={2}>
             <FormControl isRequired isInvalid={!!errors.name}>
