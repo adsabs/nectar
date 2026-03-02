@@ -37,6 +37,7 @@ export const useGetGraphicsCount: ADSQuery<
     queryKey: graphicsKeys.primary(bibcode),
     queryFn: fetchGraphics,
     retry: retryFn,
+    staleTime: 1000 * 60 * 5,
     meta: { params, skipGlobalErrorHandler: true },
     ...options,
   });
