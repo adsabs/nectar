@@ -118,6 +118,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     if (authorNetworkData) {
       return getAuthorNetworkSummaryGraph(authorNetworkData);
     }
+    return { data: [] };
   }, [authorNetworkData]);
 
   // convert filters to tags
