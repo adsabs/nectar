@@ -173,7 +173,7 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
     <Table size="sm">
       <Thead>
         <Tr>
-          <Th aria-label="index" w="4%"></Th>
+          <Th w="4%">No.</Th>
           <Th w="30%">Type</Th>
           <Th>URL</Th>
           {editable && <Th w="10%">Actions</Th>}

@@ -402,7 +402,7 @@ export const AssociatedTable = () => {
                 {associatedBibcodes.map((b, index) => (
                   <FormControl isInvalid={!!errors.associatedBibcodes?.[index]} key={`asso-bib-${b.value}`}>
                     <HStack>
-                      <Input {...register(`associatedBibcodes.${index}.value`)} />
+                      <Input {...register(`associatedBibcodes.${index}.value`)} aria-label="bibcode" />
                       <IconButton
                         data-index={index}
                         aria-label="Delete"
@@ -429,6 +429,7 @@ export const AssociatedTable = () => {
                   value={newAssociatedBibcode}
                   ref={newAssociatedBibcodeRef}
                   onKeyDown={handleKeydownNewBibcode}
+                  aria-label="add new bibcode"
                 />
                 <IconButton
                   aria-label="Add"

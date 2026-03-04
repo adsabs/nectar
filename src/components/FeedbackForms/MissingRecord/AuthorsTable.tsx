@@ -188,6 +188,7 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
           value={newAuthor?.name ?? ''}
           ref={newAuthorNameRef}
           onKeyDown={handleKeydownNewAuthor}
+          aria-label="name"
         />
       </Td>
       <Td>
@@ -196,6 +197,7 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
           onChange={handleNewAffChange}
           value={newAuthor?.aff ?? ''}
           onKeyDown={handleKeydownNewAuthor}
+          aria-label="affiliation"
         />
       </Td>
       <Td>
@@ -204,6 +206,7 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
           onChange={handleNewOrcidChange}
           value={newAuthor?.orcid ?? ''}
           onKeyDown={handleKeydownNewAuthor}
+          aria-label="orcid"
         />
       </Td>
       <Td>
@@ -223,7 +226,7 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
       <Table size="sm">
         <Thead>
           <Tr>
-            <Th aria-label="index" w="4%"></Th>
+            <Th w="4%">No.</Th>
             <Th>Name</Th>
             <Th>Affiliation</Th>
             <Th w="20%">ORCiD</Th>
