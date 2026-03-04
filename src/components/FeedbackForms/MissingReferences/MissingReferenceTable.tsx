@@ -111,7 +111,7 @@ export const MissingReferenceTable = () => {
         <Table size="sm">
           <Thead>
             <Tr>
-              <Th aria-label="index" w="4%"></Th>
+              <Th w="4%">No.</Th>
               <Th>Citing Bibcode</Th>
               <Th>Cited Bibcode</Th>
               <Th>Actions</Th>

@@ -3,7 +3,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 
 export const RecaptchaMessage = (props: TextProps) => {
   return (
-    <Text fontSize="sm" color="gray.500" mt="4" {...props}>
+    <Text fontSize="sm" mt="4" {...props}>
       This site is protected by reCAPTCHA and the Google
       <SimpleLink display="inline" href={'https://policies.google.com/privacy'}>
         {' '}

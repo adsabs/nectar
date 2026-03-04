@@ -151,7 +151,7 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
     <Table size="sm">
       <Thead>
         <Tr>
-          <Th aria-label="index" w="4%"></Th>
+          <Th w="4%">No.</Th>
           <Th w="30%">Type</Th>
           <Th>Reference</Th>
           {editable && <Th w="10%">Actions</Th>}
