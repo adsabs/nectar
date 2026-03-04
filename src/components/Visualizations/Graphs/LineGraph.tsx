@@ -19,7 +19,7 @@ export const LineGraph = memo(
     const darkTheme = useNivoDarkTheme();
 
     return (
-      <Box width="100%" mt={5}>
+      <Box width="100%" mt={5} role="img" aria-label="line graph">
         <div style={{ height: '500px' }}>
           <ResponsiveLine
             theme={colorMode === 'dark' ? darkTheme : null}

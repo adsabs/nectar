@@ -37,7 +37,14 @@ export const SortControl = ({
       }}
       {...flexProps}
     >
-      <Select size="sm" value={value} onChange={handleSortChange} borderRightRadius="none" _focus={{ boxShadow: '' }}>
+      <Select
+        aria-label="sort by"
+        size="sm"
+        value={value}
+        onChange={handleSortChange}
+        borderRightRadius="none"
+        _focus={{ boxShadow: '' }}
+      >
         <option value="count">Count</option>
         {onlyCount ? null : <option value="index">A-Z</option>}
       </Select>

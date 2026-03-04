@@ -259,6 +259,7 @@ export const BubblePlot = ({
   const transitionNodes = useCallback(() => {
     d3.selectAll<BaseType, IBubbleNode>('.paper-circle')
       .data(nodes, (n) => n.bibcode)
+      .attr('tabindex', '-1')
       .join('circle')
       .transition()
       .duration(200)
@@ -468,7 +469,9 @@ export const BubblePlot = ({
       const g = svg
         .attr('viewBox', [0, 0, width + margin.left + margin.right, height + margin.top + margin.bottom])
         .append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
+        .attr('transform', `translate(${margin.left},${margin.top})`)
+        .attr('role', 'img')
+        .attr('aria-label', 'bubble plot');
 
       // Render Axis
       g.append('g').attr('class', 'x-axis').attr('transform', `translate(0, ${height})`).call(xAxis);

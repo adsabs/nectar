@@ -114,7 +114,8 @@ export const Histogram = ({
         .attr('transform', (d) => `translate(${xScale(d.x0)} , 0)`)
         .attr('width', (d) => xScale(d.x1) - xScale(d.x0))
         .attr('height', height)
-        .attr('tabindex', 0)
+        .attr('tabindex', '-1')
+        .attr('focusable', 'false')
         .style('fill', '#fff')
         .style('opacity', 0) // make it transparent
         .on('mouseover', (event, bin) => {

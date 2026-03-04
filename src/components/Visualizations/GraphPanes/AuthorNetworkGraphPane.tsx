@@ -45,7 +45,7 @@ export const AuthorNetworkGraphPane = ({
   return (
     <Stack as="section" aria-label="Author Network" width="100%" mt={5}>
       <PaperLimit initialLimit={paperLimit} max={maxPaperLimit} onApply={handleChangePaperLimit} />
-      <RadioGroup defaultChecked onChange={handleChangeView} value={view.id}>
+      <RadioGroup defaultChecked onChange={handleChangeView} value={view.id} aria-label="view option">
         <Stack direction="row">
           {views.map((v) => (
             <Radio value={v.id} key={v.id}>

@@ -79,6 +79,8 @@ export const BarGraph = (props: IBarGraphProps): ReactElement => {
       )}
       <div style={{ height: height, marginTop: '20px' }}>
         <ResponsiveBar
+          role="graphics-document"
+          ariaLabel="bar graph"
           theme={colorMode === 'dark' ? darkTheme : null}
           data={data}
           indexBy={indexBy}

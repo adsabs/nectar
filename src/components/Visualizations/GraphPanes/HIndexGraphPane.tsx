@@ -120,7 +120,7 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
                   <Text as="legend" fontWeight="bold">
                     Y-Axis
                   </Text>
-                  <RadioGroup value={yaxis} onChange={handleChangeYAxis} size="md">
+                  <RadioGroup value={yaxis} onChange={handleChangeYAxis} size="md" aria-label="axis">
                     <Stack spacing={4} direction="row">
                       <Radio value="linear">Linear</Radio>
                       <Radio value="log">Log</Radio>
@@ -136,7 +136,6 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
                 xScaleType="linear"
               />
               <Slider
-                aria-label="Limit Slider"
                 range={[1, limits.maxLimit]}
                 values={[isNaN(limits.limit) ? limits.maxLimit : limits.limit]}
                 onSlideEnd={handleLimitSliderChange}

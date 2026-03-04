@@ -38,7 +38,6 @@ export const WordCloudPane = ({
         <Flex alignItems="center" direction="column">
           <FormLabel>Recalculate Cloud</FormLabel>
           <Slider
-            aria-label="unique frequent slider"
             range={[min, max]}
             values={[currentSliderValue]}
             onSlideEnd={handleSliderValueChange}

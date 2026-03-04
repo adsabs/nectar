@@ -192,7 +192,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
           <Table variant="simple" {...tableProps} data-testid="libraries-table">
             <Thead>
               <Tr>
-                {!isMobile && (selectable || showIndex) && <Th aria-label="index"></Th>}
+                {!isMobile && (selectable || showIndex) && <Th>Select</Th>}
                 {columns.map((column) => (
                   <Fragment key={`col-${column.id}`}>
                     {allHiddenCols.indexOf(column.id) === -1 && (
@@ -269,7 +269,12 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                       <Td>
                         {showIndex && `${pageSize * pageIndex + index + 1} `}
                         {selectable && (
-                          <Checkbox isChecked={selected.includes(id)} pointerEvents="none" tabIndex={-1} />
+                          <Checkbox
+                            isChecked={selected.includes(id)}
+                            pointerEvents="none"
+                            tabIndex={-1}
+                            aria-label={`library ${selected.includes(id)} ? 'selected' ? 'not selected`}
+                          />
                         )}
                       </Td>
                     )}

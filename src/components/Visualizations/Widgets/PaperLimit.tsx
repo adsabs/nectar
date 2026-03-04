@@ -39,7 +39,15 @@ export const PaperLimit = ({
   return (
     <Stack direction="row" alignItems="center" my={2}>
       <Text>Show the first</Text>
-      <Input w={16} type="number" value={limit} max={max} onChange={handleChange} onKeyDown={handleKeydown} />
+      <Input
+        w={16}
+        type="number"
+        value={limit}
+        max={max}
+        onChange={handleChange}
+        onKeyDown={handleKeydown}
+        aria-label="max number of papers"
+      />
       <Text>{`papers (max is ${max})`}</Text>
       <Button onClick={handleApply}>Apply</Button>
     </Stack>
