@@ -430,46 +430,52 @@ function limitPlaces(n: number): number {
  * */
 export const getAuthorNetworkSummaryGraph = (response: IADSApiAuthorNetworkResponse): ILineGraph => {
   if (!response.data.root) {
-    return { data: undefined, error: new Error('Cannot generate network') };
+    return { data: [], error: new Error('Cannot generate network') };
   }
 
-  const data: Serie[] = [];
+  try {
+    const data: Serie[] = [];
 
-  // for each group
-  response.data.root.children.forEach((group, index) => {
-    if (index > 6) {
-      return;
-    }
+    // for each group
+    response.data.root.children.forEach((group, index) => {
+      if (index > 6) {
+        return;
+      }
 
-    // all papers from the group
-    const bibcodes = uniq(reduce((acc, author) => [...acc, ...author.papers], [] as string[], group.children));
+      // all papers from the group
+      const bibcodes = uniq(reduce((acc, author) => [...acc, ...author.papers], [] as string[], group.children));
 
-    // years range
-    const years = uniq(bibcodes.map((bibcode) => parseInt(bibcode.slice(0, 4))));
-    console.log(bibcodes);
-    const yearsRange = d3.extent(years);
-    const allYears = range(yearsRange[0], yearsRange[1]); // fill in the years gap
+      // years range — filter NaN in case bibcodes don't start with a 4-digit year
+      const years = uniq(bibcodes.map((bibcode) => parseInt(bibcode.slice(0, 4))).filter((y) => !isNaN(y)));
+      const yearsRange = d3.extent(years);
+      if (yearsRange[0] === undefined || yearsRange[1] === undefined) {
+        return;
+      }
+      const allYears = range(yearsRange[0], yearsRange[1]); // fill in the years gap
 
-    // prefill all years with 0 count values { year: count}
-    const skeleton: { [year in string]: number } = {};
-    allYears.forEach((year) => (skeleton[year.toString()] = 0));
+      // prefill all years with 0 count values { year: count}
+      const skeleton: { [year in string]: number } = {};
+      allYears.forEach((year) => (skeleton[year.toString()] = 0));
 
-    // into year and paper count array [ ... {year: count} ]
-    const yearPaperCount = {
-      ...skeleton,
-      ...countBy((bibcode) => bibcode.slice(0, 4), bibcodes),
-    };
+      // build year→count map, merging skeleton with actual bibcode counts
+      const yearPaperCount = {
+        ...skeleton,
+        ...countBy((bibcode) => bibcode.slice(0, 4), bibcodes),
+      };
 
-    // convert to line graph data [ ... {x: year, y: count} ]
-    const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({
-      x: year,
-      y: count,
-    }));
+      // convert to line graph data [ ... {x: year, y: count} ]
+      const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({
+        x: year,
+        y: count,
+      }));
 
-    data.push({ id: group.name as string, data: graphData });
-  });
+      data.push({ id: group.name as string, data: graphData });
+    });
 
-  return { data };
+    return { data };
+  } catch (err) {
+    return { data: [], error: err instanceof Error ? err : new Error('Cannot generate network') };
+  }
 };
 
 export const getAuthorNetworkNodeDetails = (
