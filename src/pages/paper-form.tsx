@@ -129,7 +129,7 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
   );
 
   return (
-    <VStack as="article" spacing={5} my={16}>
+    <VStack spacing={5} my={16}>
       <Head>
         <title>{`${BRAND_NAME_FULL} Paper Form`}</title>
       </Head>
@@ -172,6 +172,7 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
   return (
     <VStack
       aria-labelledby="journal-search-form"
+      as="section"
       borderRadius={5}
       shadow="base"
       padding={5}
@@ -267,7 +268,7 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
   };
 
   return (
-    <Box aria-labelledby="reference-query-form" borderRadius={5} shadow="base" padding={5} width="full">
+    <Box as="section" aria-labelledby="reference-query-form" borderRadius={5} shadow="base" padding={5} width="full">
       <Heading as="h2" fontSize="large" fontWeight="bold" id="reference-query-form">
         Reference Query
       </Heading>
@@ -324,7 +325,7 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
   };
 
   return (
-    <Box aria-labelledby="bibstem-query-form" borderRadius={5} shadow="base" padding={5} width="full">
+    <Box as="section" aria-labelledby="bibstem-query-form" borderRadius={5} shadow="base" padding={5} width="full">
       <Heading as="h2" fontSize="large" fontWeight="bold" id="bibstem-query-form">
         Bibliographic Code Query
       </Heading>
@@ -446,10 +447,7 @@ const journalQueryNotEmpty = pipe<
   any((v) => v.length > 0),
 );
 
-export const getSearchQuery = async (
-  formParams: PaperFormState[PaperFormType],
-  queryClient: QueryClient,
-) => {
+export const getSearchQuery = async (formParams: PaperFormState[PaperFormType], queryClient: QueryClient) => {
   switch (formParams.form) {
     case PaperFormType.JOURNAL_QUERY: {
       if (journalQueryNotEmpty(formParams)) {

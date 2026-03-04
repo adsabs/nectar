@@ -273,7 +273,7 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
           name="bibstems"
           defaultValue={state.hiddenValue}
           {...omit(['value'], inputProps)}
-          onFocus={() => selectRef.current.focus()}
+          tabIndex={-1}
           ref={ref}
         />
       </VisuallyHidden>
@@ -339,6 +339,10 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
             borderTopLeftRadius: 0,
             borderBottomLeftRadius: 0,
             ':hover': { backgroundColor: colors.pill },
+            color: colors.pillText,
+          }),
+          placeholder: (provided) => ({
+            ...provided,
             color: colors.pillText,
           }),
         }}
