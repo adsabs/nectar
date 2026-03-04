@@ -10,21 +10,22 @@ export const SummaryPane = ({ summaryGraph }: { summaryGraph: ILineGraph }) => {
 
   return (
     <>
-      {summaryGraph.error && (
+      {summaryGraph.error ? (
         <CustomInfoMessage
           status={'error'}
           alertTitle="Cannot generate network"
           description={summaryGraph.error.message}
         />
+      ) : (
+        <>
+          <Text>Group Activity Over Time (measured in papers published)</Text>
+          <LineGraph
+            data={summaryGraph.data}
+            ticks={getLineGraphXTicks(summaryGraph.data, 5)}
+            xScaleType={singleYear ? 'point' : 'linear'}
+          />
+        </>
       )}
-      <>
-        <Text>Group Activity Over Time (measured in papers published)</Text>
-        <LineGraph
-          data={summaryGraph.data}
-          ticks={getLineGraphXTicks(summaryGraph.data, 5)}
-          xScaleType={singleYear ? 'point' : 'linear'}
-        />
-      </>
     </>
   );
 };
