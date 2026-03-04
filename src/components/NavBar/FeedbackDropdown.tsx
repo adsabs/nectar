@@ -1,8 +1,9 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { HStack, List, ListItem, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
+import { DarkMode, HStack, Link, List, ListItem, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { MouseEvent, ReactElement } from 'react';
 import { ListType } from './types';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export const feedbackItems = {
   record: {
@@ -45,6 +46,44 @@ export const FeedbackDropdown = (props: IFeedbackDropdownProps): ReactElement =>
   const { type, onFinished } = props;
   const items = Object.values(feedbackItems);
   const router = useRouter();
+  const colors = useColorModeColors();
+
+  return type === ListType.DROPDOWN ? (
+    <Menu variant="navbar" id="nav-menu-feedback">
+      <MenuButton>
+        <HStack>
+          <>Feedback</> <ChevronDownIcon />
+        </HStack>
+      </MenuButton>
+      <MenuList zIndex={500}>
+        {items.map((item) => (
+          <MenuItem key={item.id}>
+            <Link
+              href={buildHref(item.path, router.asPath)}
+              data-id={item.id}
+              fontWeight="normal"
+              color={colors.text}
+              _hover={{ textDecoration: 'none' }}
+            >
+              {item.label}
+            </Link>
+          </MenuItem>
+        ))}
+      </MenuList>
+    </Menu>
+  ) : (
+    <DarkMode>
+      <SideFeedbackMenu onFinished={onFinished} />
+    </DarkMode>
+  );
+};
+
+const SideFeedbackMenu = ({ onFinished }: { onFinished?: () => void }) => {
+  const items = Object.values(feedbackItems);
+
+  const colors = useColorModeColors();
+
+  const router = useRouter();
 
   const handleAccordionClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (typeof onFinished === 'function') {
@@ -59,32 +98,20 @@ export const FeedbackDropdown = (props: IFeedbackDropdownProps): ReactElement =>
     }
   };
 
-  return type === ListType.DROPDOWN ? (
-    <Menu variant="navbar" id="nav-menu-feedback">
-      <MenuButton>
-        <HStack>
-          <>Feedback</> <ChevronDownIcon />
-        </HStack>
-      </MenuButton>
-      <MenuList zIndex={500}>
-        {items.map((item) => (
-          <MenuItem key={item.id} as="a" href={buildHref(item.path, router.asPath)} data-id={item.id}>
-            {item.label}
-          </MenuItem>
-        ))}
-      </MenuList>
-    </Menu>
-  ) : (
+  return (
     <List variant="navbar" role="menu">
       {items.map((item) => (
         <ListItem key={item.id} role="menuitem" id={`feedback-item-${item.id}`}>
-          <a
+          <Link
             href={buildHref(item.path, router.asPath)}
             onClick={handleAccordionClick}
             style={{ display: 'block', width: '100%' }}
+            fontWeight="normal"
+            color={colors.text}
+            _hover={{ textDecoration: 'none' }}
           >
             {item.label}
-          </a>
+          </Link>
         </ListItem>
       ))}
     </List>
