@@ -304,7 +304,7 @@ ClassicForm.propTypes = propTypes;
 const LogicRadios = (props: { variant: 'andor' | 'all'; radioProps: UseFormRegisterReturn }) => {
   const { variant, radioProps } = props;
   return (
-    <RadioGroup defaultValue="and">
+    <RadioGroup defaultValue="and" aria-label="logical selector">
       <Stack spacing={4} direction="row">
         <Radio size="sm" {...radioProps} value="and">
           And

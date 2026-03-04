@@ -76,6 +76,7 @@ export const theme = extendTheme(
         },
         a: {
           color: mode('blue.500', 'blue.200')(props),
+          fontWeight: 'bold',
         },
       }),
     },
@@ -205,27 +206,9 @@ export const theme = extendTheme(
         },
       },
       Input: {
-        parts: ['field', 'addon'],
-        sizes: {
-          lg: {
-            field: {
-              borderRadius: 'sm',
-            },
-          },
-          md: {
-            field: {
-              borderRadius: 'sm',
-            },
-          },
-          sm: {
-            field: {
-              borderRadius: 'sm',
-            },
-          },
-          xs: {
-            field: {
-              borderRadius: 'sm',
-            },
+        baseStyle: {
+          field: {
+            borderRadius: 'sm',
           },
         },
       },
