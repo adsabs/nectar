@@ -57,16 +57,16 @@ export const FeedbackDropdown = (props: IFeedbackDropdownProps): ReactElement =>
       </MenuButton>
       <MenuList zIndex={500}>
         {items.map((item) => (
-          <MenuItem key={item.id}>
-            <Link
-              href={buildHref(item.path, router.asPath)}
-              data-id={item.id}
-              fontWeight="normal"
-              color={colors.text}
-              _hover={{ textDecoration: 'none' }}
-            >
-              {item.label}
-            </Link>
+          <MenuItem
+            key={item.id}
+            as="a"
+            href={buildHref(item.path, router.asPath)}
+            data-id={item.id}
+            fontWeight="normal"
+            color={colors.text}
+            _hover={{ textDecoration: 'none' }}
+          >
+            {item.label}
           </MenuItem>
         ))}
       </MenuList>
