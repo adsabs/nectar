@@ -342,7 +342,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                   <LockIcon aria-label="private" />
                 </Tooltip>
               )}
-              <Heading variant="pageTitle" as="h1" data-testid="lib-title">
+              <Heading variant="pageTitle" as="h2" data-testid="lib-title">
                 {name}
               </Heading>
             </Flex>
@@ -528,6 +528,7 @@ const BulkMenu = ({
             onChange={handleChange}
             mr={2}
             data-testid="select-all-checkbox"
+            aria-label="select or deselect all"
           />
         </Tooltip>
         {selectedDocs.length > 0 && (

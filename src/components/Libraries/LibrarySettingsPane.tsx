@@ -211,6 +211,7 @@ export const LibrarySettingsPane = ({ id, isFromLanding = false }: ISettingsPane
                 href={isFromLanding ? '/user/libraries' : `/user/libraries/${id}`}
                 display="inline"
                 data-testid="settings-back-btn"
+                aria-label="Back to library"
               >
                 <ChevronLeftIcon mr={2} />
               </SimpleLink>
