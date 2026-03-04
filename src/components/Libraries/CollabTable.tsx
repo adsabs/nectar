@@ -196,10 +196,10 @@ export const CollabTable = ({ id }: { id: LibraryIdentifier }) => {
           <Table size="sm" data-testid="collab-table">
             <Thead>
               <Tr>
-                <Th aria-label="position" w="10%"></Th>
+                <Th w="10%">No.</Th>
                 <Th>Email</Th>
                 <Th w="30%">Permission</Th>
-                <Th w="10%"></Th>
+                <Th w="10%">Action</Th>
               </Tr>
             </Thead>
             <Tbody>

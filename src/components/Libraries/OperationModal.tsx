@@ -197,7 +197,7 @@ export const OperationModal = ({
                     name="action"
                     control={control}
                     render={({ field: { ref, ...rest } }) => (
-                      <RadioGroup {...rest}>
+                      <RadioGroup {...rest} aria-label="operation">
                         <Stack direction={{ base: 'column', sm: 'row' }}>
                           <Radio value="union" autoFocus>
                             Union

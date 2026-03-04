@@ -53,13 +53,13 @@ type SortDirection = 'asc' | 'desc';
 const columns: { id: Column; heading: string; sortable: boolean; hint?: string }[] = [
   {
     id: 'public',
-    heading: '',
+    heading: 'Visibility',
     sortable: false,
     hint: 'public or private',
   },
   {
     id: 'num_users',
-    heading: '',
+    heading: 'Users',
     sortable: false,
     hint: 'number of collaborators',
   },
