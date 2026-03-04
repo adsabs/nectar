@@ -122,7 +122,7 @@ export const NodeList = memo(
     const updateModal = useFacetStore(selectors.updateModal);
     const depth = getLevelFromKey(prefix) + 1;
     const expandable = params.hasChildren && (level === 'root' || params.maxDepth > depth);
-    const { treeData, isFetching, isError } = useGetFacetData({
+    const { treeData, isFetching, isLoading, isError } = useGetFacetData({
       ...params,
       prefix,
       level,
@@ -158,7 +158,7 @@ export const NodeList = memo(
       );
     }
 
-    if (isFetching) {
+    if (isFetching || isLoading) {
       return (
         <Center data-testid="search-facet-loading">
           <Spinner size="sm" />
@@ -294,17 +294,26 @@ export const NodeListModal = (props: INodeListProps) => {
   const setSearch = useFacetStore(selectors.setSearch);
   const handleCapitalizeSearchTerm = useCallback(() => setSearch(capitalize(searchTerm)), [searchTerm, setSearch]);
 
-  const { treeData, isFetching, isError, pagination, handleLoadMore, handlePrevious, handlePageChange, totalResults } =
-    useGetFacetData({
-      ...params,
-      searchTerm,
-      prefix,
-      level,
-      sortField,
-      sortDir,
-    });
+  const {
+    treeData,
+    isFetching,
+    isLoading,
+    isError,
+    pagination,
+    handleLoadMore,
+    handlePrevious,
+    handlePageChange,
+    totalResults,
+  } = useGetFacetData({
+    ...params,
+    searchTerm,
+    prefix,
+    level,
+    sortField,
+    sortDir,
+  });
 
-  if (isFetching) {
+  if (isFetching || isLoading) {
     return (
       <Stack spacing="2" data-testid="search-facet-loading">
         <Skeleton h="24px" />
