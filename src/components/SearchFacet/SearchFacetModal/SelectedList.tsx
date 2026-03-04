@@ -1,4 +1,4 @@
-import { BoxProps, Flex, IconButton, Tag, TagCloseButton, TagLabel, Wrap } from '@chakra-ui/react';
+import { BoxProps, Flex, IconButton, Tag, TagCloseButton, TagLabel, Wrap, WrapItem } from '@chakra-ui/react';
 import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { isEmpty } from 'ramda';
 import { MouseEventHandler } from 'react';
@@ -41,18 +41,20 @@ export const SelectedList = (props: BoxProps) => {
     >
       <Wrap flex="1" spacing="1">
         {selected.map((key) => (
-          <Tag key={key} size="sm" variant="subtle">
-            <TagLabel>
-              {facetId === 'simbad_object_facet_hier' && key.startsWith('1/')
-                ? getObjectName(formatKeyToName(key), queryClient)
-                : formatKeyToName(key)}
-            </TagLabel>
-            <TagCloseButton
-              onClick={handleDeselect}
-              data-key={key}
-              aria-label={`remove ${formatKeyToName(key)} from selection`}
-            />
-          </Tag>
+          <WrapItem key={key}>
+            <Tag size="sm" variant="subtle">
+              <TagLabel>
+                {facetId === 'simbad_object_facet_hier' && key.startsWith('1/')
+                  ? getObjectName(formatKeyToName(key), queryClient)
+                  : formatKeyToName(key)}
+              </TagLabel>
+              <TagCloseButton
+                onClick={handleDeselect}
+                data-key={key}
+                aria-label={`remove ${formatKeyToName(key)} from selection`}
+              />
+            </Tag>
+          </WrapItem>
         ))}
       </Wrap>
       <IconButton

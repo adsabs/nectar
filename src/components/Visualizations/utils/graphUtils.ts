@@ -446,6 +446,7 @@ export const getAuthorNetworkSummaryGraph = (response: IADSApiAuthorNetworkRespo
 
     // years range
     const years = uniq(bibcodes.map((bibcode) => parseInt(bibcode.slice(0, 4))));
+    console.log(bibcodes);
     const yearsRange = d3.extent(years);
     const allYears = range(yearsRange[0], yearsRange[1]); // fill in the years gap
 

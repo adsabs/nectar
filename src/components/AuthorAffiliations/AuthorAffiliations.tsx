@@ -76,7 +76,7 @@ const AffiliationHeader = ({ formState }: { formState: AffTableState }) => {
       <Heading as="h2" size="md" mt="2" id="author-affiliation-title">
         {caption}
       </Heading>
-      <Text color="gray.500">{sub}</Text>
+      <Text>{sub}</Text>
     </>
   );
 };

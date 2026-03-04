@@ -42,6 +42,7 @@ export const ControlledPaginationControls = (props: IControlledPaginationControl
           onChange={(e) => onChangePageSize(e.target.value ? (Number(e.target.value) as NumPerPageType) : 10)}
           size="sm"
           data-testid="page-size-selector"
+          aria-label="page size"
         >
           <option value={10}>10</option>
           <option value={25}>25</option>

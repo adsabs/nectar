@@ -75,7 +75,7 @@ export const BubblePlotPane = ({ graph, onApplyFilter }: IBubblePlotPaneProps): 
           Search
         </Button>
       </VStack>
-      <RadioGroup value={plotType} onChange={handleChangePlotType}>
+      <RadioGroup value={plotType} onChange={handleChangePlotType} aria-label="view option">
         <Stack direction="row">
           {Object.entries(plotTypes).map(([k, v]) => (
             <Radio value={k} key={`graph-type-${k}`}>

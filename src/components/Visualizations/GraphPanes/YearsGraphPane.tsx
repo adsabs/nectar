@@ -101,7 +101,6 @@ export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps)
             tooltip={(bar) => <CustomBarTooltip keys={transformedGraph.keys} bar={bar} />}
           />
           <Slider
-            aria-label="Limit Slider"
             range={[firstYear, lastYear]}
             values={[range.min, range.max]}
             onSlideEnd={handleRangeChange}
