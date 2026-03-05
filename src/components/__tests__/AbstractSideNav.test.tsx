@@ -1,5 +1,5 @@
-import { render } from '@/test-utils';
-import { test, vi } from 'vitest';
+import { render, screen, waitFor } from '@/test-utils';
+import { expect, test, vi } from 'vitest';
 import { AbstractSideNav } from '@/components/AbstractSideNav';
 import { IDocsEntity } from '@/api/search/types';
 
@@ -17,4 +17,18 @@ const doc =
 
 test('renders without crashing', () => {
   render(<AbstractSideNav doc={JSON.parse(doc) as IDocsEntity} />);
+});
+
+test('displays graphics count badge when graphics are available', async () => {
+  render(<AbstractSideNav doc={JSON.parse(doc) as IDocsEntity} />);
+
+  // The MSW mock handler returns 7 figures for the graphics endpoint.
+  // Wait for the badge "7" to appear near the Graphics label.
+  await waitFor(() => {
+    const graphicsText = screen.getAllByText('Graphics');
+    // Walk up to the nearest button/link container
+    const container = graphicsText[0].closest('a, button');
+    expect(container).toBeTruthy();
+    expect(container).toHaveTextContent('7');
+  });
 });

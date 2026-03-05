@@ -92,7 +92,12 @@ const GraphicsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
                       as={SimpleLink}
                       href={figure.images[0].highres}
                     >
-                      <NextImage src={figure.images[0].thumbnail} width="150" height="150" alt={figure.figure_label} />
+                      <NextImage
+                        src={figure.images[0].thumbnail.replace(/^http:\/\//, 'https://')}
+                        width="150"
+                        height="150"
+                        alt={figure.figure_label}
+                      />
                       <Box aria-hidden="true">{figure.figure_label}</Box>
                     </Flex>
                   );

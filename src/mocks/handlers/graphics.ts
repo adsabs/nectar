@@ -5,7 +5,7 @@ import { IADSApiGraphicsParams } from '@/api/graphics/types';
 import { ApiTargets } from '@/api/models';
 
 export const graphicsHandlers = [
-  rest.get<IADSApiGraphicsParams>(apiHandlerRoute(ApiTargets.GRAPHICS, ':id'), (req, res, ctx) => {
+  rest.get<IADSApiGraphicsParams>(apiHandlerRoute(ApiTargets.GRAPHICS, '/:id'), (req, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.json({
