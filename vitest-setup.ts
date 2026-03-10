@@ -13,7 +13,6 @@ import { SetupServerApi } from 'msw/node';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
 replaceAllInserter.shim();
 
 expect.extend(matchers);
@@ -82,3 +81,6 @@ Element.prototype.querySelectorAll = function patchedQuerySelectorAll(selectors:
     throw error;
   }
 };
+
+// jsdom does not implement scrollTo; Chakra Menu calls it internally
+Element.prototype.scrollTo = vi.fn();
