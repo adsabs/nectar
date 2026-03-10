@@ -22,6 +22,9 @@ vi.mock('@/api/export/export', () => ({
   useGetExportCitation: mocks.useGetExportCitation,
 }));
 
+// jsdom does not implement scrollTo; Chakra Menu calls it internally
+Element.prototype.scrollTo = vi.fn();
+
 const makeDoc = (overrides?: Partial<IDocsEntity>): IDocsEntity =>
   ({
     bibcode: '2020ApJ...123..456A',
@@ -94,5 +97,111 @@ describe('ItemResourceDropdowns', () => {
     const { getByLabelText } = render(<ItemResourceDropdowns doc={makeDoc()} />);
 
     expect(getByLabelText('share options')).toBeInTheDocument();
+  });
+
+  describe('tooltip dismissal when menu opens', () => {
+    const docWithSources = makeDoc({
+      esources: ['PUB_PDF', 'EPRINT_PDF'],
+      property: ['ESOURCE'],
+      reference_count: 5,
+      citation_count: 10,
+    });
+
+    test('dismisses tooltip when menu opens via click', async () => {
+      const { user, getByRole, findByRole, queryByRole } = render(<ItemResourceDropdowns doc={docWithSources} />);
+
+      const button = getByRole('button', {
+        name: 'Full text sources',
+      });
+
+      // hover to show tooltip
+      await user.hover(button);
+      const tooltip = await findByRole('tooltip');
+      expect(tooltip).toBeInTheDocument();
+
+      // click to open menu — tooltip should disappear
+      await user.click(button);
+
+      await waitFor(() => {
+        expect(queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+
+      // menu should be open
+      expect(getByRole('menu')).toBeInTheDocument();
+    });
+
+    test('after closing the menu, hovering again restores tooltip', async () => {
+      const { user, getByRole, findByRole, queryByRole } = render(<ItemResourceDropdowns doc={docWithSources} />);
+
+      const button = getByRole('button', {
+        name: 'Full text sources',
+      });
+
+      // open menu via click
+      await user.hover(button);
+      await findByRole('tooltip');
+      await user.click(button);
+
+      // wait for menu to appear
+      await findByRole('menu');
+
+      // close the menu by pressing Escape
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(queryByRole('menu')).not.toBeInTheDocument();
+      });
+
+      // unhover then re-hover to trigger tooltip again
+      await user.unhover(button);
+      await user.hover(button);
+
+      const tooltip = await findByRole('tooltip');
+      expect(tooltip).toBeInTheDocument();
+    });
+
+    test('opening the menu via keyboard (Enter) suppresses tooltip', async () => {
+      const { user, getByRole, findByRole, queryByRole } = render(<ItemResourceDropdowns doc={docWithSources} />);
+
+      const button = getByRole('button', {
+        name: 'Full text sources',
+      });
+
+      // focus and hover to show tooltip
+      await user.hover(button);
+      await findByRole('tooltip');
+
+      // open menu via keyboard
+      button.focus();
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+
+      expect(getByRole('menu')).toBeInTheDocument();
+    });
+
+    test('opening the menu via keyboard (Space) suppresses tooltip', async () => {
+      const { user, getByRole, findByRole, queryByRole } = render(<ItemResourceDropdowns doc={docWithSources} />);
+
+      const button = getByRole('button', {
+        name: 'Full text sources',
+      });
+
+      // focus and hover to show tooltip
+      await user.hover(button);
+      await findByRole('tooltip');
+
+      // open menu via Space key
+      button.focus();
+      await user.keyboard('{ }');
+
+      await waitFor(() => {
+        expect(queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+
+      expect(getByRole('menu')).toBeInTheDocument();
+    });
   });
 });
