@@ -34,7 +34,7 @@ import { resolveObjectQuery, resolveObjectQuerySSR } from '@/api/objects/objects
 import { GetServerSidePropsContext } from 'next';
 import { defaultRequestConfig } from '../config';
 import { APP_DEFAULTS, pickTracingHeaders } from '@/config';
-import { isString } from '@/utils/common/guards';
+import { isBrowser, isString } from '@/utils/common/guards';
 import { IADSApiSearchParams, IADSApiSearchResponse, IBigQueryMutationParams, IDocsEntity } from '@/api/search/types';
 import { ADSMutation, ADSQuery, InfiniteADSQuery } from '@/api/types';
 import api, { ApiRequestConfig } from '@/api/api';
@@ -495,7 +495,7 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }
   // Wrap API request in performance span
   const data = await trackUserFlow(PERF_SPANS.SEARCH_QUERY_REQUEST, async () => {
     // Client-side: route through cache proxy
-    if (typeof window !== 'undefined') {
+    if (isBrowser()) {
       const response = await axios.get<IADSApiSearchResponse>('/api/proxy/search/query', {
         params: flattenParams(finalParams as Record<string, string | string[] | undefined>),
         withCredentials: true,

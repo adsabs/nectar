@@ -109,7 +109,9 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
         <UserSync />
         <Layout>
           <Component {...pageProps} />
-          <CacheStatusBadge status={(pageProps as Record<string, unknown>).cacheStatus as string} />
+          {process.env.NODE_ENV !== 'production' && (
+            <CacheStatusBadge status={(pageProps as AppPageProps).cacheStatus as string} />
+          )}
           <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
         </Layout>
       </Providers>

@@ -13,12 +13,9 @@ import { composeNextGSSP } from '@/ssr-utils';
 import { isAuthenticated } from '@/api/api';
 import { ErrorSeverity, ErrorSource, handleError } from '@/lib/errorHandler';
 import { getRedisClient, isRedisAvailable } from '@/lib/redis';
-import { buildCacheKey, flattenParams } from '@/lib/proxy-cache';
+import { buildCacheKey, CACHE_MAX_SIZE, CACHE_TTL, flattenParams } from '@/lib/proxy-cache';
 
 const log = logger.child({ module: 'abs-canonical' }, { msgPrefix: '[abs-canonical] ' });
-
-const CACHE_TTL = parseInt(process.env.REDIS_CACHE_TTL ?? '300', 10) || 300;
-const CACHE_MAX_SIZE = parseInt(process.env.REDIS_CACHE_MAX_SIZE ?? '5242880', 10) || 5242880;
 
 type AbsProps = {
   dehydratedState?: unknown;
@@ -113,13 +110,6 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
 
     const queryClient = new QueryClient();
 
-    const { fl: _fl, ...cacheParams } = params;
-    const cacheKey = buildCacheKey(
-      'GET',
-      ApiTargets.SEARCH,
-      flattenParams(cacheParams as Record<string, string | string[] | undefined>),
-    );
-
     // Shared handler for building the response from parsed search data
     const buildResult = (data: IADSApiSearchResponse, cacheStatus: 'hit' | 'miss'): IncomingGSSPResult => {
       queryClient.setQueryData(searchKeys.abstract(requestedId), data);
@@ -156,7 +146,17 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
 
       // Cache lookup
       const redis = getRedisClient();
-      if (redis && isRedisAvailable()) {
+      const { fl: _fl, ...cacheParams } = params;
+      const cacheKey =
+        redis && isRedisAvailable()
+          ? buildCacheKey(
+              'GET',
+              ApiTargets.SEARCH,
+              flattenParams(cacheParams as Record<string, string | string[] | undefined>),
+            )
+          : null;
+
+      if (redis && cacheKey) {
         try {
           const cached = await redis.hgetall(cacheKey);
           if (cached?.body) {
@@ -205,7 +205,7 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
       const isPartial = data?.responseHeader?.partialResults === true;
 
       // Cache successful, complete responses within size limit
-      if (redis && isRedisAvailable() && body.length <= CACHE_MAX_SIZE && !isPartial) {
+      if (redis && cacheKey && isRedisAvailable() && body.length <= CACHE_MAX_SIZE && !isPartial) {
         const redisPipeline = redis.multi();
         redisPipeline.hset(cacheKey, {
           body,

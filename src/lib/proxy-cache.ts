@@ -1,4 +1,7 @@
-const getCachePrefix = () => `${process.env.REDIS_PREFIX ?? 'scix_'}cache`;
+const CACHE_PREFIX = `${process.env.REDIS_PREFIX ?? 'scix_'}cache`;
+
+export const CACHE_TTL = parseInt(process.env.REDIS_CACHE_TTL ?? '300', 10) || 300;
+export const CACHE_MAX_SIZE = parseInt(process.env.REDIS_CACHE_MAX_SIZE ?? '5242880', 10) || 5242880;
 
 export function flattenParams(params: Record<string, string | string[] | undefined>): Record<string, string> {
   const out: Record<string, string> = {};
@@ -23,7 +26,7 @@ export function buildCacheKey(method: string, path: string, params: Record<strin
     })
     .join('&');
 
-  const baseKey = `${getCachePrefix()}:${upperMethod}:${path}`;
+  const baseKey = `${CACHE_PREFIX}:${upperMethod}:${path}`;
   return query ? `${baseKey}?${query}` : baseKey;
 }
 

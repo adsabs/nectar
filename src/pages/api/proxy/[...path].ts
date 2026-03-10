@@ -4,14 +4,11 @@ import axios from 'axios';
 import { sessionConfig } from '@/config';
 import { rateLimit } from '@/rateLimit';
 import { getRedisClient, isRedisAvailable } from '@/lib/redis';
-import { buildCacheKey, flattenParams, isAllowedPath } from '@/lib/proxy-cache';
+import { buildCacheKey, CACHE_MAX_SIZE, CACHE_TTL, flattenParams, isAllowedPath } from '@/lib/proxy-cache';
 import { defaultRequestConfig } from '@/api/config';
 import { logger } from '@/logger';
 
 const log = logger.child({}, { msgPrefix: '[proxy] ' });
-
-const CACHE_TTL = parseInt(process.env.REDIS_CACHE_TTL ?? '300', 10) || 300;
-const CACHE_MAX_SIZE = parseInt(process.env.REDIS_CACHE_MAX_SIZE ?? '5242880', 10) || 5242880;
 
 const getClientIp = (req: NextApiRequest): string =>
   (

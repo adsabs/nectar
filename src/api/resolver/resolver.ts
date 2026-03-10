@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { isBrowser } from '@/utils/common/guards';
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
 import { ADSQuery } from '@/api/types';
@@ -28,7 +29,7 @@ export const fetchLinks: QueryFunction<IADSApiResolverResponse> = async ({ meta 
   const { params } = meta as { params: IADSApiResolverParams };
   const resolverPath = `${ApiTargets.RESOLVER}/${params.bibcode}/${params.link_type}`;
 
-  if (typeof window !== 'undefined') {
+  if (isBrowser()) {
     const { data } = await axios.get<IADSApiResolverResponse>(`/api/proxy${resolverPath}`, {
       withCredentials: true,
       validateStatus: acceptOkOrNotFound,
