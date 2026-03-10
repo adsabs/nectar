@@ -15,7 +15,7 @@ import { processLinkData } from '@/components/AbstractSources/linkGenerator';
 import { SimpleAction } from '@/components/Orcid/SimpleAction';
 import { Bars4Icon, CircleStackIcon, DocumentTextIcon, ShareIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/router';
-import { MouseEventHandler, ReactElement, useEffect } from 'react';
+import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
 import { isBrowser } from '@/utils/common/guards';
 import { IDocsEntity } from '@/api/search/types';
 import { CopyMenuItem } from '@/components/CopyButton';
@@ -38,6 +38,9 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   const router = useRouter();
   const toast = useToast();
   const { isOpen: isShareOpen, onOpen: onShareOpen, onClose: onShareClose } = useDisclosure();
+  const [isFullTextOpen, setIsFullTextOpen] = useState(false);
+  const [isRefsOpen, setIsRefsOpen] = useState(false);
+  const [isDataOpen, setIsDataOpen] = useState(false);
   const { settings } = useSettings();
 
   const { data: citationData } = useGetExportCitation(
@@ -164,8 +167,8 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
       {/* orcid menu */}
       <SimpleAction doc={doc} />
       {/* full resources menu */}
-      <Tooltip label="Full text sources" shouldWrapChildren>
-        <Menu variant="compact">
+      <Tooltip label="Full text sources" shouldWrapChildren isDisabled={isFullTextOpen}>
+        <Menu variant="compact" onOpen={() => setIsFullTextOpen(true)} onClose={() => setIsFullTextOpen(false)}>
           <MenuButton
             as={IconButton}
             aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
@@ -187,8 +190,8 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
       </Tooltip>
 
       {/* reference and citation items menu */}
-      <Tooltip label="References and citations" shouldWrapChildren>
-        <Menu variant="compact">
+      <Tooltip label="References and citations" shouldWrapChildren isDisabled={isRefsOpen}>
+        <Menu variant="compact" onOpen={() => setIsRefsOpen(true)} onClose={() => setIsRefsOpen(false)}>
           <MenuButton
             as={IconButton}
             aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
@@ -210,8 +213,8 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
       </Tooltip>
 
       {/* data product items menu */}
-      <Tooltip label="Data products" shouldWrapChildren>
-        <Menu variant="compact">
+      <Tooltip label="Data products" shouldWrapChildren isDisabled={isDataOpen}>
+        <Menu variant="compact" onOpen={() => setIsDataOpen(true)} onClose={() => setIsDataOpen(false)}>
           <MenuButton
             as={IconButton}
             aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
@@ -232,7 +235,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
         </Menu>
       </Tooltip>
       {/* share menu */}
-      <Tooltip label="Share options" shouldWrapChildren>
+      <Tooltip label="Share options" shouldWrapChildren isDisabled={isShareOpen}>
         <Menu variant="compact" isOpen={isShareOpen} onOpen={onShareOpen} onClose={onShareClose}>
           <MenuButton
             as={IconButton}
