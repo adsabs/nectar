@@ -22,9 +22,6 @@ vi.mock('@/api/export/export', () => ({
   useGetExportCitation: mocks.useGetExportCitation,
 }));
 
-// jsdom does not implement scrollTo; Chakra Menu calls it internally
-Element.prototype.scrollTo = vi.fn();
-
 const makeDoc = (overrides?: Partial<IDocsEntity>): IDocsEntity =>
   ({
     bibcode: '2020ApJ...123..456A',
