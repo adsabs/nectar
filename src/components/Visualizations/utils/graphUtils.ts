@@ -443,12 +443,14 @@ export const getAuthorNetworkSummaryGraph = (response: IADSApiAuthorNetworkRespo
       }
 
       // all papers from the group
-      const bibcodes = uniq(reduce((acc, author) => [...acc, ...author.papers], [] as string[], group.children));
+      const bibcodes = uniq(
+        reduce((acc, author) => [...acc, ...(author.papers ?? [])], [] as string[], group.children),
+      );
 
       // filter bibcodes to only those starting with a 4-digit year
       const validBibcodes = bibcodes.filter((b) => /^\d{4}/.test(b));
 
-      const years = uniq(validBibcodes.map((bibcode) => parseInt(bibcode.slice(0, 4))));
+      const years = uniq(validBibcodes.map((bibcode) => parseInt(bibcode.slice(0, 4), 10)));
       const yearsRange = d3.extent(years);
       if (yearsRange[0] === undefined || yearsRange[1] === undefined) {
         return;
