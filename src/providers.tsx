@@ -110,10 +110,9 @@ const sendQueryAsTags = (query: IADSApiSearchParams) => {
 
 const sendResultsLoaded = (query: IADSApiSearchParams, docCount: number) => {
   const loadedTime = performance.now();
-  const duration = loadedTime - windowState.navigationStart;
 
-  // Keep existing measurement for backwards compatibility
-  Sentry.setMeasurement('timing.results.shown', duration, 'millisecond');
+  // performance.now() already returns ms since navigation start
+  Sentry.setMeasurement('timing.results.shown', loadedTime, 'millisecond');
 
   // Add new span-based tracking
   Sentry.startSpan(
@@ -127,7 +126,7 @@ const sendResultsLoaded = (query: IADSApiSearchParams, docCount: number) => {
       },
     },
     (span) => {
-      span.end(loadedTime / 1000);
+      span.end((windowState.navigationStart + loadedTime) / 1000);
     },
   );
 };
