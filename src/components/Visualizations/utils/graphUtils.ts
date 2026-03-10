@@ -445,8 +445,10 @@ export const getAuthorNetworkSummaryGraph = (response: IADSApiAuthorNetworkRespo
       // all papers from the group
       const bibcodes = uniq(reduce((acc, author) => [...acc, ...author.papers], [] as string[], group.children));
 
-      // years range — filter NaN in case bibcodes don't start with a 4-digit year
-      const years = uniq(bibcodes.map((bibcode) => parseInt(bibcode.slice(0, 4))).filter((y) => !isNaN(y)));
+      // filter bibcodes to only those starting with a 4-digit year
+      const validBibcodes = bibcodes.filter((b) => /^\d{4}/.test(b));
+
+      const years = uniq(validBibcodes.map((bibcode) => parseInt(bibcode.slice(0, 4))));
       const yearsRange = d3.extent(years);
       if (yearsRange[0] === undefined || yearsRange[1] === undefined) {
         return;
@@ -460,7 +462,7 @@ export const getAuthorNetworkSummaryGraph = (response: IADSApiAuthorNetworkRespo
       // build year→count map, merging skeleton with actual bibcode counts
       const yearPaperCount = {
         ...skeleton,
-        ...countBy((bibcode) => bibcode.slice(0, 4), bibcodes),
+        ...countBy((bibcode) => bibcode.slice(0, 4), validBibcodes),
       };
 
       // convert to line graph data [ ... {x: year, y: count} ]
