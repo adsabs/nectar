@@ -1,4 +1,4 @@
-const CACHE_PREFIX = 'scix:cache';
+const getCachePrefix = () => `${process.env.REDIS_PREFIX ?? 'scix_'}cache`;
 
 export function flattenParams(params: Record<string, string | string[] | undefined>): Record<string, string> {
   const out: Record<string, string> = {};
@@ -23,7 +23,7 @@ export function buildCacheKey(method: string, path: string, params: Record<strin
     })
     .join('&');
 
-  const baseKey = `${CACHE_PREFIX}:${upperMethod}:${path}`;
+  const baseKey = `${getCachePrefix()}:${upperMethod}:${path}`;
   return query ? `${baseKey}?${query}` : baseKey;
 }
 

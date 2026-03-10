@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getIronSession } from 'iron-session/edge';
+import { getIronSession } from 'iron-session';
 import axios from 'axios';
 import { sessionConfig } from '@/config';
 import { rateLimit } from '@/rateLimit';
@@ -116,8 +116,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const duration = Date.now() - startTime;
     log.info({ path: upstreamPath, duration, statusCode, cache: 'miss' }, 'Cache miss');
 
-    // Cache successful responses within size limit
-    if (redis && isRedisAvailable() && statusCode >= 200 && statusCode < 300 && body.length <= CACHE_MAX_SIZE) {
+    // Skip caching partial results (Solr sets this when results are incomplete)
+    const isPartial =
+      typeof upstreamResponse.data === 'object' && upstreamResponse.data?.responseHeader?.partialResults === true;
+
+    // Cache successful, complete responses within size limit
+    if (
+      redis &&
+      isRedisAvailable() &&
+      statusCode >= 200 &&
+      statusCode < 300 &&
+      body.length <= CACHE_MAX_SIZE &&
+      !isPartial
+    ) {
       const pipeline = redis.multi();
       pipeline.hset(cacheKey, {
         body,

@@ -10,18 +10,18 @@ describe('buildCacheKey', () => {
       rows: '10',
     });
 
-    expect(key).toBe('scix:cache:GET:/search/query?fl=title&q=black%20holes&rows=10');
+    expect(key).toBe('scix_cache:GET:/search/query?fl=title&q=black%20holes&rows=10');
   });
 
   it('sorts params deterministically regardless of input order', () => {
     const params = { z: 'last', a: 'first', m: 'mid' };
     const key = buildCacheKey('POST', '/resolver', params);
-    expect(key).toBe('scix:cache:POST:/resolver?a=first&m=mid&z=last');
+    expect(key).toBe('scix_cache:POST:/resolver?a=first&m=mid&z=last');
   });
 
   it('omits query string when params are empty', () => {
     const key = buildCacheKey('GET', '/search/query', {});
-    expect(key).toBe('scix:cache:GET:/search/query');
+    expect(key).toBe('scix_cache:GET:/search/query');
   });
 
   it('handles special characters deterministically', () => {
@@ -31,7 +31,7 @@ describe('buildCacheKey', () => {
     });
 
     expect(key).toBe(
-      'scix:cache:PATCH:/resolver/2024ApJ...123A?another%20key=emoji%20%F0%9F%98%80&weird%20key=value%2Fvalue',
+      'scix_cache:PATCH:/resolver/2024ApJ...123A?another%20key=emoji%20%F0%9F%98%80&weird%20key=value%2Fvalue',
     );
   });
 });

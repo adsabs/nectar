@@ -8,6 +8,7 @@ import {
   useInfiniteQuery,
   useMutation,
   useQuery,
+  useQueryClient,
   UseQueryOptions,
 } from '@tanstack/react-query';
 import {
@@ -110,8 +111,11 @@ export function useSearch<TData = IADSApiSearchResponse['response']>(
   params: IADSApiSearchParams,
   options?: Omit<UseQueryOptions<IADSApiSearchResponse, ErrorType, TData>, 'queryKey' | 'queryFn'>,
 ) {
+  const queryClient = useQueryClient();
+
   // omit fields from queryKey
   const cleanParams = omitParams(getSearchParams(params));
+  const queryKey = searchKeys.primary(cleanParams);
 
   // If options.select is provided, use it; otherwise use default
   const select =
@@ -120,12 +124,19 @@ export function useSearch<TData = IADSApiSearchResponse['response']>(
       : (responseSelector as (d: IADSApiSearchResponse) => TData);
 
   return useQuery<IADSApiSearchResponse, ErrorType, TData>({
-    queryKey: searchKeys.primary(cleanParams),
-    queryHash: JSON.stringify(searchKeys.primary(cleanParams)),
+    queryKey,
+    queryHash: JSON.stringify(queryKey),
     queryFn: fetchSearch,
     meta: { params },
     select,
     retry: (failCount, error) => failCount < 1 && axios.isAxiosError(error) && error.response?.status !== 400,
+    onSuccess: () => {
+      // Don't cache partial results — invalidate so the next render refetches
+      const raw = queryClient.getQueryData<IADSApiSearchResponse>(queryKey);
+      if (raw?.responseHeader?.partialResults === true) {
+        void queryClient.invalidateQueries(queryKey);
+      }
+    },
     ...(options as Omit<UseQueryOptions<IADSApiSearchResponse, ErrorType, TData>, 'queryKey' | 'queryFn' | 'select'>),
   });
 }

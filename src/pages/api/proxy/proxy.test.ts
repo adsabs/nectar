@@ -2,7 +2,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createMocks } from 'node-mocks-http';
 import axios from 'axios';
-import { getIronSession } from 'iron-session/edge';
+import { getIronSession } from 'iron-session';
 import { rateLimit } from '@/rateLimit';
 import { getRedisClient, isRedisAvailable } from '@/lib/redis';
 
@@ -12,7 +12,7 @@ vi.mock('@/lib/redis', () => ({
   isRedisAvailable: vi.fn(() => false),
 }));
 
-vi.mock('iron-session/edge', () => ({
+vi.mock('iron-session', () => ({
   __esModule: true,
   getIronSession: vi.fn(),
 }));
@@ -185,6 +185,30 @@ describe('proxy API handler', () => {
     expect(res.getHeader('X-Cache')).toBe('HIT');
     expect(res._getData()).toBe(cachedBody);
     expect(mockedAxiosGet).not.toHaveBeenCalled();
+  });
+
+  it('does not cache partial results from Solr', async () => {
+    const mockRedis = {
+      hgetall: vi.fn().mockResolvedValue(null),
+      multi: vi.fn(),
+    };
+    mockedGetRedisClient.mockReturnValue(mockRedis as unknown as ReturnType<typeof getRedisClient>);
+    mockedIsRedisAvailable.mockReturnValue(true);
+
+    mockedAxiosGet.mockResolvedValueOnce({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: {
+        responseHeader: { status: 0, QTime: 100, partialResults: true },
+        response: { numFound: 50000, docs: [{ bibcode: '2024Test' }] },
+      },
+    });
+
+    const { res } = await executeHandler({ query: { q: 'galaxies' } });
+
+    expect(res._getStatusCode()).toBe(200);
+    expect(res.getHeader('X-Cache')).toBe('MISS');
+    expect(mockRedis.multi).not.toHaveBeenCalled();
   });
 
   it('rejects path traversal attempts with 404', async () => {

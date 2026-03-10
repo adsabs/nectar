@@ -201,8 +201,11 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
       const data = JSON.parse(body) as IADSApiSearchResponse;
       log.info({ requestedId, viewPath, cache: 'miss' }, 'Abstract cache miss');
 
-      // Cache successful responses within size limit
-      if (redis && isRedisAvailable() && body.length <= CACHE_MAX_SIZE) {
+      // Skip caching partial results (Solr sets this when results are incomplete)
+      const isPartial = data?.responseHeader?.partialResults === true;
+
+      // Cache successful, complete responses within size limit
+      if (redis && isRedisAvailable() && body.length <= CACHE_MAX_SIZE && !isPartial) {
         const redisPipeline = redis.multi();
         redisPipeline.hset(cacheKey, {
           body,
