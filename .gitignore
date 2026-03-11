@@ -140,3 +140,6 @@ storybook-static/
 
 # Git worktrees
 .worktrees/
+
+# nextjs's d.ts file
+next-env.d.ts
