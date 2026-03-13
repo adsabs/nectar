@@ -2,7 +2,6 @@ import { calculatePagination } from '@/components/ResultList/Pagination/usePagin
 import { getLevelFromKey, getPrevKey } from '@/components/SearchFacet/helpers';
 import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { FacetItem } from '@/components/SearchFacet/types';
-import { AppState, useStore } from '@/store';
 import { sanitize } from 'isomorphic-dompurify';
 import { isEmpty, omit } from 'ramda';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -32,10 +31,8 @@ export interface IUseGetFacetDataProps {
 export const FACET_DEFAULT_LIMIT = 10;
 export const FACET_DEFAULT_PREFIX = '0/';
 
-const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.latestQuery) as IADSApiSearchParams;
-
-export const useGetFacetData = (props: IUseGetFacetDataProps) => {
-  const searchQuery = useStore(querySelector);
+export const useGetFacetData = (searchParams: IADSApiSearchParams, props: IUseGetFacetDataProps) => {
+  const searchQuery = omit(['fl', 'start', 'rows'], searchParams) as IADSApiSearchParams;
   const {
     field,
     query = '',

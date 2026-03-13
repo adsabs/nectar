@@ -27,6 +27,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 
+import { useRouter } from 'next/router';
 import { useStore } from '@/store';
 
 import { parseAPIError } from '@/utils/common/parseAPIError';
@@ -54,7 +55,8 @@ export const AddToLibraryModal = ({
 }) => {
   const selectedDocs = useStore((state) => state.docs.selected);
 
-  const query = useStore((state) => state.query);
+  const { query: routerQuery } = useRouter();
+  const q = typeof routerQuery.q === 'string' ? routerQuery.q : '';
 
   const clearSelections = useStore((state) => state.clearSelected);
 
@@ -77,7 +79,7 @@ export const AddToLibraryModal = ({
         : ids.map((id) =>
             addDocsByQuery({
               id,
-              params: { q: query.q },
+              params: { q },
               action: 'add',
             }),
           );

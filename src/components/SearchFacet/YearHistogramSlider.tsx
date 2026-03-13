@@ -2,7 +2,6 @@ import { Box, Center, CircularProgress, Flex, Heading, Icon, IconButton, Text, V
 
 import { getYearsGraph } from '@/components/Visualizations/utils';
 import { getFQValue, removeFQ, setFQ } from '@/query-utils';
-import { useStore } from '@/store';
 import { memo, useMemo } from 'react';
 import { withErrorBoundary } from '@/hocs/withErrorBoundary';
 import { ArrowsOutIcon } from '@/components/icons/ArrowsOut';
@@ -17,25 +16,24 @@ import { getSearchFacetYearsParams } from '@/api/search/models';
 export const fqNameYearRange = 'range';
 export interface IYearHistogramSliderProps {
   onQueryUpdate: ISearchFacetProps['onQueryUpdate'];
+  params: IADSApiSearchParams;
   expanded?: boolean;
   onExpand?: () => void;
   width: number;
   height: number;
 }
 
-const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHistogramSliderProps) => {
-  const query = useStore((state) => state.latestQuery);
-
+const Component = ({ onQueryUpdate, params, width, height, onExpand, expanded }: IYearHistogramSliderProps) => {
   // query without the year range filter, to show all years on the histogram
   const cleanedQuery = useMemo(() => {
-    const q = JSON.parse(JSON.stringify(query)) as IADSApiSearchParams;
+    const q = JSON.parse(JSON.stringify(params)) as IADSApiSearchParams;
 
     return q.fq ? (removeFQ(fqNameYearRange, q) as IADSApiSearchParams) : q;
-  }, [query]);
+  }, [params]);
 
   const fqRange = useMemo(() => {
-    return getFQValue(fqNameYearRange, query);
-  }, [query]);
+    return getFQValue(fqNameYearRange, params);
+  }, [params]);
 
   const { data } = useGetSearchFacetCounts(getSearchFacetYearsParams(cleanedQuery), {
     enabled: !!cleanedQuery && cleanedQuery.q.trim().length > 0,

@@ -4,9 +4,22 @@ import PT from 'prop-types';
 import { HTMLAttributes, ReactElement } from 'react';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { Item, IItemProps } from './Item';
-import { useHighlights } from './useHighlights';
 import { IDocsEntity } from '@/api/search/types';
 import { handleBoundaryError } from '@/lib/errorHandler';
+import { useRouter } from 'next/router';
+import { useHighlights } from './useHighlights';
+import { parseQueryFromUrl } from '@/utils/common/search';
+
+/**
+ * Reads search params from the URL and delegates to useHighlights.
+ * Falls back to an empty query when highlights are not applicable.
+ */
+const useHighlightsFromUrl = (showHighlights: boolean) => {
+  const router = useRouter();
+  const urlParams = parseQueryFromUrl(router.asPath);
+  const { highlights, isFetchingHighlights } = useHighlights(urlParams, showHighlights);
+  return { highlights, isFetchingHighlights };
+};
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
@@ -66,7 +79,11 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   const isClient = useIsClient();
   const start = indexStart + 1;
 
-  const { highlights, showHighlights, isFetchingHighlights } = useHighlights();
+  // Read showHighlights from URL (search page sets it; defaults to false elsewhere).
+  const router = useRouter();
+  const showHighlightsParam = router.query.showHighlights;
+  const showHighlights = showHighlightsParam === 'true';
+  const { highlights, isFetchingHighlights } = useHighlightsFromUrl(showHighlights);
 
   return (
     <Flex

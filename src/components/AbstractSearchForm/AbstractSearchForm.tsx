@@ -1,19 +1,19 @@
-import { useStore } from '@/store';
 import { SearchBar } from '../SearchBar';
 import { ChangeEventHandler, useCallback } from 'react';
 import { makeSearchParams } from '@/utils/common/search';
 import { useSettings } from '@/lib/useSettings';
 import { IADSApiSearchParams } from '@/api/search/types';
-import router from 'next/router';
+import { useRouter } from 'next/router';
 import { applyFiltersToQuery } from '../SearchFacet/helpers';
 import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
 import { SolrSort } from '@/api/models';
 
 export const AbstractSearchForm = () => {
+  const router = useRouter();
   const { settings } = useSettings();
-  const submitQuery = useStore((state) => state.submitQuery);
   const sort = [`${settings.preferredSearchSort} desc` as SolrSort];
-  const query = useStore((state) => state.query.q);
+  // Read the current search query from URL params (source of truth)
+  const query = typeof router.query.q === 'string' ? router.query.q : '';
 
   /**
    * Take in a query object and apply any FQ filters
@@ -60,7 +60,6 @@ export const AbstractSearchForm = () => {
       const query = new FormData(e.currentTarget).get('q') as string;
 
       if (query && query.trim().length > 0) {
-        submitQuery();
         const defaultedQuery = applyDefaultFilters({ q: query, sort, p: 1 }) as IADSApiSearchParams;
         void router.push({
           pathname: '/search',
@@ -68,7 +67,7 @@ export const AbstractSearchForm = () => {
         });
       }
     },
-    [applyDefaultFilters, sort, submitQuery],
+    [applyDefaultFilters, router, sort],
   );
 
   return (

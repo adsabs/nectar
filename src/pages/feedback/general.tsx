@@ -15,7 +15,6 @@ import {
 import * as Sentry from '@sentry/nextjs';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useStore } from '@/store';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { MouseEvent, useCallback, useState } from 'react';
@@ -58,7 +57,6 @@ const validationSchema = z.object({
 
 const General: NextPage = () => {
   const userEmail = useGetUserEmail();
-  const currentQuery = useStore((state) => state.latestQuery);
   const [formError, setFormError] = useState<Error | string | null>(null);
 
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
@@ -130,7 +128,7 @@ const General: NextPage = () => {
             platform,
             os: `${osName} ${osVersion}`,
             current_page: router.query.from ? (router.query.from as string) : undefined,
-            current_query: makeSearchParams(currentQuery),
+            current_query: makeSearchParams(router.query),
             url: router.asPath,
             comments,
           },
@@ -175,8 +173,7 @@ const General: NextPage = () => {
       onAlertOpen,
       reset,
       makeSearchParams,
-      currentQuery,
-      router.query.from,
+      router.query,
       router.asPath,
       userEmail,
       engineName,

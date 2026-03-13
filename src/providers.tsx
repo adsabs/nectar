@@ -1,6 +1,7 @@
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { MathJaxProvider } from './mathjax';
 import { ChakraProvider } from '@chakra-ui/react';
+import { NuqsAdapter } from 'nuqs/adapters/next/pages';
 import { AppState, StoreProvider, useCreateStore, useStore } from './store';
 import { DehydratedState, Hydrate, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -10,10 +11,11 @@ import { logger } from './logger';
 import { theme } from './theme';
 import shallow from 'zustand/shallow';
 import * as Sentry from '@sentry/nextjs';
-import { IADSApiSearchParams } from './api/search/types';
 import { PERF_SPANS, getResultCountBucket, getQueryType } from '@/lib/performance';
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 import { ShepherdJourneyProvider } from 'react-shepherd';
+import { useRouter } from 'next/router';
+import { ParsedUrlQuery } from 'querystring';
 
 const windowState = {
   navigationStart: performance?.timeOrigin || performance?.timing?.navigationStart || 0,
@@ -29,33 +31,35 @@ export const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
 
   return (
-    <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
-      <MathJaxProvider>
-        <ShepherdJourneyProvider>
-          <ChakraProvider
-            theme={theme}
-            toastOptions={{
-              defaultOptions: {
-                position: 'top',
-                duration: 3000,
-                isClosable: true,
-                variant: 'subtle',
-              },
-            }}
-          >
-            <StoreProvider createStore={createStore}>
-              <QCProvider>
-                <Hydrate state={pageProps.dehydratedState}>
-                  <Telemetry />
-                  {children}
-                </Hydrate>
-                <ReactQueryDevtools />
-              </QCProvider>
-            </StoreProvider>
-          </ChakraProvider>
-        </ShepherdJourneyProvider>
-      </MathJaxProvider>
-    </GoogleReCaptchaProvider>
+    <NuqsAdapter>
+      <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
+        <MathJaxProvider>
+          <ShepherdJourneyProvider>
+            <ChakraProvider
+              theme={theme}
+              toastOptions={{
+                defaultOptions: {
+                  position: 'top',
+                  duration: 3000,
+                  isClosable: true,
+                  variant: 'subtle',
+                },
+              }}
+            >
+              <StoreProvider createStore={createStore}>
+                <QCProvider>
+                  <Hydrate state={pageProps.dehydratedState}>
+                    <Telemetry />
+                    {children}
+                  </Hydrate>
+                  <ReactQueryDevtools />
+                </QCProvider>
+              </StoreProvider>
+            </ChakraProvider>
+          </ShepherdJourneyProvider>
+        </MathJaxProvider>
+      </GoogleReCaptchaProvider>
+    </NuqsAdapter>
   );
 };
 
@@ -65,7 +69,7 @@ const QCProvider: FC = ({ children }) => {
 };
 
 const Telemetry: FC = () => {
-  const query = useStore((state) => state.query, shallow);
+  const { query } = useRouter();
   const user = useStore((state) => state.user, shallow);
   const docs = useStore((state) => state.docs.current, shallow);
 
@@ -97,19 +101,20 @@ const Telemetry: FC = () => {
   return <></>;
 };
 
-const sendQueryAsTags = (query: IADSApiSearchParams) => {
+const sendQueryAsTags = (query: ParsedUrlQuery) => {
   Object.keys(query).forEach((key) => {
-    const value = JSON.stringify(query[key]);
+    const value = query[key];
     if (Array.isArray(value)) {
       Sentry.setTag(`query.${key}`, value.join(' | '));
     } else {
-      Sentry.setTag(`query.${key}`, value);
+      Sentry.setTag(`query.${key}`, JSON.stringify(value));
     }
   });
 };
 
-const sendResultsLoaded = (query: IADSApiSearchParams, docCount: number) => {
+const sendResultsLoaded = (query: ParsedUrlQuery, docCount: number) => {
   const loadedTime = performance.now();
+  const q = typeof query.q === 'string' ? query.q : '';
 
   // performance.now() already returns ms since navigation start
   Sentry.setMeasurement('timing.results.shown', loadedTime, 'millisecond');
@@ -121,7 +126,7 @@ const sendResultsLoaded = (query: IADSApiSearchParams, docCount: number) => {
       op: 'user.flow',
       startTime: windowState.navigationStart / 1000,
       attributes: {
-        query_type: getQueryType(query.q ?? ''),
+        query_type: getQueryType(q),
         result_count_bucket: getResultCountBucket(docCount),
       },
     },

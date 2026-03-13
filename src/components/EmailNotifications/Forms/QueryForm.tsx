@@ -1,6 +1,6 @@
 import { Button, Flex, FormControl, FormLabel, HStack, Input, useToast } from '@chakra-ui/react';
 
-import { useStore } from '@/store';
+import { useRouter } from 'next/router';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { Select, SelectOption } from '@/components/Select';
 import { noop } from '@/utils/common/noop';
@@ -24,7 +24,9 @@ const frequencyOptions: SelectOption<NotificationFrequency>[] = [
 export const QueryForm = ({ onClose, onUpdated = noop }: { onClose: () => void; onUpdated?: () => void }) => {
   const toast = useToast();
 
-  const query = useStore((state) => state.query);
+  const { query: routerQuery } = useRouter();
+  const q = typeof routerQuery.q === 'string' ? routerQuery.q : '';
+  const query = { q };
 
   const [frequencyOption, setFrequencyOption] = useState<SelectOption<NotificationFrequency>>(frequencyOptions[0]);
 

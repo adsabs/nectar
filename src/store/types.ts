@@ -9,8 +9,8 @@ import {
   INotificationState,
   IORCIDAction,
   IORCIDState,
-  ISearchAction,
-  ISearchState,
+  IPaginationAction,
+  IPaginationState,
   ISettingsAction,
   ISettingsState,
   IUserAction,
@@ -18,7 +18,7 @@ import {
 } from './slices';
 
 export type AppSerializableState = IDocsState &
-  ISearchState &
+  IPaginationState &
   ISettingsState &
   IAppModeState &
   IUserState &
@@ -26,7 +26,7 @@ export type AppSerializableState = IDocsState &
   INotificationState;
 
 export type AppActions = IDocsAction &
-  ISearchAction &
+  IPaginationAction &
   ISettingsAction &
   IAppModeAction &
   IUserAction &

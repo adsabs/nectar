@@ -7,7 +7,7 @@ const defaultLogic: ISearchFacetProps['logic'] = {
   multiple: ['and', 'or', 'exclude'],
 };
 
-export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQueryUpdate'>> = {
+export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQueryUpdate' | 'params'>> = {
   author: {
     label: 'Author',
     field: 'author_facet_hier' as FacetField,
