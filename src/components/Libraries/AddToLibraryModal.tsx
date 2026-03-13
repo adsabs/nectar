@@ -32,6 +32,7 @@ import { useStore } from '@/store';
 
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { LibraryIdentifier } from '@/api/biblib/types';
+import type { IADSApiSearchParams } from '@/api/search/types';
 import {
   useAddDocumentsByQuery,
   useAddLibrary,
@@ -57,6 +58,16 @@ export const AddToLibraryModal = ({
 
   const { query: routerQuery } = useRouter();
   const q = typeof routerQuery.q === 'string' ? routerQuery.q : '';
+  const fq = Array.isArray(routerQuery.fq)
+    ? (routerQuery.fq as IADSApiSearchParams['fq'])
+    : typeof routerQuery.fq === 'string'
+    ? ([routerQuery.fq] as IADSApiSearchParams['fq'])
+    : undefined;
+  const sort = Array.isArray(routerQuery.sort)
+    ? (routerQuery.sort as IADSApiSearchParams['sort'])
+    : typeof routerQuery.sort === 'string'
+    ? ([routerQuery.sort] as IADSApiSearchParams['sort'])
+    : undefined;
 
   const clearSelections = useStore((state) => state.clearSelected);
 
@@ -79,7 +90,7 @@ export const AddToLibraryModal = ({
         : ids.map((id) =>
             addDocsByQuery({
               id,
-              params: { q },
+              params: { q, ...(fq ? { fq } : {}), ...(sort ? { sort } : {}) },
               action: 'add',
             }),
           );

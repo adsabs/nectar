@@ -93,17 +93,19 @@ export const useGetFacetData = (searchParams: IADSApiSearchParams, props: IUseGe
     [field, treeData],
   );
 
+  const hasIdentifiers = identifiers.length > 0;
   const {
     data: objects,
-    isLoading,
-    isFetching,
-    isError,
-  } = useObjects({ identifiers }, { enabled: identifiers?.length > 0 });
+    isLoading: isObjectsLoading,
+    isFetching: isObjectsFetching,
+    isError: isObjectsError,
+  } = useObjects({ identifiers }, { enabled: hasIdentifiers });
 
   const enhancedTreeData = useMemo(() => {
     if (objects && treeData) {
       return treeData.map((data) => {
-        const id = data.val.split('/')[data.val.split('/').length - 1];
+        const parts = data.val.split('/');
+        const id = parts[parts.length - 1];
         return { ...data, val: data.val.replace(id, objects[id].canonical) };
       });
     } else {
@@ -165,9 +167,9 @@ export const useGetFacetData = (searchParams: IADSApiSearchParams, props: IUseGe
     handlePageChange,
     canLoadMore: res?.numBuckets !== treeData?.length,
     ...result,
-    isLoading: result.isLoading || isLoading,
-    isFetching: result.isFetching || isFetching,
-    isError: result.isError || isError,
+    isLoading: result.isLoading || (hasIdentifiers && isObjectsLoading),
+    isFetching: result.isFetching || (hasIdentifiers && isObjectsFetching),
+    isError: result.isError || (hasIdentifiers && isObjectsError),
   };
 };
 

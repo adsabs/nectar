@@ -17,5 +17,5 @@ export const useHighlights = (params: IADSApiSearchParams, showHighlights: boole
   // Do this first to maintain results ordering
   const highlights = data?.docs.map(({ id }) => data.highlighting[id]) ?? [];
 
-  return { showHighlights, highlights, isFetchingHighlights: isFetching };
+  return { highlights, isFetchingHighlights: isFetching };
 };

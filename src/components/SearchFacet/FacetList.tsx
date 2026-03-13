@@ -43,6 +43,7 @@ import { SearchFacetModal } from './SearchFacetModal';
 import { Pagination } from '@/components/ResultList/Pagination';
 import { FacetNodeCheckbox } from './FacetTree';
 import { FacetTree } from './FacetTree';
+import { capitalizeString } from '@/utils/common/formatters';
 
 export interface IFacetListProps extends ListProps {
   searchParams: IADSApiSearchParams;
@@ -53,7 +54,7 @@ export interface IFacetListProps extends ListProps {
 }
 
 export const FacetList = (props: IFacetListProps) => {
-  const { searchParams, onFilter, onError, label } = props;
+  const { searchParams, onFilter, onError = () => {}, label } = props;
 
   const focused = useFacetStore(selectors.focused);
 
@@ -111,17 +112,7 @@ export interface INodeListProps extends Pick<IUseGetFacetDataProps, 'prefix' | '
   onKeyboardFocusNext?: (index: number[]) => void;
 }
 
-const capitalize = (s: string) => {
-  if (typeof s === 'string' && s.length > 0) {
-    try {
-      return s.charAt(0).toUpperCase() + s.slice(1);
-    } catch {
-      return s;
-    }
-  }
-  return s;
-};
-const isCapitalized = (s: string) => s === capitalize(s);
+const isCapitalized = (s: string) => s === capitalizeString(s);
 
 export const NodeListModal = (props: INodeListProps) => {
   const { searchParams, prefix, searchTerm, level } = props;
@@ -131,7 +122,10 @@ export const NodeListModal = (props: INodeListProps) => {
   const expandable = params.hasChildren && (level === 'root' || params.maxDepth > depth);
   const [sortField, sortDir] = useFacetStore(selectors.sort);
   const setSearch = useFacetStore(selectors.setSearch);
-  const handleCapitalizeSearchTerm = useCallback(() => setSearch(capitalize(searchTerm)), [searchTerm, setSearch]);
+  const handleCapitalizeSearchTerm = useCallback(
+    () => setSearch(capitalizeString(searchTerm)),
+    [searchTerm, setSearch],
+  );
 
   const {
     treeData,
@@ -177,7 +171,7 @@ export const NodeListModal = (props: INodeListProps) => {
             No results for <Code>{searchTerm}</Code>.{' '}
             {isCapitalized(searchTerm) ? null : (
               <Button variant="link" onClick={handleCapitalizeSearchTerm}>
-                Try {capitalize(searchTerm)}?
+                Try {capitalizeString(searchTerm)}?
               </Button>
             )}
           </AlertDescription>

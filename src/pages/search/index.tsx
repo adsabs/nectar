@@ -1,7 +1,9 @@
 import dynamic from 'next/dynamic';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { FormEventHandler, RefObject, useCallback, useMemo, useRef, useState } from 'react';
+import { FormEventHandler, ReactElement, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useShepherd } from 'react-shepherd';
+import { getResultsSteps } from '@/components/NavBar/useTour';
 import {
   Alert,
   AlertIcon,
@@ -34,6 +36,7 @@ import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
 import { XMarkIcon } from '@heroicons/react/20/solid';
+import NProgress from 'nprogress';
 import { BRAND_NAME_FULL } from '@/config';
 import { useSearchPage } from '@/lib/search/useSearchPage';
 import { useScrollRestoration } from '@/lib/useScrollRestoration';
@@ -43,13 +46,14 @@ import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
 import { HideOnPrint } from '@/components/HideOnPrint';
 import { SearchResultsList } from '@/components/SearchResultsList/SearchResultsList';
 import { Pagination } from '@/components/ResultList/Pagination/Pagination';
-import { NumPerPageType } from '@/types';
+import { LocalSettings, NumPerPageType } from '@/types';
 import { useHighlights } from '@/components/ResultList/useHighlights';
 import { ListActions } from '@/components/ResultList/ListActions';
 import { AddToLibraryModal } from '@/components/Libraries';
 import { CustomInfoMessage } from '@/components/Feedbacks';
 import { SimpleLink } from '@/components/SimpleLink';
 import { handleBoundaryError } from '@/lib/errorHandler';
+import { SearchErrorAlert } from '@/components/SolrErrorAlert/SolrErrorAlert';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import type { IADSApiSearchParams } from '@/api/search/types';
 import { SolrSort } from '@/api/models';
@@ -59,8 +63,10 @@ import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogra
 import { ISearchFacetsProps } from '@/components/SearchFacet';
 import { AppState, useStore } from '@/store';
 
-/** Keys owned by nuqs — must not be forwarded as extra Solr params */
-const NUQS_KEYS = new Set(Object.keys(searchParamsParsers));
+/** Keys owned by nuqs — must not be forwarded as extra Solr params.
+ * Includes 'hl' explicitly because showHighlights uses urlKeys: { showHighlights: 'hl' }
+ * and router.query will contain 'hl', not 'showHighlights'. */
+const NUQS_KEYS = new Set([...Object.keys(searchParamsParsers), 'hl']);
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () =>
@@ -82,6 +88,8 @@ const selectors = {
   showFilters: (state: AppState) => state.settings.searchFacets.open,
   toggleSearchFacetsOpen: (state: AppState) => state.toggleSearchFacetsOpen,
   resetSearchFacets: (state: AppState) => state.resetSearchFacets,
+  setDocs: (state: AppState) => state.setDocs,
+  clearAllSelected: (state: AppState) => state.clearAllSelected,
 };
 
 /**
@@ -114,8 +122,12 @@ const SearchPage: NextPage = () => {
     return entries.length > 0 ? (Object.fromEntries(entries) as Record<string, string | string[]>) : null;
   }, [router.query]);
 
+  const setDocs = useStore(selectors.setDocs);
+  const clearAllSelected = useStore(selectors.clearAllSelected);
   const { params, start, results, handlers } = useSearchPage(extraSolrParams);
-  const searchParams = toApiParams(params, start, extraSolrParams);
+
+  useTour();
+  const searchParams = useMemo(() => toApiParams(params, start, extraSolrParams), [params, start, extraSolrParams]);
   const { highlights, isFetchingHighlights } = useHighlights(searchParams, params.showHighlights);
   const { isOpen: isLibOpen, onOpen: onOpenLib, onClose: onCloseLib } = useDisclosure();
   const histogramContainerRef = useRef<HTMLDivElement>(null);
@@ -123,7 +135,6 @@ const SearchPage: NextPage = () => {
 
   useScrollRestoration();
 
-  // Bug 1: form submit handler so Enter key triggers search
   const handleSearchSubmit: FormEventHandler<HTMLFormElement> = useCallback(
     (e) => {
       e.preventDefault();
@@ -131,9 +142,11 @@ const SearchPage: NextPage = () => {
       if (q.length === 0) {
         return;
       }
+      // Clear selection so bulk actions don't run against the old result set.
+      clearAllSelected();
       void handlers.onSubmit(q);
     },
-    [handlers, params.q],
+    [handlers, params.q, clearAllSelected],
   );
 
   const handleSortChange = useCallback(
@@ -145,21 +158,42 @@ const SearchPage: NextPage = () => {
 
   // Facet filter updates include fq_* dynamic keys that nuqs does not manage.
   // Merge into the full URL params and push via router, matching FacetFilters behavior.
+  // Clear selection so bulk actions don't run against papers from the old result set.
   const handleFacetQueryUpdate = useCallback(
     (queryUpdates: Partial<IADSApiSearchParams>) => {
+      clearAllSelected();
       const current = parseQueryFromUrl(router.asPath);
       const search = makeSearchParams({ ...current, ...queryUpdates, p: 1 });
       void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
     },
-    [router],
+    [router, clearAllSelected],
   );
 
   const loading = results.isLoading;
+  const isSlowSearch = results.isSlowSearch;
+  const useNormCite = params.sort[0]?.startsWith('citation_count_norm') ?? false;
+
+  // Drive the top progress bar off React Query's isFetching rather than router
+  // events — shallow URL updates don't fire routeChangeStart, so the existing
+  // TopProgressBar component never triggers during search transitions.
+  useEffect(() => {
+    if (results.isFetching) {
+      NProgress.start();
+    } else {
+      NProgress.done();
+    }
+  }, [results.isFetching]);
+
+  // Sync current page's bibcodes into the Zustand docs slice so that
+  // cross-cutting concerns (Telemetry SEARCH_SUBMIT_TOTAL span, bulk
+  // select/deselect) continue to work without reading from this page directly.
+  useEffect(() => {
+    setDocs(results.docs.map((d) => d.bibcode));
+  }, [results.docs, setDocs]);
   const noResults = !loading && !results.isError && results.numFound === 0;
   const hasResults = !loading && !results.isError && results.numFound > 0;
   const showFilters = !isPrint;
   const showListActions = !isPrint && (loading || hasResults);
-  // Bug 4: dynamic page title
   const pageTitle = params.q ? `${params.q} - ${BRAND_NAME_FULL} Search` : `${BRAND_NAME_FULL} Search`;
 
   return (
@@ -168,11 +202,9 @@ const SearchPage: NextPage = () => {
         <title>{pageTitle}</title>
       </Head>
       <Stack direction="column" spacing={10}>
-        {/* Bug 1+4: form wrapper enables Enter key submit; HideOnPrint restores original layout */}
         <HideOnPrint pt={10}>
           <form method="get" action="/search" onSubmit={handleSearchSubmit}>
             <Flex direction="column" width="full">
-              {/* Bug 4: showBackLinkAs and NumFound restored */}
               <SearchBar query={params.q} isLoading={loading} showBackLinkAs="new_search" />
               <NumFound count={results.numFound} isLoading={loading} />
             </Flex>
@@ -181,7 +213,6 @@ const SearchPage: NextPage = () => {
           <Box ref={histogramContainerRef} />
         </HideOnPrint>
         <Flex direction="row" gap={{ base: 0, lg: 10 }} width="full">
-          {/* Bug 2+3: SearchFacetFilters with mobile drawer and YearHistogramSlider */}
           {showFilters ? (
             <QueryErrorResetBoundary>
               {({ reset }) => (
@@ -229,27 +260,40 @@ const SearchPage: NextPage = () => {
             <VisuallyHidden as="h2" id="search-form-title">
               Search Results
             </VisuallyHidden>
-            {noResults ? <NoResultsMsg /> : null}
-            <SearchResultsList
-              docs={results.docs}
-              numFound={results.numFound}
-              isLoading={results.isLoading}
-              isError={results.isError}
-              indexStart={start}
-              rows={params.rows}
-              highlights={highlights}
-              showHighlights={params.showHighlights}
-              isFetchingHighlights={isFetchingHighlights}
-            />
+            {isSlowSearch ? (
+              <Alert status="info" mb={2} borderRadius="md" role="status" aria-live="polite">
+                <AlertIcon />
+                This search is taking longer than expected. Please wait...
+              </Alert>
+            ) : null}
+            {results.isError && results.error ? (
+              <SearchErrorAlert error={results.error} onRetry={results.refetch} isRetrying={results.isFetching} />
+            ) : (
+              <>
+                {noResults ? <NoResultsMsg /> : null}
+                {results.isPartialResults ? <PartialResultsWarning /> : null}
+                <SearchResultsList
+                  docs={results.docs}
+                  isLoading={results.isLoading}
+                  isFetching={results.isFetching}
+                  indexStart={start}
+                  rows={params.rows}
+                  highlights={highlights}
+                  showHighlights={params.showHighlights}
+                  isFetchingHighlights={isFetchingHighlights}
+                  useNormCite={useNormCite}
+                />
+              </>
+            )}
             <Pagination
               page={params.p}
               totalResults={results.numFound}
               numPerPage={params.rows as NumPerPageType}
               isLoading={results.isLoading}
-              onNext={(nextPage) => void handlers.onPageChange(nextPage)}
-              onPrevious={(prevPage) => void handlers.onPageChange(prevPage)}
-              onPageSelect={(page) => void handlers.onPageChange(page)}
-              onPerPageSelect={(rows) => void handlers.onPerPageChange(rows)}
+              onNext={handlers.onPageChange}
+              onPrevious={handlers.onPageChange}
+              onPageSelect={handlers.onPageChange}
+              onPerPageSelect={handlers.onPerPageChange}
               skipRouting
               noLinks
             />
@@ -261,7 +305,25 @@ const SearchPage: NextPage = () => {
   );
 };
 
-// Bug 2+3: Mobile drawer + YearHistogramSlider, ported from master and adapted for nuqs params
+const ShowFiltersButton = ({ position, onClick }: { position: 'fixed' | 'absolute'; onClick: () => void }) => (
+  <Portal appendToParentPortal>
+    <Button
+      position={position}
+      transform="rotate(90deg)"
+      transformOrigin="bottom left"
+      borderBottomRadius="none"
+      size="xs"
+      type="button"
+      onClick={onClick}
+      top="240px"
+      left="0"
+      id="tour-search-facets"
+    >
+      Show Filters
+    </Button>
+  </Portal>
+);
+
 const SearchFacetFilters = (props: {
   histogramContainerRef?: RefObject<HTMLDivElement>;
   onSearchFacetSubmission: (queryUpdates: Partial<IADSApiSearchParams>) => void;
@@ -279,24 +341,7 @@ const SearchFacetFilters = (props: {
   if (isMobile) {
     return (
       <>
-        <Box as="aside" aria-labelledby="search-facets">
-          <Portal appendToParentPortal>
-            <Button
-              position="fixed"
-              transform="rotate(90deg)"
-              transformOrigin="bottom left"
-              borderBottomRadius="none"
-              size="xs"
-              type="button"
-              onClick={onOpenFacet}
-              top="240px"
-              left="0"
-              id="tour-search-facets"
-            >
-              Show Filters
-            </Button>
-          </Portal>
-        </Box>
+        <ShowFiltersButton position="fixed" onClick={onOpenFacet} />
         <Drawer placement="left" onClose={onCloseFacet} isOpen={isFacetOpen}>
           <DrawerOverlay />
           <DrawerContent>
@@ -384,26 +429,51 @@ const SearchFacetFilters = (props: {
     );
   }
 
-  return (
-    <Box as="aside" aria-labelledby="search-facets">
-      <Portal appendToParentPortal>
-        <Button
-          position="absolute"
-          transform="rotate(90deg)"
-          transformOrigin="bottom left"
-          borderBottomRadius="none"
-          size="xs"
-          type="button"
-          onClick={handleToggleFilters}
-          top="240px"
-          left="0"
-          id="tour-search-facets"
-        >
-          Show Filters
-        </Button>
-      </Portal>
-    </Box>
-  );
+  return <ShowFiltersButton position="absolute" onClick={handleToggleFilters} />;
+};
+
+const PartialResultsWarning = (): ReactElement => (
+  <Alert status="warning" mb={1} borderRadius="2px">
+    <AlertIcon />
+    <Text>
+      The search took too long, so some results may be missing. Try refining your query to make it faster and see
+      everything.
+    </Text>
+  </Alert>
+);
+
+/**
+ * Starts the Shepherd results-page tour on first visit.
+ * Waits for the sort control to appear in the DOM before starting,
+ * then sets a localStorage flag so the tour only runs once.
+ */
+const useTour = () => {
+  const Shepherd = useShepherd();
+  const [isRendered, setIsRendered] = useState(false);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      if (document.getElementById('sort-order')) {
+        setIsRendered(true);
+        observer.disconnect();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_RESULTS_TOUR)) {
+      const tour = new Shepherd.Tour({
+        useModalOverlay: true,
+        defaultStepOptions: { scrollTo: false, cancelIcon: { enabled: true } },
+        exitOnEsc: true,
+      });
+      tour.addSteps(getResultsSteps());
+      localStorage.setItem(LocalSettings.SEEN_RESULTS_TOUR, 'true');
+      setTimeout(() => tour.start(), 1000);
+    }
+  }, [isRendered, Shepherd]);
 };
 
 const NoResultsMsg = () => (

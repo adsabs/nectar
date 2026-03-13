@@ -19,7 +19,14 @@ export const SearchQueryLink = (props: ISearchQueryLinkProps): ReactElement => {
   const { params, replace = false, shallow = false, prefetch = false, ...linkProps } = props;
 
   return (
-    <SimpleLink replace={replace} shallow={shallow} prefetch={prefetch} {...linkProps} href={getSearchUrl(params)} />
+    <SimpleLink
+      fontWeight="normal"
+      replace={replace}
+      shallow={shallow}
+      prefetch={prefetch}
+      {...linkProps}
+      href={getSearchUrl(params)}
+    />
   );
 };
 

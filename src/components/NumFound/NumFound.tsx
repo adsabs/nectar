@@ -50,7 +50,12 @@ const SortStats = () => {
     : typeof routerQuery.sort === 'string'
     ? ([routerQuery.sort] as IADSApiSearchParams['sort'])
     : [];
-  const { data, isSuccess } = useGetSearchStats({ q, sort });
+  const fq = Array.isArray(routerQuery.fq)
+    ? (routerQuery.fq as IADSApiSearchParams['fq'])
+    : typeof routerQuery.fq === 'string'
+    ? ([routerQuery.fq] as IADSApiSearchParams['fq'])
+    : undefined;
+  const { data, isSuccess } = useGetSearchStats(fq ? { q, sort, fq } : { q, sort });
 
   if (isSuccess && 'citation_count' in data.stats_fields) {
     const count = sanitizeNum(data.stats_fields.citation_count.sum);

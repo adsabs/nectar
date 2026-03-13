@@ -37,7 +37,7 @@ import { FeedbackLayout } from '@/components/Layout';
 import { FeedbackAlert } from '@/components/FeedbackForms';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
-import { makeSearchParams } from '@/utils/common/search';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { useFeedback } from '@/api/feedback/feedback';
 import { logger } from '@/logger';
@@ -128,7 +128,9 @@ const General: NextPage = () => {
             platform,
             os: `${osName} ${osVersion}`,
             current_page: router.query.from ? (router.query.from as string) : undefined,
-            current_query: makeSearchParams(router.query),
+            current_query: makeSearchParams(
+              parseQueryFromUrl(typeof router.query.from === 'string' ? router.query.from : router.asPath),
+            ),
             url: router.asPath,
             comments,
           },
@@ -172,8 +174,6 @@ const General: NextPage = () => {
       mutate,
       onAlertOpen,
       reset,
-      makeSearchParams,
-      router.query,
       router.asPath,
       userEmail,
       engineName,

@@ -39,6 +39,7 @@ export type SearchQueryParams = {
 export const useSearchQueryParams = () => {
   const [params, setParams] = useQueryStates(searchParamsParsers, {
     history: 'push',
+    urlKeys: { showHighlights: 'hl' },
   });
 
   /** Solr `start` offset derived from page number and rows per page */

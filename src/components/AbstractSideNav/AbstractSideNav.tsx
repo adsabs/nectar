@@ -37,6 +37,11 @@ const useGetItems = ({
   const router = useRouter();
   const docId = router.query.id as string;
   const encodedDocId = docId ? encodeURIComponent(docId) : '';
+  const q = typeof router.query.q === 'string' ? router.query.q : undefined;
+  const fq = router.query.fq;
+  const sort = router.query.sort;
+  const qParam =
+    q || fq || sort ? { ...(q ? { q } : {}), ...(fq ? { fq } : {}), ...(sort ? { sort } : {}) } : undefined;
 
   const { settings } = useSettings();
 
@@ -53,14 +58,14 @@ const useGetItems = ({
   const items: Record<Routes, IMenuItem> = {
     [Routes.ABSTRACT]: {
       id: Routes.ABSTRACT,
-      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.ABSTRACT}` },
+      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.ABSTRACT}`, query: qParam },
       label: 'Abstract',
       icon: <DocumentTextIcon />,
       tooltip: 'Basic information about this record',
     },
     [Routes.CITATIONS]: {
       id: Routes.CITATIONS,
-      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.CITATIONS}`, search: 'p=1' },
+      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.CITATIONS}`, query: { p: '1', ...qParam } },
       label: 'Citations',
       icon: <CollectionIcon />,
       rightElement: <CountBadge count={doc?.citation_count ?? 0} />,
@@ -69,7 +74,7 @@ const useGetItems = ({
     },
     [Routes.REFERENCES]: {
       id: Routes.REFERENCES,
-      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.REFERENCES}`, search: 'p=1' },
+      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.REFERENCES}`, query: { p: '1', ...qParam } },
       label: 'References',
       icon: <ClipboardListIcon />,
       rightElement: <CountBadge count={doc.reference_count ?? 0} />,
@@ -78,7 +83,7 @@ const useGetItems = ({
     },
     [Routes.CREDITS]: {
       id: Routes.CREDITS,
-      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.CREDITS}`, search: 'p=1' },
+      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.CREDITS}`, query: { p: '1', ...qParam } },
       label: 'Credits',
       icon: <CheckCircleIcon />,
       rightElement: <CountBadge count={doc.credit?.length ?? 0} />,
@@ -87,7 +92,7 @@ const useGetItems = ({
     },
     [Routes.MENTIONS]: {
       id: Routes.MENTIONS,
-      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.MENTIONS}`, search: 'p=1' },
+      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.MENTIONS}`, query: { p: '1', ...qParam } },
       label: 'Mentions',
       icon: <ChatIcon />,
       rightElement: <CountBadge count={doc.mention?.length ?? 0} />,
@@ -96,7 +101,7 @@ const useGetItems = ({
     },
     [Routes.COREADS]: {
       id: Routes.COREADS,
-      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.COREADS}`, search: 'p=1' },
+      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.COREADS}`, query: { p: '1', ...qParam } },
       label: 'Co-Reads',
       icon: <UsersIcon />,
       disabled: doc?.read_count <= 0,
@@ -104,7 +109,7 @@ const useGetItems = ({
     },
     [Routes.SIMILAR]: {
       id: Routes.SIMILAR,
-      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.SIMILAR}` },
+      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.SIMILAR}`, query: qParam },
       label: 'Similar Papers',
       icon: <DuplicateIcon />,
       disabled: !doc?.abstract,
@@ -112,7 +117,7 @@ const useGetItems = ({
     },
     [Routes.VOLUMECONTENT]: {
       id: Routes.VOLUMECONTENT,
-      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.VOLUMECONTENT}`, search: 'p=1' },
+      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.VOLUMECONTENT}`, query: { p: '1', ...qParam } },
       label: 'Volume Content',
       icon: <TableIcon />,
       disabled: doc.property?.indexOf('TOC') === -1,
@@ -120,7 +125,7 @@ const useGetItems = ({
     },
     [Routes.GRAPHICS]: {
       id: Routes.GRAPHICS,
-      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.GRAPHICS}` },
+      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.GRAPHICS}`, query: qParam },
       label: 'Graphics',
       icon: <PhotographIcon />,
       rightElement: <CountBadge count={graphicsCount} />,
@@ -129,7 +134,7 @@ const useGetItems = ({
     },
     [Routes.METRICS]: {
       id: Routes.METRICS,
-      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.METRICS}` },
+      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.METRICS}`, query: qParam },
       label: 'Metrics',
       icon: <ChartPieIcon />,
       disabled: !hasMetrics,
@@ -137,7 +142,7 @@ const useGetItems = ({
     },
     [Routes.EXPORT]: {
       id: Routes.EXPORT,
-      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.EXPORT}/${defaultExportFormatPath}` },
+      href: { pathname: `${abstractPath}/${encodedDocId}/${Routes.EXPORT}/${defaultExportFormatPath}`, query: qParam },
       label: 'Export Citation',
       icon: <DownloadIcon />,
       tooltip: 'Provide formatted citation formats for this record',

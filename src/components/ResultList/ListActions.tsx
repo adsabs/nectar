@@ -64,7 +64,6 @@ export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];
   onOpenAddToLibrary: () => void;
   isLoading: boolean;
-  // URL-driven sort and highlights (replaces search slice reads)
   currentSort?: SolrSort;
   showHighlights?: boolean;
   onToggleHighlights?: () => void;

@@ -1,10 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearch } from '@/api/search/search';
 import { defaultFields } from '@/api/search/models';
+import type { IADSApiSearchResponse } from '@/api/search/types';
 import type { SearchQueryParams } from './useSearchQueryParams';
 import { filterBoundFq } from './filterBoundFq';
 
 const SLOW_SEARCH_THRESHOLD_MS = 5000;
+const EMPTY_DOCS: IADSApiSearchResponse['response']['docs'] = [];
+
+// Custom selector to surface both response data and the responseHeader
+// (responseHeader lives on the top-level response, not on response.response).
+const searchResultsSelector = (data: IADSApiSearchResponse) => ({
+  docs: data.response.docs,
+  numFound: data.response.numFound,
+  isPartialResults: data.responseHeader?.partialResults ?? false,
+});
 
 /**
  * Wraps useSearch() with the typed params from useSearchQueryParams.
@@ -35,11 +45,15 @@ export const useSearchResults = (
   const {
     data,
     isInitialLoading: isLoading,
+    isFetching,
+    refetch,
     isError,
+    error,
   } = useSearch(searchParams, {
+    select: searchResultsSelector,
     enabled: params.q.trim().length > 0,
     keepPreviousData: true,
-    notifyOnChangeProps: ['data', 'isLoading', 'isError', 'isFetching'],
+    notifyOnChangeProps: ['data', 'isLoading', 'isError', 'isFetching', 'error'],
   });
 
   // Slow-search detection: flag if loading exceeds threshold
@@ -53,10 +67,14 @@ export const useSearchResults = (
   }, [isLoading, params.q]);
 
   return {
-    docs: data?.docs ?? [],
+    docs: data?.docs ?? EMPTY_DOCS,
     numFound: data?.numFound ?? 0,
     isLoading,
+    isFetching,
+    refetch,
     isError,
+    error,
+    isPartialResults: data?.isPartialResults ?? false,
     isSlowSearch,
   };
 };

@@ -203,18 +203,6 @@ interface IFacetTreeItemProps {
   onKeyboardFocusPrev?: (index: number[]) => void;
 }
 
-const indexEqual = (a: number[], b: number[]) => {
-  if (!a || !b || a.length !== b.length) {
-    return false;
-  }
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) {
-      return false;
-    }
-  }
-  return true;
-};
-
 export const FacetTreeItem = (props: IFacetTreeItemProps) => {
   const {
     node,
@@ -234,9 +222,9 @@ export const FacetTreeItem = (props: IFacetTreeItemProps) => {
   const setExpanded = useFacetStore(selectors.setExpanded);
   const setCollapsed = useFacetStore(selectors.setCollapsed);
 
-  const checkboxRef = useRef<HTMLInputElement>();
+  const checkboxRef = useRef<HTMLInputElement | null>(null);
 
-  const itemHasKeyboardFocus = keyboardFocus !== null && indexEqual(index, keyboardFocus);
+  const itemHasKeyboardFocus = keyboardFocus !== null && equals(index, keyboardFocus);
 
   useEffect(() => {
     if (checkboxRef.current) {

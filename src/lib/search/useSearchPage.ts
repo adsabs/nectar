@@ -1,8 +1,17 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import { useSearchQueryParams, SearchQueryParams } from './useSearchQueryParams';
 import { useSearchResults } from './useSearchResults';
 import { useApplyBoostTypeToParams } from '@/lib/useApplyBoostTypeToParams';
+import { useStore, AppState } from '@/store';
 import type { IADSApiSearchParams } from '@/api/search/types';
+import type { NumPerPageType } from '@/types';
+
+const selectors = {
+  clearAllSelected: (state: AppState) => state.clearAllSelected,
+  setNumPerPage: (state: AppState) => state.setNumPerPage,
+  numPerPage: (state: AppState) => state.numPerPage,
+};
 
 /**
  * Composes URL state + search results + all event handlers.
@@ -17,22 +26,33 @@ import type { IADSApiSearchParams } from '@/api/search/types';
  * router.query and passes them in so every Solr request includes the bindings.
  */
 export const useSearchPage = (extraSolrParams?: Record<string, string | string[]> | null) => {
-  const { params, setParams, start } = useSearchQueryParams();
+  const { params, setParams } = useSearchQueryParams();
+  const clearAllSelected = useStore(selectors.clearAllSelected);
+  const setNumPerPage = useStore(selectors.setNumPerPage);
+  const numPerPage = useStore(selectors.numPerPage);
+  const { query: routerQuery } = useRouter();
+
+  // If rows is absent from the URL, fall back to the persisted preference
+  // so navigating from home/abstract to search respects the user's page size.
+  const resolvedRows = routerQuery.rows == null ? numPerPage : params.rows;
+  const resolvedParams = useMemo(() => ({ ...params, rows: resolvedRows }), [params, resolvedRows]);
+  const start = (resolvedParams.p - 1) * resolvedRows;
 
   // Apply boost type from appMode slice before firing the query.
   // SearchQueryParams is cast to IADSApiSearchParams — the extra fields
   // (showHighlights, d) are compatible with the index signature.
   const { params: boostedParams } = useApplyBoostTypeToParams({
-    params: params as unknown as IADSApiSearchParams,
+    params: resolvedParams as unknown as IADSApiSearchParams,
   });
 
   const results = useSearchResults(boostedParams as unknown as SearchQueryParams, extraSolrParams);
 
   const onSubmit = useCallback(
     async (q: string) => {
+      clearAllSelected();
       await setParams({ q, p: 1 });
     },
-    [setParams],
+    [setParams, clearAllSelected],
   );
 
   const onSort = useCallback(
@@ -51,16 +71,20 @@ export const useSearchPage = (extraSolrParams?: Record<string, string | string[]
 
   const onPerPageChange = useCallback(
     async (rows: number) => {
+      // Persist to shared Zustand preference so other pages (e.g. Citation
+      // Helper) pick up the user's preferred page size.
+      setNumPerPage(rows as NumPerPageType);
       await setParams({ rows, p: 1 });
     },
-    [setParams],
+    [setParams, setNumPerPage],
   );
 
   const onFacetChange = useCallback(
     async (fq: string[]) => {
+      clearAllSelected();
       await setParams({ fq, p: 1 });
     },
-    [setParams],
+    [setParams, clearAllSelected],
   );
 
   const onToggleHighlights = useCallback(async () => {
@@ -68,7 +92,7 @@ export const useSearchPage = (extraSolrParams?: Record<string, string | string[]
   }, [setParams, params.showHighlights]);
 
   return {
-    params,
+    params: resolvedParams,
     start,
     results,
     handlers: {

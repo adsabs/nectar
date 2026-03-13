@@ -16,9 +16,10 @@ export const useSyncWithGlobal = (props: { searchTerm: string; dispatch: Dispatc
     const handler = (url: string) => {
       if (url.startsWith('/search')) {
         const { q } = parseQueryFromUrl(url) as { q: string | undefined };
+        const safeQ = q ?? '';
         dispatch({
           type: 'SET_SEARCH_TERM',
-          payload: { query: q, cursorPosition: q ? q.length : 0 },
+          payload: { query: safeQ, cursorPosition: safeQ.length },
         });
       }
     };

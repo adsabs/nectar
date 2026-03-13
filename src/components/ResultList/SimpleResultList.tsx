@@ -7,6 +7,7 @@ import { Item, IItemProps } from './Item';
 import { IDocsEntity } from '@/api/search/types';
 import { handleBoundaryError } from '@/lib/errorHandler';
 import { useRouter } from 'next/router';
+import { useMemo } from 'react';
 import { useHighlights } from './useHighlights';
 import { parseQueryFromUrl } from '@/utils/common/search';
 
@@ -16,7 +17,7 @@ import { parseQueryFromUrl } from '@/utils/common/search';
  */
 const useHighlightsFromUrl = (showHighlights: boolean) => {
   const router = useRouter();
-  const urlParams = parseQueryFromUrl(router.asPath);
+  const urlParams = useMemo(() => parseQueryFromUrl(router.asPath), [router.asPath]);
   const { highlights, isFetchingHighlights } = useHighlights(urlParams, showHighlights);
   return { highlights, isFetchingHighlights };
 };
@@ -79,10 +80,10 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   const isClient = useIsClient();
   const start = indexStart + 1;
 
-  // Read showHighlights from URL (search page sets it; defaults to false elsewhere).
+  // Read showHighlights from URL. nuqs maps showHighlights → 'hl' in the URL,
+  // so router.query contains 'hl', not 'showHighlights'.
   const router = useRouter();
-  const showHighlightsParam = router.query.showHighlights;
-  const showHighlights = showHighlightsParam === 'true';
+  const showHighlights = router.query.hl === 'true';
   const { highlights, isFetchingHighlights } = useHighlightsFromUrl(showHighlights);
 
   return (

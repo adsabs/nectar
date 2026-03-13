@@ -98,16 +98,19 @@ const Telemetry: FC = () => {
     }
   }, [query, user, docs]);
 
-  return <></>;
+  return null;
 };
 
 const sendQueryAsTags = (query: ParsedUrlQuery) => {
   Object.keys(query).forEach((key) => {
     const value = query[key];
+    if (value == null) {
+      return;
+    }
     if (Array.isArray(value)) {
       Sentry.setTag(`query.${key}`, value.join(' | '));
     } else {
-      Sentry.setTag(`query.${key}`, JSON.stringify(value));
+      Sentry.setTag(`query.${key}`, String(value));
     }
   });
 };

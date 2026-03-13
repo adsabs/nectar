@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Text } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { IDocsEntity } from '@/api/search/types';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 import { Item } from '@/components/ResultList/Item';
@@ -6,14 +6,14 @@ import { ErrorBoundary } from 'react-error-boundary';
 
 interface SearchResultsListProps {
   docs: IDocsEntity[];
-  numFound: number;
   isLoading: boolean;
-  isError: boolean;
+  isFetching?: boolean;
   indexStart: number;
   rows?: number;
   highlights?: Partial<Record<string, string[]>>[];
   showHighlights?: boolean;
   isFetchingHighlights?: boolean;
+  useNormCite?: boolean;
 }
 
 /**
@@ -22,38 +22,21 @@ interface SearchResultsListProps {
  */
 export const SearchResultsList = ({
   docs,
-  numFound,
   isLoading,
-  isError,
+  isFetching = false,
   indexStart,
   rows = 10,
   highlights = [],
   showHighlights = false,
   isFetchingHighlights = false,
+  useNormCite = false,
 }: SearchResultsListProps) => {
   if (isLoading) {
     return <SearchResultsSkeleton rows={rows} />;
   }
 
-  if (isError) {
-    return (
-      <Alert status="error" role="alert">
-        <AlertIcon />
-        Search failed. Please try again.
-      </Alert>
-    );
-  }
-
-  if (numFound === 0) {
-    return (
-      <Box p={4} data-testid="search-results-empty">
-        <Text>No results found for your search.</Text>
-      </Box>
-    );
-  }
-
   return (
-    <Box data-testid="search-results-list">
+    <Box data-testid="search-results-list" opacity={isFetching ? 0.5 : 1} transition="opacity 0.15s ease">
       {docs.map((doc, i) => (
         <ErrorBoundary key={doc.bibcode} fallbackRender={() => null}>
           <Item
@@ -64,6 +47,7 @@ export const SearchResultsList = ({
             showHighlights={showHighlights}
             isFetchingHighlights={isFetchingHighlights}
             highlights={highlights[i]}
+            useNormCite={useNormCite}
           />
         </ErrorBoundary>
       ))}
