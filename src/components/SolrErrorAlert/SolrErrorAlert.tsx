@@ -1,21 +1,23 @@
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
   Box,
   Button,
   Code,
   Collapse,
   HStack,
+  Icon,
+  Link,
+  Spacer,
+  Text,
   Tooltip,
   useClipboard,
+  useColorModeValue,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { ChevronDownIcon, ChevronRightIcon, CopyIcon } from '@chakra-ui/icons';
+import { CopyIcon, WarningIcon } from '@chakra-ui/icons';
 import { AxiosError } from 'axios';
 import { IADSApiSearchResponse } from '@/api/search/types';
+import { SimpleLink } from '@/components/SimpleLink';
 import { ParsedSolrError, SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 
 interface ISolrErrorAlertProps {
@@ -26,56 +28,138 @@ interface ISolrErrorAlertProps {
 
 export const SearchErrorAlert = ({ error, onRetry, isRetrying = false }: ISolrErrorAlertProps) => {
   const data = useSolrError(error);
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true });
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false });
   const detailsId = 'search-error-details';
   const { onCopy, hasCopied } = useClipboard(
     typeof data?.originalMsg === 'string' ? data.originalMsg : String(data?.originalMsg ?? ''),
   );
   const { title, message } = solrErrorToCopy(data, { includeFieldName: !!data.field });
 
+  const errorMsg = typeof data?.originalMsg === 'string' ? data.originalMsg : String(data?.originalMsg ?? '');
+  const feedbackUrl = errorMsg
+    ? `/feedback/general?${new URLSearchParams({
+        from: 'search',
+        error_details: errorMsg.slice(0, 2000),
+      }).toString()}`
+    : '/feedback/general?from=search';
+
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('red.100', 'whiteAlpha.200');
+  const accentBarColor = useColorModeValue('red.500', 'red.400');
+  const titleColor = useColorModeValue('blue.800', 'white');
+  const descColor = useColorModeValue('gray.900', 'gray.400');
+  const shadow = useColorModeValue('md', '2xl');
+  const codeBg = useColorModeValue('gray.100', 'whiteAlpha.300');
+  const linkColor = useColorModeValue('gray.800', 'gray.500');
+  const tryAgainBorderColor = useColorModeValue('red.200', 'red.600');
+  const tryAgainColor = useColorModeValue('red.600', 'red.300');
+  const tryAgainBg = useColorModeValue('white', 'gray.700');
+  const tryAgainHoverBg = useColorModeValue('red.50', 'whiteAlpha.100');
+  const copyBorderColor = useColorModeValue('gray.300', 'whiteAlpha.300');
+  const copyHoverBg = useColorModeValue('gray.50', 'whiteAlpha.100');
+
   return (
-    <Box w="full">
-      <Alert status="error" variant="subtle" alignItems="flex-start" borderRadius="md">
-        <VStack align="stretch" spacing={2} w="full">
-          <HStack align="start" w="full">
-            <AlertIcon />
-            <VStack align="start" spacing={1} flex="1">
-              <AlertTitle>{title}</AlertTitle>
-              <AlertDescription>{message}</AlertDescription>
-            </VStack>
+    <Box
+      w="full"
+      bg={bgColor}
+      border="1px solid"
+      borderColor={borderColor}
+      borderRadius="md"
+      shadow={shadow}
+      overflow="hidden"
+      position="relative"
+      role="alert"
+    >
+      <Box position="absolute" left={0} top={0} bottom={0} w="4px" bg={accentBarColor} />
 
-            <HStack>
-              {onRetry && (
-                <Button onClick={onRetry} colorScheme="blue" size="sm" isLoading={isRetrying}>
-                  Try Again
-                </Button>
-              )}
-              <Tooltip label={hasCopied ? 'Copied!' : 'Copy full error'}>
-                <Button onClick={onCopy} leftIcon={<CopyIcon />} variant="ghost" size="sm">
-                  {hasCopied ? 'Copied' : 'Copy'}
-                </Button>
-              </Tooltip>
+      <VStack align="start" p={5} spacing={3} pl={8}>
+        <HStack spacing={3}>
+          <Icon as={WarningIcon} color={accentBarColor} boxSize={4} />
+          <Text fontWeight="600" color={titleColor} fontSize="md">
+            {title}
+          </Text>
+        </HStack>
 
-              <Button
-                rightIcon={isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
-                aria-label="toggle error details"
-                aria-controls={detailsId}
-                onClick={onToggle}
-                variant="ghost"
-                size="sm"
-              >
-                {isOpen ? 'Hide' : 'Show'} Details
-              </Button>
-            </HStack>
+        <Text color={descColor} fontSize="sm" lineHeight="1.6">
+          {message}
+        </Text>
+
+        <HStack w="full" spacing={3} pt={2} wrap="wrap" align="center">
+          {onRetry && (
+            <Button
+              onClick={onRetry}
+              variant="outline"
+              size="sm"
+              borderColor={tryAgainBorderColor}
+              color={tryAgainColor}
+              bg={tryAgainBg}
+              borderRadius="4px"
+              px={5}
+              isLoading={isRetrying}
+              _hover={{ bg: tryAgainHoverBg }}
+            >
+              Try Again
+            </Button>
+          )}
+          <Tooltip label={hasCopied ? 'Copied!' : 'Copy full error'}>
+            <Button
+              onClick={onCopy}
+              leftIcon={<CopyIcon />}
+              variant="outline"
+              size="sm"
+              borderColor={copyBorderColor}
+              color={titleColor}
+              borderRadius="4px"
+              px={5}
+              _hover={{ bg: copyHoverBg }}
+            >
+              {hasCopied ? 'Copied' : 'Copy'}
+            </Button>
+          </Tooltip>
+
+          <Spacer />
+
+          <HStack spacing={4}>
+            <Link
+              as="button"
+              fontSize="xs"
+              color={linkColor}
+              aria-label="toggle error details"
+              aria-controls={detailsId}
+              onClick={onToggle}
+              _hover={{ color: 'red.400', textDecoration: 'underline' }}
+            >
+              {isOpen ? 'Hide' : 'Show'} Details
+            </Link>
+            <SimpleLink
+              href={feedbackUrl}
+              fontSize="xs"
+              color={linkColor}
+              display="inline-flex"
+              alignItems="center"
+              gap={1}
+              _hover={{ color: 'red.400', textDecoration: 'underline' }}
+            >
+              Report this issue
+            </SimpleLink>
           </HStack>
+        </HStack>
 
-          <Collapse in={isOpen} animateOpacity>
-            <Code id={detailsId} p="2" display="block" whiteSpace="pre-wrap" w="full">
-              {data?.originalMsg}
-            </Code>
-          </Collapse>
-        </VStack>
-      </Alert>
+        <Collapse in={isOpen} animateOpacity>
+          <Code
+            id={detailsId}
+            p={3}
+            display="block"
+            whiteSpace="pre-wrap"
+            w="full"
+            fontSize="xs"
+            bg={codeBg}
+            borderRadius="md"
+          >
+            {data?.originalMsg}
+          </Code>
+        </Collapse>
+      </VStack>
     </Box>
   );
 };

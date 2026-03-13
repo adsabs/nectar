@@ -21,6 +21,7 @@ export interface IGeneralFeedbackParams {
   current_page?: string;
   current_query?: string;
   url?: string;
+  error_details?: string;
 }
 
 export type Relationship = 'errata' | 'addenda' | 'series' | 'arxiv' | 'duplicate' | 'other';
