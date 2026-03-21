@@ -23,6 +23,35 @@ export const defaultFields: IADSApiSearchParams['fl'] = [
 
 export const defaultSort: IADSApiSearchParams['sort'] = ['score desc'];
 
+/**
+ * Default query params for the search form.
+ * Used by query-utils.ts to seed new queries.
+ */
+export const defaultQueryParams: IADSApiSearchParams = {
+  q: '',
+  fl: [
+    'bibcode',
+    'title',
+    'author',
+    '[fields author=10]',
+    'author_count',
+    'pubdate',
+    'bibstem',
+    '[citations]',
+    'reference_count',
+    'citation_count',
+    'citation_count_norm',
+    'credit',
+    'esources',
+    'property',
+    'data',
+    'id',
+  ],
+  sort: APP_DEFAULTS.SORT,
+  start: 0,
+  rows: APP_DEFAULTS.RESULT_PER_PAGE,
+};
+
 export const defaultParams: IADSApiSearchParams = {
   q: '*:*',
   sort: APP_DEFAULTS.SORT,

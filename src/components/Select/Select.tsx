@@ -72,7 +72,7 @@ function SelectImpl<
         sort: {
           control: (provided) => ({
             ...provided,
-            height: '2.6em',
+            height: '2.5rem',
             borderRadius: '2px 0 0 2px',
             borderRightWidth: '0',
             borderColor: colors.border,

@@ -15,7 +15,6 @@ import {
 import * as Sentry from '@sentry/nextjs';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useStore } from '@/store';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { MouseEvent, useCallback, useState } from 'react';
@@ -38,7 +37,7 @@ import { FeedbackLayout } from '@/components/Layout';
 import { FeedbackAlert } from '@/components/FeedbackForms';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
-import { makeSearchParams } from '@/utils/common/search';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { useFeedback } from '@/api/feedback/feedback';
 import { logger } from '@/logger';
@@ -58,7 +57,6 @@ const validationSchema = z.object({
 
 const General: NextPage = () => {
   const userEmail = useGetUserEmail();
-  const currentQuery = useStore((state) => state.latestQuery);
   const [formError, setFormError] = useState<Error | string | null>(null);
 
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
@@ -130,7 +128,9 @@ const General: NextPage = () => {
             platform,
             os: `${osName} ${osVersion}`,
             current_page: router.query.from ? (router.query.from as string) : undefined,
-            current_query: makeSearchParams(currentQuery),
+            current_query: makeSearchParams(
+              parseQueryFromUrl(typeof router.query.from === 'string' ? router.query.from : router.asPath),
+            ),
             url: router.asPath,
             comments,
           },
@@ -174,9 +174,6 @@ const General: NextPage = () => {
       mutate,
       onAlertOpen,
       reset,
-      makeSearchParams,
-      currentQuery,
-      router.query.from,
       router.asPath,
       userEmail,
       engineName,

@@ -31,7 +31,7 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from '@dnd-kit/utilities';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
 import { ExclamationCircleIcon } from '@heroicons/react/24/solid';
-import { AppState, useStore, useStoreApi } from '@/store';
+import { AppState, useStore } from '@/store';
 import { append, uniq, without } from 'ramda';
 import {
   CSSProperties,
@@ -74,15 +74,15 @@ export interface ISearchFacetProps extends AccordionItemProps {
   onVisibilityChange?: (change: { id: SearchFacetID; hidden: boolean }) => void;
   filter?: string[];
   onQueryUpdate: (queryUpdates: Partial<IADSApiSearchParams>) => void;
+  params: IADSApiSearchParams;
   isLowerCase: boolean;
 }
 
 export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
-  const store = useStoreApi();
   const setFacetState = useStore((state) => state.setSearchFacetState);
   const hideFacet = useStore((state) => state.hideSearchFacet);
   const showFacet = useStore((state) => state.showSearchFacet);
-  const { label, field, storeId, onQueryUpdate, noLoadMore, defaultIsHidden, onVisibilityChange } = props;
+  const { label, field, storeId, onQueryUpdate, noLoadMore, defaultIsHidden, onVisibilityChange, params } = props;
   const { listeners, attributes, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: storeId,
     strategy: verticalListSortingStrategy,
@@ -113,8 +113,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const [hasError, setHasError] = useState(false);
 
   const handleOnFilter = (filterArgs: OnFilterArgs) => {
-    const query = store.getState().latestQuery;
-    onQueryUpdate(applyFiltersToQuery({ ...filterArgs, query }));
+    onQueryUpdate(applyFiltersToQuery({ ...filterArgs, query: params }));
     sendGTMEvent({
       event: 'facet_applied',
       facet_field: filterArgs.field,
@@ -229,7 +228,13 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
           borderBottomRadius="md"
           mt="0"
         >
-          <FacetList noLoadMore={noLoadMore} onFilter={handleOnFilter} onError={handleOnError} label={label} />
+          <FacetList
+            searchParams={params}
+            noLoadMore={noLoadMore}
+            onFilter={handleOnFilter}
+            onError={handleOnError}
+            label={label}
+          />
         </Box>
       )}
     </ListItem>
@@ -238,10 +243,11 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
 
 export interface ISearchFacetsProps {
   onQueryUpdate: ISearchFacetProps['onQueryUpdate'];
+  params: IADSApiSearchParams;
 }
 
 export const SearchFacets = (props: ISearchFacetsProps) => {
-  const { onQueryUpdate } = props;
+  const { onQueryUpdate, params } = props;
   const facets = useStore((state) => state.settings.searchFacets.order);
   const getHiddenFacets = useStore((state) => state.getHiddenSearchFacets);
   const setFacets = useStore((state) => state.setSearchFacetOrder);
@@ -394,6 +400,7 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
         <FacetStoreProvider facetId={facetProps.storeId} key={facetProps.storeId}>
           <SearchFacet
             {...facetProps}
+            params={params}
             onQueryUpdate={onQueryUpdate}
             defaultIsHidden={false}
             onVisibilityChange={handleVisibilityChange}
@@ -401,7 +408,7 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
         </FacetStoreProvider>
       );
     });
-  }, [facetsList.visible, onQueryUpdate, handleVisibilityChange]);
+  }, [facetsList.visible, params, onQueryUpdate, handleVisibilityChange]);
 
   const hiddenItems = useMemo(() => {
     const facetProps = facetsList.hidden.map((id) => facetConfig[id]).sort((a, b) => a.label.localeCompare(b.label));
@@ -410,6 +417,7 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
         <FacetStoreProvider facetId={facetProp.storeId} key={facetProp.storeId}>
           <SearchFacet
             {...facetProp}
+            params={params}
             onQueryUpdate={onQueryUpdate}
             defaultIsHidden={true}
             onVisibilityChange={handleVisibilityChange}
@@ -417,7 +425,7 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
         </FacetStoreProvider>
       );
     });
-  }, [facetsList.hidden, onQueryUpdate, handleVisibilityChange]);
+  }, [facetsList.hidden, params, onQueryUpdate, handleVisibilityChange]);
 
   const activeItem = useMemo(() => {
     if (draggingFacetId) {
@@ -427,6 +435,7 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
         <FacetStoreProvider facetId={facetProp.storeId} key={facetProp.storeId}>
           <SearchFacet
             {...facetProp}
+            params={params}
             onQueryUpdate={onQueryUpdate}
             defaultIsHidden={true}
             onVisibilityChange={handleVisibilityChange}
@@ -434,7 +443,7 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
         </FacetStoreProvider>
       );
     }
-  }, [draggingFacetId, onQueryUpdate, handleVisibilityChange]);
+  }, [draggingFacetId, params, onQueryUpdate, handleVisibilityChange]);
 
   return (
     <DndContext

@@ -71,7 +71,7 @@ const createBreadcrumbs = (key: string) => {
 };
 
 const ModalFacet = (props: ISearchFacetModalProps) => {
-  const { onFilter, children } = props;
+  const { onFilter, children, searchParams } = props;
 
   const params = useFacetStore((state) => state.params);
   const focused = useFacetStore((state) => state.focused);
@@ -116,7 +116,7 @@ const ModalFacet = (props: ISearchFacetModalProps) => {
             ) : null}
           </>
           <UnExpandButton />
-          <FacetDownloadButton />
+          <FacetDownloadButton searchParams={searchParams} />
           {children({ searchTerm })}
         </Flex>
       </ModalBody>
@@ -181,14 +181,15 @@ const UnExpandButton = () => {
   );
 };
 
-const FacetDownloadButton = () => {
+const FacetDownloadButton = (props: { searchParams: ISearchFacetModalProps['searchParams'] }) => {
+  const { searchParams } = props;
   const [enabled, setEnabled] = useState(false);
   const toast = useToast({ id: 'facet-download' });
   const params = useFacetStore((state) => state.params);
   const { sort } = useGetSearchTerm();
   const focused = useFacetStore((state) => state.focused);
 
-  const { treeData, isSuccess, error, isFetching } = useGetFacetData({
+  const { treeData, isSuccess, error, isFetching } = useGetFacetData(searchParams, {
     ...params,
     searchTerm: undefined,
     prefix: focused?.val || FACET_DEFAULT_PREFIX,

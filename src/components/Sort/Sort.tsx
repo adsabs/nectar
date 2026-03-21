@@ -2,7 +2,7 @@ import { Box, HStack, IconButton, Input } from '@chakra-ui/react';
 
 import { ItemType } from '@/components/Dropdown/types';
 import { ISelectProps, Select } from '@/components/Select';
-import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';
+import { BarsArrowDownIcon, BarsArrowUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@/lib/useIsClient';
 import { useRouter } from 'next/router';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
@@ -85,7 +85,7 @@ export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSo
   const sortContainerWidth = fullWidth ? 'full' : '250px';
 
   return (
-    <HStack spacing={0} data-testid="sort" alignItems="flex-end" id={id}>
+    <HStack spacing={0} data-testid="sort" alignItems="stretch" id={id}>
       <Box width={sortContainerWidth}>
         <SortSelect
           hideLabel={hideLabel}
@@ -134,6 +134,13 @@ interface SortOptionType<F extends SortField> {
   label: string;
 }
 
+// Matches the heroicons 24/outline stroke weight used by the direction button
+const SortDropdownIndicator = () => (
+  <Box px={2} display="flex" alignItems="center">
+    <ChevronDownIcon width="20px" />
+  </Box>
+);
+
 // Sort Select component
 const SortSelect = <S extends SortType, F extends SortField>({
   sort,
@@ -159,6 +166,7 @@ const SortSelect = <S extends SortType, F extends SortField>({
       onChange={onChange}
       data-testid="sort-select"
       id="sort-select"
+      components={{ DropdownIndicator: SortDropdownIndicator }}
       {...innerSelectProps}
     />
   );

@@ -18,6 +18,7 @@ import { useScrollRestoration } from '@/lib/useScrollRestoration';
 import { useStore } from '@/store';
 import { MathJax } from 'better-react-mathjax';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { ChangeEvent, ReactElement, useCallback, useEffect, useState } from 'react';
 import shallow from 'zustand/shallow';
 import { IAbstractPreviewProps } from './AbstractPreview';
@@ -77,17 +78,28 @@ export const Item = (props: IItemProps): ReactElement => {
 
   // memoize the isSelected callback on bibcode
   const isChecked = useStore(useCallback((state) => state.isDocSelected(bibcode), [bibcode]));
+  const router = useRouter();
+  const currentQuery = typeof router.query.q === 'string' ? router.query.q : undefined;
+  const currentFq = router.query.fq;
+  const currentSort = router.query.sort;
 
   const colors = useColorModeColors();
 
   // Scroll restoration - save position when navigating to abstract
   const { saveScrollPosition } = useScrollRestoration();
 
+  const searchContext = {
+    ...(currentQuery ? { q: currentQuery } : {}),
+    ...(currentFq ? { fq: currentFq } : {}),
+    ...(currentSort ? { sort: currentSort } : {}),
+  };
+  const citationQuery = { p: '1', ...searchContext };
+
   // citations
   const cite = useNormCite ? (
     typeof doc.citation_count_norm === 'number' && doc.citation_count_norm > 0 ? (
       <SimpleLink
-        href={{ pathname: `/abs/${encodedCanonicalID}/citations`, search: 'p=1' }}
+        href={{ pathname: `/abs/${encodedCanonicalID}/citations`, query: citationQuery }}
         newTab={linkNewTab}
         onClick={saveScrollPosition}
       >
@@ -96,7 +108,7 @@ export const Item = (props: IItemProps): ReactElement => {
     ) : null
   ) : typeof doc.citation_count === 'number' && doc.citation_count > 0 ? (
     <SimpleLink
-      href={{ pathname: `/abs/${encodedCanonicalID}/citations`, search: 'p=1' }}
+      href={{ pathname: `/abs/${encodedCanonicalID}/citations`, query: citationQuery }}
       newTab={linkNewTab}
       onClick={saveScrollPosition}
     >
@@ -108,7 +120,7 @@ export const Item = (props: IItemProps): ReactElement => {
   const credited =
     Array.isArray(doc.credit) && doc.credit.length > 0 ? (
       <SimpleLink
-        href={{ pathname: `/abs/${encodedCanonicalID}/credits`, search: 'p=1' }}
+        href={{ pathname: `/abs/${encodedCanonicalID}/credits`, query: citationQuery }}
         newTab={linkNewTab}
         onClick={saveScrollPosition}
       >
@@ -142,7 +154,10 @@ export const Item = (props: IItemProps): ReactElement => {
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between" minH="40px">
           <SimpleLink
-            href={`/abs/${encodedCanonicalID}/abstract`}
+            href={{
+              pathname: `/abs/${encodedCanonicalID}/abstract`,
+              query: Object.keys(searchContext).length > 0 ? searchContext : undefined,
+            }}
             fontWeight="semibold"
             className="article-title"
             onClick={saveScrollPosition}

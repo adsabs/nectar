@@ -259,7 +259,7 @@ export const theme = extendTheme(
           }),
           pageBetween: {
             borderWidth: '1px',
-            borderRadius: '0 0 0 0',
+            borderRadius: '0',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
           },

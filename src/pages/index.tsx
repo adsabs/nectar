@@ -53,7 +53,6 @@ const HomePage: NextPage = () => {
   const [queryAddition, setQueryAddition] = useState('');
   const [query, setQuery] = useState<string>('');
   const sort = [`${settings.preferredSearchSort} desc` as SolrSort];
-  const submitQuery = useStore((state) => state.submitQuery);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const clearSelectedDocs = useStore((state) => state.clearAllSelected);
@@ -141,7 +140,6 @@ const HomePage: NextPage = () => {
 
       if (query && query.trim().length > 0) {
         setIsLoading(true);
-        submitQuery();
         const defaultedQuery = applyDefaultFilters({ q: query, sort, p: 1 }) as IADSApiSearchParams;
         void router
           .push({
@@ -153,7 +151,7 @@ const HomePage: NextPage = () => {
           });
       }
     },
-    [applyDefaultFilters, router, setIsLoading, sort, submitQuery],
+    [applyDefaultFilters, router, setIsLoading, sort],
   );
 
   const handleQueryExampleSelect = useCallback(

@@ -53,9 +53,12 @@ export const Histogram = ({
 
   // selected range changed, update bin color
   useEffect(() => {
-    d3.selectAll('.histogram-bin').style('fill', (d, i) =>
-      data[i].x < highlightDomain[0] || data[i].x > highlightDomain[1] ? 'gray' : '#69b3a2',
-    );
+    d3.selectAll('.histogram-bin').style('fill', (d, i) => {
+      if (!data[i]) {
+        return 'gray';
+      }
+      return data[i].x < highlightDomain[0] || data[i].x > highlightDomain[1] ? 'gray' : '#69b3a2';
+    });
   }, [highlightDomain]);
 
   const renderFunction = useCallback(
