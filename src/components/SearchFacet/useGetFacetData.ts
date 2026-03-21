@@ -82,6 +82,10 @@ export const useGetFacetData = (searchParams: IADSApiSearchParams, props: IUseGe
     },
   );
 
+  // In React Query v4, a disabled query with no cached data returns isLoading: true.
+  // Gate on the actual enabled condition so facets don't stay stuck in loading state.
+  const isQueryEnabled = enabled && isNonEmptyString(searchQuery?.q?.trim());
+
   const res = data?.[field];
   const treeData = useMemo(() => formatTreeData(res?.buckets ?? []), [res?.buckets]);
 
@@ -167,7 +171,7 @@ export const useGetFacetData = (searchParams: IADSApiSearchParams, props: IUseGe
     handlePageChange,
     canLoadMore: res?.numBuckets !== treeData?.length,
     ...result,
-    isLoading: result.isLoading || (hasIdentifiers && isObjectsLoading),
+    isLoading: (isQueryEnabled && result.isLoading) || (hasIdentifiers && isObjectsLoading),
     isFetching: result.isFetching || (hasIdentifiers && isObjectsFetching),
     isError: result.isError || (hasIdentifiers && isObjectsError),
   };
