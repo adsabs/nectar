@@ -209,7 +209,7 @@ export const allSearchTerms: SearchTermOption[] = [
     title: 'arXiv category',
     description: 'Finds all arXiv pre-prints in the class specified',
     syntax: ['arxiv_class:"arxivclass"'],
-    example: ['arxiv_class:"High Energy Physics - Experiment"'],
+    example: ['arxiv_class:"astro-ph.IM"'],
   },
   {
     type: 'item',
