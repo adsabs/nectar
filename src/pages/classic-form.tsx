@@ -7,7 +7,6 @@ import { logger } from '@/logger';
 import { BRAND_NAME_FULL } from '@/config';
 import { useEffect } from 'react';
 import { useStore } from '@/store';
-import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { useRouter } from 'next/router';
 import { AppMode } from '@/types';
@@ -17,7 +16,6 @@ import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
 const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   const router = useRouter();
   const clearSelectedDocs = useStore((state) => state.clearAllSelected);
-  const { clearQuery } = useIntermediateQuery();
   const mode = useStore((state) => state.mode);
   const setMode = useStore((state) => state.setMode);
   const dismissModeNoticeSilently = useStore((state) => state.dismissModeNoticeSilently);
@@ -35,7 +33,6 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   // clear search on mount
   useEffect(() => {
     clearSelectedDocs();
-    clearQuery();
     dismissModeNoticeSilently();
     if (urlModeOverride) {
       const fallbackMode = urlModePrevious ?? AppMode.GENERAL;

@@ -2,7 +2,6 @@ import { calculatePagination } from '@/components/ResultList/Pagination/usePagin
 import { getLevelFromKey, getPrevKey } from '@/components/SearchFacet/helpers';
 import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { FacetItem } from '@/components/SearchFacet/types';
-import { AppState, useStore } from '@/store';
 import { sanitize } from 'isomorphic-dompurify';
 import { isEmpty, omit } from 'ramda';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -32,10 +31,8 @@ export interface IUseGetFacetDataProps {
 export const FACET_DEFAULT_LIMIT = 10;
 export const FACET_DEFAULT_PREFIX = '0/';
 
-const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.latestQuery) as IADSApiSearchParams;
-
-export const useGetFacetData = (props: IUseGetFacetDataProps) => {
-  const searchQuery = useStore(querySelector);
+export const useGetFacetData = (searchParams: IADSApiSearchParams, props: IUseGetFacetDataProps) => {
+  const searchQuery = omit(['fl', 'start', 'rows'], searchParams) as IADSApiSearchParams;
   const {
     field,
     query = '',
@@ -85,6 +82,10 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     },
   );
 
+  // In React Query v4, a disabled query with no cached data returns isLoading: true.
+  // Gate on the actual enabled condition so facets don't stay stuck in loading state.
+  const isQueryEnabled = enabled && isNonEmptyString(searchQuery?.q?.trim());
+
   const res = data?.[field];
   const treeData = useMemo(() => formatTreeData(res?.buckets ?? []), [res?.buckets]);
 
@@ -96,17 +97,19 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     [field, treeData],
   );
 
+  const hasIdentifiers = identifiers.length > 0;
   const {
     data: objects,
-    isLoading,
-    isFetching,
-    isError,
-  } = useObjects({ identifiers }, { enabled: identifiers?.length > 0 });
+    isLoading: isObjectsLoading,
+    isFetching: isObjectsFetching,
+    isError: isObjectsError,
+  } = useObjects({ identifiers }, { enabled: hasIdentifiers });
 
   const enhancedTreeData = useMemo(() => {
     if (objects && treeData) {
       return treeData.map((data) => {
-        const id = data.val.split('/')[data.val.split('/').length - 1];
+        const parts = data.val.split('/');
+        const id = parts[parts.length - 1];
         return { ...data, val: data.val.replace(id, objects[id].canonical) };
       });
     } else {
@@ -168,9 +171,9 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     handlePageChange,
     canLoadMore: res?.numBuckets !== treeData?.length,
     ...result,
-    isLoading: result.isLoading || isLoading,
-    isFetching: result.isFetching || isFetching,
-    isError: result.isError || isError,
+    isLoading: (isQueryEnabled && result.isLoading) || (hasIdentifiers && isObjectsLoading),
+    isFetching: result.isFetching || (hasIdentifiers && isObjectsFetching),
+    isError: result.isError || (hasIdentifiers && isObjectsError),
   };
 };
 

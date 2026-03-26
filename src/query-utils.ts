@@ -1,5 +1,5 @@
 import { joinQueries, removeClauseAndStringify, splitQuery } from '@/query';
-import { defaultQueryParams } from '@/store/slices';
+import { defaultQueryParams } from '@/api/search/models';
 import {
   append,
   assoc,

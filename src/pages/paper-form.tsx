@@ -34,7 +34,6 @@ import { useErrorMessage } from '@/lib/useErrorMessage';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
 import { logger } from '@/logger';
 import { useStore } from '@/store';
-import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { BibstemPicker } from '@/components/BibstemPicker';
 import { makeSearchParams } from '@/utils/common/search';
 import { fetchVaultSearch, vaultKeys } from '@/api/vault/vault';
@@ -81,7 +80,6 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
   const [error, setError] = useErrorMessage(ssrError);
 
   const clearSelectedDocs = useStore((state) => state.clearAllSelected);
-  const { clearQuery } = useIntermediateQuery();
   const mode = useStore((state) => state.mode);
   const setMode = useStore((state) => state.setMode);
   const dismissModeNoticeSilently = useStore((state) => state.dismissModeNoticeSilently);
@@ -99,7 +97,6 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
   // clear search on mount
   useEffect(() => {
     clearSelectedDocs();
-    clearQuery();
     dismissModeNoticeSilently();
     if (urlModeOverride) {
       const fallbackMode = urlModePrevious ?? AppMode.GENERAL;

@@ -1,9 +1,10 @@
 import { Box, SkeletonText, Text } from '@chakra-ui/react';
-import { useStore } from '@/store';
+import { useRouter } from 'next/router';
 import { ReactElement } from 'react';
 
 import { truncateDecimal } from '@/utils/common/formatters';
 import { useGetSearchStats } from '@/api/search/search';
+import { IADSApiSearchParams } from '@/api/search/types';
 
 export interface INumFoundProps {
   count?: number;
@@ -42,8 +43,19 @@ export const NumFound = (props: INumFoundProps): ReactElement => {
 };
 
 const SortStats = () => {
-  const latestQuery = useStore((state) => state.latestQuery);
-  const { data, isSuccess } = useGetSearchStats(latestQuery);
+  const { query: routerQuery } = useRouter();
+  const q = typeof routerQuery.q === 'string' ? routerQuery.q : '';
+  const sort = Array.isArray(routerQuery.sort)
+    ? (routerQuery.sort as IADSApiSearchParams['sort'])
+    : typeof routerQuery.sort === 'string'
+    ? ([routerQuery.sort] as IADSApiSearchParams['sort'])
+    : [];
+  const fq = Array.isArray(routerQuery.fq)
+    ? (routerQuery.fq as IADSApiSearchParams['fq'])
+    : typeof routerQuery.fq === 'string'
+    ? ([routerQuery.fq] as IADSApiSearchParams['fq'])
+    : undefined;
+  const { data, isSuccess } = useGetSearchStats(fq ? { q, sort, fq } : { q, sort });
 
   if (isSuccess && 'citation_count' in data.stats_fields) {
     const count = sanitizeNum(data.stats_fields.citation_count.sum);

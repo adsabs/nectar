@@ -1,5 +1,5 @@
 export * from './docs';
-export * from './search';
+export * from './pagination';
 export * from './settings';
 export * from './appMode';
 export * from './user';

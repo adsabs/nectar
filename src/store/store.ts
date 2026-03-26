@@ -8,7 +8,7 @@ import {
   docsSlice,
   notificationSlice,
   orcidSlice,
-  searchSlice,
+  paginationSlice,
   settingsSlice,
   userSlice,
 } from './slices';
@@ -21,7 +21,7 @@ export const APP_STORAGE_KEY = 'nectar-app-state';
 
 export const createStore = (preloadedState: Partial<AppState> = {}) => {
   const state = (set: NamedSet<AppState>, get: GetState<AppState>) => ({
-    ...searchSlice(set, get),
+    ...paginationSlice(set, get),
     ...docsSlice(set, get),
     ...userSlice(set, get),
     ...appModeSlice(set, get),
