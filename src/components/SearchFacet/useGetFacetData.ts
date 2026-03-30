@@ -85,6 +85,8 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     },
   );
 
+  const isQueryEnabled = enabled && isNonEmptyString(searchQuery?.q?.trim());
+
   const res = data?.[field];
   const treeData = useMemo(() => formatTreeData(res?.buckets ?? []), [res?.buckets]);
 
@@ -96,12 +98,9 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     [field, treeData],
   );
 
-  const {
-    data: objects,
-    isLoading,
-    isFetching,
-    isError,
-  } = useObjects({ identifiers }, { enabled: identifiers?.length > 0 });
+  const hasIdentifiers = isQueryEnabled && identifiers?.length > 0;
+
+  const { data: objects, isLoading, isFetching, isError } = useObjects({ identifiers }, { enabled: hasIdentifiers });
 
   const enhancedTreeData = useMemo(() => {
     if (objects && treeData) {
@@ -168,9 +167,9 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     handlePageChange,
     canLoadMore: res?.numBuckets !== treeData?.length,
     ...result,
-    isLoading: result.isLoading || isLoading,
-    isFetching: result.isFetching || isFetching,
-    isError: result.isError || isError,
+    isLoading: (isQueryEnabled && result.isLoading) || (hasIdentifiers && isLoading),
+    isFetching: result.isFetching || (hasIdentifiers && isFetching),
+    isError: result.isError || (hasIdentifiers && isError),
   };
 };
 
