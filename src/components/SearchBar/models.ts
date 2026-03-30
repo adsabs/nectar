@@ -141,6 +141,13 @@ export const typeaheadOptions: TypeaheadOption[] = [
     desc: '',
     id: 30,
   },
+  {
+    value: 'pos()',
+    label: 'Position',
+    desc: 'Search for an item within a field by specifying the position in the field',
+    match: ['pos('],
+    id: 31,
+  },
 ];
 
 export type SearchTermItem = {
