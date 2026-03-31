@@ -59,6 +59,8 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     setPagination(calculatePagination({ page: 0, numPerPage: FACET_DEFAULT_LIMIT }));
   }, [prefix, searchTerm, sortDir]);
 
+  const isQueryEnabled = enabled && isNonEmptyString(searchQuery?.q?.trim());
+
   // fetch the data
   const { data, ...result } = useGetSearchFacetJSON(
     {
@@ -80,12 +82,10 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
       }),
     },
     {
-      enabled: enabled && isNonEmptyString(searchQuery?.q?.trim()),
+      enabled: isQueryEnabled,
       keepPreviousData: true,
     },
   );
-
-  const isQueryEnabled = enabled && isNonEmptyString(searchQuery?.q?.trim());
 
   const res = data?.[field];
   const treeData = useMemo(() => formatTreeData(res?.buckets ?? []), [res?.buckets]);
