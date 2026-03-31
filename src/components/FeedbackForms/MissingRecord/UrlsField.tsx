@@ -24,6 +24,10 @@ const typeOptions: SelectOption<ResourceUrlType>[] = resourceUrlTypes.map((t) =>
   value: t as string,
 }));
 
+const DOI_ORIGIN = 'https://doi.org';
+
+const ARXIV_ORIGIN = 'https://arxiv.org';
+
 export const UrlsTable = ({ editable }: { editable: boolean }) => {
   const isClient = useIsClient();
 
@@ -37,7 +41,7 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
   });
 
   // New row being added
-  const [newUrl, setNewUrl] = useState<IResourceUrl>({ type: 'arXiv', url: '' });
+  const [newUrl, setNewUrl] = useState<IResourceUrl>({ type: 'arXiv', url: `${ARXIV_ORIGIN}/` });
 
   // Existing row being edited
   const [editUrl, setEditUrl] = useState<{ index: number; url: IResourceUrl }>({
@@ -67,7 +71,9 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
 
     try {
       const testUrl = new URL(url);
-      return VALID_PROTOCOLS.includes(testUrl.protocol);
+      return testUrl.origin === DOI_ORIGIN || testUrl.origin === ARXIV_ORIGIN
+        ? testUrl.pathname.length > 1
+        : VALID_PROTOCOLS.includes(testUrl.protocol);
     } catch {
       return false;
     }
@@ -80,7 +86,8 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
   // Changes to fields for adding new url
 
   const handleNewTypeChange = (option: SelectOption<ResourceUrlType>) => {
-    setNewUrl((prev) => ({ ...prev, type: option.id }));
+    const origin = option.id === 'DOI' ? DOI_ORIGIN : option.id === 'arXiv' ? ARXIV_ORIGIN : '';
+    setNewUrl({ url: `${origin}/`, type: option.id });
   };
 
   const handleNewUrlChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -90,7 +97,7 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
   const handleAddUrl = () => {
     append(newUrl);
     // clear input fields
-    setNewUrl({ type: 'arXiv', url: '' });
+    setNewUrl({ type: 'arXiv', url: `${ARXIV_ORIGIN}/` });
     (newURLTypeInputRef.current as SelectInstance).focus();
   };
 
