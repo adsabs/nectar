@@ -1,4 +1,4 @@
-import { APP_DEFAULTS, HL_MAX_ANALYZED_CHARS } from '@/config';
+import { APP_DEFAULTS, HL_MAX_ANALYZED_CHARS, SOLR_FACET_LIMIT } from '@/config';
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 
 export const defaultFields: IADSApiSearchParams['fl'] = [
@@ -194,7 +194,7 @@ export const getSearchFacetYearsParams = (params: IADSApiSearchParams): IADSApiS
   'facet.pivot': 'property,year',
   facet: true,
   'facet.mincount': 1,
-  'facet.limit': 2000,
+  'facet.limit': SOLR_FACET_LIMIT,
 });
 
 export const getSearchFacetCitationsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
@@ -202,7 +202,7 @@ export const getSearchFacetCitationsParams = (params: IADSApiSearchParams): IADS
   fl: ['id'],
   stats: true,
   'stats.field': 'citation_count',
-  'json.facet': `{"citation_count":{"type":"terms","field":"citation_count","sort":{"index":"desc"},"limit":2000}}`,
+  'json.facet': `{"citation_count":{"type":"terms","field":"citation_count","sort":{"index":"desc"},"limit":${SOLR_FACET_LIMIT}}}`,
 });
 
 export const getSearchFacetReadsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
@@ -210,7 +210,7 @@ export const getSearchFacetReadsParams = (params: IADSApiSearchParams): IADSApiS
   fl: ['id'],
   stats: true,
   'stats.field': 'read_count',
-  'json.facet': `{"read_count":{"type":"terms","field":"read_count","sort":{"index":"desc"},"limit":2000}}`,
+  'json.facet': `{"read_count":{"type":"terms","field":"read_count","sort":{"index":"desc"},"limit":${SOLR_FACET_LIMIT}}}`,
 });
 
 export const getSearchStatsParams = (params: IADSApiSearchParams, field: string): IADSApiSearchParams => ({
