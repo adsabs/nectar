@@ -1,13 +1,14 @@
 import { mapObjIndexed } from 'ramda';
 import { IADSApiVisParams, IADSApiWordCloudParams } from './types';
 import { IADSApiSearchParams } from '@/api/search/types';
+import { VIS_RESULTS_GRAPH_ROWS } from '@/config';
 
 export const defaultResultsGraphParams: IADSApiSearchParams = {
   q: '*:*',
   sort: ['date desc', 'bibcode desc'],
   fl: ['title', 'bibcode', 'citation_count', 'read_count', 'pubdate'],
   start: 0,
-  rows: 1500,
+  rows: VIS_RESULTS_GRAPH_ROWS,
 };
 
 type ParamValueType = IADSApiSearchParams[keyof IADSApiSearchParams];
