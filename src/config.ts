@@ -32,6 +32,7 @@ export const APP_DEFAULTS = {
 export const GOOGLE_RECAPTCHA_KEY = '6Lex_aQUAAAAAMwJFbdGFeigshN7mRQdbXoGQ7-N';
 
 export const HL_MAX_ANALYZED_CHARS = parseInt(process.env.NEXT_PUBLIC_SOLR_HL_MAX_ANALYZED_CHARS ?? '1000000', 10);
+export const SOLR_FACET_LIMIT = parseInt(process.env.NEXT_PUBLIC_SOLR_FACET_LIMIT ?? '2000', 10);
 
 export const sessionConfig: IronSessionOptions = {
   password: process.env.COOKIE_SECRET,
