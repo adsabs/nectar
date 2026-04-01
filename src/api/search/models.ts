@@ -1,4 +1,4 @@
-import { APP_DEFAULTS } from '@/config';
+import { APP_DEFAULTS, HL_MAX_ANALYZED_CHARS } from '@/config';
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 
 export const defaultFields: IADSApiSearchParams['fl'] = [
@@ -225,7 +225,7 @@ export const getHighlightParams = (params: IADSApiSearchParams): IADSApiSearchPa
   fl: ['id'],
   hl: true,
   'hl.fl': 'title,abstract,body,ack,keyword,author',
-  'hl.maxAnalyzedChars': 150000,
+  'hl.maxAnalyzedChars': HL_MAX_ANALYZED_CHARS,
   'hl.requireFieldMatch': true,
   'hl.usePhraseHighlighter': true,
 });

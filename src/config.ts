@@ -23,13 +23,15 @@ export const APP_DEFAULTS = {
   BIBTEX_DEFAULT_AUTHOR_CUTOFF: 10,
   RESULT_ITEM_PUB_CUTOFF: 50,
   EMPTY_QUERY: '*:*',
-  API_TIMEOUT: 30000,
-  SSR_API_TIMEOUT: 30000,
+  API_TIMEOUT: parseInt(process.env.NEXT_PUBLIC_SEARCH_API_TIMEOUT_MS ?? '30000', 10),
+  SSR_API_TIMEOUT: parseInt(process.env.NEXT_PUBLIC_SEARCH_SSR_API_TIMEOUT_MS ?? '30000', 10),
   PREFERRED_SEARCH_SORT: 'score',
   PREFERRED_LIB_SORT: 'time',
 } as const;
 
 export const GOOGLE_RECAPTCHA_KEY = '6Lex_aQUAAAAAMwJFbdGFeigshN7mRQdbXoGQ7-N';
+
+export const HL_MAX_ANALYZED_CHARS = parseInt(process.env.NEXT_PUBLIC_SOLR_HL_MAX_ANALYZED_CHARS ?? '1000000', 10);
 
 export const sessionConfig: IronSessionOptions = {
   password: process.env.COOKIE_SECRET,
