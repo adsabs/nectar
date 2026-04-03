@@ -39,7 +39,7 @@ const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
 const MAX = APP_DEFAULTS.DETAILS_MAX_AUTHORS;
 
 const createQuery = (type: 'author' | 'orcid', value: string): IADSApiSearchParams => {
-  return { q: `${type}:"${value}"`, sort: ['score desc'] };
+  return { q: `${type}:"${value}"`, sort: type === 'author' ? ['score desc'] : ['date desc'] };
 };
 
 const safeDecode = (value?: string) => {
