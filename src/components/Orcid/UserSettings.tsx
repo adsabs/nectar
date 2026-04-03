@@ -447,7 +447,7 @@ const OrcidHeader = () => {
       <Text fontWeight="bold">{user?.name}</Text>
       <HStack spacing={2}>
         <OrcidLogo fontSize="18px" aria-hidden />
-        <SearchQueryLink params={{ q: `orcid:${user?.orcid}` }}>{user?.orcid}</SearchQueryLink>
+        <SearchQueryLink params={{ q: `orcid:${user?.orcid}`, sort: ['date desc'] }}>{user?.orcid}</SearchQueryLink>
       </HStack>
     </>
   );
