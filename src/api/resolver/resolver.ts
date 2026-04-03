@@ -1,3 +1,5 @@
+import axios from 'axios';
+import { isBrowser } from '@/utils/common/guards';
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
 import { ADSQuery } from '@/api/types';
@@ -21,16 +23,26 @@ export const useResolverQuery: ADSQuery<IADSApiResolverParams, IADSApiResolverRe
   });
 };
 
+const acceptOkOrNotFound = (status: number): boolean => status === 200 || status === 404;
+
 export const fetchLinks: QueryFunction<IADSApiResolverResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiResolverParams };
+  const resolverPath = `${ApiTargets.RESOLVER}/${params.bibcode}/${params.link_type}`;
+
+  if (isBrowser()) {
+    const { data } = await axios.get<IADSApiResolverResponse>(`/api/proxy${resolverPath}`, {
+      withCredentials: true,
+      validateStatus: acceptOkOrNotFound,
+    });
+    return data;
+  }
 
   const config: ApiRequestConfig = {
     method: 'GET',
-    url: `${ApiTargets.RESOLVER}/${params.bibcode}/${params.link_type}`,
-    validateStatus: (status) => status === 200 || status === 404,
+    url: resolverPath,
+    validateStatus: acceptOkOrNotFound,
   };
 
   const { data } = await api.request<IADSApiResolverResponse>(config);
-
   return data;
 };

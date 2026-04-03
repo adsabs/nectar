@@ -12,6 +12,8 @@ import { logger } from '@/logger';
 import { composeNextGSSP } from '@/ssr-utils';
 import { isAuthenticated } from '@/api/api';
 import { ErrorSeverity, ErrorSource, handleError } from '@/lib/errorHandler';
+import { getRedisClient, isRedisAvailable } from '@/lib/redis';
+import { buildCacheKey, CACHE_MAX_SIZE, CACHE_TTL, flattenParams } from '@/lib/proxy-cache';
 
 const log = logger.child({ module: 'abs-canonical' }, { msgPrefix: '[abs-canonical] ' });
 
@@ -21,6 +23,7 @@ type AbsProps = {
   isAuthenticated?: boolean;
   pageError?: string;
   statusCode?: number;
+  cacheStatus?: 'hit' | 'miss';
 };
 
 type IncomingGSSPResult = GetServerSidePropsResult<AbsProps>;
@@ -107,8 +110,64 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
 
     const queryClient = new QueryClient();
 
+    // Shared handler for building the response from parsed search data
+    const buildResult = (data: IADSApiSearchResponse, cacheStatus: 'hit' | 'miss'): IncomingGSSPResult => {
+      queryClient.setQueryData(searchKeys.abstract(requestedId), data);
+      ctx.res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+      ctx.res.setHeader('X-Cache', cacheStatus.toUpperCase());
+      const initialDoc = data?.response?.docs?.[0] ?? null;
+      const canonicalIdentifier = initialDoc?.bibcode;
+      if (canonicalIdentifier && canonicalIdentifier !== requestedId) {
+        log.info({ requestedId, canonicalIdentifier, viewPath }, 'Redirecting to canonical');
+        const requestUrl = new URL(ctx.req.url ?? ctx.resolvedUrl, 'http://adsabs.local');
+        return {
+          redirect: {
+            destination: buildRedirect({
+              canonicalIdentifier,
+              viewPath,
+              search: requestUrl.search,
+            }),
+            statusCode: 302,
+          },
+        };
+      }
+      return {
+        props: {
+          dehydratedState: dehydrate(queryClient),
+          initialDoc,
+          isAuthenticated: isAuthenticated(bootstrapResult.token),
+          cacheStatus,
+        },
+      };
+    };
+
     try {
       const tracingHeaders = pickTracingHeaders(ctx.req.headers);
+
+      // Cache lookup
+      const redis = getRedisClient();
+      const { fl: _fl, ...cacheParams } = params;
+      const cacheKey =
+        redis && isRedisAvailable()
+          ? buildCacheKey(
+              'GET',
+              ApiTargets.SEARCH,
+              flattenParams(cacheParams as Record<string, string | string[] | undefined>),
+            )
+          : null;
+
+      if (redis && cacheKey) {
+        try {
+          const cached = await redis.hgetall(cacheKey);
+          if (cached?.body) {
+            log.info({ requestedId, viewPath, cache: 'hit' }, 'Abstract cache hit');
+            return buildResult(JSON.parse(cached.body) as IADSApiSearchResponse, 'hit');
+          }
+        } catch (cacheErr) {
+          log.warn({ err: (cacheErr as Error).message, requestedId }, 'Abstract cache read failed, falling through');
+        }
+      }
+
       const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${bootstrapResult.token.access_token}`,
@@ -138,31 +197,28 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
         };
       }
 
-      const data = (await response.json()) as IADSApiSearchResponse;
-      queryClient.setQueryData(searchKeys.abstract(requestedId), data);
-      ctx.res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+      const body = await response.text();
+      const data = JSON.parse(body) as IADSApiSearchResponse;
+      log.info({ requestedId, viewPath, cache: 'miss' }, 'Abstract cache miss');
 
-      const initialDoc = data?.response?.docs?.[0] ?? null;
-      const canonicalIdentifier = initialDoc?.bibcode;
+      // Skip caching partial results (Solr sets this when results are incomplete)
+      const isPartial = data?.responseHeader?.partialResults === true;
 
-      if (canonicalIdentifier && canonicalIdentifier !== requestedId) {
-        log.info({ requestedId, canonicalIdentifier, viewPath }, 'Redirecting to canonical identifier');
-        const requestUrl = new URL(ctx.req.url ?? ctx.resolvedUrl, 'http://adsabs.local');
-        return {
-          redirect: {
-            destination: buildRedirect({ canonicalIdentifier, viewPath, search: requestUrl.search }),
-            statusCode: 302,
-          },
-        };
+      // Cache successful, complete responses within size limit
+      if (redis && cacheKey && isRedisAvailable() && body.length <= CACHE_MAX_SIZE && !isPartial) {
+        const redisPipeline = redis.multi();
+        redisPipeline.hset(cacheKey, {
+          body,
+          contentType: 'application/json',
+          statusCode: String(response.status),
+        });
+        redisPipeline.expire(cacheKey, CACHE_TTL);
+        redisPipeline.exec().catch((writeErr: Error) => {
+          log.warn({ err: writeErr.message, requestedId }, 'Abstract cache write failed');
+        });
       }
 
-      return {
-        props: {
-          dehydratedState: dehydrate(queryClient),
-          initialDoc,
-          isAuthenticated: isAuthenticated(bootstrapResult.token),
-        },
-      };
+      return buildResult(data, 'miss');
     } catch (error) {
       handleError(error, {
         source: ErrorSource.SERVER,
