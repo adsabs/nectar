@@ -8,6 +8,7 @@ import { SelectInstance } from 'react-select';
 import { FormValues } from './types';
 import { IResourceUrl, ResourceUrlType, resourceUrlTypes } from '@/lib/useGetResourceLinks';
 import { useIsClient } from '@/lib/useIsClient';
+import { EXTERNAL_URLS } from '@/config';
 
 export const UrlsField = () => {
   return (
@@ -24,9 +25,7 @@ const typeOptions: SelectOption<ResourceUrlType>[] = resourceUrlTypes.map((t) =>
   value: t as string,
 }));
 
-const DOI_ORIGIN = 'https://doi.org';
-
-const ARXIV_ORIGIN = 'https://arxiv.org';
+const { DOI_ORIGIN, ARXIV_ORIGIN } = EXTERNAL_URLS;
 
 export const UrlsTable = ({ editable }: { editable: boolean }) => {
   const isClient = useIsClient();
@@ -86,8 +85,8 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
   // Changes to fields for adding new url
 
   const handleNewTypeChange = (option: SelectOption<ResourceUrlType>) => {
-    const origin = option.id === 'DOI' ? DOI_ORIGIN : option.id === 'arXiv' ? ARXIV_ORIGIN : '';
-    setNewUrl({ url: `${origin}/`, type: option.id });
+    const origin = option.id === 'DOI' ? `${DOI_ORIGIN}/` : option.id === 'arXiv' ? `${ARXIV_ORIGIN}/` : '';
+    setNewUrl({ url: origin, type: option.id });
   };
 
   const handleNewUrlChange = (e: ChangeEvent<HTMLInputElement>) => {

@@ -79,6 +79,8 @@ export const EXTERNAL_URLS = {
   CFA_SAO_HOME_PAGE: 'https://www.cfa.harvard.edu/sao' as const,
   UAT: 'http://astrothesaurus.org',
   ORCID: 'https://orcid.org',
+  DOI_ORIGIN: 'https://doi.org',
+  ARXIV_ORIGIN: 'https://arxiv.org',
 };
 
 export const TRACING_HEADERS = ['X-Original-Uri', 'X-Original-Forwarded-For', 'X-Forwarded-For', 'X-Amzn-Trace-Id'];
