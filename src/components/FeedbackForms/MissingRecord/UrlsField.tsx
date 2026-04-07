@@ -193,6 +193,7 @@ export const UrlsTable = forwardRef<UrlsTableHandle, { editable: boolean }>(func
           value={newUrl?.url ?? ''}
           onKeyDown={handleKeydownNewUrl}
           placeholder={URL_PLACEHOLDERS[newUrl.type]}
+          isInvalid={newUrl.url.length > 0 && !newUrlIsValid}
         />
       </Td>
       <Td>
@@ -242,6 +243,7 @@ export const UrlsTable = forwardRef<UrlsTableHandle, { editable: boolean }>(func
                   value={editUrl.url.url}
                   onKeyDown={handleKeydownEditUrl}
                   placeholder={URL_PLACEHOLDERS[editUrl.url.type]}
+                  isInvalid={editUrl.url.url.length > 0 && !editUrlisValid}
                 />
               </Td>
 
