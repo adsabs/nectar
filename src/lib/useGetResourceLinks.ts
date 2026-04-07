@@ -1,5 +1,4 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { isValidURL } from '@/utils/common/isValidURL';
 
 export const resourceUrlTypes = ['arXiv', 'PDF', 'DOI', 'HTML', 'Other'] as const;
 
@@ -24,12 +23,24 @@ const URL_TYPE_MAP: Record<string, ResourceUrlType> = {
 
 const RESOURCE_EXT_REGEX = /\.(jpg|jpeg|png|gif|webp|svg|css|js|ico|woff2?|ttf|otf|eot|map|mp4|webm)(\?|$)/i;
 
+const isValidUrl = (url: string) => {
+  if (!url || typeof url !== 'string') {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+};
+
 /**
  * Transforms a URL into a structured resource link object.
  * @param url
  */
 export const transformUrl = (url: string) => {
-  if (!url || typeof url !== 'string' || !isValidURL(url) || RESOURCE_EXT_REGEX.test(url)) {
+  if (!url || typeof url !== 'string' || isValidUrl(url) || RESOURCE_EXT_REGEX.test(url)) {
     return null;
   }
 

@@ -4,8 +4,10 @@ export interface IADSApiResolverParams {
 }
 
 export interface IADSApiResolverResponse {
-  action: string;
-  links: {
+  action: string; // display, redirect
+  link?: string;
+  link_type?: string; // TODO: https://ui.adsabs.harvard.edu/help/api/api-docs.html#tag--resolver
+  links?: {
     count: number;
     link_type: string;
     records: [
