@@ -1,7 +1,6 @@
-import type { IResourceUrl } from '@/lib/useGetResourceLinks';
-
 import { ArrayChange, Change } from 'diff';
 import type { Database } from '@/api/search/types';
+import type { IResourceUrl } from '@/lib/useGetResourceLinks';
 
 export interface IAuthor {
   name: string;
@@ -11,7 +10,7 @@ export interface IAuthor {
 
 export const referenceTypes = ['Raw Text', 'DOI', 'Bibcode'] as const;
 
-export type ReferenceType = typeof referenceTypes[number];
+export type ReferenceType = (typeof referenceTypes)[number];
 
 export interface IReference {
   type: ReferenceType;
@@ -39,6 +38,13 @@ export type FormValues = {
   references: IReference[];
   comments: string;
 };
+
+export const COLLECTIONS: { value: Database; label: string }[] = [
+  { value: 'astronomy', label: 'Astronomy and Astrophysics' },
+  { value: 'physics', label: 'Physics and Geophysics' },
+  { value: 'earthscience', label: 'Earth Science' },
+  { value: 'general', label: 'General' },
+];
 
 export type DiffSection = {
   label: string;

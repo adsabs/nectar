@@ -1,20 +1,24 @@
 import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { FormControl, FormLabel, HStack, IconButton, Input, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react';
 import { Select, SelectOption } from '@/components/Select';
-import { ChangeEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, MouseEvent, forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { FormValues, IReference, ReferenceType, referenceTypes } from './types';
 import { SelectInstance } from 'react-select';
 import { useFieldArray } from 'react-hook-form';
 import { useIsClient } from '@/lib/useIsClient';
 
-export const ReferencesField = () => {
+export interface ReferencesTableHandle {
+  flush: () => void;
+}
+
+export const ReferencesField = forwardRef<ReferencesTableHandle>(function ReferencesField(_, ref) {
   return (
     <FormControl>
       <FormLabel>References</FormLabel>
-      <ReferencesTable editable />
+      <ReferencesTable editable ref={ref} />
     </FormControl>
   );
-};
+});
 
 const typeOptions: SelectOption<ReferenceType>[] = referenceTypes.map((r) => ({
   id: r,
@@ -22,7 +26,10 @@ const typeOptions: SelectOption<ReferenceType>[] = referenceTypes.map((r) => ({
   value: r as string,
 }));
 
-export const ReferencesTable = ({ editable }: { editable: boolean }) => {
+export const ReferencesTable = forwardRef<ReferencesTableHandle, { editable: boolean }>(function ReferencesTable(
+  { editable },
+  ref,
+) {
   const isClient = useIsClient();
 
   const { fields, append, remove, update } = useFieldArray<FormValues, 'references'>({
@@ -47,8 +54,7 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
   };
 
   const newReferenceIsValid = !!newReference && isValidReference(newReference);
-
-  const editReferenceisValid = editReference.reference && isValidReference(editReference.reference);
+  const editReferenceIsValid = editReference.reference && isValidReference(editReference.reference);
 
   // Changes to fields for adding new Reference
 
@@ -64,8 +70,24 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
     append(newReference);
     // clear input fields
     setNewReference({ type: 'Bibcode', reference: '' });
-    (newReferenceInputRef.current as SelectInstance).focus();
+    (newReferenceInputRef.current as SelectInstance)?.focus();
   };
+
+  // Flush any in-progress row (new or being edited) when navigating away
+  useImperativeHandle(
+    ref,
+    () => ({
+      flush: () => {
+        if (editReferenceIsValid && editReference.index !== -1) {
+          handleApplyEditReference();
+        }
+        if (newReferenceIsValid) {
+          handleAddReference();
+        }
+      },
+    }),
+    [newReferenceIsValid, editReferenceIsValid, editReference.index],
+  );
 
   // Changes to fields for existing Reference
 
@@ -79,7 +101,10 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
   };
 
   const handleEditReferenceChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditReference((prev) => ({ index: prev.index, reference: { ...prev.reference, reference: e.target.value } }));
+    setEditReference((prev) => ({
+      index: prev.index,
+      reference: { ...prev.reference, reference: e.target.value },
+    }));
   };
 
   const handleDeleteReference = (e: MouseEvent<HTMLButtonElement>) => {
@@ -97,7 +122,7 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
   };
 
   const handleKeydownEditRef = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && editReferenceisValid) {
+    if (e.key === 'Enter' && editReferenceIsValid) {
       handleApplyEditReference();
     }
   };
@@ -107,6 +132,7 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
       handleAddReference();
     }
   };
+
   // Row for adding new Reference
   const newReferenceTableRow = (
     <Tr>
@@ -196,7 +222,7 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
                     colorScheme="green"
                     data-index={index}
                     onClick={handleApplyEditReference}
-                    isDisabled={!editReferenceisValid}
+                    isDisabled={!editReferenceIsValid}
                   />
                   <IconButton
                     aria-label="cancel"
@@ -243,4 +269,4 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
       </Tbody>
     </Table>
   );
-};
+});
