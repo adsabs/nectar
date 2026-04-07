@@ -78,12 +78,9 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
     if (!url || !type) {
       return false;
     }
-
-    const VALID_PROTOCOLS = ['http:', 'https:'];
-
     try {
-      const testUrl = new URL(url);
-      return VALID_PROTOCOLS.includes(testUrl.protocol);
+      const { protocol } = new URL(normalizeUrl(url));
+      return protocol === 'http:' || protocol === 'https:';
     } catch {
       return false;
     }
