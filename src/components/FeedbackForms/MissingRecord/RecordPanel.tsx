@@ -24,7 +24,7 @@ import { getDiffSections, getDiffString, processFormValues } from './DiffUtil';
 import { KeywordsField } from './KeywordsField';
 import { PubDateField } from './PubDateField';
 import { ReferencesField } from './ReferencesField';
-import { DiffSection, FormValues, IAuthor, IKeyword, IReference } from './types';
+import { DiffSection, FormValues, IAuthor, IKeyword, IReference, IResourceUrl } from './types';
 import { UrlsField } from './UrlsField';
 import { DiffSectionPanel } from './DiffSectionPanel';
 import { AxiosError } from 'axios';
@@ -32,7 +32,6 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SimpleLink } from '@/components/SimpleLink';
 import { PreviewModal } from '@/components/FeedbackForms';
-import { IResourceUrl, transformUrl } from '@/lib/useGetResourceLinks';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
 import { parsePublicationDate } from '@/utils/common/parsePublicationDate';
 import type { Database, IDocsEntity } from '@/api/search/types';
@@ -40,6 +39,7 @@ import type { IFeedbackParams } from '@/api/feedback/types';
 import { useGetSingleRecord } from '@/api/search/search';
 import { useResolverQuery } from '@/api/resolver/resolver';
 import { IADSApiResolverResponse } from '@/api/resolver/types';
+import { transformUrl } from './UrlUtil';
 
 const collections: { value: Database; label: string }[] = [
   { value: 'astronomy', label: 'Astronomy and Astrophysics' },
