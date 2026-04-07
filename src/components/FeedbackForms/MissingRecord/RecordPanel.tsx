@@ -1,6 +1,8 @@
 import {
   AlertStatus,
+  Box,
   Button,
+  ButtonGroup,
   Checkbox,
   CheckboxGroup,
   Flex,
@@ -16,17 +18,23 @@ import {
 } from '@chakra-ui/react';
 
 import { omit } from 'ramda';
-import { MouseEvent, useEffect, useMemo, useState } from 'react';
+import { MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { AuthorsField } from './AuthorsField';
+import { AuthorsTableHandle } from './AuthorsTable';
 import { BibcodeField } from './BibcodeField';
+import { DraftBanner } from './DraftBanner';
+import { FormChecklist } from './FormChecklist';
 import { getDiffSections, getDiffString, processFormValues } from './DiffUtil';
 import { KeywordsField } from './KeywordsField';
 import { PubDateField } from './PubDateField';
-import { ReferencesField } from './ReferencesField';
+import { RecordWizard } from './RecordWizard';
+import { ReferencesField, ReferencesTableHandle } from './ReferencesField';
 import { DiffSection, FormValues, IAuthor, IKeyword, IReference } from './types';
-import { UrlsField } from './UrlsField';
+import { UrlsField, UrlsTableHandle } from './UrlsField';
 import { DiffSectionPanel } from './DiffSectionPanel';
+import { useFormDraft } from './useFormDraft';
+import { COLLECTIONS } from './types';
 import { AxiosError } from 'axios';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -34,21 +42,20 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { PreviewModal } from '@/components/FeedbackForms';
 import { IResourceUrl, useGetResourceLinks } from '@/lib/useGetResourceLinks';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
-import { parsePublicationDate } from '@/utils/common/parsePublicationDate';
 import type { Database, IDocsEntity } from '@/api/search/types';
 import type { IFeedbackParams } from '@/api/feedback/types';
 import { useGetSingleRecord } from '@/api/search/search';
-
-const collections: { value: Database; label: string }[] = [
-  { value: 'astronomy', label: 'Astronomy and Astrophysics' },
-  { value: 'physics', label: 'Physics and Geophysics' },
-  { value: 'earthscience', label: 'Earth Science' },
-  { value: 'general', label: 'General' },
-];
+import { LocalSettings } from '@/types';
 
 type State = 'idle' | 'loading-record' | 'loading-urls' | 'submitting' | 'preview';
+type FormMode = 'expert' | 'guided';
 
-const isInvalidPubDate = (pubdate: string) => parsePublicationDate(pubdate) === null;
+// accepts YYYY-MM or YYYY-MM-DD; lax on day (00 is valid for ADS)
+const PUB_DATE_RE = /^\d{4}-\d{2}(-\d{2})?$/;
+
+function isInvalidPubDate(pubdate: string): boolean {
+  return !PUB_DATE_RE.test(pubdate);
+}
 
 const validationSchema = z
   .object({
@@ -95,26 +102,41 @@ const validationSchema = z
     return z.NEVER;
   });
 
-export const RecordPanel = ({
-  isNew,
-  onOpenAlert,
-  onCloseAlert,
-  isFocused,
-  bibcode,
-}: {
+function getDraftKey(isNew: boolean, bibcode?: string): string | null {
+  if (isNew) {
+    return LocalSettings.FEEDBACK_DRAFT_NEW;
+  }
+  if (bibcode) {
+    return `feedback-draft:edit-record:${bibcode}`;
+  }
+  return null;
+}
+
+function getInitialMode(): FormMode {
+  try {
+    const stored = localStorage.getItem(LocalSettings.FEEDBACK_FORM_MODE);
+    return stored === 'guided' ? 'guided' : 'expert';
+  } catch {
+    return 'expert';
+  }
+}
+
+interface RecordPanelProps {
   isNew: boolean;
   onOpenAlert: (params: { status: AlertStatus; title: string; description?: string }) => void;
   onCloseAlert: () => void;
   isFocused: boolean;
   bibcode?: string;
-}) => {
+}
+
+export function RecordPanel({ isNew, onOpenAlert, onCloseAlert, isFocused, bibcode }: RecordPanelProps) {
   const userEmail = useGetUserEmail();
 
   const initialFormValues = {
     name: '',
     email: userEmail ?? '',
     bibcode: bibcode ?? '',
-    isNew: isNew,
+    isNew,
     collection: [] as Database[],
     title: '',
     noAuthors: false,
@@ -128,14 +150,12 @@ export const RecordPanel = ({
     comments: '',
   };
 
-  // original form values from existing record
-  // used for diff view
   const [recordOriginalFormValues, setRecordOriginalFormValues] = useState<FormValues>(initialFormValues);
 
   const formMethods = useForm<FormValues>({
     defaultValues: recordOriginalFormValues,
     resolver: zodResolver(validationSchema),
-    mode: 'onSubmit',
+    mode: 'onTouched',
     reValidateMode: 'onBlur',
     shouldFocusError: true,
   });
@@ -149,6 +169,18 @@ export const RecordPanel = ({
     handleSubmit,
     setFocus,
   } = formMethods;
+
+  const authorsRef = useRef<AuthorsTableHandle>(null);
+  const referencesRef = useRef<ReferencesTableHandle>(null);
+  const urlsRef = useRef<UrlsTableHandle>(null);
+
+  // New records use a fixed key; edit records scope to bibcode
+  const draftKey = getDraftKey(isNew, bibcode);
+
+  const { hasDraft, getDraftValues, clearDraft, cancelPendingSave } = useFormDraft(draftKey, formMethods);
+  const [showDraftBanner, setShowDraftBanner] = useState(hasDraft);
+
+  const [formMode, setFormMode] = useState<FormMode>(() => (isNew ? getInitialMode() : 'expert'));
 
   const { isOpen: isPreviewOpen, onOpen: openPreview, onClose: closePreview } = useDisclosure();
 
@@ -233,7 +265,7 @@ export const RecordPanel = ({
           diff: diffString,
         });
       } catch {
-        onOpenAlert({ status: 'error', title: 'There was a problem processing diff. Plesae try again.' });
+        onOpenAlert({ status: 'error', title: 'Could not generate diff preview. Please try again.' });
         setState('idle');
       }
     } else if (state === 'preview') {
@@ -368,9 +400,18 @@ export const RecordPanel = ({
     setState('submitting');
   };
 
+  const handleStandardPreview = handleSubmit(() => {
+    authorsRef.current?.flush();
+    referencesRef.current?.flush();
+    urlsRef.current?.flush();
+    handlePreview();
+  });
+
   // submitted
   const handleOnSuccess = () => {
     onOpenAlert({ status: 'success', title: 'Feedback submitted successfully' });
+    clearDraft();
+    setShowDraftBanner(false);
     if (isNew) {
       reset();
     } else {
@@ -396,103 +437,170 @@ export const RecordPanel = ({
     setState('idle');
   };
 
+  const handleRestoreDraft = () => {
+    const draft = getDraftValues();
+    if (!draft) {
+      return;
+    }
+    cancelPendingSave();
+    // preserve authenticated email over any email stored in the draft
+    const mergedEmail = userEmail ?? draft.email;
+    reset({ ...draft, email: mergedEmail });
+    setShowDraftBanner(false);
+  };
+
+  const handleDismissDraft = () => {
+    clearDraft();
+    setShowDraftBanner(false);
+  };
+
+  const handleModeChange = (mode: FormMode) => {
+    setFormMode(mode);
+    try {
+      localStorage.setItem(LocalSettings.FEEDBACK_FORM_MODE, mode);
+    } catch {
+      // ignore storage errors
+    }
+  };
+
   return (
     <FormProvider {...formMethods}>
       <Stack direction="column" gap={4} m={0}>
-        <Flex direction={{ base: 'column', sm: 'row' }} gap={2} alignItems="start">
-          <FormControl isRequired isInvalid={!!errors.name}>
-            <FormLabel>Name</FormLabel>
-            <Input {...register('name', { required: true })} />
-            <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
-          </FormControl>
-          <FormControl isRequired isInvalid={!!errors.email}>
-            <FormLabel>Email</FormLabel>
-            <Input {...register('email', { required: true })} type="email" />
-            <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
-          </FormControl>
-        </Flex>
+        <DraftBanner show={showDraftBanner} onRestore={handleRestoreDraft} onDismiss={handleDismissDraft} />
 
-        <BibcodeField showLoadBtn={!isNew} onLoad={handleOnLoadingRecord} isLoading={isLoading} isRequired={!isNew} />
+        {isNew && (
+          <HStack>
+            <ButtonGroup size="sm" isAttached variant="outline">
+              <Button
+                isActive={formMode === 'expert'}
+                onClick={() => handleModeChange('expert')}
+                aria-pressed={formMode === 'expert'}
+              >
+                Standard
+              </Button>
+              <Button
+                isActive={formMode === 'guided'}
+                onClick={() => handleModeChange('guided')}
+                aria-pressed={formMode === 'guided'}
+              >
+                Guided
+              </Button>
+            </ButtonGroup>
+          </HStack>
+        )}
 
-        {(isNew || (!isNew && !!recordOriginalFormValues.title)) && (
-          <>
-            <FormControl>
-              <FormLabel>Collection</FormLabel>
-              <Controller
-                name="collection"
-                control={control}
-                render={({ field: { ref, ...rest } }) => (
-                  <CheckboxGroup {...rest}>
-                    <Stack direction={{ base: 'column', sm: 'row' }}>
-                      {collections.map((c) => (
-                        <Checkbox key={`collection-${c.value}`} value={c.value}>
-                          {c.label}
-                        </Checkbox>
-                      ))}
-                    </Stack>
-                  </CheckboxGroup>
+        {formMode !== 'guided' && (
+          <Flex direction={{ base: 'column', sm: 'row' }} gap={2} alignItems="start">
+            <FormControl isRequired isInvalid={!!errors.name}>
+              <FormLabel>Name</FormLabel>
+              <Input {...register('name', { required: true })} />
+              <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl isRequired isInvalid={!!errors.email}>
+              <FormLabel>Email</FormLabel>
+              <Input {...register('email', { required: true })} type="email" />
+              <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+            </FormControl>
+          </Flex>
+        )}
+
+        {!(isNew && formMode === 'guided') && (
+          <BibcodeField showLoadBtn={!isNew} onLoad={handleOnLoadingRecord} isLoading={isLoading} isRequired={!isNew} />
+        )}
+
+        {isNew && formMode === 'guided' ? (
+          <RecordWizard onPreview={handleSubmit(handlePreview)} isLoading={isLoading} />
+        ) : (
+          (isNew || !!recordOriginalFormValues.title) && (
+            <Flex direction={{ base: 'column', md: 'row' }} gap={6} alignItems="start">
+              <Stack flex={1} spacing={4}>
+                <FormControl>
+                  <FormLabel>Collection</FormLabel>
+                  <Controller
+                    name="collection"
+                    control={control}
+                    render={({ field: { ref: _ref, ...rest } }) => (
+                      <CheckboxGroup {...rest}>
+                        <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between">
+                          {COLLECTIONS.map((c) => (
+                            <Checkbox key={`collection-${c.value}`} value={c.value}>
+                              {c.label}
+                            </Checkbox>
+                          ))}
+                        </Stack>
+                      </CheckboxGroup>
+                    )}
+                  />
+                </FormControl>
+
+                <FormControl isRequired isInvalid={!!errors.title}>
+                  <FormLabel>Title</FormLabel>
+                  <Input {...register('title', { required: true })} />
+                  <FormErrorMessage>{errors.title?.message}</FormErrorMessage>
+                </FormControl>
+
+                <AuthorsField ref={authorsRef} />
+
+                <Stack direction={{ base: 'column', sm: 'row' }} gap={2} alignItems="start">
+                  <FormControl isRequired isInvalid={!!errors.publication}>
+                    <FormLabel>Publication</FormLabel>
+                    <Input {...register('publication', { required: true })} />
+                    <FormErrorMessage>{errors.publication?.message}</FormErrorMessage>
+                  </FormControl>
+
+                  <PubDateField />
+                </Stack>
+
+                <UrlsField ref={urlsRef} />
+
+                <FormControl>
+                  <FormLabel>Abstract</FormLabel>
+                  <Textarea {...register('abstract')} rows={10} />
+                </FormControl>
+
+                <KeywordsField />
+
+                {isNew ? (
+                  <ReferencesField ref={referencesRef} />
+                ) : (
+                  <FormControl>
+                    <FormLabel>References</FormLabel>
+                    <Text>
+                      To add references, use the{' '}
+                      <SimpleLink href="/feedback/missingreferences" display="inline">
+                        Missing References
+                      </SimpleLink>{' '}
+                      form. To make changes to existing references, use the{' '}
+                      <SimpleLink href="/feedback/general" display="inline">
+                        General Feedback
+                      </SimpleLink>{' '}
+                      form.
+                    </Text>
+                  </FormControl>
                 )}
-              />
-            </FormControl>
 
-            <FormControl isRequired>
-              <FormLabel>Title</FormLabel>
-              <Input {...register('title', { required: true })} />
-            </FormControl>
+                <FormControl>
+                  <FormLabel>User Comments</FormLabel>
+                  <Textarea {...register('comments')} />
+                </FormControl>
 
-            <AuthorsField />
+                <HStack mt={2}>
+                  <Button isLoading={isLoading} isDisabled={!isValid} onClick={handleStandardPreview}>
+                    Preview
+                  </Button>
+                  <Button variant="outline" onClick={handleReset} isDisabled={isLoading}>
+                    Reset
+                  </Button>
+                </HStack>
+              </Stack>
 
-            <Stack direction={{ base: 'column', sm: 'row' }} gap={2} alignItems="start">
-              <FormControl isRequired>
-                <FormLabel>Publication</FormLabel>
-                <Input {...register('publication', { required: true })} />
-              </FormControl>
-
-              <PubDateField />
-            </Stack>
-
-            <UrlsField />
-
-            <FormControl>
-              <FormLabel>Abstract</FormLabel>
-              <Textarea {...register('abstract')} rows={10} />
-            </FormControl>
-
-            <KeywordsField />
-
-            {isNew ? (
-              <ReferencesField />
-            ) : (
-              <FormControl>
-                <FormLabel>References</FormLabel>
-                <Text>
-                  To add references, use the{' '}
-                  <SimpleLink href="/feedback/missingreferences" display="inline">
-                    Missing References
-                  </SimpleLink>{' '}
-                  form. To make changes to existing references, use the{' '}
-                  <SimpleLink href="/feedback/general" display="inline">
-                    General Feedback
-                  </SimpleLink>{' '}
-                  form.
-                </Text>
-              </FormControl>
-            )}
-
-            <FormControl>
-              <FormLabel>User Comments</FormLabel>
-              <Textarea {...register('comments')} />
-            </FormControl>
-
-            <HStack mt={2}>
-              <Button isLoading={isLoading} isDisabled={!isValid} onClick={handleSubmit(handlePreview)}>
-                Preview
-              </Button>
-              <Button variant="outline" onClick={handleReset} isDisabled={isLoading}>
-                Reset
-              </Button>
-            </HStack>
-          </>
+              {isNew && (
+                <Box position={{ base: 'static', md: 'sticky' }} top={{ md: 4 }} alignSelf="flex-start">
+                  <FormChecklist />
+                </Box>
+              )}
+            </Flex>
+          )
         )}
       </Stack>
 
@@ -512,4 +620,4 @@ export const RecordPanel = ({
       )}
     </FormProvider>
   );
-};
+}

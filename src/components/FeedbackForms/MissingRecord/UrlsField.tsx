@@ -2,21 +2,25 @@ import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { FormControl, FormLabel, HStack, IconButton, Input, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react';
 import { Select, SelectOption } from '@/components/Select';
 
-import { ChangeEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, MouseEvent, forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { SelectInstance } from 'react-select';
 import { FormValues } from './types';
 import { IResourceUrl, ResourceUrlType, resourceUrlTypes } from '@/lib/useGetResourceLinks';
 import { useIsClient } from '@/lib/useIsClient';
 
-export const UrlsField = () => {
+export interface UrlsTableHandle {
+  flush: () => void;
+}
+
+export const UrlsField = forwardRef<UrlsTableHandle>(function UrlsField(_, ref) {
   return (
     <FormControl>
       <FormLabel>URLs</FormLabel>
-      <UrlsTable editable />
+      <UrlsTable editable ref={ref} />
     </FormControl>
   );
-};
+});
 
 const typeOptions: SelectOption<ResourceUrlType>[] = resourceUrlTypes.map((t) => ({
   id: t,
@@ -24,7 +28,23 @@ const typeOptions: SelectOption<ResourceUrlType>[] = resourceUrlTypes.map((t) =>
   value: t as string,
 }));
 
-export const UrlsTable = ({ editable }: { editable: boolean }) => {
+const URL_PLACEHOLDERS: Record<ResourceUrlType, string> = {
+  arXiv: 'https://arxiv.org/abs/XXXXXXX',
+  PDF: 'https://example.com/paper.pdf',
+  DOI: 'https://doi.org/10.XXXX/XXXXX',
+  HTML: 'https://example.com/paper.html',
+  Other: 'https://',
+};
+
+function normalizeUrl(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return trimmed;
+  }
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
+export const UrlsTable = forwardRef<UrlsTableHandle, { editable: boolean }>(function UrlsTable({ editable }, ref) {
   const isClient = useIsClient();
 
   const {
@@ -62,12 +82,9 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
     if (!url || !type) {
       return false;
     }
-
-    const VALID_PROTOCOLS = ['http:', 'https:'];
-
     try {
-      const testUrl = new URL(url);
-      return VALID_PROTOCOLS.includes(testUrl.protocol);
+      const { protocol, hostname } = new URL(normalizeUrl(url));
+      return (protocol === 'http:' || protocol === 'https:') && (hostname.includes('.') || hostname === 'localhost');
     } catch {
       return false;
     }
@@ -88,11 +105,26 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
   };
 
   const handleAddUrl = () => {
-    append(newUrl);
-    // clear input fields
+    append({ ...newUrl, url: normalizeUrl(newUrl.url) });
     setNewUrl({ type: 'arXiv', url: '' });
     (newURLTypeInputRef.current as SelectInstance).focus();
   };
+
+  // Flush any in-progress row (new or being edited) when navigating away
+  useImperativeHandle(
+    ref,
+    () => ({
+      flush: () => {
+        if (editUrlisValid && editUrl.index !== -1) {
+          handleApplyEditUrl();
+        }
+        if (newUrlIsValid) {
+          handleAddUrl();
+        }
+      },
+    }),
+    [newUrl, editUrl, newUrlIsValid, editUrlisValid],
+  );
 
   // Changes to fields for existing url
 
@@ -115,7 +147,7 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
   };
 
   const handleApplyEditUrl = () => {
-    update(editUrl.index, editUrl.url);
+    update(editUrl.index, { ...editUrl.url, url: normalizeUrl(editUrl.url.url) });
     setEditUrl({ index: -1, url: null });
   };
 
@@ -155,7 +187,14 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
         )}
       </Td>
       <Td>
-        <Input size="sm" onChange={handleNewUrlChange} value={newUrl?.url ?? ''} onKeyDown={handleKeydownNewUrl} />
+        <Input
+          size="sm"
+          onChange={handleNewUrlChange}
+          value={newUrl?.url ?? ''}
+          onKeyDown={handleKeydownNewUrl}
+          placeholder={URL_PLACEHOLDERS[newUrl.type]}
+          isInvalid={newUrl.url.length > 0 && !newUrlIsValid}
+        />
       </Td>
       <Td>
         <IconButton
@@ -203,6 +242,8 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
                   onChange={handleEditUrlChange}
                   value={editUrl.url.url}
                   onKeyDown={handleKeydownEditUrl}
+                  placeholder={URL_PLACEHOLDERS[editUrl.url.type]}
+                  isInvalid={editUrl.url.url.length > 0 && !editUrlisValid}
                 />
               </Td>
 
@@ -262,4 +303,4 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
       </Tbody>
     </Table>
   );
-};
+});

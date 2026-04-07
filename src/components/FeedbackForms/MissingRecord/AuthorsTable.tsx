@@ -8,12 +8,30 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useState, ChangeEvent, MouseEvent, useRef, useMemo, KeyboardEvent } from 'react';
+import {
+  useState,
+  ChangeEvent,
+  MouseEvent,
+  useRef,
+  useMemo,
+  KeyboardEvent,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { FormValues, IAuthor } from './types';
 import { PaginationControls } from '@/components/Pagination';
 
-export const AuthorsTable = ({ editable }: { editable: boolean }) => {
+const columnHelper = createColumnHelper<IAuthor>();
+
+export interface AuthorsTableHandle {
+  flush: () => void;
+}
+
+export const AuthorsTable = forwardRef<AuthorsTableHandle, { editable: boolean }>(function AuthorsTable(
+  { editable },
+  ref,
+) {
   const {
     fields: authors,
     append,
@@ -42,15 +60,11 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
 
   const newAuthorNameRef = useRef<HTMLInputElement>();
 
-  const isValidAuthor = (author: IAuthor) => {
-    return author && typeof author.name === 'string' && author.name.length > 1;
-  };
+  const isValidAuthor = (author: IAuthor) => author && typeof author.name === 'string' && author.name.length > 1;
 
   const newAuthorIsValid = isValidAuthor(newAuthor);
-
   const editAuthorIsValid = isValidAuthor(editAuthor.author);
 
-  const columnHelper = createColumnHelper<IAuthor>();
   const columns = useMemo(() => {
     return [
       columnHelper.display({
@@ -63,14 +77,14 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
       }),
       columnHelper.accessor('aff', {
         cell: (info) => info.getValue(),
-        header: 'Affilication',
+        header: 'Affiliation',
       }),
       columnHelper.accessor('orcid', {
         cell: (info) => info.getValue(),
         header: 'ORCiD',
       }),
     ];
-  }, [columnHelper]);
+  }, []);
 
   const table = useReactTable({
     columns,
@@ -97,8 +111,24 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
     append(newAuthor);
     // clear input fields
     setNewAuthor(null);
-    newAuthorNameRef.current.focus();
+    newAuthorNameRef.current?.focus();
   };
+
+  // Flush any in-progress row (new or being edited) when navigating away
+  useImperativeHandle(
+    ref,
+    () => ({
+      flush: () => {
+        if (editAuthorIsValid && editAuthor.index !== -1) {
+          handleApplyEditAuthor();
+        }
+        if (isValidAuthor(newAuthor)) {
+          handleAddAuthor();
+        }
+      },
+    }),
+    [newAuthor, editAuthor, editAuthorIsValid],
+  );
 
   // Changes to fields for existing authors
 
@@ -332,4 +362,4 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
       <PaginationControls table={table} entries={authors} my={5} />
     </>
   );
-};
+});

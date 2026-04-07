@@ -21,6 +21,8 @@ export enum LocalSettings {
   LAST_DISMISSED_SYS_MSG = 'last-sys-msg',
   CAROUSEL = 'carousels',
   LAST_LANDING_FORM = 'last-landing-form',
+  FEEDBACK_DRAFT_NEW = 'feedback-draft:new-record',
+  FEEDBACK_FORM_MODE = 'feedback-form:mode',
 }
 
 export enum AppErrorCode {
@@ -68,4 +70,3 @@ declare global {
     onResponse: unknown;
   };
 }
-
