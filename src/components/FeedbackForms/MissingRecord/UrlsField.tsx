@@ -2,21 +2,25 @@ import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { FormControl, FormLabel, HStack, IconButton, Input, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react';
 import { Select, SelectOption } from '@/components/Select';
 
-import { ChangeEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, MouseEvent, forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { SelectInstance } from 'react-select';
 import { FormValues } from './types';
 import { IResourceUrl, ResourceUrlType, resourceUrlTypes } from '@/lib/useGetResourceLinks';
 import { useIsClient } from '@/lib/useIsClient';
 
-export const UrlsField = () => {
+export interface UrlsTableHandle {
+  flush: () => void;
+}
+
+export const UrlsField = forwardRef<UrlsTableHandle>(function UrlsField(_, ref) {
   return (
     <FormControl>
       <FormLabel>URLs</FormLabel>
-      <UrlsTable editable />
+      <UrlsTable editable ref={ref} />
     </FormControl>
   );
-};
+});
 
 const typeOptions: SelectOption<ResourceUrlType>[] = resourceUrlTypes.map((t) => ({
   id: t,
@@ -40,7 +44,7 @@ function normalizeUrl(raw: string): string {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
-export const UrlsTable = ({ editable }: { editable: boolean }) => {
+export const UrlsTable = forwardRef<UrlsTableHandle, { editable: boolean }>(function UrlsTable({ editable }, ref) {
   const isClient = useIsClient();
 
   const {
@@ -105,6 +109,22 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
     setNewUrl({ type: 'arXiv', url: '' });
     (newURLTypeInputRef.current as SelectInstance).focus();
   };
+
+  // Flush any in-progress row (new or being edited) when navigating away
+  useImperativeHandle(
+    ref,
+    () => ({
+      flush: () => {
+        if (editUrlisValid && editUrl.index !== -1) {
+          handleApplyEditUrl();
+        }
+        if (newUrlIsValid) {
+          handleAddUrl();
+        }
+      },
+    }),
+    [newUrlIsValid, editUrlisValid, editUrl.index],
+  );
 
   // Changes to fields for existing url
 
@@ -281,4 +301,4 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
       </Tbody>
     </Table>
   );
-};
+});

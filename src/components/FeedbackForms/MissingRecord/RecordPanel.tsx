@@ -18,9 +18,10 @@ import {
 } from '@chakra-ui/react';
 
 import { omit } from 'ramda';
-import { MouseEvent, useEffect, useMemo, useState } from 'react';
+import { MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { AuthorsField } from './AuthorsField';
+import { AuthorsTableHandle } from './AuthorsTable';
 import { BibcodeField } from './BibcodeField';
 import { DraftBanner } from './DraftBanner';
 import { FormChecklist } from './FormChecklist';
@@ -28,9 +29,9 @@ import { getDiffSections, getDiffString, processFormValues } from './DiffUtil';
 import { KeywordsField } from './KeywordsField';
 import { PubDateField } from './PubDateField';
 import { RecordWizard } from './RecordWizard';
-import { ReferencesField } from './ReferencesField';
+import { ReferencesField, ReferencesTableHandle } from './ReferencesField';
 import { DiffSection, FormValues, IAuthor, IKeyword, IReference } from './types';
-import { UrlsField } from './UrlsField';
+import { UrlsField, UrlsTableHandle } from './UrlsField';
 import { DiffSectionPanel } from './DiffSectionPanel';
 import { useFormDraft } from './useFormDraft';
 import { COLLECTIONS } from './types';
@@ -168,6 +169,10 @@ export function RecordPanel({ isNew, onOpenAlert, onCloseAlert, isFocused, bibco
     handleSubmit,
     setFocus,
   } = formMethods;
+
+  const authorsRef = useRef<AuthorsTableHandle>(null);
+  const referencesRef = useRef<ReferencesTableHandle>(null);
+  const urlsRef = useRef<UrlsTableHandle>(null);
 
   // New records use a fixed key; edit records scope to bibcode
   const draftKey = getDraftKey(isNew, bibcode);
@@ -395,6 +400,13 @@ export function RecordPanel({ isNew, onOpenAlert, onCloseAlert, isFocused, bibco
     setState('submitting');
   };
 
+  const handleStandardPreview = handleSubmit(() => {
+    authorsRef.current?.flush();
+    referencesRef.current?.flush();
+    urlsRef.current?.flush();
+    handlePreview();
+  });
+
   // submitted
   const handleOnSuccess = () => {
     onOpenAlert({ status: 'success', title: 'Feedback submitted successfully' });
@@ -527,7 +539,7 @@ export function RecordPanel({ isNew, onOpenAlert, onCloseAlert, isFocused, bibco
                   <FormErrorMessage>{errors.title?.message}</FormErrorMessage>
                 </FormControl>
 
-                <AuthorsField />
+                <AuthorsField ref={authorsRef} />
 
                 <Stack direction={{ base: 'column', sm: 'row' }} gap={2} alignItems="start">
                   <FormControl isRequired isInvalid={!!errors.publication}>
@@ -539,7 +551,7 @@ export function RecordPanel({ isNew, onOpenAlert, onCloseAlert, isFocused, bibco
                   <PubDateField />
                 </Stack>
 
-                <UrlsField />
+                <UrlsField ref={urlsRef} />
 
                 <FormControl>
                   <FormLabel>Abstract</FormLabel>
@@ -549,7 +561,7 @@ export function RecordPanel({ isNew, onOpenAlert, onCloseAlert, isFocused, bibco
                 <KeywordsField />
 
                 {isNew ? (
-                  <ReferencesField />
+                  <ReferencesField ref={referencesRef} />
                 ) : (
                   <FormControl>
                     <FormLabel>References</FormLabel>
@@ -573,7 +585,7 @@ export function RecordPanel({ isNew, onOpenAlert, onCloseAlert, isFocused, bibco
                 </FormControl>
 
                 <HStack mt={2}>
-                  <Button isLoading={isLoading} isDisabled={!isValid} onClick={handleSubmit(handlePreview)}>
+                  <Button isLoading={isLoading} isDisabled={!isValid} onClick={handleStandardPreview}>
                     Preview
                   </Button>
                   <Button variant="outline" onClick={handleReset} isDisabled={isLoading}>
