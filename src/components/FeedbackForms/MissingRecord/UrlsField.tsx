@@ -123,7 +123,7 @@ export const UrlsTable = forwardRef<UrlsTableHandle, { editable: boolean }>(func
         }
       },
     }),
-    [newUrlIsValid, editUrlisValid, editUrl.index],
+    [newUrl, editUrl, newUrlIsValid, editUrlisValid],
   );
 
   // Changes to fields for existing url

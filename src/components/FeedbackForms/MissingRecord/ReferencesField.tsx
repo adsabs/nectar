@@ -92,7 +92,7 @@ export const ReferencesTable = forwardRef<ReferencesTableHandle, { editable: boo
         }
       },
     }),
-    [newReferenceIsValid, editReferenceIsValid, editReference.index],
+    [newReference, editReference, newReferenceIsValid, editReferenceIsValid],
   );
 
   // Changes to fields for existing Reference
