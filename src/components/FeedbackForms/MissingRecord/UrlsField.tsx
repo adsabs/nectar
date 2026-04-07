@@ -83,8 +83,8 @@ export const UrlsTable = forwardRef<UrlsTableHandle, { editable: boolean }>(func
       return false;
     }
     try {
-      const { protocol } = new URL(normalizeUrl(url));
-      return protocol === 'http:' || protocol === 'https:';
+      const { protocol, hostname } = new URL(normalizeUrl(url));
+      return (protocol === 'http:' || protocol === 'https:') && (hostname.includes('.') || hostname === 'localhost');
     } catch {
       return false;
     }
