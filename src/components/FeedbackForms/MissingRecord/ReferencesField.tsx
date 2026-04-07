@@ -26,6 +26,12 @@ const typeOptions: SelectOption<ReferenceType>[] = referenceTypes.map((r) => ({
   value: r as string,
 }));
 
+const REFERENCE_PLACEHOLDERS: Record<ReferenceType, string> = {
+  Bibcode: 'e.g. 2024ApJ...123..456A',
+  DOI: 'e.g. 10.1234/journal.2024',
+  'Raw Text': 'e.g. Author et al. (2024) Journal, vol. 1',
+};
+
 export const ReferencesTable = forwardRef<ReferencesTableHandle, { editable: boolean }>(function ReferencesTable(
   { editable },
   ref,
@@ -158,6 +164,7 @@ export const ReferencesTable = forwardRef<ReferencesTableHandle, { editable: boo
           onChange={handleNewReferenceChange}
           value={newReference?.reference ?? ''}
           onKeyDown={handleKeydownNewRef}
+          placeholder={REFERENCE_PLACEHOLDERS[newReference.type]}
         />
       </Td>
       <Td>
@@ -211,6 +218,7 @@ export const ReferencesTable = forwardRef<ReferencesTableHandle, { editable: boo
                   onChange={handleEditReferenceChange}
                   value={editReference.reference.reference}
                   onKeyDown={handleKeydownEditRef}
+                  placeholder={REFERENCE_PLACEHOLDERS[editReference.reference.type]}
                 />
               </Td>
               <Td>

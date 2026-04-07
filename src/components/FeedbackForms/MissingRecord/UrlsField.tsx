@@ -24,6 +24,22 @@ const typeOptions: SelectOption<ResourceUrlType>[] = resourceUrlTypes.map((t) =>
   value: t as string,
 }));
 
+const URL_PLACEHOLDERS: Record<ResourceUrlType, string> = {
+  arXiv: 'https://arxiv.org/abs/XXXXXXX',
+  PDF: 'https://example.com/paper.pdf',
+  DOI: 'https://doi.org/10.XXXX/XXXXX',
+  HTML: 'https://example.com/paper.html',
+  Other: 'https://',
+};
+
+function normalizeUrl(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return trimmed;
+  }
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 export const UrlsTable = ({ editable }: { editable: boolean }) => {
   const isClient = useIsClient();
 
@@ -88,8 +104,7 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
   };
 
   const handleAddUrl = () => {
-    append(newUrl);
-    // clear input fields
+    append({ ...newUrl, url: normalizeUrl(newUrl.url) });
     setNewUrl({ type: 'arXiv', url: '' });
     (newURLTypeInputRef.current as SelectInstance).focus();
   };
@@ -115,7 +130,7 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
   };
 
   const handleApplyEditUrl = () => {
-    update(editUrl.index, editUrl.url);
+    update(editUrl.index, { ...editUrl.url, url: normalizeUrl(editUrl.url.url) });
     setEditUrl({ index: -1, url: null });
   };
 
@@ -155,7 +170,13 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
         )}
       </Td>
       <Td>
-        <Input size="sm" onChange={handleNewUrlChange} value={newUrl?.url ?? ''} onKeyDown={handleKeydownNewUrl} />
+        <Input
+          size="sm"
+          onChange={handleNewUrlChange}
+          value={newUrl?.url ?? ''}
+          onKeyDown={handleKeydownNewUrl}
+          placeholder={URL_PLACEHOLDERS[newUrl.type]}
+        />
       </Td>
       <Td>
         <IconButton
@@ -203,6 +224,7 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
                   onChange={handleEditUrlChange}
                   value={editUrl.url.url}
                   onKeyDown={handleKeydownEditUrl}
+                  placeholder={URL_PLACEHOLDERS[editUrl.url.type]}
                 />
               </Td>
 
