@@ -30,7 +30,7 @@ import { KeywordsField } from './KeywordsField';
 import { PubDateField } from './PubDateField';
 import { ReferencesField } from './ReferencesField';
 import { ReferencesTableHandle } from './ReferencesField';
-import { UrlsField } from './UrlsField';
+import { UrlsField, UrlsTableHandle } from './UrlsField';
 import { COLLECTIONS, FormValues } from './types';
 
 interface WizardStep {
@@ -93,6 +93,7 @@ export function RecordWizard({ onPreview, isLoading }: RecordWizardProps) {
 
   const authorsRef = useRef<AuthorsTableHandle>(null);
   const referencesRef = useRef<ReferencesTableHandle>(null);
+  const urlsRef = useRef<UrlsTableHandle>(null);
   const {
     trigger,
     register,
@@ -105,6 +106,7 @@ export function RecordWizard({ onPreview, isLoading }: RecordWizardProps) {
     // Flush any in-progress row before validating
     authorsRef.current?.flush();
     referencesRef.current?.flush();
+    urlsRef.current?.flush();
     const valid = await trigger(STEPS[activeStep].fields);
     if (valid) {
       goToNext();
@@ -118,6 +120,13 @@ export function RecordWizard({ onPreview, isLoading }: RecordWizardProps) {
   };
 
   const isLastStep = activeStep === STEPS.length - 1;
+
+  const handlePreview = (e?: React.BaseSyntheticEvent) => {
+    authorsRef.current?.flush();
+    referencesRef.current?.flush();
+    urlsRef.current?.flush();
+    onPreview(e);
+  };
 
   return (
     <Box>
@@ -208,7 +217,7 @@ export function RecordWizard({ onPreview, isLoading }: RecordWizardProps) {
               <Textarea {...register('abstract')} rows={8} />
             </FormControl>
             <KeywordsField />
-            <UrlsField />
+            <UrlsField ref={urlsRef} />
           </Stack>
         )}
 
@@ -228,7 +237,7 @@ export function RecordWizard({ onPreview, isLoading }: RecordWizardProps) {
           Back
         </Button>
         {isLastStep ? (
-          <Button onClick={onPreview} isLoading={isLoading}>
+          <Button onClick={handlePreview} isLoading={isLoading}>
             Preview
           </Button>
         ) : (
