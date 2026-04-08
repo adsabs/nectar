@@ -60,7 +60,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
     pub?.length > APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF ? pub.slice(0, APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF) + '...' : pub;
 
   // annotation / abstract
-  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { isOpen, onClose, onOpen, onToggle } = useDisclosure();
 
   // citations
   const cite = useNormCite ? (
@@ -108,13 +108,13 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
           <Flex alignItems="start" ml={1}>
-            <Tooltip label="Show annotation">
+            <Tooltip label={isOpen ? 'Hide annotation' : 'Show annotation'}>
               <IconButton
-                aria-label="Show annotation"
+                aria-label={isOpen ? 'Hide annotation' : 'Show annotation'}
                 icon={<PencilSquareIcon width="18px" height="18px" />}
                 variant="link"
                 size="xs"
-                onClick={onOpen}
+                onClick={onToggle}
               />
             </Tooltip>
             {!isClient || hideResources ? null : <ItemResourceDropdowns doc={doc} defaultCitation={defaultCitation} />}
