@@ -538,7 +538,7 @@ const SearchFacetFilters = (props: {
     );
   }
   return (
-    <Box as="aside" aria-labelledby="search-facets">
+    <>
       <Portal appendToParentPortal>
         <Button
           position="absolute"
@@ -555,7 +555,7 @@ const SearchFacetFilters = (props: {
           Show Filters
         </Button>
       </Portal>
-    </Box>
+    </>
   );
 };
 
