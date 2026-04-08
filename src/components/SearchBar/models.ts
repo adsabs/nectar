@@ -243,7 +243,7 @@ export const allSearchTerms: SearchTermOption[] = [
     title: 'bibcode',
     description: 'Find a specific record using the ADS bibcode (ADS identifier of a paper)',
     syntax: ['bibcode:adsbib'],
-    example: ['bibcode:2003AJ….125..525J'],
+    example: ['bibcode:2003AJ....125..525J'],
   },
   {
     type: 'item',
@@ -362,7 +362,7 @@ export const allSearchTerms: SearchTermOption[] = [
     title: 'identifier',
     description: 'Find a paper using any of its identifiers, arXiv, bibcode, doi, etc.',
     syntax: ['identifier:bibcode'],
-    example: ['identifier:2003AJ….125..525J'],
+    example: ['identifier:2003AJ....125..525J'],
   },
   {
     type: 'item',
