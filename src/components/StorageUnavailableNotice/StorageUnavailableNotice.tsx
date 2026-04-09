@@ -23,7 +23,11 @@ export const StorageUnavailableNotice = () => {
           >
             How to enable cookies in Firefox
           </Link>
-          <Link href="https://support.apple.com/guide/safari/manage-cookies-sfri11471/mac" isExternal color="blue.500">
+          <Link
+            href="https://support.apple.com/guide/safari/enable-cookies-ibrw850f6c51/26.0/mac/26"
+            isExternal
+            color="blue.500"
+          >
             How to enable cookies in Safari
           </Link>
         </VStack>
