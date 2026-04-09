@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';
 import createContext from 'zustand/context';
 import { devtools, NamedSet, persist, subscribeWithSelector } from 'zustand/middleware';
+import { createSafeStorage } from '@/lib/browserStorage';
 import {
   appModeSlice,
   docsSlice,
@@ -49,6 +50,7 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
       devtools(
         persist(state, {
           name: APP_STORAGE_KEY,
+          getStorage: createSafeStorage,
           partialize: (state) => ({
             user: state.user,
             mode: state.mode,

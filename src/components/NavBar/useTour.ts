@@ -1,4 +1,5 @@
 import { useShepherd } from 'react-shepherd';
+import { safeLocalStorageSet } from '@/lib/browserStorage';
 import { Step, StepOptions } from 'shepherd.js';
 import { offset } from '@floating-ui/react-dom';
 import { useRouter } from 'next/router';
@@ -46,11 +47,11 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
 
   tour.on('start', () => {
     if (tourType === 'home') {
-      localStorage.setItem(LocalSettings.SEEN_LANDING_TOUR, 'true');
+      safeLocalStorageSet(LocalSettings.SEEN_LANDING_TOUR, 'true');
     } else if (tourType === 'results') {
-      localStorage.setItem(LocalSettings.SEEN_RESULTS_TOUR, 'true');
+      safeLocalStorageSet(LocalSettings.SEEN_RESULTS_TOUR, 'true');
     } else if (tourType === 'abstract') {
-      localStorage.setItem(LocalSettings.SEEN_ABSTRACT_TOUR, 'true');
+      safeLocalStorageSet(LocalSettings.SEEN_ABSTRACT_TOUR, 'true');
     }
 
     sendGTMEvent({ event: 'tour_start', tour_type: tourType, is_mobile: !!isMobile });

@@ -4,7 +4,10 @@ import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
-import { memo, ReactElement, useEffect, useMemo } from 'react';
+import { memo, ReactElement, useEffect, useMemo, useState } from 'react';
+import { isCookiesAvailable, isLocalStorageAvailable } from '@/lib/browserStorage';
+import { StorageUnavailableNotice } from '@/components/StorageUnavailableNotice/StorageUnavailableNotice';
+import { StorageDegradedBanner } from '@/components/StorageDegradedBanner/StorageDegradedBanner';
 import { DehydratedState, useQuery, useQueryClient } from '@tanstack/react-query';
 import { IronSession } from 'iron-session';
 import axios from 'axios';
@@ -49,9 +52,19 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   logger.debug('App', { props: pageProps as unknown });
   const router = useRouter();
 
+  // Storage availability is stable after mount — compute once, not on every render.
+  // Defaults to true so SSR renders the full app without flashing the notice.
+  const [cookiesOk, setCookiesOk] = useState(true);
+  const [localStorageOk, setLocalStorageOk] = useState(true);
+
   useMemo(() => {
     router.prefetch = () => Promise.resolve();
   }, [router]);
+
+  useEffect(() => {
+    setCookiesOk(isCookiesAvailable());
+    setLocalStorageOk(isLocalStorageAvailable());
+  }, []);
 
   return (
     <>
@@ -60,13 +73,19 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
         <DefaultMeta />
       </Head>
       <Providers pageProps={pageProps as AppPageProps}>
-        <AppModeRouter />
-        <TopProgressBar />
-        <UserSync />
-        <Layout>
-          <Component {...pageProps} />
-          <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
-        </Layout>
+        {!cookiesOk ? (
+          <StorageUnavailableNotice />
+        ) : (
+          <>
+            <AppModeRouter />
+            <TopProgressBar />
+            <UserSync />
+            <Layout banner={!localStorageOk ? <StorageDegradedBanner /> : null}>
+              <Component {...pageProps} />
+              <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
+            </Layout>
+          </>
+        )}
       </Providers>
     </>
   );

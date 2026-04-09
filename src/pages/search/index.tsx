@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic';
+import { safeLocalStorageGet, safeLocalStorageSet } from '@/lib/browserStorage';
 import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
 import { ISearchFacetsProps } from '@/components/SearchFacet';
 import { AppState, useStore, useStoreApi } from '@/store';
@@ -631,7 +632,7 @@ const useTour = () => {
   }, []);
 
   useEffect(() => {
-    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_RESULTS_TOUR)) {
+    if (isRendered && !safeLocalStorageGet(LocalSettings.SEEN_RESULTS_TOUR)) {
       const tour = new Shepherd.Tour({
         useModalOverlay: true,
         defaultStepOptions: {
@@ -643,7 +644,7 @@ const useTour = () => {
         exitOnEsc: true,
       });
       tour.addSteps(getResultsSteps());
-      localStorage.setItem(LocalSettings.SEEN_RESULTS_TOUR, 'true');
+      safeLocalStorageSet(LocalSettings.SEEN_RESULTS_TOUR, 'true');
 
       setTimeout(() => {
         tour.start();
