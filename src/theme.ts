@@ -318,6 +318,20 @@ export const theme = extendTheme(
           },
         },
       },
+      Badge: {
+        baseStyle: (props: StyleFunctionProps) => ({
+          color: mode(`${props.colorScheme}.600`, `${props.colorScheme}.200`)(props),
+        }),
+      },
+      Tag: {
+        variants: {
+          outline: (props: StyleFunctionProps) => ({
+            container: {
+              color: mode(`${props.colorScheme}.600`, `${props.colorScheme}.200`)(props),
+            },
+          }),
+        },
+      },
     },
   },
   withDefaultSize({
