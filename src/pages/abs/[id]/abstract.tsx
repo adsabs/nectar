@@ -149,7 +149,7 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
               )}
             </Flex>
 
-            <Box id="abstract-section">
+            <Stack direction="column" id="abstract-section" gap={2}>
               <AbstractMetadata {...metadata} />
 
               <Flex justifyContent="space-between">
@@ -183,7 +183,7 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
                   <EditIcon mr={2} /> Make Corrections
                 </Button>
               </Flex>
-            </Box>
+            </Stack>
           </Stack>
         )}
       </Box>
