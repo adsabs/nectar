@@ -1,9 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSession } from '@/lib/useSession';
 import { useSettings } from '@/lib/useSettings';
 import { useStore } from '@/store';
 import { AppMode, LocalSettings } from '@/types';
 import { LandingFormPreference, UserDataKeys } from '@/api/user/types';
+import { safeLocalStorageGet, safeLocalStorageSet } from '@/lib/browserStorage';
 
 export type LandingFormKey = 'modern' | 'classic' | 'paper';
 
@@ -30,28 +31,24 @@ interface UseLandingFormPreferenceResult {
   persistCurrentForm: (form: LandingFormKey) => void;
 }
 
-// Initialize localStorage value synchronously to avoid double-render
-function getInitialLastUsedForm(): LandingFormKey | null {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-  const stored = localStorage.getItem(LocalSettings.LAST_LANDING_FORM);
-  return stored && isValidFormKey(stored) ? stored : null;
-}
-
 export const useLandingFormPreference = (): UseLandingFormPreferenceResult => {
   const { isAuthenticated } = useSession();
   const { settings } = useSettings({ suspense: false }, true);
   const mode = useStore((state) => state.mode);
-  const [lastUsedForm, setLastUsedForm] = useState<LandingFormKey | null>(
-    getInitialLastUsedForm
-  );
+  const [lastUsedForm, setLastUsedForm] = useState<LandingFormKey | null>(null);
+
+  // Read from localStorage in an effect so the property access never runs
+  // during the render phase (where a SecurityError could surface as a render error).
+  useEffect(() => {
+    const stored = safeLocalStorageGet(LocalSettings.LAST_LANDING_FORM);
+    if (stored && isValidFormKey(stored)) {
+      setLastUsedForm(stored);
+    }
+  }, []);
 
   const persistCurrentForm = useCallback((form: LandingFormKey) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(LocalSettings.LAST_LANDING_FORM, form);
-      setLastUsedForm(form);
-    }
+    safeLocalStorageSet(LocalSettings.LAST_LANDING_FORM, form);
+    setLastUsedForm(form);
   }, []);
 
   const landingFormUrl = getLandingFormUrl({
@@ -78,12 +75,7 @@ interface GetLandingFormUrlParams {
   mode: AppMode;
 }
 
-function getLandingFormUrl({
-  isAuthenticated,
-  userPreference,
-  lastUsedForm,
-  mode,
-}: GetLandingFormUrlParams): string {
+function getLandingFormUrl({ isAuthenticated, userPreference, lastUsedForm, mode }: GetLandingFormUrlParams): string {
   // Form tabs only exist in Astrophysics mode
   if (mode !== AppMode.ASTROPHYSICS) {
     return '/';

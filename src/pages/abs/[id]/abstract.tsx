@@ -2,6 +2,7 @@ import { Box, Button, Flex, IconButton, Stack, Text, Tooltip, useDisclosure, Vis
 import { EditIcon } from '@chakra-ui/icons';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import dynamic from 'next/dynamic';
+import { safeLocalStorageGet, safeLocalStorageSet } from '@/lib/browserStorage';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -214,7 +215,7 @@ const useTour = () => {
   }, []);
 
   useEffect(() => {
-    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_ABSTRACT_TOUR)) {
+    if (isRendered && !safeLocalStorageGet(LocalSettings.SEEN_ABSTRACT_TOUR)) {
       const tour = new Shepherd.Tour({
         useModalOverlay: true,
         defaultStepOptions: {
@@ -226,7 +227,7 @@ const useTour = () => {
         exitOnEsc: true,
       });
       tour.addSteps(getAbstractSteps(!isScreenLarge));
-      localStorage.setItem(LocalSettings.SEEN_ABSTRACT_TOUR, 'true');
+      safeLocalStorageSet(LocalSettings.SEEN_ABSTRACT_TOUR, 'true');
       setTimeout(() => {
         tour.start();
       }, 1000);
