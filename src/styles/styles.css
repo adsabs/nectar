@@ -4,6 +4,21 @@
   }
 }
 
+.skip-link {
+position: absolute;
+  top: -40px; /* Hide off-screen */
+  left: 0;
+  color: white;
+  background: black;
+  padding: 8px;
+  z-index: 100000;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0; /* Bring into view on Tab focus */
+}
+
 /* network graph */
 
 .network-graph-svg .node-path {
