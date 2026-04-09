@@ -3,6 +3,11 @@ import { logger } from '@/logger';
 
 const STORAGE_PROBE_KEY = '__scix_storage_probe__';
 
+// In-memory fallback used when localStorage is blocked. Scoped to the page
+// session so dismissals (e.g. tour "seen" flags) survive re-renders even when
+// the browser denies storage access.
+const memoryFallback = new Map<string, string>();
+
 /**
  * Returns false if cookies are blocked at the browser level.
  * Checks navigator.cookieEnabled first, then probes document.cookie
@@ -85,7 +90,7 @@ export function safeLocalStorageGet(key: string): string | null {
   try {
     return localStorage.getItem(key);
   } catch {
-    return null;
+    return memoryFallback.get(key) ?? null;
   }
 }
 
@@ -93,7 +98,7 @@ export function safeLocalStorageSet(key: string, value: string): void {
   try {
     localStorage.setItem(key, value);
   } catch {
-    // ignore
+    memoryFallback.set(key, value);
   }
 }
 
