@@ -12,7 +12,7 @@ export const StorageUnavailableNotice = () => {
           browser settings.
         </Text>
         <Text>To use SciX, enable cookies and site data in your browser:</Text>
-        <VStack spacing={2} alignItems="flex-start" textAlign="left" width="100%">
+        <VStack spacing={2} alignItems="center" width="100%">
           <Link href="https://support.google.com/chrome/answer/95647" isExternal color="blue.500">
             How to enable cookies in Chrome
           </Link>
