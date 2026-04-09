@@ -185,7 +185,7 @@ const CountBadge = ({ count }: { count: number }): ReactElement => {
     return null;
   }
   return (
-    <Badge py={1} fontSize="xs" fontWeight="normal" borderRadius="xl" px={2} colorScheme="gray" variant="outline">
+    <Badge py={1} fontSize="xs" fontWeight="normal" borderRadius="xl" px={2} colorScheme="gray">
       {count.toLocaleString()}
     </Badge>
   );

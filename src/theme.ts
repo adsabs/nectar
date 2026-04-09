@@ -320,7 +320,8 @@ export const theme = extendTheme(
       },
       Badge: {
         baseStyle: (props: StyleFunctionProps) => ({
-          color: mode(`${props.colorScheme}.600`, `${props.colorScheme}.200`)(props),
+          color: mode(`${props.colorScheme}.800`, `${props.colorScheme}.200`)(props),
+          bg: mode(`${props.colorScheme}.50`, `${props.colorScheme}.600`)(props),
         }),
       },
       Tag: {
