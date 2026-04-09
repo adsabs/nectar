@@ -80,8 +80,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
             <AppModeRouter />
             <TopProgressBar />
             <UserSync />
-            <Layout>
-              {!localStorageOk && <StorageDegradedBanner />}
+            <Layout banner={!localStorageOk ? <StorageDegradedBanner /> : null}>
               <Component {...pageProps} />
               <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
             </Layout>

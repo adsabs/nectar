@@ -1,7 +1,7 @@
 import { Container, Flex, useMediaQuery } from '@chakra-ui/react';
 import { SkipNavLink } from '@chakra-ui/skip-nav';
 import { useRouter } from 'next/router';
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import { Footer } from '../Footer';
 import { NavBar } from '../NavBar';
 import dynamic from 'next/dynamic';
@@ -24,7 +24,7 @@ const LandingTabs = dynamic(
 );
 
 const LANDING_PAGES = ['/', '/classic-form', '/paper-form'];
-export const Layout: FC = ({ children }) => {
+export const Layout: FC<{ banner?: ReactNode }> = ({ children, banner }) => {
   const router = useRouter();
 
   const isLandingPage = LANDING_PAGES.includes(router.pathname);
@@ -42,6 +42,7 @@ export const Layout: FC = ({ children }) => {
       {isPrint ? null : <SiteAlert />}
       {isPrint ? null : <NavBar />}
       {isPrint ? null : <Notification />}
+      {banner}
       <main>
         {isLandingPage && <LandingTabs />}
         <Container maxW={isLandingPage ? 'container.md' : 'container.xl'} id="main-content">
