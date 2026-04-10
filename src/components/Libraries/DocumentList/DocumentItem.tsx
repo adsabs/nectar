@@ -1,4 +1,14 @@
-import { Checkbox, CheckboxProps, Flex, IconButton, Stack, Text, Tooltip, useDisclosure } from '@chakra-ui/react';
+import {
+  Checkbox,
+  CheckboxProps,
+  Flex,
+  HStack,
+  IconButton,
+  Stack,
+  Text,
+  Tooltip,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { AuthorList } from '@/components/AllAuthorsModal';
 import { ItemResourceDropdowns } from '@/components/ResultList/Item';
 import { APP_DEFAULTS } from '@/config';
@@ -16,6 +26,7 @@ import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/fo
 import { noop } from '@/utils/common/noop';
 import { IDocsEntity } from '@/api/search/types';
 import { LibraryIdentifier } from '@/api/biblib/types';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 
 export interface IItemProps {
   doc: IDocsEntity;
@@ -111,7 +122,17 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
             <Tooltip label={isOpen ? 'Hide annotation' : 'Show annotation'}>
               <IconButton
                 aria-label={isOpen ? 'Hide annotation' : 'Show annotation'}
-                icon={<PencilSquareIcon width="18px" height="18px" />}
+                aria-expanded={isOpen}
+                icon={
+                  <HStack spacing="1px" align="center">
+                    <PencilSquareIcon width="18px" height="18px" />
+                    <ChevronDownIcon
+                      boxSize="14px"
+                      transform={isOpen ? 'rotate(180deg)' : 'rotate(0deg)'}
+                      transition="transform 0.2s ease"
+                    />
+                  </HStack>
+                }
                 variant="link"
                 size="xs"
                 onClick={onToggle}
