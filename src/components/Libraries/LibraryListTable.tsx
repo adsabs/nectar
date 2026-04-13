@@ -110,6 +110,7 @@ export interface ILibraryListTableProps extends TableProps {
   showDescription?: boolean;
   selected?: LibraryIdentifier[];
   selectable?: boolean;
+  disabledIds?: LibraryIdentifier[];
   onChangeSort: (sort: ILibraryListTableSort) => void;
   onChangePageIndex: (index: number) => void;
   onChangePageSize: (size: NumPerPageType) => void;
@@ -130,6 +131,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
     showDescription = true,
     selected = [],
     selectable = false,
+    disabledIds = [],
     onChangeSort,
     onChangePageIndex,
     onChangePageSize,
@@ -247,97 +249,107 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                     date_last_modified,
                   },
                   index,
-                ) => (
-                  <Tr
-                    key={id}
-                    cursor="pointer"
-                    _hover={{ backgroundColor: colors.highlightBackground, color: colors.highlightForeground }}
-                    onClick={() => onLibrarySelect(id)}
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        onLibrarySelect(id);
+                ) => {
+                  const isDisabled = disabledIds.includes(id);
+                  return (
+                    <Tr
+                      key={id}
+                      cursor={isDisabled ? 'not-allowed' : 'pointer'}
+                      opacity={isDisabled ? 0.5 : 1}
+                      _hover={
+                        !isDisabled
+                          ? { backgroundColor: colors.highlightBackground, color: colors.highlightForeground }
+                          : undefined
                       }
-                    }}
-                    role="row"
-                    aria-selected={selected.includes(id)}
-                    backgroundColor={selected.includes(id) ? colors.highlightBackground : 'transparent'}
-                    color={selected.includes(id) ? colors.highlightForeground : colors.text}
-                    style={{ backgroundColor: colors.highlightBackground, color: colors.highlightForeground }}
-                  >
-                    {!isMobile && (selectable || showIndex) && (
-                      <Td>
-                        {showIndex && `${pageSize * pageIndex + index + 1} `}
-                        {selectable && (
-                          <Checkbox
-                            isChecked={selected.includes(id)}
-                            pointerEvents="none"
-                            tabIndex={-1}
-                            aria-label={`library ${selected.includes(id)} ? 'selected' ? 'not selected`}
-                          />
-                        )}
-                      </Td>
-                    )}
-                    {allHiddenCols.indexOf('public') === -1 && (
-                      <Td>
-                        {isPublic ? (
-                          <Tooltip label="Public">
-                            <UnlockIcon color="green.500" aria-label="public" w={3} h={3} />
-                          </Tooltip>
-                        ) : (
-                          <Tooltip label="Private">
-                            <LockIcon aria-label="private" w={3} h={3} />
-                          </Tooltip>
-                        )}
-                      </Td>
-                    )}
-                    {allHiddenCols.indexOf('num_users') === -1 && (
-                      <Td>
-                        {num_users === 1 ? (
-                          <Tooltip label="No collaborators">
-                            <IconButton as={UserIcon} aria-label="no collaborators" w={4} h={4} variant="unstyled" />
-                          </Tooltip>
-                        ) : (
-                          <Tooltip label={`${num_users} collaborators`}>
-                            <IconButton
-                              as={UserGroupIcon}
-                              aria-label="has collaborators"
-                              color="green.500"
-                              w={4}
-                              h={4}
-                              variant="unstyled"
+                      onClick={() => !isDisabled && onLibrarySelect(id)}
+                      tabIndex={isDisabled ? -1 : 0}
+                      onKeyDown={(e) => {
+                        if (!isDisabled && (e.key === 'Enter' || e.key === ' ')) {
+                          onLibrarySelect(id);
+                        }
+                      }}
+                      role="row"
+                      aria-selected={selected.includes(id)}
+                      aria-disabled={isDisabled}
+                      backgroundColor={selected.includes(id) ? colors.highlightBackground : 'transparent'}
+                      color={selected.includes(id) ? colors.highlightForeground : colors.text}
+                      style={{ backgroundColor: colors.highlightBackground, color: colors.highlightForeground }}
+                    >
+                      {!isMobile && (selectable || showIndex) && (
+                        <Td>
+                          {showIndex && `${pageSize * pageIndex + index + 1} `}
+                          {selectable && (
+                            <Checkbox
+                              isChecked={selected.includes(id)}
+                              isDisabled={isDisabled}
+                              pointerEvents="none"
+                              tabIndex={-1}
+                              aria-label={`library ${selected.includes(id)} ? 'selected' ? 'not selected`}
                             />
-                          </Tooltip>
-                        )}
-                      </Td>
-                    )}
-                    {allHiddenCols.indexOf('name') === -1 && (
-                      <Td>
-                        <Text fontWeight="bold">{name}</Text>
-                        {showDescription && <Text>{description}</Text>}
-                      </Td>
-                    )}
-                    {allHiddenCols.indexOf('num_documents') === -1 && <Td>{num_documents}</Td>}
-                    {allHiddenCols.indexOf('owner') === -1 && <Td>{owner}</Td>}
-                    {allHiddenCols.indexOf('permission') === -1 && <Td>{permission}</Td>}
-                    {allHiddenCols.indexOf('date_last_modified') === -1 && (
-                      <Td>
-                        <TimeSince date={date_last_modified} />
-                      </Td>
-                    )}
-                    {showSettings && !isMobile && (
-                      <Td>
-                        <Center>
-                          <Action
-                            onDelete={() => handleDeleteLibrary(id)}
-                            onSetting={() => handleSettings(id)}
-                            disableDelete={permission !== 'owner'}
-                          />
-                        </Center>
-                      </Td>
-                    )}
-                  </Tr>
-                ),
+                          )}
+                        </Td>
+                      )}
+                      {allHiddenCols.indexOf('public') === -1 && (
+                        <Td>
+                          {isPublic ? (
+                            <Tooltip label="Public">
+                              <UnlockIcon color="green.500" aria-label="public" w={3} h={3} />
+                            </Tooltip>
+                          ) : (
+                            <Tooltip label="Private">
+                              <LockIcon aria-label="private" w={3} h={3} />
+                            </Tooltip>
+                          )}
+                        </Td>
+                      )}
+                      {allHiddenCols.indexOf('num_users') === -1 && (
+                        <Td>
+                          {num_users === 1 ? (
+                            <Tooltip label="No collaborators">
+                              <IconButton as={UserIcon} aria-label="no collaborators" w={4} h={4} variant="unstyled" />
+                            </Tooltip>
+                          ) : (
+                            <Tooltip label={`${num_users} collaborators`}>
+                              <IconButton
+                                as={UserGroupIcon}
+                                aria-label="has collaborators"
+                                color="green.500"
+                                w={4}
+                                h={4}
+                                variant="unstyled"
+                              />
+                            </Tooltip>
+                          )}
+                        </Td>
+                      )}
+                      {allHiddenCols.indexOf('name') === -1 && (
+                        <Td>
+                          <Text fontWeight="bold">{name}</Text>
+                          {showDescription && <Text>{description}</Text>}
+                        </Td>
+                      )}
+                      {allHiddenCols.indexOf('num_documents') === -1 && <Td>{num_documents}</Td>}
+                      {allHiddenCols.indexOf('owner') === -1 && <Td>{owner}</Td>}
+                      {allHiddenCols.indexOf('permission') === -1 && <Td>{permission}</Td>}
+                      {allHiddenCols.indexOf('date_last_modified') === -1 && (
+                        <Td>
+                          <TimeSince date={date_last_modified} />
+                        </Td>
+                      )}
+                      {showSettings && !isMobile && (
+                        <Td>
+                          <Center>
+                            <Action
+                              onDelete={() => handleDeleteLibrary(id)}
+                              onSetting={() => handleSettings(id)}
+                              disableDelete={permission !== 'owner'}
+                            />
+                          </Center>
+                        </Td>
+                      )}
+                    </Tr>
+                  );
+                },
               )}
             </Tbody>
           </Table>

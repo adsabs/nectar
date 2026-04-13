@@ -168,6 +168,11 @@ export const librariesHandlers = [
     apiHandlerRoute(ApiTargets.DOCUMENTS, '/:id'),
     async (req, res, ctx) => {
       const id = req.params.id;
+      const library = libraries.find((l) => l.id === id);
+
+      if (library?.permission === 'read') {
+        return res(ctx.status(403), ctx.json({ error: 'Insufficient permissions' }));
+      }
 
       if (req.body.action === 'remove') {
         // remove docs
