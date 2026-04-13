@@ -58,9 +58,9 @@ export const AddToLibraryModal = ({
 
   const clearSelections = useStore((state) => state.clearSelected);
 
-  const { mutate: editDocs, isLoading: isEditingDocs } = useEditLibraryDocuments();
+  const { mutateAsync: editDocs, isLoading: isEditingDocs } = useEditLibraryDocuments();
 
-  const { mutate: addDocsByQuery, isLoading: isAddingDocs } = useAddDocumentsByQuery();
+  const { mutateAsync: addDocsByQuery, isLoading: isAddingDocs } = useAddDocumentsByQuery();
 
   const toast = useToast();
 
@@ -171,6 +171,8 @@ const AddToExistingLibraryPane = ({
 
   const libraries = librariesData?.libraries ?? [];
 
+  const readOnlyLibIds = libraries.filter((l) => l.permission === 'read').map((l) => l.id);
+
   const entries = librariesData?.count ?? 0;
 
   const handleSortChange = (sort: ILibraryListTableSort) => {
@@ -188,11 +190,12 @@ const AddToExistingLibraryPane = ({
   };
 
   const handleSelectLibrary = (id: LibraryIdentifier) => {
+    if (readOnlyLibIds.includes(id)) {
+      return;
+    }
     if (selectedLibs.includes(id)) {
-      // deselect
       setSelectedLibs((prev) => prev.filter((l) => l !== id));
     } else {
-      // select
       setSelectedLibs((prev) => [...prev, id]);
     }
   };
@@ -231,9 +234,10 @@ const AddToExistingLibraryPane = ({
             showIndex={false}
             showSettings={false}
             showDescription={false}
-            hideCols={['public', 'num_users', 'permission', 'date_created']}
+            hideCols={['public', 'num_users', 'date_created']}
             selectable
             selected={selectedLibs}
+            disabledIds={readOnlyLibIds}
             onChangeSort={handleSortChange}
             onChangePageIndex={handlePageIndexChange}
             onChangePageSize={handlePageSizeChange}
