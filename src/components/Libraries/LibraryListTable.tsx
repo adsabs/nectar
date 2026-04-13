@@ -273,7 +273,6 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                       aria-disabled={isDisabled}
                       backgroundColor={selected.includes(id) ? colors.highlightBackground : 'transparent'}
                       color={selected.includes(id) ? colors.highlightForeground : colors.text}
-                      style={{ backgroundColor: colors.highlightBackground, color: colors.highlightForeground }}
                     >
                       {!isMobile && (selectable || showIndex) && (
                         <Td>
@@ -284,7 +283,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                               isDisabled={isDisabled}
                               pointerEvents="none"
                               tabIndex={-1}
-                              aria-label={`library ${selected.includes(id)} ? 'selected' ? 'not selected`}
+                              aria-label={selected.includes(id) ? 'library selected' : 'library not selected'}
                             />
                           )}
                         </Td>
