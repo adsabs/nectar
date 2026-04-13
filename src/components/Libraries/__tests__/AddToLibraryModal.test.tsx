@@ -1,4 +1,4 @@
-import { render } from '@/test-utils';
+import { render, waitFor } from '@/test-utils';
 import { describe, expect, test, vi } from 'vitest';
 import { AddToLibraryModal } from '../AddToLibraryModal';
 
@@ -89,8 +89,9 @@ describe('AddToLibraryModal', () => {
     const submitButton = await findByRole('button', { name: /submit/i });
     await user.click(submitButton);
 
-    // Allow async mutations to settle
-    await new Promise((r) => setTimeout(r, 100));
+    // Wait for the mutation to settle — the button exits its loading state once
+    // the 403 response is received and the error handler runs
+    await waitFor(() => expect(submitButton).not.toBeDisabled());
 
     // Success callback (onClose(true)) must NOT have been called
     expect(onClose).not.toHaveBeenCalledWith(true);
