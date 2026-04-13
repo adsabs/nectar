@@ -39,7 +39,7 @@ export const EmptyStatePanel = ({
         <Heading as="h2" size="md">
           {title}
         </Heading>
-        <Text color="gray.500">{description}</Text>
+        <Text>{description}</Text>
         {(primaryAction || secondaryAction) && (
           <VStack spacing={2} align="start" pt={2}>
             {primaryAction && (

@@ -60,16 +60,14 @@ const GraphicsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
                   h={{ base: 24, md: 28 }}
                   borderRadius="full"
                   bg="gray.100"
-                  color="gray.400"
+                  color="gray.800"
                   boxShadow="inner"
                   role="img"
                   aria-label="No graphics available"
                 >
                   <FontAwesomeIcon icon={faImage} size="2x" aria-hidden="true" />
                 </Box>
-                <Text fontSize="lg" color="gray.500">
-                  No graphics available
-                </Text>
+                <Text fontSize="lg">No graphics available</Text>
               </Flex>
             </Center>
           )}
