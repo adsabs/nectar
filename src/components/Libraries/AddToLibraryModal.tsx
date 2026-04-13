@@ -234,7 +234,7 @@ const AddToExistingLibraryPane = ({
             showIndex={false}
             showSettings={false}
             showDescription={false}
-            hideCols={['public', 'num_users', 'date_created']}
+            hideCols={['public', 'num_users', 'permission', 'date_created']}
             selectable
             selected={selectedLibs}
             disabledIds={readOnlyLibIds}
