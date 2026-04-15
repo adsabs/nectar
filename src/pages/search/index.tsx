@@ -465,6 +465,9 @@ const SearchFacetFilters = (props: {
   if (showFilters) {
     return (
       <Flex as="aside" aria-labelledby="search-facets" minWidth="250px" direction="column" id="tour-search-facets">
+        <a className="skip-link" href="#results">
+          Skip to search results
+        </a>
         <Flex mb={5}>
           <Heading as="h2" id="search-facets" fontSize="normal" flex="1">
             Filters

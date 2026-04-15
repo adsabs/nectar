@@ -94,6 +94,9 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
           <RecordNotFound recordId={identifier || 'N/A'} onFeedback={handleFeedback} />
         ) : (
           <Stack direction="column" gap={2}>
+            <a className="skip-link" href="#abstract-section">
+              Skip authors list
+            </a>
             <Flex wrap="wrap" as="section" aria-labelledby="author-list" id="tour-authors-list">
               <VisuallyHidden as="h3" id="author-list">
                 Authors
@@ -146,39 +149,41 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
               )}
             </Flex>
 
-            <AbstractMetadata {...metadata} />
+            <Stack direction="column" id="abstract-section" gap={2}>
+              <AbstractMetadata {...metadata} />
 
-            <Flex justifyContent="space-between">
-              <Box display={{ base: 'block', lg: 'none' }}>
-                <AbstractSources doc={doc} style="menu" />
+              <Flex justifyContent="space-between">
+                <Box display={{ base: 'block', lg: 'none' }}>
+                  <AbstractSources doc={doc} style="menu" />
+                </Box>
+                {isAuthenticated ? (
+                  <Flex minH={8} align="center" justify="center">
+                    <Tooltip label="add to library">
+                      <IconButton
+                        aria-label="Add to library"
+                        icon={<FolderPlusIcon />}
+                        variant="ghost"
+                        onClick={onOpenAddToLibrary}
+                        id="tour-add-to-library"
+                      />
+                    </Tooltip>
+                  </Flex>
+                ) : null}
+              </Flex>
+
+              <Box as="section" pb="2" aria-labelledby="abstract">
+                <VisuallyHidden as="h3" id="abstract">
+                  Abstract
+                </VisuallyHidden>
+                {isNil(doc?.abstract) ? <Text>No Abstract</Text> : <SafeAbstract html={doc.abstract} />}
               </Box>
-              {isAuthenticated ? (
-                <Flex minH={8} align="center" justify="center">
-                  <Tooltip label="add to library">
-                    <IconButton
-                      aria-label="Add to library"
-                      icon={<FolderPlusIcon />}
-                      variant="ghost"
-                      onClick={onOpenAddToLibrary}
-                      id="tour-add-to-library"
-                    />
-                  </Tooltip>
-                </Flex>
-              ) : null}
-            </Flex>
-
-            <Box as="section" pb="2" aria-labelledby="abstract">
-              <VisuallyHidden as="h3" id="abstract">
-                Abstract
-              </VisuallyHidden>
-              {isNil(doc?.abstract) ? <Text>No Abstract</Text> : <SafeAbstract html={doc.abstract} />}
-            </Box>
-            <AbstractDetails doc={doc} />
-            <Flex justifyContent="end">
-              <Button variant="link" size="sm" onClick={handleFeedback}>
-                <EditIcon mr={2} /> Make Corrections
-              </Button>
-            </Flex>
+              <AbstractDetails doc={doc} />
+              <Flex justifyContent="end">
+                <Button variant="link" size="sm" onClick={handleFeedback}>
+                  <EditIcon mr={2} /> Make Corrections
+                </Button>
+              </Flex>
+            </Stack>
           </Stack>
         )}
       </Box>

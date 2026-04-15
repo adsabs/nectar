@@ -39,9 +39,19 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
               <Box display={{ base: 'none', lg: 'block' }} w="72">
                 <AbstractSources doc={doc} style="accordion" />
               </Box>
+              <a className="skip-link" href="#main-content-section">
+                Skip navigation
+              </a>
               <AbstractSideNav doc={doc} />
             </Stack>
-            <Stack direction="column" as="section" aria-labelledby="title" spacing={1} width="full">
+            <Stack
+              direction="column"
+              as="section"
+              aria-labelledby="title"
+              spacing={1}
+              width="full"
+              id="main-content-section"
+            >
               <Heading as="h2" id="abstract-subview-title" fontSize="2xl" variant="abstract">
                 <Text as="span" fontSize="xl">
                   {titleDescription}
