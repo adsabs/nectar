@@ -1,4 +1,4 @@
-import { AddIcon, CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';
+import { AddIcon, CheckIcon, CloseIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -25,6 +25,7 @@ import {
   SkeletonText,
   Stack,
   Text,
+  Tooltip,
   useBreakpointValue,
   useDisclosure,
   useEditableControls,
@@ -32,7 +33,7 @@ import {
 } from '@chakra-ui/react';
 import { useOrcid } from '@/lib/orcid/useOrcid';
 import { OrcidLogo } from '@/components/images';
-import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useOrcidPrefs } from '@/lib/orcid/useOrcidPrefs';
 
 import { isValidIOrcidUser } from '@/api/orcid/models';
@@ -44,9 +45,13 @@ import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 
-import { SearchQueryLink, SearchQueryLinkButton } from '@/components/SearchQueryLink';
+import { SearchQueryLinkButton } from '@/components/SearchQueryLink';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { noop } from '@/utils/common/noop';
+import { SimpleLink } from '../SimpleLink';
+import Link from 'next/link';
+import { makeSearchParams } from '@/utils/common/search';
+import { ScixIconLogo } from '../images/ScixIconLogo';
 
 export const UserSettings = () => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
@@ -54,7 +59,7 @@ export const UserSettings = () => {
   const { background } = useColorModeColors();
 
   const body = (
-    <>
+    <Box w="250px">
       <OrcidHeader />
       <QueryErrorResetBoundary>
         {({ reset }) => (
@@ -83,7 +88,7 @@ export const UserSettings = () => {
       <Flex fontSize="sm" mt={10} justifyContent="end">
         <LogoutButton />
       </Flex>
-    </>
+    </Box>
   );
 
   if (isMobile) {
@@ -445,10 +450,25 @@ const OrcidHeader = () => {
   return (
     <>
       <Text fontWeight="bold">{user?.name}</Text>
-      <HStack spacing={2}>
-        <OrcidLogo fontSize="18px" aria-hidden />
-        <SearchQueryLink params={{ q: `orcid:${user?.orcid}`, sort: ['date desc'] }}>{user?.orcid}</SearchQueryLink>
-      </HStack>
+      <Flex direction="column" gap={2} my={2}>
+        <HStack spacing={2}>
+          <OrcidLogo fontSize="18px" aria-hidden />
+          <Tooltip label="Open my ORCiD profile page">
+            <SimpleLink href={`https://orcid.org/${user?.orcid}`} isExternal>
+              {user?.orcid}
+            </SimpleLink>
+            <ExternalLinkIcon aria-label="link opens a new tab" mx={2} />
+          </Tooltip>
+        </HStack>
+        <Button
+          as={Link}
+          px={4}
+          href={`/search?${makeSearchParams({ q: `orcid:${user?.orcid}`, sort: ['date desc'] })}`}
+        >
+          {<Icon as={ScixIconLogo} boxSize="24px" aria-hidden mr={2} />}
+          Search by my ORCiD
+        </Button>
+      </Flex>
     </>
   );
 };

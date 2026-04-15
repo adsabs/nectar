@@ -73,7 +73,7 @@ const OrcidPage: NextPage = () => {
             returnFocusOnClose
             trapFocus
             onOverlayClick={onClose}
-            size="full"
+            size="xs"
           >
             <DrawerContent>
               <DrawerHeader>

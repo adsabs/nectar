@@ -18,7 +18,7 @@ export const Footer: FC = () => {
       color="gray.50"
       sx={{ a: { color: 'gray.50' } }}
     >
-      <Flex direction="column" width="96" mx={5}>
+      <Flex direction="column" width={{ base: '90%', lg: '30%' }} mx={5}>
         <Text fontWeight="semibold">
           © The{' '}
           <Text as="abbr" title="Smithsonian Astrophysical Observatory">
