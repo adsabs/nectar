@@ -233,10 +233,10 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
           </GridItem>
         </Grid>
         <Stack direction="row" mt={5}>
-          <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
+          <Button isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
             Search
           </Button>
-          <Button size="sm" type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+          <Button type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
             Reset
           </Button>
         </Stack>
@@ -290,10 +290,10 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
           <FormErrorMessage>{errors.reference && errors.reference.message}</FormErrorMessage>
         </FormControl>
         <Stack direction="row" mt={5}>
-          <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
+          <Button isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
             Search
           </Button>
-          <Button size="sm" type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+          <Button type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
             Reset
           </Button>
         </Stack>
@@ -347,10 +347,10 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
         </FormControl>
 
         <Stack direction="row" mt={5}>
-          <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
+          <Button isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
             Search
           </Button>
-          <Button size="sm" type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+          <Button type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
             Reset
           </Button>
         </Stack>
