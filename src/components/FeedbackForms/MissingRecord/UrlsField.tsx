@@ -5,8 +5,7 @@ import { Select, SelectOption } from '@/components/Select';
 import { ChangeEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { SelectInstance } from 'react-select';
-import { FormValues } from './types';
-import { IResourceUrl, ResourceUrlType, resourceUrlTypes } from '@/lib/useGetResourceLinks';
+import { FormValues, IResourceUrl, ResourceUrlType, resourceUrlTypes } from './types';
 import { useIsClient } from '@/lib/useIsClient';
 import { EXTERNAL_URLS } from '@/config';
 

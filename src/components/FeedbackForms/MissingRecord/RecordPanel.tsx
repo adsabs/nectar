@@ -24,7 +24,7 @@ import { getDiffSections, getDiffString, processFormValues } from './DiffUtil';
 import { KeywordsField } from './KeywordsField';
 import { PubDateField } from './PubDateField';
 import { ReferencesField } from './ReferencesField';
-import { DiffSection, FormValues, IAuthor, IKeyword, IReference } from './types';
+import { DiffSection, FormValues, IAuthor, IKeyword, IReference, IResourceUrl } from './types';
 import { UrlsField } from './UrlsField';
 import { DiffSectionPanel } from './DiffSectionPanel';
 import { AxiosError } from 'axios';
@@ -32,12 +32,14 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SimpleLink } from '@/components/SimpleLink';
 import { PreviewModal } from '@/components/FeedbackForms';
-import { IResourceUrl, useGetResourceLinks } from '@/lib/useGetResourceLinks';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
 import { parsePublicationDate } from '@/utils/common/parsePublicationDate';
 import type { Database, IDocsEntity } from '@/api/search/types';
 import type { IFeedbackParams } from '@/api/feedback/types';
 import { useGetSingleRecord } from '@/api/search/search';
+import { useResolverQuery } from '@/api/resolver/resolver';
+import { IADSApiResolverResponse } from '@/api/resolver/types';
+import { transformUrl } from './UrlUtil';
 
 const collections: { value: Database; label: string }[] = [
   { value: 'astronomy', label: 'Astronomy and Astrophysics' },
@@ -182,10 +184,7 @@ export const RecordPanel = ({
     isSuccess: urlsIsSuccess,
     isFetching: urlsIsFetching,
     refetch: urlsRefetch,
-  } = useGetResourceLinks({
-    identifier: getValues('bibcode'),
-    options: { enabled: false },
-  });
+  } = useResolverQuery({ bibcode: getValues('bibcode'), link_type: 'ESOURCE' }, { enabled: false });
 
   // when this tab is focused, set focus on name field
   useEffect(() => {
@@ -358,9 +357,18 @@ export const RecordPanel = ({
   };
 
   // when url data is fetch, set then in form values
-  const handleUrlsLoaded = (urlsData: IResourceUrl[]) => {
+  const handleUrlsLoaded = (urlsData: IADSApiResolverResponse) => {
+    const urls =
+      urlsData.action === 'display' && urlsData.links?.records
+        ? urlsData.links.records.map((r) => decodeURIComponent(r.url))
+        : urlsData.action === 'redirect' && urlsData.link
+        ? [decodeURIComponent(urlsData.link)]
+        : [];
+
+    // tranform urls to IResourceUrl, and remove any nulls (invalid urls)
+    const transformedUrls = urls.map((url) => transformUrl(url)).filter((tu) => tu !== null);
     if (!isNew) {
-      setRecordOriginalFormValues((prev) => ({ ...prev, urls: urlsData }));
+      setRecordOriginalFormValues((prev) => ({ ...prev, urls: transformedUrls }));
     }
   };
 

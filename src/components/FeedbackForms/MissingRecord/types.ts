@@ -11,7 +11,7 @@ export interface IAuthor {
 
 export const referenceTypes = ['Raw Text', 'DOI', 'Bibcode'] as const;
 
-export type ReferenceType = typeof referenceTypes[number];
+export type ReferenceType = (typeof referenceTypes)[number];
 
 export interface IReference {
   type: ReferenceType;
@@ -46,3 +46,13 @@ export type DiffSection = {
   type: 'array' | 'text';
   newValue: string;
 };
+
+// URLs (ESOURCE) types and interfaces
+
+export const resourceUrlTypes = ['arXiv', 'PDF', 'DOI', 'HTML', 'Other'] as const;
+
+export type ResourceUrlType = (typeof resourceUrlTypes)[number];
+export interface IResourceUrl {
+  type: ResourceUrlType;
+  url: string;
+}
