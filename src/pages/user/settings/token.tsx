@@ -153,15 +153,15 @@ const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
           </Heading>
           <Stack direction={{ base: 'column', xs: 'row' }}>
             <Code>
-              {
-                "curl -H 'Authorization: Bearer *************************' https://api.adsabs.harvard.edu/v1/search/query?q=star&fl=bibcode"
-              }
+              {`curl -H 'Authorization: Bearer *************************' ${
+                process.env.NEXT_PUBLIC_API_HOST_CLIENT ?? 'http://scixplorer.org/v1'
+              }/search/query?q=star&fl=bibcode`}
             </Code>
             <SimpleCopyButton
               variant="solid"
-              text={`curl -H 'Authorization: Bearer ${
-                data?.access_token ?? ''
-              }' https://api.adsabs.harvard.edu/v1/search/query?q=star&fl=bibcode`}
+              text={`curl -H 'Authorization: Bearer ${data?.access_token ?? ''}' ${
+                process.env.NEXT_PUBLIC_API_HOST_CLIENT ?? 'http://scixplorer.org/v1'
+              }/search/query?q=star&fl=bibcode`}
             />
           </Stack>
           <Text fontStyle="italic" color="gray700">
