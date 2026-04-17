@@ -314,7 +314,7 @@ export const RecordPanel = ({
         orcid_pub,
         pub_raw,
         pubdate,
-        title,
+        title = [],
         database = [],
         reference = [] as string[],
       } = data;
@@ -335,7 +335,7 @@ export const RecordPanel = ({
         bibcode: getValues('bibcode'),
         isNew,
         abstract,
-        title: title[0],
+        title: title?.[0] ?? ' ',
         publication: pub_raw,
         pubDate: pubdate,
         noAuthors: !author || authors.length === 0,
