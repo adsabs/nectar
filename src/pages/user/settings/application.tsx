@@ -229,20 +229,20 @@ const AppSettingsPage = () => {
               <CheckboxGroup onChange={handleApplyDatabases} value={selectedValues.databases.selected}>
                 <Stack direction="row" id="default-collections" spacing="6">
                   <Checkbox value="All">All</Checkbox>
-                  <Checkbox value="Physics" isDisabled={selectedValues.databases.selected.includes(DatabaseEnum.All)}>
-                    Physics
-                  </Checkbox>
                   <Checkbox value="Astronomy" isDisabled={selectedValues.databases.selected.includes(DatabaseEnum.All)}>
                     Astronomy
-                  </Checkbox>
-                  <Checkbox value="General" isDisabled={selectedValues.databases.selected.includes(DatabaseEnum.All)}>
-                    General
                   </Checkbox>
                   <Checkbox
                     value="Earth Science"
                     isDisabled={selectedValues.databases.selected.includes(DatabaseEnum.All)}
                   >
                     Earth Science
+                  </Checkbox>
+                  <Checkbox value="Physics" isDisabled={selectedValues.databases.selected.includes(DatabaseEnum.All)}>
+                    Physics
+                  </Checkbox>
+                  <Checkbox value="General" isDisabled={selectedValues.databases.selected.includes(DatabaseEnum.All)}>
+                    General
                   </Checkbox>
                 </Stack>
               </CheckboxGroup>
