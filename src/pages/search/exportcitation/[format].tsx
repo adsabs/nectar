@@ -132,10 +132,11 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   const {
     qid = null,
     p,
-    format,
     referrer = null,
     ...query
   } = parseQueryFromUrl<{ qid: string; format: string }>(ctx.req.url, { sortPostfix: 'id asc' });
+
+  const { format } = ctx.params as { format: string };
 
   if (!query && !qid) {
     return {
