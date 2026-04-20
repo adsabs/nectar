@@ -103,9 +103,8 @@ export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSo
           icon={<BarsArrowUpIcon width="20px" />}
           aria-label="Sort ascending"
           borderLeftRadius="0"
-          borderRightRadius="2px"
+          borderRightRadius="5px"
           size="md"
-          colorScheme="gray"
           data-testid="sort-direction-toggle"
         />
       ) : (
@@ -116,9 +115,8 @@ export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSo
           icon={<BarsArrowDownIcon width="20px" />}
           aria-label="Sort descending"
           borderLeftRadius="0"
-          borderRightRadius="2px"
+          borderRightRadius="5px"
           size="md"
-          colorScheme="gray"
           data-testid="sort-direction-toggle"
         />
       )}
