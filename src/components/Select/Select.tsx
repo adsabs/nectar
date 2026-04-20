@@ -74,9 +74,9 @@ function SelectImpl<
             ...provided,
             height: '40px',
             minHeight: '40px',
-            borderRadius: '2px 0 0 2px',
+            borderRadius: '5px 0 0 5px',
             borderRightWidth: '0',
-            borderColor: colors.border,
+            borderColor: colors.outline,
             backgroundColor: colors.background,
           }),
           // the text in control

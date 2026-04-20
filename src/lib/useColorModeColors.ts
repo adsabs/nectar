@@ -10,6 +10,7 @@ type Elements =
   | 'disabledBackground'
   | 'disabledForeground'
   | 'border'
+  | 'outline'
   | 'panel'
   | 'panelHighlight'
   | 'lightText'
@@ -35,6 +36,7 @@ export const useColorModeColors = (): ColorModeColors => {
         disabledBackground: 'gray.50',
         disabledForeground: 'gray.300',
         border: 'gray.100',
+        outline: 'blue.600',
         panel: 'gray.50',
         panelHighlight: 'blue.500',
         lightText: 'gray.600',
@@ -54,6 +56,7 @@ export const useColorModeColors = (): ColorModeColors => {
         disabledBackground: 'gray.700',
         disabledForeground: 'gray.400',
         border: 'gray.400',
+        outline: 'blue.200',
         panel: 'gray.700',
         panelHighlight: 'blue.200',
         lightText: 'gray.200',
@@ -79,6 +82,7 @@ export const useColorModeColorVars = (): ColorModeColors => {
         disabledBackground: 'var(--chakra-colors-gray-50)',
         disabledForeground: 'var(--chakra-colors-gray-300)',
         border: 'var(--chakra-colors-gray-100)',
+        outline: 'var(--chakra-colors-blue-600)',
         panel: 'var(--chakra-colors-gray-50)',
         panelHighlight: 'var(--chakra-colors-blue-500)',
         lightText: 'var(--chakra-colors-gray-600)',
@@ -98,6 +102,7 @@ export const useColorModeColorVars = (): ColorModeColors => {
         disabledBackground: 'var(--chakra-colors-gray-700)',
         disabledForeground: 'var(--chakra-colors-gray-400)',
         border: 'var(--chakra-colors-gray-400)',
+        outline: 'var(--chakra-colors-blue-200)',
         panel: 'var(--chakra-colors-gray-50)',
         panelHighlight: 'var(--chakra-colors-gray-500)',
         lightText: 'var(--chakra-colors-gray-500)',
