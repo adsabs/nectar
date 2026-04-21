@@ -160,7 +160,7 @@ const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
             <SimpleCopyButton
               variant="solid"
               text={`curl -H 'Authorization: Bearer ${data?.access_token ?? ''}' ${
-                process.env.NEXT_PUBLIC_API_HOST_CLIENT ?? 'http://scixplorer.org/v1'
+                process.env.NEXT_PUBLIC_API_HOST_CLIENT ?? 'https://scixplorer.org/v1'
               }/search/query?q=star&fl=bibcode`}
             />
           </Stack>
