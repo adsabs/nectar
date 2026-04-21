@@ -44,6 +44,12 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
     tour.addSteps(getAbstractSteps(isMobile));
   }
 
+  const listener = (e: MouseEvent) => {
+    if ((e.target as HTMLElement).closest('.shepherd-modal-overlay-container')) {
+      tour.cancel();
+    }
+  };
+
   tour.on('start', () => {
     if (tourType === 'home') {
       localStorage.setItem(LocalSettings.SEEN_LANDING_TOUR, 'true');
@@ -52,6 +58,8 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
     } else if (tourType === 'abstract') {
       localStorage.setItem(LocalSettings.SEEN_ABSTRACT_TOUR, 'true');
     }
+
+    document.addEventListener('click', listener);
 
     sendGTMEvent({ event: 'tour_start', tour_type: tourType, is_mobile: !!isMobile });
     Sentry.addBreadcrumb({ category: 'tour', message: 'tour_start', level: 'info', data: { tourType, isMobile } });
@@ -69,11 +77,13 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
   });
 
   tour.on('complete', () => {
+    document.removeEventListener('click', listener);
     sendGTMEvent({ event: 'tour_complete', tour_type: tourType });
     Sentry.addBreadcrumb({ category: 'tour', message: 'tour_complete', level: 'info', data: { tourType } });
   });
 
   tour.on('cancel', () => {
+    document.removeEventListener('click', listener);
     const stepId = tour.currentStep?.id;
     sendGTMEvent({ event: 'tour_cancel', tour_type: tourType, step_id: stepId });
     Sentry.addBreadcrumb({ category: 'tour', message: 'tour_cancel', level: 'info', data: { tourType, stepId } });

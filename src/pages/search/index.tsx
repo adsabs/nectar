@@ -648,6 +648,21 @@ const useTour = () => {
       tour.addSteps(getResultsSteps());
       localStorage.setItem(LocalSettings.SEEN_RESULTS_TOUR, 'true');
 
+      const listener = (e: MouseEvent) => {
+        if ((e.target as HTMLElement).closest('.shepherd-modal-overlay-container')) {
+          tour.cancel();
+        }
+      };
+      tour.on('start', () => {
+        document.addEventListener('click', listener);
+      });
+      tour.on('cancel', () => {
+        document.removeEventListener('click', listener);
+      });
+      tour.on('cancel', () => {
+        document.removeEventListener('click', listener);
+      });
+
       setTimeout(() => {
         tour.start();
       }, 1000);
