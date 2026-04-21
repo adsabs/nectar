@@ -52,7 +52,7 @@ import { normalizeSolrSort } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { LibraryIdentifier } from '@/api/biblib/types';
 import { Bibcode, IDocsEntity } from '@/api/search/types';
-import { BiblibSort, BiblibSortField, biblibDefaultSortDirection } from '@/api/models';
+import { BiblibSort, BiblibSortField, SolrSort, biblibDefaultSortDirection } from '@/api/models';
 import { useEditLibraryDocuments, useGetLibraryEntity } from '@/api/biblib/libraries';
 import { useBigQuerySearch } from '@/api/search/search';
 import { getSearchParams } from '@/api/search/models';
@@ -415,7 +415,11 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                   disableWhenNoJs
                 />
                 <SearchQueryLink
-                  params={{ ...getSearchParams, q: `docs(library/${id})`, sort: isSolrSort(sort) ? sort : 'date desc' }}
+                  params={{
+                    ...getSearchParams,
+                    q: `docs(library/${id})`,
+                    sort: isSolrSort(sort) ? [sort] : ['date desc'],
+                  }}
                 >
                   View as search results
                 </SearchQueryLink>
@@ -425,6 +429,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                 <Box style={isLoadingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }} w="full">
                   <BulkMenu
                     library={id}
+                    sort={isSolrSort(sort) ? sort : 'date desc'}
                     isAllSelected={isAllSelected}
                     isSomeSelected={isSomeSelected}
                     onSelectAllCurrent={handleSelectAllCurrent}
@@ -476,6 +481,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
 
 const BulkMenu = ({
   library,
+  sort,
   isAllSelected,
   isSomeSelected,
   onSelectAllCurrent,
@@ -485,6 +491,7 @@ const BulkMenu = ({
   onDeleteSelected,
 }: {
   library: string;
+  sort: SolrSort;
   isAllSelected: boolean;
   isSomeSelected: boolean;
   selectedDocs: string[];
@@ -557,9 +564,14 @@ const BulkMenu = ({
               </MenuOptionGroup>
               <MenuDivider />
               {applyToAll ? (
-                <ExportMenu library={library} defaultExportFormat={settings.defaultExportFormat} />
+                <ExportMenu library={library} sort={sort} defaultExportFormat={settings.defaultExportFormat} />
               ) : (
-                <ExportMenu library={library} docs={selectedDocs} defaultExportFormat={settings.defaultExportFormat} />
+                <ExportMenu
+                  library={library}
+                  docs={selectedDocs}
+                  sort={sort}
+                  defaultExportFormat={settings.defaultExportFormat}
+                />
               )}
             </MenuList>
           </Portal>
@@ -578,9 +590,9 @@ const BulkMenu = ({
 };
 
 const ExportMenu = (
-  props: MenuGroupProps & { docs?: string[]; library: string; defaultExportFormat: string },
+  props: MenuGroupProps & { docs?: string[]; library: string; sort: SolrSort; defaultExportFormat: string },
 ): ReactElement => {
-  const { docs, library, defaultExportFormat, ...menuGroupProps } = props;
+  const { docs, library, defaultExportFormat, sort, ...menuGroupProps } = props;
   const router = useRouter();
   const [selected, setSelected] = useState<Bibcode[]>(null);
   const [route, setRoute] = useState(['', '']);
@@ -597,15 +609,15 @@ const ExportMenu = (
       void router.push(
         {
           pathname: route[0],
-          query: { q: `docs(library/${library}`, qid: data.qid, referrer: `/user/libraries/${library}` },
+          query: { q: `docs(library/${library}`, qid: data.qid, sort, referrer: `/user/libraries/${library}` },
         },
         {
           pathname: route[1],
-          query: { q: `docs(library/${library}`, qid: data.qid, referrer: `/user/libraries/${library}` },
+          query: { q: `docs(library/${library}`, qid: data.qid, sort, referrer: `/user/libraries/${library}` },
         },
       );
     }
-  }, [data]);
+  }, [data, library, route, router, sort]);
 
   // on route change
   useEffect(() => {
@@ -616,12 +628,18 @@ const ExportMenu = (
       } else {
         // if explore all, then just use the current query, and do not trigger vault (redirect immediately)
         void router.push(
-          { pathname: route[0], query: { q: `docs(library/${library})`, referrer: `/user/libraries/${library}` } },
-          { pathname: route[1], query: { q: `docs(library/${library})`, referrer: `/user/libraries/${library}` } },
+          {
+            pathname: route[0],
+            query: { q: `docs(library/${library})`, sort, referrer: `/user/libraries/${library}` },
+          },
+          {
+            pathname: route[1],
+            query: { q: `docs(library/${library})`, sort, referrer: `/user/libraries/${library}` },
+          },
         );
       }
     }
-  }, [route]);
+  }, [docs, library, route, router, sort]);
 
   const handleExportItemClick = curryN(2, (format: string) => {
     setRoute([`/search/exportcitation/[format]`, `/search/exportcitation/${format}`]);
