@@ -88,7 +88,7 @@ export const Footer: FC = () => {
         <SimpleLink href="https://adsabs.github.io/accessibility-conformance-reports/" variant="footer">
           Accessibility Conformance Report
         </SimpleLink>
-        <SimpleLink href="/help/accessibility" variant="footer">
+        <SimpleLink href="/scixhelp/accessibility-scix" variant="footer">
           Web Accessibility Policy
         </SimpleLink>
         <SimpleLink href={EXTERNAL_URLS.NASA_SDE_HOME_PAGE} variant="footer">
@@ -110,10 +110,10 @@ export const Footer: FC = () => {
         <Text fontWeight="bold" pb={1}>
           PROJECT
         </Text>
-        <SimpleLink href="/help/privacy" variant="footer">
+        <SimpleLink href="scixhelp/privacy-scix/" variant="footer">
           Privacy Policy
         </SimpleLink>
-        <SimpleLink href="/help/terms" variant="footer">
+        <SimpleLink href="/scixhelp/terms-scix/" variant="footer">
           Terms of Use
         </SimpleLink>
         <SimpleLink href={EXTERNAL_URLS.CFA_SAO_HOME_PAGE} variant="footer">
