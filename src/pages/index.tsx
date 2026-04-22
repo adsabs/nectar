@@ -495,7 +495,7 @@ const useTour = () => {
       tour.on('cancel', () => {
         document.removeEventListener('click', listener);
       });
-      tour.on('cancel', () => {
+      tour.on('complete', () => {
         document.removeEventListener('click', listener);
       });
 
