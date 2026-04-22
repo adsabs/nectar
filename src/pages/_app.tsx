@@ -29,7 +29,8 @@ if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !=
   require('../mocks');
 }
 
-if (typeof window !== 'undefined' && process.env.TURBOPACK) {
+if (typeof window !== 'undefined' && process.env.TURBOPACK === '1') {
+  // Turbopack bypasses withSentryConfig, so load the client init manually.
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   require('../../sentry.client.config');
 }

@@ -85,15 +85,12 @@ const Telemetry: FC = () => {
     }
     try {
       sendQueryAsTags(latestQuery);
-      // End any in-flight span before starting a new one — prevents leaking
-      // the previous span if the user submits a second query before docs arrive.
+      // Close any in-flight span so rapid re-submits don't leak the prior one.
       if (searchSpanRef.current) {
         searchSpanRef.current.end();
         searchSpanRef.current = null;
       }
-      // Open the span while the navigation transaction is still active.
-      // Closing it happens in the docs effect, but by then the transaction's
-      // idle timeout has already fired — so we must open here, not there.
+      // Must open here: the navigation transaction's idle timeout closes before docs arrive.
       searchSpanRef.current = Sentry.startInactiveSpan({
         name: PERF_SPANS.SEARCH_SUBMIT_TOTAL,
         op: 'user.flow',
@@ -116,7 +113,6 @@ const Telemetry: FC = () => {
         searchSpanRef.current.end();
         searchSpanRef.current = null;
       }
-      Sentry.setMeasurement('timing.results.shown', performance.now(), 'millisecond');
     } catch (err) {
       logger.error({ err }, 'Telemetry: docs span error');
     }
@@ -127,11 +123,7 @@ const Telemetry: FC = () => {
 
 const sendQueryAsTags = (query: IADSApiSearchParams) => {
   Object.keys(query).forEach((key) => {
-    const value = JSON.stringify(query[key]);
-    if (Array.isArray(value)) {
-      Sentry.setTag(`query.${key}`, value.join(' | '));
-    } else {
-      Sentry.setTag(`query.${key}`, value);
-    }
+    const raw = query[key];
+    Sentry.setTag(`query.${key}`, Array.isArray(raw) ? raw.join(' | ') : JSON.stringify(raw));
   });
 };
