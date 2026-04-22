@@ -29,6 +29,11 @@ if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !=
   require('../mocks');
 }
 
+if (typeof window !== 'undefined' && process.env.TURBOPACK) {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('../../sentry.client.config');
+}
+
 const TopProgressBar = dynamic<Record<string, never>>(
   () =>
     import('@/components/TopProgressBar').then((mod) => ({
