@@ -483,6 +483,22 @@ const useTour = () => {
         },
         exitOnEsc: true,
       });
+
+      const listener = (e: MouseEvent) => {
+        if ((e.target as HTMLElement).closest('.shepherd-modal-overlay-container')) {
+          tour.cancel();
+        }
+      };
+      tour.on('start', () => {
+        document.addEventListener('click', listener);
+      });
+      tour.on('cancel', () => {
+        document.removeEventListener('click', listener);
+      });
+      tour.on('complete', () => {
+        document.removeEventListener('click', listener);
+      });
+
       tour.addSteps(getHomeSteps(!isScreenLarge));
       localStorage.setItem(LocalSettings.SEEN_LANDING_TOUR, 'true');
       setTimeout(() => {
