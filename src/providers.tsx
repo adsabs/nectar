@@ -4,7 +4,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { AppState, StoreProvider, useCreateStore, useStore } from './store';
 import { DehydratedState, Hydrate, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useRef } from 'react';
 import { useCreateQueryClient } from './lib/useCreateQueryClient';
 import { logger } from './logger';
 import { theme } from './theme';
@@ -14,10 +14,6 @@ import { IADSApiSearchParams } from './api/search/types';
 import { PERF_SPANS, getResultCountBucket, getQueryType } from '@/lib/performance';
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 import { ShepherdJourneyProvider } from 'react-shepherd';
-
-const windowState = {
-  navigationStart: performance?.timeOrigin || performance?.timing?.navigationStart || 0,
-};
 
 type AppPageProps = {
   dehydratedState: DehydratedState;
@@ -65,34 +61,66 @@ const QCProvider: FC = ({ children }) => {
 };
 
 const Telemetry: FC = () => {
-  const query = useStore((state) => state.query, shallow);
+  const latestQuery = useStore((state) => state.latestQuery, shallow);
   const user = useStore((state) => state.user, shallow);
   const docs = useStore((state) => state.docs.current, shallow);
+  const searchSpanRef = useRef<ReturnType<typeof Sentry.startInactiveSpan> | null>(null);
 
-  // Initialize global error handlers
   useGlobalErrorHandler();
 
   useEffect(() => {
-    try {
-      if (user) {
-        Sentry.setUser({
-          id: user?.access_token,
-          anonymous: user.anonymous,
-        });
-      }
-
-      if (query) {
-        sendQueryAsTags(query);
-      }
-
-      if (docs && docs.length > 0) {
-        logger.debug({ docs }, 'Telemetry: docs');
-        sendResultsLoaded(query, docs.length);
-      }
-    } catch (err) {
-      logger.error({ err }, 'Telemetry: error');
+    if (!user) {
+      return;
     }
-  }, [query, user, docs]);
+    try {
+      Sentry.setUser({ id: user.access_token, anonymous: user.anonymous });
+    } catch (err) {
+      logger.error({ err }, 'Telemetry: setUser error');
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!latestQuery) {
+      return;
+    }
+    try {
+      sendQueryAsTags(latestQuery);
+      // End any in-flight span before starting a new one — prevents leaking
+      // the previous span if the user submits a second query before docs arrive.
+      if (searchSpanRef.current) {
+        searchSpanRef.current.end();
+        searchSpanRef.current = null;
+      }
+      // Open the span while the navigation transaction is still active.
+      // Closing it happens in the docs effect, but by then the transaction's
+      // idle timeout has already fired — so we must open here, not there.
+      searchSpanRef.current = Sentry.startInactiveSpan({
+        name: PERF_SPANS.SEARCH_SUBMIT_TOTAL,
+        op: 'user.flow',
+        attributes: { query_type: getQueryType(latestQuery.q ?? '') },
+      });
+    } catch (err) {
+      logger.error({ err }, 'Telemetry: query span error');
+    }
+  }, [latestQuery]);
+
+  useEffect(() => {
+    if (!docs || docs.length === 0) {
+      return;
+    }
+    logger.debug({ docs }, 'Telemetry: docs');
+    try {
+      if (searchSpanRef.current) {
+        searchSpanRef.current.setAttributes({ result_count_bucket: getResultCountBucket(docs.length) });
+        searchSpanRef.current.setStatus({ code: 1 });
+        searchSpanRef.current.end();
+        searchSpanRef.current = null;
+      }
+      Sentry.setMeasurement('timing.results.shown', performance.now(), 'millisecond');
+    } catch (err) {
+      logger.error({ err }, 'Telemetry: docs span error');
+    }
+  }, [docs]);
 
   return <></>;
 };
@@ -106,27 +134,4 @@ const sendQueryAsTags = (query: IADSApiSearchParams) => {
       Sentry.setTag(`query.${key}`, value);
     }
   });
-};
-
-const sendResultsLoaded = (query: IADSApiSearchParams, docCount: number) => {
-  const loadedTime = performance.now();
-
-  // performance.now() already returns ms since navigation start
-  Sentry.setMeasurement('timing.results.shown', loadedTime, 'millisecond');
-
-  // Add new span-based tracking
-  Sentry.startSpan(
-    {
-      name: PERF_SPANS.SEARCH_SUBMIT_TOTAL,
-      op: 'user.flow',
-      startTime: windowState.navigationStart / 1000,
-      attributes: {
-        query_type: getQueryType(query.q ?? ''),
-        result_count_bucket: getResultCountBucket(docCount),
-      },
-    },
-    (span) => {
-      span.end((windowState.navigationStart + loadedTime) / 1000);
-    },
-  );
 };
