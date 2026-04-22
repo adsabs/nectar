@@ -416,9 +416,10 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                 />
                 <SearchQueryLink
                   params={{
-                    ...getSearchParams,
-                    q: `docs(library/${id})`,
-                    sort: isSolrSort(sort) ? [sort] : ['date desc'],
+                    ...getSearchParams({
+                      q: `docs(library/${id})`,
+                      sort: isSolrSort(sort) ? [sort] : ['date desc'],
+                    }),
                   }}
                 >
                   View as search results
@@ -609,11 +610,11 @@ const ExportMenu = (
       void router.push(
         {
           pathname: route[0],
-          query: { q: `docs(library/${library}`, qid: data.qid, sort, referrer: `/user/libraries/${library}` },
+          query: { q: `docs(library/${library})`, qid: data.qid, sort, referrer: `/user/libraries/${library}` },
         },
         {
           pathname: route[1],
-          query: { q: `docs(library/${library}`, qid: data.qid, sort, referrer: `/user/libraries/${library}` },
+          query: { q: `docs(library/${library})`, qid: data.qid, sort, referrer: `/user/libraries/${library}` },
         },
       );
     }
