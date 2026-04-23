@@ -4,20 +4,25 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { AppState, StoreProvider, useCreateStore, useStore } from './store';
 import { DehydratedState, Hydrate, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useRef } from 'react';
 import { useCreateQueryClient } from './lib/useCreateQueryClient';
 import { logger } from './logger';
 import { theme } from './theme';
 import shallow from 'zustand/shallow';
 import * as Sentry from '@sentry/nextjs';
-import { IADSApiSearchParams } from './api/search/types';
-import { PERF_SPANS, getResultCountBucket, getQueryType } from '@/lib/performance';
+import {
+  PERF_SPANS,
+  getResultCountBucket,
+  getQueryType,
+  openResultsRenderSpan,
+  openFacetsRenderSpan,
+  openFullTextTimingSpan,
+  closeFullTextTimingSpan,
+  getPageNumber,
+  sendQueryAsTags,
+} from '@/lib/performance';
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 import { ShepherdJourneyProvider } from 'react-shepherd';
-
-const windowState = {
-  navigationStart: performance?.timeOrigin || performance?.timing?.navigationStart || 0,
-};
 
 type AppPageProps = {
   dehydratedState: DehydratedState;
@@ -65,68 +70,87 @@ const QCProvider: FC = ({ children }) => {
 };
 
 const Telemetry: FC = () => {
-  const query = useStore((state) => state.query, shallow);
+  const latestQuery = useStore((state) => state.latestQuery, shallow);
   const user = useStore((state) => state.user, shallow);
   const docs = useStore((state) => state.docs.current, shallow);
+  const searchSpanRef = useRef<ReturnType<typeof Sentry.startInactiveSpan> | null>(null);
+  const paginationSpanRef = useRef<ReturnType<typeof Sentry.startInactiveSpan> | null>(null);
 
-  // Initialize global error handlers
   useGlobalErrorHandler();
 
   useEffect(() => {
     try {
-      if (user) {
-        Sentry.setUser({
-          id: user?.access_token,
-          anonymous: user.anonymous,
+      if (!user) {
+        // Clear any prior user context so post-logout events are not misclassified.
+        Sentry.setUser(null);
+        return;
+      }
+      // Never send credentials or PII — anonymous flag is enough to segment error rates.
+      Sentry.setUser({ anonymous: user.anonymous });
+    } catch (err) {
+      logger.error({ err }, 'Telemetry: setUser error');
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!latestQuery) {
+      return;
+    }
+    try {
+      sendQueryAsTags(latestQuery);
+      const page = getPageNumber(latestQuery.start, latestQuery.rows);
+      // End prior spans so rapid re-submits don't leak them.
+      searchSpanRef.current?.end();
+      searchSpanRef.current = null;
+      paginationSpanRef.current?.end();
+      paginationSpanRef.current = null;
+      closeFullTextTimingSpan();
+      // Open here: the nav transaction's idle timeout fires before docs arrive.
+      searchSpanRef.current = Sentry.startInactiveSpan({
+        name: PERF_SPANS.SEARCH_SUBMIT_TOTAL,
+        op: 'user.flow',
+        attributes: { query_type: getQueryType(latestQuery.q ?? ''), page },
+      });
+      if (page > 1) {
+        paginationSpanRef.current = Sentry.startInactiveSpan({
+          name: PERF_SPANS.SEARCH_PAGINATION_TOTAL,
+          op: 'user.flow',
+          attributes: { page },
         });
       }
-
-      if (query) {
-        sendQueryAsTags(query);
-      }
-
-      if (docs && docs.length > 0) {
-        logger.debug({ docs }, 'Telemetry: docs');
-        sendResultsLoaded(query, docs.length);
-      }
     } catch (err) {
-      logger.error({ err }, 'Telemetry: error');
+      logger.error({ err }, 'Telemetry: query span error');
     }
-  }, [query, user, docs]);
+  }, [latestQuery]);
+
+  useEffect(() => {
+    if (!docs || docs.length === 0) {
+      return;
+    }
+    logger.debug({ count: docs.length }, 'Telemetry: docs');
+    try {
+      const bucket = getResultCountBucket(docs.length);
+      if (searchSpanRef.current) {
+        searchSpanRef.current.setAttributes({ result_count_bucket: bucket });
+        searchSpanRef.current.setStatus({ code: 1 });
+        searchSpanRef.current.end();
+        searchSpanRef.current = null;
+      }
+      if (paginationSpanRef.current) {
+        paginationSpanRef.current.setAttributes({ result_count_bucket: bucket });
+        paginationSpanRef.current.setStatus({ code: 1 });
+        paginationSpanRef.current.end();
+        paginationSpanRef.current = null;
+      }
+      // Open while the nav transaction is still alive; both render spans closed
+      // together by useResultsRenderSpan in SimpleResultList after paint.
+      openResultsRenderSpan();
+      openFacetsRenderSpan();
+      openFullTextTimingSpan();
+    } catch (err) {
+      logger.error({ err }, 'Telemetry: docs span error');
+    }
+  }, [docs]);
 
   return <></>;
-};
-
-const sendQueryAsTags = (query: IADSApiSearchParams) => {
-  Object.keys(query).forEach((key) => {
-    const value = JSON.stringify(query[key]);
-    if (Array.isArray(value)) {
-      Sentry.setTag(`query.${key}`, value.join(' | '));
-    } else {
-      Sentry.setTag(`query.${key}`, value);
-    }
-  });
-};
-
-const sendResultsLoaded = (query: IADSApiSearchParams, docCount: number) => {
-  const loadedTime = performance.now();
-
-  // performance.now() already returns ms since navigation start
-  Sentry.setMeasurement('timing.results.shown', loadedTime, 'millisecond');
-
-  // Add new span-based tracking
-  Sentry.startSpan(
-    {
-      name: PERF_SPANS.SEARCH_SUBMIT_TOTAL,
-      op: 'user.flow',
-      startTime: windowState.navigationStart / 1000,
-      attributes: {
-        query_type: getQueryType(query.q ?? ''),
-        result_count_bucket: getResultCountBucket(docCount),
-      },
-    },
-    (span) => {
-      span.end((windowState.navigationStart + loadedTime) / 1000);
-    },
-  );
 };

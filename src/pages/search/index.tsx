@@ -55,6 +55,8 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@/utils/common/search';
 import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
 import { SEARCH_API_KEYS, useSearch } from '@/api/search/search';
+import { sendGTMEvent } from '@next/third-parties/google';
+import { getQueryType } from '@/lib/performance';
 import { defaultParams } from '@/api/search/models';
 import { solrDefaultSortDirection, SolrSort, SolrSortField } from '@/api/models';
 import { useApplyBoostTypeToParams } from '@/lib/useApplyBoostTypeToParams';
@@ -293,6 +295,19 @@ const SearchPage: NextPage = () => {
   const loading = isLoading || isFetching;
   const noResults = !loading && isSuccess && data?.response.numFound === 0;
   const hasResults = !loading && isSuccess && data?.response.numFound > 0;
+
+  // Track the last query that fired search_no_results to prevent duplicate events
+  // when noResults stays true across re-renders (e.g. unstable params.q reference).
+  const lastNoResultsQuery = useRef<string | null>(null);
+  useEffect(() => {
+    if (noResults && params.q !== lastNoResultsQuery.current) {
+      lastNoResultsQuery.current = params.q ?? null;
+      sendGTMEvent({ event: 'search_no_results', query: params.q, query_type: getQueryType(params.q ?? '') });
+    }
+    if (!noResults) {
+      lastNoResultsQuery.current = null;
+    }
+  }, [noResults, params.q]);
   const showFilters = !isPrint && isClient;
   const showListActions = !isPrint && (loading || hasResults);
 
@@ -667,7 +682,7 @@ const useTour = () => {
         tour.start();
       }, 1000);
     }
-  }, [isRendered]);
+  }, [isRendered, Shepherd]);
 };
 
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

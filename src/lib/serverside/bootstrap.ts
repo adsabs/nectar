@@ -5,6 +5,7 @@ import { isTokenExpired, pickUserData } from '@/auth-utils';
 import { ApiTargets } from '@/api/models';
 import { logger } from '@/logger';
 import { IUserData } from '@/api/user/types';
+import { trackUserFlow, PERF_SPANS } from '@/lib/performance';
 
 const log = logger.child({ module: 'bootstrap' }, { msgPrefix: '[bootstrap] ' });
 
@@ -22,9 +23,9 @@ export const bootstrap = async (req: IncomingMessage, res: ServerResponse) => {
       headers.append(key, value);
     });
 
-    const bsRes = await fetch(`${process.env.API_HOST_SERVER}${ApiTargets.BOOTSTRAP}`, {
-      headers,
-    });
+    const bsRes = await trackUserFlow(PERF_SPANS.AUTH_SESSION_VALIDATE, () =>
+      fetch(`${process.env.API_HOST_SERVER}${ApiTargets.BOOTSTRAP}`, { headers }),
+    );
 
     if (!bsRes.ok) {
       log.error({ status: bsRes.status, statusText: bsRes.statusText }, 'Failed to fetch bootstrap data');
