@@ -30,6 +30,7 @@ import { useColorModeColors } from '@/lib/useColorModeColors';
 import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
 import { IDocsEntity } from '@/api/search/types';
 import { keys, toPairs } from 'ramda';
+import { sendGTMEvent } from '@next/third-parties/google';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () =>
@@ -82,6 +83,11 @@ export const Item = (props: IItemProps): ReactElement => {
 
   // Scroll restoration - save position when navigating to abstract
   const { saveScrollPosition } = useScrollRestoration();
+
+  const handleAbstractClick = () => {
+    saveScrollPosition();
+    sendGTMEvent({ event: 'result_click', rank: index, bibcode });
+  };
 
   // citations
   const cite = useNormCite ? (
@@ -145,12 +151,12 @@ export const Item = (props: IItemProps): ReactElement => {
             href={`/abs/${encodedCanonicalID}/abstract`}
             fontWeight="semibold"
             className="article-title"
-            onClick={saveScrollPosition}
+            onClick={handleAbstractClick}
           >
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
           <Flex alignItems="start" ml={1}>
-            {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} />}
+            {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} rank={index} />}
           </Flex>
         </Flex>
         <Flex direction="column">

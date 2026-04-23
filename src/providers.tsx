@@ -10,8 +10,17 @@ import { logger } from './logger';
 import { theme } from './theme';
 import shallow from 'zustand/shallow';
 import * as Sentry from '@sentry/nextjs';
-import { IADSApiSearchParams } from './api/search/types';
-import { PERF_SPANS, getResultCountBucket, getQueryType } from '@/lib/performance';
+import {
+  PERF_SPANS,
+  getResultCountBucket,
+  getQueryType,
+  openResultsRenderSpan,
+  openFacetsRenderSpan,
+  openFullTextTimingSpan,
+  closeFullTextTimingSpan,
+  getPageNumber,
+  sendQueryAsTags,
+} from '@/lib/performance';
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 import { ShepherdJourneyProvider } from 'react-shepherd';
 
@@ -65,15 +74,19 @@ const Telemetry: FC = () => {
   const user = useStore((state) => state.user, shallow);
   const docs = useStore((state) => state.docs.current, shallow);
   const searchSpanRef = useRef<ReturnType<typeof Sentry.startInactiveSpan> | null>(null);
+  const paginationSpanRef = useRef<ReturnType<typeof Sentry.startInactiveSpan> | null>(null);
 
   useGlobalErrorHandler();
 
   useEffect(() => {
-    if (!user) {
-      return;
-    }
     try {
-      Sentry.setUser({ id: user.access_token, anonymous: user.anonymous });
+      if (!user) {
+        // Clear any prior user context so post-logout events are not misclassified.
+        Sentry.setUser(null);
+        return;
+      }
+      // Never send credentials or PII — anonymous flag is enough to segment error rates.
+      Sentry.setUser({ anonymous: user.anonymous });
     } catch (err) {
       logger.error({ err }, 'Telemetry: setUser error');
     }
@@ -85,17 +98,26 @@ const Telemetry: FC = () => {
     }
     try {
       sendQueryAsTags(latestQuery);
-      // Close any in-flight span so rapid re-submits don't leak the prior one.
-      if (searchSpanRef.current) {
-        searchSpanRef.current.end();
-        searchSpanRef.current = null;
-      }
-      // Must open here: the navigation transaction's idle timeout closes before docs arrive.
+      const page = getPageNumber(latestQuery.start, latestQuery.rows);
+      // End prior spans so rapid re-submits don't leak them.
+      searchSpanRef.current?.end();
+      searchSpanRef.current = null;
+      paginationSpanRef.current?.end();
+      paginationSpanRef.current = null;
+      closeFullTextTimingSpan();
+      // Open here: the nav transaction's idle timeout fires before docs arrive.
       searchSpanRef.current = Sentry.startInactiveSpan({
         name: PERF_SPANS.SEARCH_SUBMIT_TOTAL,
         op: 'user.flow',
-        attributes: { query_type: getQueryType(latestQuery.q ?? '') },
+        attributes: { query_type: getQueryType(latestQuery.q ?? ''), page },
       });
+      if (page > 1) {
+        paginationSpanRef.current = Sentry.startInactiveSpan({
+          name: PERF_SPANS.SEARCH_PAGINATION_TOTAL,
+          op: 'user.flow',
+          attributes: { page },
+        });
+      }
     } catch (err) {
       logger.error({ err }, 'Telemetry: query span error');
     }
@@ -105,25 +127,30 @@ const Telemetry: FC = () => {
     if (!docs || docs.length === 0) {
       return;
     }
-    logger.debug({ docs }, 'Telemetry: docs');
+    logger.debug({ count: docs.length }, 'Telemetry: docs');
     try {
+      const bucket = getResultCountBucket(docs.length);
       if (searchSpanRef.current) {
-        searchSpanRef.current.setAttributes({ result_count_bucket: getResultCountBucket(docs.length) });
+        searchSpanRef.current.setAttributes({ result_count_bucket: bucket });
         searchSpanRef.current.setStatus({ code: 1 });
         searchSpanRef.current.end();
         searchSpanRef.current = null;
       }
+      if (paginationSpanRef.current) {
+        paginationSpanRef.current.setAttributes({ result_count_bucket: bucket });
+        paginationSpanRef.current.setStatus({ code: 1 });
+        paginationSpanRef.current.end();
+        paginationSpanRef.current = null;
+      }
+      // Open while the nav transaction is still alive; both render spans closed
+      // together by useResultsRenderSpan in SimpleResultList after paint.
+      openResultsRenderSpan();
+      openFacetsRenderSpan();
+      openFullTextTimingSpan();
     } catch (err) {
       logger.error({ err }, 'Telemetry: docs span error');
     }
   }, [docs]);
 
   return <></>;
-};
-
-const sendQueryAsTags = (query: IADSApiSearchParams) => {
-  Object.keys(query).forEach((key) => {
-    const raw = query[key];
-    Sentry.setTag(`query.${key}`, Array.isArray(raw) ? raw.join(' | ') : JSON.stringify(raw));
-  });
 };
