@@ -12,6 +12,7 @@ import { logger } from '@/logger';
 import { composeNextGSSP } from '@/ssr-utils';
 import { isAuthenticated } from '@/api/api';
 import { ErrorSeverity, ErrorSource, handleError } from '@/lib/errorHandler';
+import { trackUserFlow, PERF_SPANS } from '@/lib/performance';
 
 const log = logger.child({ module: 'abs-canonical' }, { msgPrefix: '[abs-canonical] ' });
 
@@ -109,12 +110,20 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
 
     try {
       const tracingHeaders = pickTracingHeaders(ctx.req.headers);
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${bootstrapResult.token.access_token}`,
-          ...tracingHeaders,
-        },
-      });
+      const spanName =
+        viewPath === 'citations'
+          ? PERF_SPANS.ABSTRACT_CITATIONS_LOAD
+          : viewPath === 'references'
+          ? PERF_SPANS.ABSTRACT_REFERENCES_LOAD
+          : PERF_SPANS.ABSTRACT_LOAD_TOTAL;
+      const response = await trackUserFlow(spanName, () =>
+        fetch(url, {
+          headers: {
+            Authorization: `Bearer ${bootstrapResult.token.access_token}`,
+            ...tracingHeaders,
+          },
+        }),
+      );
 
       if (!response.ok) {
         const error = new Error(`Abstract fetch failed with status ${response.status}`);

@@ -1,7 +1,46 @@
 import * as Sentry from '@sentry/nextjs';
+import type { IADSApiSearchParams } from '@/api/search/types';
 
 export type ResultCountBucket = '0' | '1-10' | '11-100' | '100+';
 export type QueryType = 'simple' | 'fielded' | 'boolean';
+
+// Span slots: opened in Telemetry while the nav transaction is live, closed after paint.
+// Each slot is a module-level singleton — client-only, one browser instance per process.
+function makeSpanSlot(name: string, op: string) {
+  let _span: ReturnType<typeof Sentry.startInactiveSpan> | null = null;
+  return {
+    open(): void {
+      try {
+        _span?.end();
+        _span = Sentry.startInactiveSpan({ name, op });
+      } catch {}
+    },
+    close(attrs?: Record<string, string | number | boolean>): void {
+      if (!_span) {
+        return;
+      }
+      try {
+        if (attrs) {
+          _span.setAttributes(attrs);
+        }
+        _span.setStatus({ code: 1 });
+        _span.end();
+      } catch {}
+      _span = null;
+    },
+  };
+}
+
+const resultsSlot = makeSpanSlot('search.results.render', 'ui.render');
+const facetsSlot = makeSpanSlot('search.facets.render', 'ui.render');
+const fullTextSlot = makeSpanSlot('ux.full_text_time', 'user.flow');
+
+export const openResultsRenderSpan = (): void => resultsSlot.open();
+export const closeResultsRenderSpan = (docCount: number): void => resultsSlot.close({ doc_count: docCount });
+export const openFacetsRenderSpan = (): void => facetsSlot.open();
+export const closeFacetsRenderSpan = (): void => facetsSlot.close();
+export const openFullTextTimingSpan = (): void => fullTextSlot.open();
+export const closeFullTextTimingSpan = (): void => fullTextSlot.close();
 
 export interface PerformanceSpanTags {
   query_type?: QueryType;
@@ -10,14 +49,17 @@ export interface PerformanceSpanTags {
 }
 
 export async function trackUserFlow<T>(name: string, fn: () => Promise<T>, tags?: PerformanceSpanTags): Promise<T> {
+  // `started` disambiguates Sentry-init failure (run fn bare) from fn throwing (rethrow).
+  let started = false;
   try {
-    return Sentry.startSpan(
+    return await Sentry.startSpan(
       {
         name,
         op: 'user.flow',
         attributes: tags,
       },
       async (span) => {
+        started = true;
         try {
           const result = await fn();
           span.setStatus({ code: 1 });
@@ -31,9 +73,11 @@ export async function trackUserFlow<T>(name: string, fn: () => Promise<T>, tags?
         }
       },
     );
-  } catch {
-    // If Sentry fails, execute the function without tracking
-    return fn();
+  } catch (err) {
+    if (!started) {
+      return fn();
+    }
+    throw err;
   }
 }
 
@@ -55,9 +99,12 @@ export function startRenderSpan(name: string, tags?: PerformanceSpanTags): { end
       },
     };
   } catch {
-    // If Sentry fails, return a no-op
-    return { end: () => {} };
+    return { end: () => undefined };
   }
+}
+
+export function getPageNumber(start = 0, rows = 10): number {
+  return Math.floor(start / rows) + 1;
 }
 
 export function getResultCountBucket(count: number): ResultCountBucket {
@@ -105,4 +152,19 @@ export const PERF_SPANS = {
   ORCID_SYNC_TOTAL: 'orcid.sync.total',
   ORCID_CLAIM_TOTAL: 'orcid.claim.total',
   ORCID_PROFILE_LOAD: 'orcid.profile.load',
+  UX_FULL_TEXT_TIME: 'ux.full_text_time',
 } as const;
+
+// Allowlist of structural Solr params safe to send as Sentry tags.
+// Never include q, fq, fl, or hl — they contain raw user input and may hold PII.
+const SAFE_QUERY_TAG_KEYS = new Set(['sort', 'start', 'rows', 'd', 'boostType']);
+
+export function sendQueryAsTags(query: IADSApiSearchParams): void {
+  for (const key of Object.keys(query)) {
+    if (!SAFE_QUERY_TAG_KEYS.has(key)) {
+      continue;
+    }
+    const raw = query[key];
+    Sentry.setTag(`query.${key}`, Array.isArray(raw) ? raw.join(' | ') : JSON.stringify(raw));
+  }
+}

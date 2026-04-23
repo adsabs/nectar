@@ -147,8 +147,10 @@ const fetchExchangeToken: QueryFunction<IOrcidUser> = async ({ meta }) => {
     params,
   };
 
-  const { data } = await api.request<IOrcidUser>(config);
-  return data;
+  return trackUserFlow(PERF_SPANS.ORCID_OAUTH_TOTAL, async () => {
+    const { data } = await api.request<IOrcidUser>(config);
+    return data;
+  });
 };
 
 const getPreferences: QueryFunction<IOrcidResponse['getPreferences']> = async ({ meta }) => {
@@ -260,9 +262,9 @@ const addWorks: MutationFunction<IOrcidResponse['addWorks'], IOrcidMutationParam
     },
   };
 
-  const { data } = await api.request<{
-    bulk?: { work?: IOrcidWork; error?: OrcidErrorResponse }[];
-  }>(addWorksConfig);
+  const { data } = await trackUserFlow(PERF_SPANS.ORCID_CLAIM_TOTAL, () =>
+    api.request<{ bulk?: { work?: IOrcidWork; error?: OrcidErrorResponse }[] }>(addWorksConfig).then((r) => r.data),
+  );
 
   // it's possible we received multiple success/fails in a response, reformat to match the shape of PromiseSettledResult
   return Object.fromEntries(
@@ -296,9 +298,10 @@ const updateWork: MutationFunction<IOrcidResponse['updateWork'], IOrcidMutationP
     data: work,
   };
 
-  const { data } = await api.request<IOrcidResponse['updateWork']>(config);
-
-  return data;
+  return trackUserFlow(PERF_SPANS.ORCID_SYNC_TOTAL, async () => {
+    const { data } = await api.request<IOrcidResponse['updateWork']>(config);
+    return data;
+  });
 };
 const getName: QueryFunction<IOrcidResponse['name']> = async ({ meta }) => {
   const { params } = meta as { params: IOrcidParams['name'] };
