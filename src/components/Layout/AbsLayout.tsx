@@ -2,7 +2,7 @@ import { Box, Heading, Stack, Text } from '@chakra-ui/react';
 
 import { MathJax } from 'better-react-mathjax';
 import Head from 'next/head';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { BRAND_NAME_FULL } from '@/config';
 import { Metatags } from '@/components/Metatags';
 import { AbstractSources } from '@/components/AbstractSources';
@@ -10,6 +10,7 @@ import { AbstractSideNav } from '@/components/AbstractSideNav';
 import { stripHtml, unwrapStringValue } from '@/utils/common/formatters';
 import { IDocsEntity } from '@/api/search/types';
 import { AbstractSearchForm } from '@/components/AbstractSearchForm';
+import { sendGTMEvent } from '@next/third-parties/google';
 
 interface IAbsLayoutProps {
   doc?: IDocsEntity;
@@ -19,6 +20,13 @@ interface IAbsLayoutProps {
 
 export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription, label }) => {
   const rawTitle = doc ? unwrapStringValue(doc.title) : '';
+
+  useEffect(() => {
+    if (!doc?.bibcode) {
+      return;
+    }
+    sendGTMEvent({ event: 'abstract_tab_view', tab: label.toLowerCase(), bibcode: doc.bibcode });
+  }, [label, doc?.bibcode]);
   const title = stripHtml(rawTitle);
   const suffix = `${BRAND_NAME_FULL} ${label}`;
   const pageTitle = title ? `${title} - ${suffix}` : suffix;

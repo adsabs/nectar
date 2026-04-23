@@ -21,9 +21,12 @@ import { IDocsEntity } from '@/api/search/types';
 import { CopyMenuItem } from '@/components/CopyButton';
 import { useGetExportCitation } from '@/api/export/export';
 import { useSettings } from '@/lib/useSettings';
+import { sendGTMEvent } from '@next/third-parties/google';
+import { closeFullTextTimingSpan } from '@/lib/performance';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
+  rank?: number;
   /** @deprecated No longer used — citation is fetched lazily. */
   defaultCitation?: string;
 }
@@ -32,9 +35,11 @@ export interface IItem {
   id: string;
   label: ReactElement | string;
   path?: string;
+  name?: string;
+  isOpen?: boolean;
 }
 
-export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): ReactElement => {
+export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps): ReactElement => {
   const router = useRouter();
   const toast = useToast();
   const { isOpen: isShareOpen, onOpen: onShareOpen, onClose: onShareClose } = useDisclosure();
@@ -59,14 +64,14 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
     if (value !== '') {
       onCopy();
     }
-  }, [value]);
+  }, [value, onCopy]);
 
   useEffect(() => {
     if (hasCopied) {
       toast({ status: 'info', title: 'Copied to Clipboard' });
       setValue('');
     }
-  }, [hasCopied]);
+  }, [hasCopied, setValue, toast]);
 
   const encodedCanonicalID = doc?.bibcode ? encodeURIComponent(doc.bibcode) : '';
 
@@ -94,6 +99,8 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
       ),
       path: source.url,
       id: `fullText-${source.name}`,
+      name: source.name,
+      isOpen: source.open,
       newTab: true,
     }));
 
@@ -128,9 +135,17 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
 
   const handleResourceClick: MouseEventHandler<HTMLElement> = (e) => {
     const id = e.currentTarget.dataset['id'];
-    const path = fullSourceItems.find((item) => id === item.id)?.path;
-    if (isBrowser() && path) {
-      window.open(path, '_blank', 'noopener');
+    const item = fullSourceItems.find((i) => id === i.id);
+    if (isBrowser() && item?.path) {
+      sendGTMEvent({
+        event: 'full_text_click',
+        source_name: item.name,
+        is_open_access: item.isOpen ?? false,
+        bibcode: doc.bibcode,
+        ...(rank !== undefined && { rank }),
+      });
+      closeFullTextTimingSpan();
+      window.open(item.path, '_blank', 'noopener');
     }
   };
 

@@ -29,6 +29,14 @@ if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !=
   require('../mocks');
 }
 
+if (typeof window !== 'undefined' && process.env.TURBOPACK) {
+  // Turbopack (default in Next.js 16 dev) bypasses the Sentry webpack plugin.
+  // 'auto' = default Turbopack, '1' = explicit --turbopack. Both are truthy.
+  // In production/webpack builds, TURBOPACK is undefined so this never fires.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('../../sentry.client.config');
+}
+
 const TopProgressBar = dynamic<Record<string, never>>(
   () =>
     import('@/components/TopProgressBar').then((mod) => ({

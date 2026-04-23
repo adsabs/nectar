@@ -7,6 +7,7 @@ import { Item, IItemProps } from './Item';
 import { useHighlights } from './useHighlights';
 import { IDocsEntity } from '@/api/search/types';
 import { handleBoundaryError } from '@/lib/errorHandler';
+import { useResultsRenderSpan } from '@/lib/useRenderSpan';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
@@ -65,6 +66,8 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
 
   const isClient = useIsClient();
   const start = indexStart + 1;
+
+  useResultsRenderSpan(docs);
 
   const { highlights, showHighlights, isFetchingHighlights } = useHighlights();
 

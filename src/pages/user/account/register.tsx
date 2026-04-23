@@ -16,7 +16,7 @@ import { NextPage } from 'next';
 import Head from 'next/head';
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { useFocus } from '@/lib/useFocus';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRedirectWithNotification } from '@/components/Notification';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
@@ -28,6 +28,8 @@ import { StandardAlertMessage } from '@/components/Feedbacks';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IUserRegistrationCredentials } from '@/api/user/types';
 import { useRegisterUser } from '@/api/user/user';
+import * as Sentry from '@sentry/nextjs';
+import { PERF_SPANS } from '@/lib/performance';
 
 const initialParams: IUserRegistrationCredentials = {
   givenName: '',
@@ -41,6 +43,8 @@ const initialParams: IUserRegistrationCredentials = {
 const Register: NextPage = () => {
   const { executeRecaptcha } = useGoogleReCaptcha();
   const redirect = useRedirectWithNotification();
+  // mutate (not mutateAsync) keeps error handling through isError/error state only,
+  // avoiding the double-error-UI that mutateAsync causes by also throwing into the catch.
   const { mutate: submit, data, isError, isLoading, error } = useRegisterUser();
   const {
     register,
@@ -52,11 +56,32 @@ const Register: NextPage = () => {
     defaultValues: initialParams,
   });
   const [formError, setFormError] = useState<Error | string | null>(null);
+
+  // Span opened at submit, closed by whichever effect fires first (data or isError).
+  const registerSpanRef = useRef<ReturnType<typeof Sentry.startInactiveSpan> | null>(null);
+
   useEffect(() => {
-    if (data) {
-      void redirect('account-register-success', { path: '/user/account/login' });
+    if (!data) {
+      return;
     }
+    try {
+      registerSpanRef.current?.setStatus({ code: 1 });
+      registerSpanRef.current?.end();
+    } catch {}
+    registerSpanRef.current = null;
+    void redirect('account-register-success', { path: '/user/account/login' });
   }, [data, redirect]);
+
+  useEffect(() => {
+    if (!isError) {
+      return;
+    }
+    try {
+      registerSpanRef.current?.setStatus({ code: 2 });
+      registerSpanRef.current?.end();
+    } catch {}
+    registerSpanRef.current = null;
+  }, [isError]);
 
   const onFormSubmit: SubmitHandler<IUserRegistrationCredentials> = useCallback(
     async (params) => {
@@ -66,11 +91,17 @@ const Register: NextPage = () => {
       }
 
       try {
-        submit({
-          ...params,
-          recaptcha: await executeRecaptcha('register'),
+        registerSpanRef.current?.end();
+        // Span opens before executeRecaptcha so the full user-facing latency
+        // (recaptcha + network) is measured, not just the server round-trip.
+        registerSpanRef.current = Sentry.startInactiveSpan({
+          name: PERF_SPANS.AUTH_REGISTER_TOTAL,
+          op: 'user.flow',
         });
+        submit({ ...params, recaptcha: await executeRecaptcha('register') });
       } catch (e) {
+        registerSpanRef.current?.end();
+        registerSpanRef.current = null;
         setFormError(e as Error);
       }
     },

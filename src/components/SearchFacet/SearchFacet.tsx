@@ -242,6 +242,7 @@ export interface ISearchFacetsProps {
 
 export const SearchFacets = (props: ISearchFacetsProps) => {
   const { onQueryUpdate } = props;
+
   const facets = useStore((state) => state.settings.searchFacets.order);
   const getHiddenFacets = useStore((state) => state.getHiddenSearchFacets);
   const setFacets = useStore((state) => state.setSearchFacetOrder);
@@ -253,6 +254,9 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
 
   const [showHiddenFacets, setShowHiddenFacets] = useState(false);
   const [draggingFacetId, setDraggingFacetId] = useState<SearchFacetID>();
+  // getHiddenFacets is a stable store selector — adding it does not make the
+  // memo reactive. facets is the actual reactive dep that drives recomputation.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const hiddenFacets = useMemo(() => getHiddenFacets(), [facets]);
 
   // hold temporary order of visible and hidden facets during drag and drop
@@ -267,7 +271,9 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
       visible: without(ignoredFacets, facets),
       hidden: uniq([...getHiddenFacets(), ...ignoredFacets]),
     });
-    // unable to add facets to deps because it disallows ignored facets from being un-hidden
+    // facets intentionally excluded: adding it would prevent ignored facets from being un-hidden
+    // because facets and ignoredFacets update together, causing the effect to see stale state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ignoredFacets, getHiddenFacets]);
 
   useEffect(() => {
