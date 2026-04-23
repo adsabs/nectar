@@ -18,7 +18,7 @@ export interface ISelectProps<
 > extends Partial<Props<Option, isMulti, Group>> {
   label: ReactNode;
   hideLabel?: boolean;
-  stylesTheme?: 'theme' | 'sort' | 'default' | 'default.sm';
+  stylesTheme?: 'theme' | 'sort' | 'sort_form' | 'default' | 'default.sm';
   id: string;
   'data-testid'?: string;
 }
@@ -77,6 +77,35 @@ function SelectImpl<
             borderRadius: '5px 0 0 5px',
             borderRightWidth: '0',
             borderColor: colors.outline,
+            backgroundColor: colors.background,
+          }),
+          // the text in control
+          singleValue: (provided) => ({
+            ...provided,
+            color: colors.text,
+          }),
+          indicatorSeparator: () => ({
+            isDisabled: true,
+          }),
+          option: (provided, state) => ({
+            ...provided,
+            backgroundColor: state.isFocused ? colors.highlightBackground : 'transparent',
+            color: state.isFocused ? colors.highlightForeground : colors.text,
+          }),
+          menu: (provided) => ({
+            ...provided,
+            backgroundColor: colors.background,
+            boxShadow: `0 0 0 1px ${colors.border}`,
+            zIndex: 10,
+          }),
+        },
+        sort_form: {
+          control: (provided) => ({
+            ...provided,
+            height: '40px',
+            minHeight: '40px',
+            borderRadius: '2px 0 0 2px',
+            borderRightWidth: '0',
             backgroundColor: colors.background,
           }),
           // the text in control

@@ -12,6 +12,7 @@ import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { SolrSort, SolrSortField, SortDirection, SortField, SortType } from '@/api/models';
 
 export interface ISortProps<S extends SortType, F extends SortField> {
+  id?: string;
   sort: S;
   options: SortOptionType<F>[];
   name?: string;
@@ -22,7 +23,7 @@ export interface ISortProps<S extends SortType, F extends SortField> {
   leftMargin?: string;
   rightMargin?: string;
   innerSelectProps?: Partial<ISelectProps<SortOptionType<F>>>;
-
+  theme?: 'form' | 'action'; // form to match form style, action to match search results action buttons, default is form
   /**
    * If true will use the native dropdown when no JavaScript,
    * otherwise will use one with same look and feel as JS supported one
@@ -52,6 +53,7 @@ export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSo
     hideLabel = true,
     fullWidth = false,
     innerSelectProps,
+    theme = 'form',
   } = props;
 
   // split first sort, the rest are just along for the ride
@@ -92,6 +94,7 @@ export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSo
           sortOptions={options}
           sort={selected}
           onChange={handleSelectionChange}
+          styleTheme={theme === 'form' ? 'sort_form' : 'sort'}
           innerSelectProps={innerSelectProps}
         />
       </Box>
@@ -103,8 +106,9 @@ export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSo
           icon={<BarsArrowUpIcon width="20px" />}
           aria-label="Sort ascending"
           borderLeftRadius="0"
-          borderRightRadius="5px"
+          borderRightRadius={theme === 'form' ? '2px' : '5px'}
           size="md"
+          colorScheme={theme === 'form' ? 'gray' : 'blue'}
           data-testid="sort-direction-toggle"
         />
       ) : (
@@ -115,8 +119,9 @@ export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSo
           icon={<BarsArrowDownIcon width="20px" />}
           aria-label="Sort descending"
           borderLeftRadius="0"
-          borderRightRadius="5px"
+          borderRightRadius={theme === 'form' ? '2px' : '5px'}
           size="md"
+          colorScheme={theme === 'form' ? 'gray' : 'blue'}
           data-testid="sort-direction-toggle"
         />
       )}
@@ -138,12 +143,14 @@ const SortSelect = <S extends SortType, F extends SortField>({
   sortOptions,
   onChange,
   hideLabel,
+  styleTheme,
   innerSelectProps,
 }: {
   sort: string;
   sortOptions: SortOptionType<F>[];
   onChange: (val: SortOptionType<F>) => void;
   hideLabel: ISortProps<S, F>['hideLabel'];
+  styleTheme: ISelectProps['stylesTheme'];
   innerSelectProps?: Partial<ISelectProps<SortOptionType<F>>>;
 }) => {
   const selected = sortOptions.find((o) => o.id === sort) ?? sortOptions[0];
@@ -153,7 +160,7 @@ const SortSelect = <S extends SortType, F extends SortField>({
       hideLabel={hideLabel}
       value={selected}
       options={sortOptions}
-      stylesTheme="sort"
+      stylesTheme={styleTheme}
       onChange={onChange}
       data-testid="sort-select"
       id="sort-select"

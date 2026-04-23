@@ -315,7 +315,13 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps<SolrSort, SolrSortFiel
   const query = useStore(...sortSelector);
 
   return (
-    <Sort<SolrSort, SolrSortField> sort={query.sort[0]} onChange={onChange} options={solrSortOptions} id="sort-order" />
+    <Sort<SolrSort, SolrSortField>
+      sort={query.sort[0]}
+      onChange={onChange}
+      options={solrSortOptions}
+      id="sort-order"
+      theme="action"
+    />
   );
 };
 
