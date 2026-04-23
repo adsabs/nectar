@@ -20,9 +20,10 @@ import {
   Stack,
   Text,
   Textarea,
+  Tooltip,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { CalendarIcon } from '@chakra-ui/icons';
+import { CalendarIcon, ExternalLinkIcon, InfoIcon } from '@chakra-ui/icons';
 
 import { useErrorMessage } from '@/lib/useErrorMessage';
 import { useIsClient } from '@/lib/useIsClient';
@@ -110,73 +111,77 @@ export const ClassicForm = (props: IClassicFormProps) => {
 
         {/* Collection selection */}
         <FormControl as="fieldset">
-          <FormLabel as="legend">Collection</FormLabel>
-          <CheckboxGroup defaultValue={['astronomy', 'physics']}>
-            <HStack spacing="6">
-              <Checkbox value="astronomy" {...register('limit')}>
-                Astronomy
-              </Checkbox>
-              <Checkbox value="physics" {...register('limit')}>
-                Physics
-              </Checkbox>
-              <Checkbox value="general" {...register('limit')}>
-                General
-              </Checkbox>
-              <Checkbox value="earthscience" {...register('limit')}>
-                Earth Science
-              </Checkbox>
-            </HStack>
-          </CheckboxGroup>
+          <Flex alignItems="top">
+            <FormLabel as="legend" m={0} mr={4}>
+              Collection
+            </FormLabel>
+            <CheckboxGroup defaultValue={['astronomy', 'physics']}>
+              <HStack spacing="6" wrap="wrap">
+                <Checkbox value="astronomy" {...register('limit')}>
+                  Astronomy
+                </Checkbox>
+                <Checkbox value="physics" {...register('limit')}>
+                  Physics
+                </Checkbox>
+                <Checkbox value="general" {...register('limit')}>
+                  General
+                </Checkbox>
+                <Checkbox value="earthscience" {...register('limit')}>
+                  Earth Science
+                </Checkbox>
+              </HStack>
+            </CheckboxGroup>
+          </Flex>
         </FormControl>
 
-        {/* Author text area */}
-        <FormControl>
-          <Flex direction="row" justifyContent="space-between">
-            <FormLabel htmlFor={'author'}>Author</FormLabel>
-            <LogicRadios variant="andor" radioProps={register('logic_author')} />
-          </Flex>
-          <Textarea
-            {...register('author')}
-            as="textarea"
-            id="author"
-            rows={3}
-            placeholder={`Smith, John A\nSmith, Jane B`}
-          />
-          <FormHelperText lineHeight="5">
-            <Text>Author names, enter (Last, First M) one per line.</Text>
-            <Text fontWeight="bold">Example Operators:</Text>
-            <Text>
-              Use <Code>-</Code> to filter out an author. (Ex: <Code>-Smith, John</Code>)
-            </Text>
-            <Text>
-              Use <Code>=</Code> to restrict name expansion. For example <Code>=Smith, Jim</Code> will match &#34;Smith,
-              Jim&#34; but not &#34;Smith, James&#34;.
-            </Text>
-            <Text>
-              Surround name with <Code>^ $</Code> to match papers with only one particular author. (Ex:{' '}
-              <Code>^Smith, J$</Code>)
-            </Text>
-            <Text>
-              <SimpleLink href="https://ui.adsabs.harvard.edu/help/search/search-syntax#author">Learn More</SimpleLink>
-            </Text>
-          </FormHelperText>
-        </FormControl>
+        <Stack direction={['column', 'row']} justifyContent="space-evenly" spacing={5}>
+          {/* Author text area */}
+          <FormControl>
+            <Flex direction="row" justifyContent="space-between">
+              <FormLabel htmlFor={'author'}>Author</FormLabel>
+              <LogicRadios variant="andor" radioProps={register('logic_author')} />
+            </Flex>
+            <Textarea
+              {...register('author')}
+              as="textarea"
+              id="author"
+              rows={3}
+              placeholder={`Smith, John A\nSmith, Jane B`}
+            />
+            <FormHelperText lineHeight="5">
+              <Text>
+                Author names, enter (Last, First M) one per line.
+                <SimpleLink ml={1} href="scixhelp/search-scix/search-syntax#author" newTab>
+                  <Tooltip
+                    label={
+                      <>
+                        Learn more about author search syntax <ExternalLinkIcon aria-label="opens new tab" />
+                      </>
+                    }
+                  >
+                    <InfoIcon aria-label="Learn more about author search syntax" />
+                  </Tooltip>
+                </SimpleLink>
+              </Text>
+            </FormHelperText>
+          </FormControl>
 
-        {/* Object text area */}
-        <FormControl>
-          <Flex direction="row" justifyContent="space-between">
-            <FormLabel htmlFor="object">Object</FormLabel>
-            <LogicRadios variant="andor" radioProps={register('logic_object')} />
-          </Flex>
-          <Textarea
-            {...register('object')}
-            as="textarea"
-            id="object"
-            rows={3}
-            placeholder={`M 31\nHD 187642\nSgr A*`}
-          />
-          <FormHelperText>SIMBAD object search, one per line.</FormHelperText>
-        </FormControl>
+          {/* Object text area */}
+          <FormControl>
+            <Flex direction="row" justifyContent="space-between">
+              <FormLabel htmlFor="object">Object</FormLabel>
+              <LogicRadios variant="andor" radioProps={register('logic_object')} />
+            </Flex>
+            <Textarea
+              {...register('object')}
+              as="textarea"
+              id="object"
+              rows={3}
+              placeholder={`M 31\nHD 187642\nSgr A*`}
+            />
+            <FormHelperText>SIMBAD object search, one per line.</FormHelperText>
+          </FormControl>
+        </Stack>
 
         {/* Publication dates */}
         <Stack
@@ -196,7 +201,6 @@ export const ClassicForm = (props: IClassicFormProps) => {
               </InputLeftElement>
               <Input placeholder="YYYY/MM" type="text" {...register('pubdate_start')} />
             </InputGroup>
-            <FormHelperText>Ex: &#34;2011/04&#34;</FormHelperText>
           </FormControl>
           <FormControl>
             <FormLabel>Publication Date End</FormLabel>
@@ -206,7 +210,6 @@ export const ClassicForm = (props: IClassicFormProps) => {
               </InputLeftElement>
               <Input placeholder="YYYY/MM" {...register('pubdate_end')} />
             </InputGroup>
-            <FormHelperText>Ex: &#34;2014/12&#34;</FormHelperText>
           </FormControl>
         </Stack>
 
@@ -217,7 +220,6 @@ export const ClassicForm = (props: IClassicFormProps) => {
             <LogicRadios variant="all" radioProps={register('logic_title')} />
           </Flex>
           <Input {...register('title')} />
-          <FormHelperText>Ex: &#34;Content of the Future in the ADS&#34;</FormHelperText>
         </FormControl>
 
         {/* Abstract / Keywords */}
@@ -227,7 +229,6 @@ export const ClassicForm = (props: IClassicFormProps) => {
             <LogicRadios variant="all" radioProps={register('logic_abstract_keywords')} />
           </Flex>
           <Input {...register('abstract_keywords')} />
-          <FormHelperText>Ex: &#34;Dark Energy&#34;</FormHelperText>
         </FormControl>
 
         {/* Property */}
@@ -255,7 +256,6 @@ export const ClassicForm = (props: IClassicFormProps) => {
                 <VisuallyHidden id="bibstem">Publications</VisuallyHidden>
                 <FormLabel htmlFor="bibstem-picker">Publications</FormLabel>
                 <BibstemPicker isMultiple onChange={(items) => field.onChange(items)} id="bibstem-picker" />
-                <FormHelperText>Ex. &#34;A&amp;A&#34; or &#34;-A&amp;A&#34;</FormHelperText>
               </FormControl>
             )}
           />
