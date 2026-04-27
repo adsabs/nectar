@@ -1,8 +1,13 @@
 import { forwardRef, Ref, SVGProps } from 'react';
 
 const genericFileIcon = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" ref={ref} {...props}>
-    <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm8 7h-1V4l5 5h-4z" />
+  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 317.001 317.001" ref={ref} {...props}>
+    <path
+      d="M270.825,70.55L212.17,3.66C210.13,1.334,207.187,0,204.093,0H55.941C49.076,0,43.51,5.566,43.51,12.431V304.57
+	c0,6.866,5.566,12.431,12.431,12.431h205.118c6.866,0,12.432-5.566,12.432-12.432V77.633
+	C273.491,75.027,272.544,72.51,270.825,70.55z M55.941,305.073V12.432H199.94v63.601c0,3.431,2.78,6.216,6.216,6.216h54.903
+	l0.006,222.824H55.941z"
+    />
   </svg>
 );
 
