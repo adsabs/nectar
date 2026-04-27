@@ -1,4 +1,4 @@
-import { ChevronDownIcon, Icon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, Icon } from '@chakra-ui/icons';
 import {
   Badge,
   Box,
@@ -98,22 +98,14 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
                   {group.links.map((link) => {
                     const access = getAccessLabel(link.open, link.rawType);
                     const typeLabel = link.type.toLocaleUpperCase();
-
                     return (
                       <MenuItem key={link.rawType} as={SimpleLink} href={link.path} newTab>
-                        {link.rawType === Esources.INSTITUTION ? (
-                          <Icon as={AcademicCapIcon} mr={1} boxSize={6} color="gray.600" />
-                        ) : link.open ? (
-                          <UnlockIcon color="green.600" mr={1} />
-                        ) : (
-                          <LockIcon mr={1} />
-                        )}
-                        <Flex direction="row" justifyContent="space-between" alignItems="center" flex={1}>
+                        <Flex direction="row" alignItems="center" flex={1} gap={2}>
                           <Text>
                             {link.rawType === Esources.INSTITUTION ? group.label : `${group.label} ${typeLabel}`}
                           </Text>
-                          {access && (
-                            <Tag size="sm" variant="subtle" colorScheme={access.colorScheme} ml={2}>
+                          {access && access.badge === 'Open' && (
+                            <Tag size="sm" variant="subtle" colorScheme={access.colorScheme}>
                               {access.badge}
                             </Tag>
                           )}
@@ -136,7 +128,7 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
                 <Flex direction="row" justifyContent="space-between" alignItems="center">
                   <HStack spacing={2} minW={0}>
                     <Text noOfLines={1}>{group.label}</Text>
-                    {access && (
+                    {access && access.badge === 'Open' && (
                       <Badge
                         variant="outline"
                         colorScheme={access.colorScheme}

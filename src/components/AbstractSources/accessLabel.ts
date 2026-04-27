@@ -1,7 +1,7 @@
 import { Esources } from '@/api/search/types';
 
 export type AccessLabel = {
-  badge: string;
+  badge: 'Open' | 'Paid';
   colorScheme: string;
 };
 
