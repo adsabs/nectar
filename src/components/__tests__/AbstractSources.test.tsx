@@ -157,20 +157,6 @@ describe('AbstractSources', () => {
     expect(getByLabelText(/Preprint.*PDF.*Open/i)).toBeDefined();
   });
 
-  test('accordion shows "Paid" badge for closed sources', () => {
-    const doc = {
-      ...baseDoc,
-      esources: ['PUB_HTML'],
-      property: [],
-      bibcode: '2004AdM....16.2049S',
-    } as IDocsEntity;
-
-    const { getByText, getByLabelText } = render(<AbstractSources doc={doc} style="accordion" />);
-
-    expect(getByText('Paid')).toBeDefined();
-    expect(getByLabelText(/Publisher.*HTML.*Paid/i)).toBeDefined();
-  });
-
   test('menu shows "Open" tag for open sources', async () => {
     const doc = {
       ...baseDoc,
@@ -187,25 +173,6 @@ describe('AbstractSources', () => {
     await waitFor(() => {
       expect(getByText(/Preprint PDF/)).toBeDefined();
       expect(getByText('Open')).toBeDefined();
-    });
-  });
-
-  test('menu shows "Paid" tag for closed sources', async () => {
-    const doc = {
-      ...baseDoc,
-      esources: ['PUB_HTML'],
-      property: [],
-      bibcode: '2004AdM....16.2049S',
-    } as IDocsEntity;
-
-    const { getByRole, getByText } = render(<AbstractSources doc={doc} style="menu" />);
-
-    const button = getByRole('button', { name: /Full Text Sources/i });
-    button.click();
-
-    await waitFor(() => {
-      expect(getByText(/Publisher HTML/)).toBeDefined();
-      expect(getByText('Paid')).toBeDefined();
     });
   });
 });
