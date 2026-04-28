@@ -2,7 +2,7 @@ import { forwardRef, Ref, SVGProps } from 'react';
 
 const pdfFileIcon = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 550.801 550.801" ref={ref} {...props}>
-    <g>
+    <g fill="#F40F02">
       <path
         d="M267.342,414.698c-6.613,0-10.884,0.585-13.413,1.165v85.72c2.534,0.586,6.616,0.586,10.304,0.586
 			c26.818,0.189,44.315-14.576,44.315-45.874C308.738,429.079,292.803,414.698,267.342,414.698z"

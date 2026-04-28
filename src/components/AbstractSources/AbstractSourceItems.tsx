@@ -27,6 +27,7 @@ import { getAccessLabel, getGroupAccessLabel } from './accessLabel';
 import { IFullTextSource } from './types';
 import { Fragment } from 'react';
 import { Esources } from '@/api/search/types';
+import { ScanFileIcon } from '../icons/ScanFileIcon';
 
 export type AbstractResourceType = Pick<ItemType, 'id' | 'label' | 'path'>;
 
@@ -153,7 +154,6 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
                         ? `${link.type.toLocaleUpperCase()} — ${linkAccess.badge}`
                         : link.type.toLocaleUpperCase();
                       const label = isInstitution ? group.label : `${group.label} ${accessText}`;
-
                       return (
                         <Tooltip label={label} shouldWrapChildren key={link.rawType}>
                           <IconButton
@@ -162,11 +162,13 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
                               link.rawType === Esources.INSTITUTION ? (
                                 <Icon as={AcademicCapIcon} boxSize={6} color="gray.600" />
                               ) : link.type === 'pdf' ? (
-                                <PdfFileIcon fill={link.open ? 'green' : 'gray'} />
+                                <PdfFileIcon />
                               ) : link.type === 'html' ? (
-                                <HtmlFileIcon fill={link.open ? 'green' : 'gray'} />
+                                <HtmlFileIcon />
+                              ) : link.type === 'scan' ? (
+                                <ScanFileIcon />
                               ) : (
-                                <GenericFileIcon fill={link.open ? 'green' : 'gray'} />
+                                <GenericFileIcon />
                               )
                             }
                             variant="unstyled"
