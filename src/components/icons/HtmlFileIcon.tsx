@@ -2,7 +2,7 @@ import { forwardRef, Ref, SVGProps } from 'react';
 
 const htmlFileIcon = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 550.801 550.801" ref={ref} {...props}>
-    <g>
+    <g fill="#007bff ">
       <path
         d="M475.095,131.986c-0.032-2.525-0.844-5.015-2.568-6.992L366.324,3.684c-0.021-0.029-0.053-0.045-0.084-0.071
 			c-0.633-0.712-1.36-1.289-2.141-1.803c-0.232-0.15-0.465-0.29-0.707-0.422c-0.686-0.372-1.393-0.669-2.131-0.891
