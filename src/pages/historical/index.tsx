@@ -9,47 +9,109 @@ import {
   AccordionPanel,
   Card,
   CardBody,
+  CloseButton,
   Container,
   Flex,
   Heading,
+  Input,
+  InputGroup,
+  InputRightElement,
   Text,
 } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import histLitList from 'public/data/hist_lit/histLitList.json';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useDebounce } from '@/lib/useDebounce';
+import { APP_DEFAULTS } from '@/config';
+interface HistoricalPublication {
+  label: string;
+  bibstem: string;
+  volumes: { volume_number: string }[];
+}
 
 const HistoricalLitPage: NextPage = () => {
-  const router = useRouter();
+  const [pageIndex, setPageIndex] = useState(0);
 
-  const { p, size } = router.query;
-
-  const pageIndex = p ? parseInt(p as string, 10) - 1 : 0;
-
-  const pageSize: NumPerPageType = size ? (parseInt(size as string, 10) as NumPerPageType) : 10;
-
-  const startRow = pageIndex * pageSize;
-
-  const data = histLitList.slice(startRow, startRow + pageSize);
+  const [pageSize, setPageSize] = useState<NumPerPageType>(APP_DEFAULTS.RESULT_PER_PAGE);
 
   const [accordionIndex, setAccordionIndex] = useState<number | number[]>(-1);
 
-  const handleChangePageSize = (size: NumPerPageType) => {
-    router.push({ pathname: '/historical', query: { p: pageIndex + 1, size } });
-  };
+  const [searchTerm, setSearchTerm] = useState<string>('');
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const createQParam = (bibstem: string, volume: string) => {
     return `${encodeURIComponent(`bibstem:${bibstem}`)}+${encodeURIComponent(`volume:${volume}`)}`;
   };
 
-  const handleChangePageIndex = (index: number) => {
-    router.push({ pathname: '/historical', query: { p: index + 1, size: pageSize } });
+  const startRow = useMemo(() => {
+    return pageIndex * pageSize;
+  }, [pageIndex, pageSize]);
+
+  const filteredList = useMemo<HistoricalPublication[]>(() => {
+    if (!debouncedSearchTerm) {
+      return histLitList;
+    }
+    return histLitList.filter(({ label, bibstem }) => {
+      return (
+        label.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        bibstem.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+      );
+    });
+  }, [debouncedSearchTerm]);
+
+  const pagedFilteredList = useMemo<HistoricalPublication[]>(() => {
+    return filteredList.slice(startRow, startRow + pageSize);
+  }, [filteredList, startRow, pageSize]);
+
+  // reset page index to 0 whenever the filtered list changes
+  // so that users don't end up on an empty page
+  useEffect(() => {
+    setPageIndex(0);
+    setAccordionIndex(-1);
+  }, [filteredList]);
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
   };
 
-  useEffect(() => {
-    setAccordionIndex(-1);
-  }, [router.query]);
+  // Improve the performance of the rendered list by memoizing it and only re-rendering when the paged filtered list changes
+  const renderedList = useMemo(() => {
+    return pagedFilteredList.map(({ label, bibstem, volumes }) => (
+      <AccordionItem key={`accordion-${bibstem}`} p={1}>
+        <AccordionButton>
+          <Heading as="h2" size="sm" flex="1" textAlign="left">
+            {label}
+            <Text my={2} fontWeight="normal">{`Bibstem: ${bibstem} | Volumes: ${volumes.length}`}</Text>
+          </Heading>
+          <AccordionIcon />
+        </AccordionButton>
+        <AccordionPanel>
+          <Flex gap={2} flexWrap="wrap">
+            {volumes.map(({ volume_number }, i) => (
+              <Card key={`card-${i}`}>
+                <CardBody>
+                  <Heading size="sm">{`Vol ${volume_number}`}</Heading>
+                  <Flex direction="column" key={volume_number} p={1} gap={2}>
+                    <SimpleLink href={`/scan/search?q=${createQParam(bibstem, volume_number)}`}>
+                      Scan Explorer
+                    </SimpleLink>
+                    <SimpleLink href={`/scan/search?q=${createQParam(bibstem, volume_number)}`}>
+                      Download PDF
+                    </SimpleLink>
+                    <SimpleLink href={`/search?d=astrophysics&q=${createQParam(bibstem, volume_number)}`}>
+                      Search Results
+                    </SimpleLink>
+                  </Flex>
+                </CardBody>
+              </Card>
+            ))}
+          </Flex>
+        </AccordionPanel>
+      </AccordionItem>
+    ));
+  }, [pagedFilteredList]);
 
   return (
     <>
@@ -68,56 +130,33 @@ const HistoricalLitPage: NextPage = () => {
           <SimpleLink href="https://www.si.edu/">Smithsonian Institution</SimpleLink>. Please note that these files can
           be viewed and downloaded for personal use only. Any commercial use or large-scale harvesting is prohibited.
         </Text>
+        <InputGroup>
+          <Input
+            placeholder="Search by publication name or bibstem"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            type="search"
+          />
+          <InputRightElement>
+            <CloseButton aria-label="Clear search" onClick={handleClearSearch} />
+          </InputRightElement>
+        </InputGroup>
         <Accordion
           my={4}
-          allowMultiple
           allowToggle
-          key={pageIndex}
           as="section"
           aria-label="Historical Observatory Publications list"
           index={accordionIndex}
           onChange={(index) => setAccordionIndex(index)}
         >
-          {data.map(({ label, bibstem, volumes }) => (
-            <AccordionItem key={`accordion-${bibstem}`} p={1}>
-              <AccordionButton>
-                <Heading as="h2" size="sm" flex="1" textAlign="left">
-                  {label}
-                  <Text my={2} fontWeight="normal">{`Bibstem: ${bibstem} | Volumes: ${volumes.length}`}</Text>
-                </Heading>
-                <AccordionIcon />
-              </AccordionButton>
-              <AccordionPanel>
-                <Flex gap={2} flexWrap="wrap">
-                  {volumes.map(({ volume_number }) => (
-                    <Card key={`card-${bibstem}-${volume_number}`}>
-                      <CardBody>
-                        <Heading size="sm">{`Vol ${volume_number}`}</Heading>
-                        <Flex direction="column" key={volume_number} p={1} gap={2}>
-                          <SimpleLink href={`/scan/search?q=${createQParam(bibstem, volume_number)}`}>
-                            Scan Explorer
-                          </SimpleLink>
-                          <SimpleLink href={`/scan/search?q=${createQParam(bibstem, volume_number)}`}>
-                            Download PDF
-                          </SimpleLink>
-                          <SimpleLink href={`/search?d=astrophysics&q=${createQParam(bibstem, volume_number)}`}>
-                            Search Results
-                          </SimpleLink>
-                        </Flex>
-                      </CardBody>
-                    </Card>
-                  ))}
-                </Flex>
-              </AccordionPanel>
-            </AccordionItem>
-          ))}
+          {renderedList}
         </Accordion>
         <ControlledPaginationControls
-          entries={histLitList.length}
+          entries={filteredList.length}
           pageIndex={pageIndex}
           pageSize={pageSize}
-          onChangePageSize={handleChangePageSize}
-          onChangePageIndex={handleChangePageIndex}
+          onChangePageSize={setPageSize}
+          onChangePageIndex={setPageIndex}
         />
       </Container>
     </>
