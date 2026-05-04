@@ -35,7 +35,7 @@ import { parseAPIError } from '@/utils/common/parseAPIError';
 import { formatFacetCSV } from '../helpers';
 import { FacetLogic } from '../types';
 
-interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError'> {
+interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError' | 'children'> {
   children: (props: { searchTerm: string }) => ReactNode;
 }
 
