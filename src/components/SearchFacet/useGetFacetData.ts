@@ -167,6 +167,7 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     handleLoadMore,
     handlePageChange,
     canLoadMore: searchStatus === 'success' && res?.numBuckets !== treeData?.length,
+    isSearchLoading: searchStatus === 'loading',
     ...result,
     isLoading: (isQueryEnabled && result.isLoading) || (hasIdentifiers && isLoading),
     isFetching: result.isFetching || (hasIdentifiers && isFetching),
