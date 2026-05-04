@@ -5,6 +5,8 @@ import { mergeRight } from 'ramda';
 import { isNumPerPageType } from '@/utils/common/guards';
 import { IADSApiSearchParams } from '@/api/search/types';
 
+export type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
+
 export const defaultQueryParams: IADSApiSearchParams = {
   q: '',
   fl: [
@@ -38,6 +40,7 @@ export interface ISearchState {
   showHighlights: boolean;
   queryAddition: string;
   clearQueryFlag: boolean;
+  searchStatus: SearchStatus;
 }
 
 export interface ISearchAction {
@@ -50,6 +53,7 @@ export interface ISearchAction {
   toggleShowHighlights: () => void;
   setQueryAddition: (queryAddition: string) => void;
   setClearQueryFlag: (clearQueryFlag: boolean) => void;
+  setSearchStatus: (status: SearchStatus) => void;
 }
 
 export const searchSlice: StoreSlice<ISearchState & ISearchAction> = (set) => ({
@@ -63,6 +67,7 @@ export const searchSlice: StoreSlice<ISearchState & ISearchAction> = (set) => ({
   showHighlights: false,
   queryAddition: null,
   clearQueryFlag: false,
+  searchStatus: 'idle' as SearchStatus,
 
   setNumPerPage: (numPerPage: NumPerPageType) =>
     set(
@@ -86,4 +91,5 @@ export const searchSlice: StoreSlice<ISearchState & ISearchAction> = (set) => ({
     set(({ showHighlights }) => ({ showHighlights: !showHighlights }), false, 'search/toggleShowHighlights'),
   setQueryAddition: (queryAddition: string) => set(() => ({ queryAddition }), false, 'search/setQueryAddition'),
   setClearQueryFlag: (clearQueryFlag: boolean) => set(() => ({ clearQueryFlag }), false, 'search/setClearQueryFlag'),
+  setSearchStatus: (searchStatus: SearchStatus) => set(() => ({ searchStatus }), false, 'search/setSearchStatus'),
 });
