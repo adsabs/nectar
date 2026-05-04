@@ -35,7 +35,7 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
-import { FormEventHandler, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEventHandler, RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useIsClient } from '@/lib/useIsClient';
 import { useScrollRestoration } from '@/lib/useScrollRestoration';
 import { LocalSettings, NumPerPageType } from '@/types';
@@ -97,6 +97,7 @@ const useSearchPageStore = () =>
       setNumPerPage: state.setNumPerPage,
       setDocs: state.setDocs,
       clearAllSelected: state.clearAllSelected,
+      setSearchStatus: state.setSearchStatus,
     }),
     shallow,
   );
@@ -138,6 +139,7 @@ const SearchPage: NextPage = () => {
     setNumPerPage,
     setDocs,
     clearAllSelected: clearSelectedDocs,
+    setSearchStatus,
   } = useSearchPageStore();
 
   const { settings } = useSettings({ suspense: false });
@@ -254,16 +256,31 @@ const SearchPage: NextPage = () => {
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
-  // Update the store when we have data
-  useEffect(() => {
-    if (data?.response.docs.length > 0) {
-      setDocs(data.response.docs.map((d) => d.bibcode));
+  // Drive searchStatus and store state based on the main search result.
+  // useLayoutEffect (not useEffect) fires before paint, so facets start
+  // loading in the same frame the results render — no extra paint cycle delay.
+  // Uses isLoading (not isFetching) to avoid disabling facets during
+  // background refetches of the same query.
+  useLayoutEffect(() => {
+    if (isLoading) {
+      setSearchStatus('loading');
+      return;
+    }
+    if (isError) {
+      setSearchStatus('error');
+      return;
+    }
+    if (isSuccess) {
+      if (data.response.numFound === 0) {
+        setSearchStatus('empty');
+      } else {
+        setDocs(data.response.docs.map((d) => d.bibcode));
+        setSearchStatus('success');
+      }
       setQuery(searchParams);
       submitQuery();
     }
-    // Note: setDocs, setQuery, submitQuery are stable Zustand actions
-    // searchParams is derived from router, changes trigger new data fetch
-  }, [data, setDocs, setQuery, submitQuery, searchParams]);
+  }, [data, isSuccess, isLoading, isError, setDocs, setQuery, submitQuery, setSearchStatus, searchParams]);
 
   // Memoized retry handler for error alert
   const handleRetry = useCallback(() => {

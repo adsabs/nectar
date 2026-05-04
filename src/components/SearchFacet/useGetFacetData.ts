@@ -36,6 +36,7 @@ const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.l
 
 export const useGetFacetData = (props: IUseGetFacetDataProps) => {
   const searchQuery = useStore(querySelector);
+  const searchStatus = useStore((state: AppState) => state.searchStatus);
   const {
     field,
     query = '',
@@ -59,7 +60,7 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     setPagination(calculatePagination({ page: 0, numPerPage: FACET_DEFAULT_LIMIT }));
   }, [prefix, searchTerm, sortDir]);
 
-  const isQueryEnabled = enabled && isNonEmptyString(searchQuery?.q?.trim());
+  const isQueryEnabled = enabled && searchStatus === 'success';
 
   // fetch the data
   const { data, ...result } = useGetSearchFacetJSON(
@@ -83,12 +84,12 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     },
     {
       enabled: isQueryEnabled,
-      keepPreviousData: true,
     },
   );
 
   const res = data?.[field];
-  const treeData = useMemo(() => formatTreeData(res?.buckets ?? []), [res?.buckets]);
+  const rawTreeData = useMemo(() => formatTreeData(res?.buckets ?? []), [res?.buckets]);
+  const treeData = searchStatus === 'success' ? rawTreeData : ([] as FacetItem[]);
 
   const identifiers = useMemo(
     () =>
@@ -160,12 +161,12 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
 
   return {
     treeData: enhancedTreeData,
-    totalResults: res?.numBuckets ?? 0,
+    totalResults: searchStatus === 'success' ? res?.numBuckets ?? 0 : 0,
     pagination: pagination,
     handlePrevious,
     handleLoadMore,
     handlePageChange,
-    canLoadMore: res?.numBuckets !== treeData?.length,
+    canLoadMore: searchStatus === 'success' && res?.numBuckets !== treeData?.length,
     ...result,
     isLoading: (isQueryEnabled && result.isLoading) || (hasIdentifiers && isLoading),
     isFetching: result.isFetching || (hasIdentifiers && isFetching),
