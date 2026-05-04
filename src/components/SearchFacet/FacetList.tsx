@@ -28,7 +28,6 @@ import {
   PopoverCloseButton,
   PopoverContent,
   PopoverHeader,
-  Skeleton,
   Spinner,
   Stack,
   Text,
@@ -122,7 +121,7 @@ export const NodeList = memo(
     const updateModal = useFacetStore(selectors.updateModal);
     const depth = getLevelFromKey(prefix) + 1;
     const expandable = params.hasChildren && (level === 'root' || params.maxDepth > depth);
-    const { treeData, isFetching, isLoading, isError } = useGetFacetData({
+    const { treeData, isFetching, isLoading, isSearchLoading, isError } = useGetFacetData({
       ...params,
       prefix,
       level,
@@ -158,10 +157,10 @@ export const NodeList = memo(
       );
     }
 
-    if (isFetching || isLoading) {
+    if (isFetching || isLoading || isSearchLoading) {
       return (
-        <Center data-testid="search-facet-loading">
-          <Spinner size="sm" />
+        <Center py="4" data-testid="search-facet-loading">
+          <Spinner size="sm" color="gray.400" />
         </Center>
       );
     } else if (treeData?.length === 0) {
@@ -298,6 +297,7 @@ export const NodeListModal = (props: INodeListProps) => {
     treeData,
     isFetching,
     isLoading,
+    isSearchLoading,
     isError,
     pagination,
     handleLoadMore,
@@ -313,20 +313,11 @@ export const NodeListModal = (props: INodeListProps) => {
     sortDir,
   });
 
-  if (isFetching || isLoading) {
+  if (isFetching || isLoading || isSearchLoading) {
     return (
-      <Stack spacing="2" data-testid="search-facet-loading">
-        <Skeleton h="24px" />
-        <Skeleton h="24px" />
-        <Skeleton h="24px" />
-        <Skeleton h="24px" />
-        <Skeleton h="24px" />
-        <Skeleton h="24px" />
-        <Skeleton h="24px" />
-        <Skeleton h="24px" />
-        <Skeleton h="24px" />
-        <Skeleton h="24px" />
-      </Stack>
+      <Center py="4" data-testid="search-facet-loading">
+        <Spinner size="sm" color="gray.400" />
+      </Center>
     );
   } else if (isEmpty(treeData)) {
     return (
