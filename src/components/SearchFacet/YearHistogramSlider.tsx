@@ -44,13 +44,13 @@ const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHi
   });
 
   const histogramData = useMemo(() => {
-    if (data) {
+    if (searchStatus === 'success' && data) {
       return getYearsGraph(data).data.map((d) => ({
         x: d.year,
         y: d.notrefereed + d.refereed,
       }));
     }
-  }, [data]);
+  }, [searchStatus, data]);
 
   // Selected range
   // - If the query has range fq, set range to that
