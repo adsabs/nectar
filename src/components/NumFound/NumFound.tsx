@@ -17,6 +17,7 @@ const sanitizeNum = (num: number): string => {
 
 export const NumFound = (props: INumFoundProps): ReactElement => {
   const { count = 0, isLoading } = props;
+  const searchStatus = useStore((state) => state.searchStatus);
 
   if (isLoading) {
     return (
@@ -35,7 +36,7 @@ export const NumFound = (props: INumFoundProps): ReactElement => {
         <Text as="span" fontWeight="bold">
           {countString}
         </Text>{' '}
-        results <SortStats />
+        results {searchStatus === 'success' ? <SortStats /> : null}
       </Text>
     </Box>
   );
