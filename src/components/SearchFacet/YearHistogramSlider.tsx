@@ -19,12 +19,21 @@ export interface IYearHistogramSliderProps {
   onQueryUpdate: ISearchFacetProps['onQueryUpdate'];
   expanded?: boolean;
   onExpand?: () => void;
+  showExpand?: boolean;
   width: number;
   height: number;
 }
 
-const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHistogramSliderProps) => {
+const Component = ({
+  onQueryUpdate,
+  width,
+  height,
+  onExpand,
+  expanded,
+  showExpand = true,
+}: IYearHistogramSliderProps) => {
   const query = useStore((state) => state.latestQuery);
+  const searchStatus = useStore((state) => state.searchStatus);
 
   // query without the year range filter, to show all years on the histogram
   const cleanedQuery = useMemo(() => {
@@ -38,18 +47,18 @@ const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHi
   }, [query]);
 
   const { data } = useGetSearchFacetCounts(getSearchFacetYearsParams(cleanedQuery), {
-    enabled: !!cleanedQuery && cleanedQuery.q.trim().length > 0,
+    enabled: searchStatus === 'success' && !!cleanedQuery && cleanedQuery.q.trim().length > 0,
     suspense: true,
   });
 
   const histogramData = useMemo(() => {
-    if (data) {
+    if (searchStatus === 'success' && data) {
       return getYearsGraph(data).data.map((d) => ({
         x: d.year,
         y: d.notrefereed + d.refereed,
       }));
     }
-  }, [data]);
+  }, [searchStatus, data]);
 
   // Selected range
   // - If the query has range fq, set range to that
@@ -79,24 +88,28 @@ const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHi
           Year Histogram
         </Heading>
       </VisuallyHidden>
-      <IconButton
-        aria-label="expand"
-        position="absolute"
-        size="xs"
-        icon={<Icon as={expanded ? ArrowsInIcon : ArrowsOutIcon} fontSize="xl" />}
-        top={0}
-        left={0}
-        colorScheme="gray"
-        variant="outline"
-        onClick={onExpand}
-      />
+      {showExpand && (
+        <IconButton
+          aria-label="expand"
+          position="absolute"
+          size="xs"
+          icon={<Icon as={expanded ? ArrowsInIcon : ArrowsOutIcon} fontSize="xl" />}
+          top={0}
+          left={0}
+          colorScheme="gray"
+          variant="outline"
+          onClick={onExpand}
+        />
+      )}
       <Center>
         <Text fontWeight="semibold" fontSize="sm">
           Year(s)
         </Text>
       </Center>
-      <Flex justifyContent="center">
-        {histogramData && selectedRange && (
+      <Flex justifyContent="center" overflow="visible">
+        {searchStatus === 'loading' ? (
+          <HistogramSliderLoader />
+        ) : histogramData && selectedRange ? (
           <Box height="170" position="relative" mt={5}>
             <HistogramSlider
               data={histogramData}
@@ -106,6 +119,12 @@ const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHi
               onValuesChanged={handleApply}
             />
           </Box>
+        ) : (
+          <Flex height="170" mt={5} alignItems="center" justifyContent="center">
+            <Text fontSize="sm" color="gray.400">
+              No data
+            </Text>
+          </Flex>
         )}
       </Flex>
     </Box>

@@ -35,7 +35,7 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
-import { FormEventHandler, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEventHandler, RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useIsClient } from '@/lib/useIsClient';
 import { useScrollRestoration } from '@/lib/useScrollRestoration';
 import { LocalSettings, NumPerPageType } from '@/types';
@@ -82,6 +82,10 @@ const SearchFacets = dynamic<ISearchFacetsProps>(
   { ssr: false },
 );
 
+// useLayoutEffect triggers an SSR warning on server-rendered pages; use
+// useEffect on the server where layout effects are a no-op anyway.
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
 /**
  * Consolidated selector for search page store values
  * Using shallow comparison to prevent unnecessary re-renders
@@ -97,6 +101,7 @@ const useSearchPageStore = () =>
       setNumPerPage: state.setNumPerPage,
       setDocs: state.setDocs,
       clearAllSelected: state.clearAllSelected,
+      setSearchStatus: state.setSearchStatus,
     }),
     shallow,
   );
@@ -138,6 +143,7 @@ const SearchPage: NextPage = () => {
     setNumPerPage,
     setDocs,
     clearAllSelected: clearSelectedDocs,
+    setSearchStatus,
   } = useSearchPageStore();
 
   const { settings } = useSettings({ suspense: false });
@@ -254,16 +260,32 @@ const SearchPage: NextPage = () => {
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
-  // Update the store when we have data
-  useEffect(() => {
-    if (data?.response.docs.length > 0) {
-      setDocs(data.response.docs.map((d) => d.bibcode));
-      setQuery(searchParams);
-      submitQuery();
+  // Drive searchStatus and store state based on the main search result.
+  // useIsomorphicLayoutEffect fires before paint on the client (so facets start
+  // loading in the same frame results render), but falls back to useEffect on
+  // the server to avoid the SSR warning React emits for useLayoutEffect.
+  // Uses isLoading (not isFetching) to avoid disabling facets during
+  // background refetches of the same query.
+  useIsomorphicLayoutEffect(() => {
+    if (isLoading) {
+      setSearchStatus('loading');
+      return;
     }
-    // Note: setDocs, setQuery, submitQuery are stable Zustand actions
-    // searchParams is derived from router, changes trigger new data fetch
-  }, [data, setDocs, setQuery, submitQuery, searchParams]);
+    if (isError) {
+      setSearchStatus('error');
+      return;
+    }
+    if (isSuccess) {
+      if (data.response.numFound === 0) {
+        setSearchStatus('empty');
+      } else {
+        setDocs(data.response.docs.map((d) => d.bibcode));
+        setQuery(searchParams);
+        submitQuery();
+        setSearchStatus('success');
+      }
+    }
+  }, [data, isSuccess, isLoading, isError, setDocs, setQuery, submitQuery, setSearchStatus, searchParams]);
 
   // Memoized retry handler for error alert
   const handleRetry = useCallback(() => {
@@ -454,6 +476,14 @@ const SearchFacetFilters = (props: {
           <DrawerOverlay />
           <DrawerContent>
             <DrawerBody>
+              <Box px={4} overflow="visible">
+                <YearHistogramSlider
+                  onQueryUpdate={onSearchFacetSubmission}
+                  showExpand={false}
+                  width={240}
+                  height={100}
+                />
+              </Box>
               <SearchFacets onQueryUpdate={onSearchFacetSubmission} />
             </DrawerBody>
           </DrawerContent>

@@ -1,4 +1,4 @@
-import { AppState, StoreProvider, useCreateStore } from '@/store';
+import { AppState, StoreProvider, createStore } from '@/store';
 import { render, renderHook, RenderOptions } from '@testing-library/react';
 import { MockedRequest } from 'msw';
 import { SetupServerApi } from 'msw/node';
@@ -47,21 +47,26 @@ interface IProviderOptions {
   storePreset?: 'orcid-authenticated';
 }
 
-export const DefaultProviders = ({ children, options }: {
-  children: ReactElement | ReactNode,
-  options: IProviderOptions
+export const DefaultProviders = ({
+  children,
+  options,
+}: {
+  children: ReactElement | ReactNode;
+  options: IProviderOptions;
 }) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, cacheTime: 0, staleTime: 0 } } });
 
-  const store = isObject(options?.initialStore) ?
-    options.initialStore :
-    options?.storePreset ? getStateFromPreset(options.storePreset) : {};
+  const store = isObject(options?.initialStore)
+    ? options.initialStore
+    : options?.storePreset
+    ? getStateFromPreset(options.storePreset)
+    : {};
 
   return (
     <ThemeProvider theme={theme}>
       <MathJaxProvider>
         <QueryClientProvider client={queryClient}>
-          <StoreProvider createStore={useCreateStore(store)}>
+          <StoreProvider createStore={() => createStore(store)}>
             <Container maxW="container.lg">
               {children}
               <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
@@ -86,8 +91,11 @@ const getStateFromPreset = (preset: IProviderOptions['storePreset']): Partial<Ap
   }
 };
 
-const renderComponent = (ui: ReactElement, providerOptions?: IProviderOptions,
-  options?: Omit<RenderOptions, 'wrapper'>) => {
+const renderComponent = (
+  ui: ReactElement,
+  providerOptions?: IProviderOptions,
+  options?: Omit<RenderOptions, 'wrapper'>,
+) => {
   const result = render(ui, {
     wrapper: ({ children }) => <DefaultProviders options={providerOptions}>{children}</DefaultProviders>,
     ...options,
@@ -96,8 +104,11 @@ const renderComponent = (ui: ReactElement, providerOptions?: IProviderOptions,
   return { user, ...result };
 };
 
-const renderHookComponent = <T extends AnyFunction, TResult = ReturnType<T>, TProps = Parameters<T>>(hook: Parameters<typeof renderHook<TResult, TProps>>[0],
-  providerOptions?: IProviderOptions, options?: Omit<Parameters<typeof renderHook<TResult, TProps>>[1], 'wrapper'>) => {
+const renderHookComponent = <T extends AnyFunction, TResult = ReturnType<T>, TProps = Parameters<T>>(
+  hook: Parameters<typeof renderHook<TResult, TProps>>[0],
+  providerOptions?: IProviderOptions,
+  options?: Omit<Parameters<typeof renderHook<TResult, TProps>>[1], 'wrapper'>,
+) => {
   return renderHook<TResult, TProps>(hook, {
     wrapper: ({ children }) => <DefaultProviders options={providerOptions}>{children}</DefaultProviders>,
     ...options,

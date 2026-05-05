@@ -35,7 +35,7 @@ import { join, last, map, pipe, pluck, split } from 'ramda';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { FacetItem, FacetLogic } from '../types';
 
-interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError'> {
+interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError' | 'children'> {
   children: (props: { searchTerm: string }) => ReactNode;
 }
 
