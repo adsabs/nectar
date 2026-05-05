@@ -25,6 +25,7 @@ export interface IYearHistogramSliderProps {
 
 const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHistogramSliderProps) => {
   const query = useStore((state) => state.latestQuery);
+  const searchStatus = useStore((state) => state.searchStatus);
 
   // query without the year range filter, to show all years on the histogram
   const cleanedQuery = useMemo(() => {
@@ -38,7 +39,7 @@ const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHi
   }, [query]);
 
   const { data } = useGetSearchFacetCounts(getSearchFacetYearsParams(cleanedQuery), {
-    enabled: !!cleanedQuery && cleanedQuery.q.trim().length > 0,
+    enabled: searchStatus === 'success' && !!cleanedQuery && cleanedQuery.q.trim().length > 0,
     suspense: true,
   });
 
