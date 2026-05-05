@@ -82,6 +82,10 @@ const SearchFacets = dynamic<ISearchFacetsProps>(
   { ssr: false },
 );
 
+// useLayoutEffect triggers an SSR warning on server-rendered pages; use
+// useEffect on the server where layout effects are a no-op anyway.
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
 /**
  * Consolidated selector for search page store values
  * Using shallow comparison to prevent unnecessary re-renders
@@ -257,11 +261,12 @@ const SearchPage: NextPage = () => {
   };
 
   // Drive searchStatus and store state based on the main search result.
-  // useLayoutEffect (not useEffect) fires before paint, so facets start
-  // loading in the same frame the results render — no extra paint cycle delay.
+  // useIsomorphicLayoutEffect fires before paint on the client (so facets start
+  // loading in the same frame results render), but falls back to useEffect on
+  // the server to avoid the SSR warning React emits for useLayoutEffect.
   // Uses isLoading (not isFetching) to avoid disabling facets during
   // background refetches of the same query.
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (isLoading) {
       setSearchStatus('loading');
       return;
@@ -275,10 +280,10 @@ const SearchPage: NextPage = () => {
         setSearchStatus('empty');
       } else {
         setDocs(data.response.docs.map((d) => d.bibcode));
+        setQuery(searchParams);
+        submitQuery();
         setSearchStatus('success');
       }
-      setQuery(searchParams);
-      submitQuery();
     }
   }, [data, isSuccess, isLoading, isError, setDocs, setQuery, submitQuery, setSearchStatus, searchParams]);
 
