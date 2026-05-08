@@ -34,7 +34,7 @@ import {
   when,
 } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
-import { FacetLogic, OnFilterArgs } from './types';
+import { FacetItem, FacetLogic, OnFilterArgs } from './types';
 import { isString } from '@/utils/common/guards';
 import { FacetField, IADSApiSearchParams } from '@/api/search/types';
 import { OBJECTS_API_KEYS } from '@/api/objects/objects';
@@ -248,6 +248,23 @@ export const getFilters = (query: IADSApiSearchParams): FilterTuple[] =>
       getKeyAlias(k),
     ]),
   )(query);
+
+/**
+ * Formats a list of facet items as a CSV string with Label and Count columns.
+ * Labels containing commas or quotes are properly escaped per RFC 4180.
+ *
+ * @example
+ * formatFacetCSV([{ val: '0/Smith, J', count: 42, ... }])
+ * // => "Label,Count\n\"Smith, J\",42"
+ */
+export const formatFacetCSV = (items: FacetItem[]): string => {
+  const rows = items.map((item) => {
+    const label = (parseTitleFromKey(item.val) as string) ?? '';
+    const escaped = label.replace(/"/g, '""');
+    return `"${escaped}",${item.count}`;
+  });
+  return ['Label,Count', ...rows].join('\n');
+};
 
 // get object name from react query cache
 export const getObjectName = (id: string, queryClient: QueryClient) => {

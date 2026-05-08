@@ -31,9 +31,9 @@ import { SelectedList } from './SelectedList';
 import { useDebounce } from '@/lib/useDebounce';
 import { FACET_DEFAULT_PREFIX, useGetFacetData } from '../useGetFacetData';
 import { useDownloadFile } from '@/lib/useDownloadFile';
-import { join, last, map, pipe, pluck, split } from 'ramda';
 import { parseAPIError } from '@/utils/common/parseAPIError';
-import { FacetItem, FacetLogic } from '../types';
+import { formatFacetCSV } from '../helpers';
+import { FacetLogic } from '../types';
 
 interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError'> {
   children: (props: { searchTerm: string }) => ReactNode;
@@ -199,16 +199,8 @@ const FacetDownloadButton = () => {
     enabled,
   });
 
-  const formatData = useCallback(
-    () =>
-      pipe<[FacetItem[]], string[], string[], string>(
-        pluck('val'),
-        map((s: string) => last(split('/', s)) ?? ''),
-        join('\n'),
-      )(treeData),
-    [treeData],
-  );
-  const { onDownload } = useDownloadFile(formatData, { filename: 'fulllist.txt' });
+  const formatData = useCallback(() => formatFacetCSV(treeData), [treeData]);
+  const { onDownload } = useDownloadFile(formatData, { filename: 'fulllist.csv', type: 'CSV' });
 
   useEffect(() => {
     if (enabled && !isFetching && isSuccess) {
