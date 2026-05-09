@@ -45,6 +45,16 @@ describe('formatFacetCSV', () => {
     expect(result).toBe('Label,Count\n"astronomy",100');
   });
 
+  it('handles a key with an empty last segment (e.g. "0/")', () => {
+    const result = formatFacetCSV([item('0/', 5)]);
+    expect(result).toBe('Label,Count\n"",5');
+  });
+
+  it('handles an empty string key', () => {
+    const result = formatFacetCSV([item('', 0)]);
+    expect(result).toBe('Label,Count\n"",0');
+  });
+
   it('produces one row per item', () => {
     const items = [item('0/Alpha', 3), item('0/Beta', 7), item('0/Gamma', 1)];
     const lines = formatFacetCSV(items).split('\n');
