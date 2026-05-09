@@ -251,7 +251,8 @@ export const getFilters = (query: IADSApiSearchParams): FilterTuple[] =>
 
 /**
  * Formats a list of facet items as a CSV string with Label and Count columns.
- * Labels containing commas or quotes are properly escaped per RFC 4180.
+ * Labels are always double-quoted; embedded double-quotes are doubled.
+ * Uses LF line endings (consistent with other CSV exports in this codebase).
  *
  * @example
  * formatFacetCSV([{ val: '0/Smith, J', count: 42, ... }])
