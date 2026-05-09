@@ -24,7 +24,7 @@ export const useDownloadFile = (value: string | (() => string), options: IUseDow
   const href = useMemo(() => {
     const content = typeof value === 'function' ? [value()] : [value];
     if (typeof window !== 'undefined' && isNonEmptyString(content[0])) {
-      const blob = new window.Blob(content, { type });
+      const blob = new window.Blob(content, { type: meta[0] });
       return window.URL.createObjectURL(blob);
     }
     return '';
