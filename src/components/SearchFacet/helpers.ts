@@ -259,7 +259,7 @@ export const getFilters = (query: IADSApiSearchParams): FilterTuple[] =>
  */
 export const formatFacetCSV = (items: FacetItem[]): string => {
   const rows = items.map((item) => {
-    const label = (parseTitleFromKey(item.val) as string) ?? '';
+    const label = parseTitleFromKey(item.val) as string;
     const escaped = label.replace(/"/g, '""');
     return `"${escaped}",${item.count}`;
   });
