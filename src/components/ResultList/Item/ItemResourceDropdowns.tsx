@@ -167,89 +167,99 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
       {/* orcid menu */}
       <SimpleAction doc={doc} />
       {/* full resources menu */}
-      <Tooltip label="Full text sources" shouldWrapChildren isDisabled={isFullTextOpen}>
-        <Menu variant="compact" onOpen={() => setIsFullTextOpen(true)} onClose={() => setIsFullTextOpen(false)}>
-          <MenuButton
-            as={IconButton}
-            aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
-            icon={<DocumentTextIcon width="20px" height="20px" />}
-            isDisabled={fullSourceItems.length === 0}
-            variant="link"
-            size="sm"
-          />
-          {fullSourceItems.length > 0 && (
-            <MenuList>
-              {fullSourceItems.map((item) => (
-                <MenuItem key={item.id} data-id={item.id} onClick={handleResourceClick}>
-                  {item.label}
-                </MenuItem>
-              ))}
-            </MenuList>
-          )}
-        </Menu>
-      </Tooltip>
+
+      <Menu variant="compact" onOpen={() => setIsFullTextOpen(true)} onClose={() => setIsFullTextOpen(false)}>
+        <MenuButton
+          as={IconButton}
+          aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
+          icon={
+            <Tooltip label="Full text sources" isDisabled={isFullTextOpen}>
+              <DocumentTextIcon width="20px" height="20px" />
+            </Tooltip>
+          }
+          isDisabled={fullSourceItems.length === 0}
+          variant="link"
+          size="sm"
+        />
+        {fullSourceItems.length > 0 && (
+          <MenuList>
+            {fullSourceItems.map((item) => (
+              <MenuItem key={item.id} data-id={item.id} onClick={handleResourceClick}>
+                {item.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        )}
+      </Menu>
 
       {/* reference and citation items menu */}
-      <Tooltip label="References and citations" shouldWrapChildren isDisabled={isRefsOpen}>
-        <Menu variant="compact" onOpen={() => setIsRefsOpen(true)} onClose={() => setIsRefsOpen(false)}>
-          <MenuButton
-            as={IconButton}
-            aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
-            icon={<Bars4Icon width="20px" height="20" />}
-            isDisabled={referenceItems.length === 0}
-            variant="link"
-            size="sm"
-          />
-          {referenceItems.length > 0 && (
-            <MenuList>
-              {referenceItems.map((item) => (
-                <MenuItem key={item.id} data-id={item.id} onClick={handleReferenceClick}>
-                  {item.label}
-                </MenuItem>
-              ))}
-            </MenuList>
-          )}
-        </Menu>
-      </Tooltip>
+      <Menu variant="compact" onOpen={() => setIsRefsOpen(true)} onClose={() => setIsRefsOpen(false)}>
+        <MenuButton
+          as={IconButton}
+          aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
+          icon={
+            <Tooltip label="References and citations" isDisabled={isRefsOpen}>
+              <Bars4Icon width="20px" height="20" />
+            </Tooltip>
+          }
+          isDisabled={referenceItems.length === 0}
+          variant="link"
+          size="sm"
+        />
+        {referenceItems.length > 0 && (
+          <MenuList>
+            {referenceItems.map((item) => (
+              <MenuItem key={item.id} data-id={item.id} onClick={handleReferenceClick}>
+                {item.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        )}
+      </Menu>
 
       {/* data product items menu */}
-      <Tooltip label="Data products" shouldWrapChildren isDisabled={isDataOpen}>
-        <Menu variant="compact" onOpen={() => setIsDataOpen(true)} onClose={() => setIsDataOpen(false)}>
-          <MenuButton
-            as={IconButton}
-            aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
-            icon={<CircleStackIcon width="20px" height="20px" />}
-            isDisabled={dataProductItems.length === 0}
-            variant="link"
-            size="sm"
-          />
-          {dataProductItems.length > 0 && (
-            <MenuList>
-              {dataProductItems.map((item) => (
-                <MenuItem key={item.id} data-id={item.id} onClick={handleDataProductClick}>
-                  {item.label}
-                </MenuItem>
-              ))}
-            </MenuList>
-          )}
-        </Menu>
-      </Tooltip>
-      {/* share menu */}
-      <Tooltip label="Share options" shouldWrapChildren isDisabled={isShareOpen}>
-        <Menu variant="compact" isOpen={isShareOpen} onOpen={onShareOpen} onClose={onShareClose}>
-          <MenuButton
-            as={IconButton}
-            aria-label="share options"
-            icon={<ShareIcon width="20px" height="20px" />}
-            variant="link"
-            size="sm"
-          />
+      <Menu variant="compact" onOpen={() => setIsDataOpen(true)} onClose={() => setIsDataOpen(false)}>
+        <MenuButton
+          as={IconButton}
+          aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
+          icon={
+            <Tooltip label="Data products" isDisabled={isDataOpen}>
+              <CircleStackIcon width="20px" height="20px" />
+            </Tooltip>
+          }
+          isDisabled={dataProductItems.length === 0}
+          variant="link"
+          size="sm"
+        />
+        {dataProductItems.length > 0 && (
           <MenuList>
-            <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
-            <CopyMenuItem text={citation} onCopyComplete={handleCitationCopied} label="Copy Citation" asHtml />
+            {dataProductItems.map((item) => (
+              <MenuItem key={item.id} data-id={item.id} onClick={handleDataProductClick}>
+                {item.label}
+              </MenuItem>
+            ))}
           </MenuList>
-        </Menu>
-      </Tooltip>
+        )}
+      </Menu>
+
+      {/* share menu */}
+      <Menu variant="compact" isOpen={isShareOpen} onOpen={onShareOpen} onClose={onShareClose}>
+        <MenuButton
+          as={IconButton}
+          aria-label="share options"
+          icon={
+            <Tooltip label="Share options" isDisabled={isShareOpen}>
+              <ShareIcon width="20px" height="20px" />
+            </Tooltip>
+          }
+          variant="link"
+          size="sm"
+        />
+        <MenuList>
+          <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
+          <CopyMenuItem text={citation} onCopyComplete={handleCitationCopied} label="Copy Citation" asHtml />
+        </MenuList>
+      </Menu>
     </Flex>
   );
 };
