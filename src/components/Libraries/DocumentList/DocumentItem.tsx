@@ -118,28 +118,30 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
           <SimpleLink href={`/abs/${encodedCanonicalID}/abstract`} fontWeight="semibold">
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
-          <Flex alignItems="start" ml={1}>
-            <Tooltip label={isOpen ? 'Hide annotation' : 'Show annotation'}>
+          {!isClient || hideResources ? null : (
+            <Flex alignItems="start" ml={1}>
+              <ItemResourceDropdowns doc={doc} defaultCitation={defaultCitation} />
               <IconButton
                 aria-label={isOpen ? 'Hide annotation' : 'Show annotation'}
                 aria-expanded={isOpen}
                 icon={
-                  <HStack spacing="1px" align="center">
-                    <PencilSquareIcon width="18px" height="18px" />
-                    <ChevronDownIcon
-                      boxSize="14px"
-                      transform={isOpen ? 'rotate(180deg)' : 'rotate(0deg)'}
-                      transition="transform 0.2s ease"
-                    />
-                  </HStack>
+                  <Tooltip label={isOpen ? 'Hide annotation' : 'Show annotation'}>
+                    <HStack spacing="1px" align="center" mx="6px" my="2px">
+                      <PencilSquareIcon width="20px" height="20px" />
+                      <ChevronDownIcon
+                        boxSize="14px"
+                        transform={isOpen ? 'rotate(180deg)' : 'rotate(0deg)'}
+                        transition="transform 0.2s ease"
+                      />
+                    </HStack>
+                  </Tooltip>
                 }
                 variant="link"
-                size="xs"
+                size="sm"
                 onClick={onToggle}
               />
-            </Tooltip>
-            {!isClient || hideResources ? null : <ItemResourceDropdowns doc={doc} defaultCitation={defaultCitation} />}
-          </Flex>
+            </Flex>
+          )}
         </Flex>
         <Flex direction="column">
           <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} maxAuthors={maxAuthors} />
