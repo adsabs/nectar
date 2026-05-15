@@ -121,11 +121,11 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
           {!isClient || hideResources ? null : (
             <Flex alignItems="start" ml={1}>
               <ItemResourceDropdowns doc={doc} defaultCitation={defaultCitation} />
-              <IconButton
-                aria-label={isOpen ? 'Hide annotation' : 'Show annotation'}
-                aria-expanded={isOpen}
-                icon={
-                  <Tooltip label={isOpen ? 'Hide annotation' : 'Show annotation'}>
+              <Tooltip label={isOpen ? 'Hide annotation' : 'Show annotation'}>
+                <IconButton
+                  aria-label={isOpen ? 'Hide annotation' : 'Show annotation'}
+                  aria-expanded={isOpen}
+                  icon={
                     <HStack spacing="1px" align="center" mx="6px" my="2px">
                       <PencilSquareIcon width="20px" height="20px" />
                       <ChevronDownIcon
@@ -134,12 +134,12 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
                         transition="transform 0.2s ease"
                       />
                     </HStack>
-                  </Tooltip>
-                }
-                variant="link"
-                size="sm"
-                onClick={onToggle}
-              />
+                  }
+                  variant="link"
+                  size="sm"
+                  onClick={onToggle}
+                />
+              </Tooltip>
             </Flex>
           )}
         </Flex>
