@@ -101,14 +101,12 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
       id: `fullText-${source.name}`,
       name: source.name,
       isOpen: source.open,
-      newTab: true,
     }));
 
     dataProductItems = dataProducts.map((dp) => ({
       label: dp.name,
       path: dp.url,
       id: `dataProd-${dp.name}`,
-      newTab: true,
     }));
   }
 

@@ -3,8 +3,8 @@ import { useEffect, useRef } from 'react';
 
 import { PERF_SPANS } from '@/lib/performance';
 
-// Tracks export generation as a user.flow span: opens on 'fetching', closes when data arrives.
-export function useExportSpan(isFetching: boolean, format: string, data: unknown): void {
+// Tracks export generation as a user.flow span: opens on 'fetching', closes when data arrives or on error/unmount.
+export function useExportSpan(isFetching: boolean, format: string, data: unknown, isError?: boolean): void {
   const spanRef = useRef<ReturnType<typeof Sentry.startInactiveSpan> | null>(null);
 
   useEffect(() => {
@@ -33,4 +33,24 @@ export function useExportSpan(isFetching: boolean, format: string, data: unknown
       spanRef.current = null;
     } catch {}
   }, [data]);
+
+  useEffect(() => {
+    if (!isError || !spanRef.current) {
+      return;
+    }
+    try {
+      spanRef.current.setStatus({ code: 2 });
+      spanRef.current.end();
+      spanRef.current = null;
+    } catch {}
+  }, [isError]);
+
+  useEffect(() => {
+    return () => {
+      try {
+        spanRef.current?.end();
+        spanRef.current = null;
+      } catch {}
+    };
+  }, []);
 }
