@@ -123,7 +123,7 @@ export const useCitationExporter = ({
     retry: false,
   });
 
-  useExportSpan(state.matches('fetching'), params.format, result.data);
+  useExportSpan(state.matches('fetching'), params.format, result.data, result.isError);
 
   useEffect(() => {
     if (result.data) {

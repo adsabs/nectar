@@ -100,6 +100,7 @@ const Register: NextPage = () => {
         });
         submit({ ...params, recaptcha: await executeRecaptcha('register') });
       } catch (e) {
+        registerSpanRef.current?.setStatus({ code: 2 });
         registerSpanRef.current?.end();
         registerSpanRef.current = null;
         setFormError(e as Error);
