@@ -262,7 +262,7 @@ const addWorks: MutationFunction<IOrcidResponse['addWorks'], IOrcidMutationParam
     },
   };
 
-  const { data } = await trackUserFlow(PERF_SPANS.ORCID_CLAIM_TOTAL, () =>
+  const data = await trackUserFlow(PERF_SPANS.ORCID_CLAIM_TOTAL, () =>
     api.request<{ bulk?: { work?: IOrcidWork; error?: OrcidErrorResponse }[] }>(addWorksConfig).then((r) => r.data),
   );
 
