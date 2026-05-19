@@ -128,6 +128,7 @@ export const NodeList = memo(
       sortDir: 'desc',
       sortField: 'count',
     });
+    const colors = useColorModeColors();
 
     useEffect(() => {
       if (isError && typeof onError === 'function') {
@@ -160,7 +161,7 @@ export const NodeList = memo(
     if (isFetching || isLoading || isSearchLoading) {
       return (
         <Center py="4" data-testid="search-facet-loading">
-          <Spinner size="sm" color="gray.400" />
+          <Spinner size="sm" color={colors.disabledText} />
         </Center>
       );
     } else if (treeData?.length === 0) {
@@ -312,11 +313,12 @@ export const NodeListModal = (props: INodeListProps) => {
     sortField,
     sortDir,
   });
+  const colors = useColorModeColors();
 
   if (isFetching || isLoading || isSearchLoading) {
     return (
       <Center py="4" data-testid="search-facet-loading">
-        <Spinner size="sm" color="gray.400" />
+        <Spinner size="sm" color={colors.disabledText} />
       </Center>
     );
   } else if (isEmpty(treeData)) {
