@@ -41,8 +41,10 @@ const HistoricalLitPage: NextPage = () => {
 
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  const createQParam = (bibstem: string, volume: string) => {
-    return `${encodeURIComponent(`bibstem:${bibstem}`)}+${encodeURIComponent(`volume:${volume}`)}`;
+  const createQParam = (bibstem: string, volume?: string) => {
+    return !!volume
+      ? `${encodeURIComponent(`bibstem:${bibstem}`)}+${encodeURIComponent(`volume:${volume}`)}`
+      : encodeURIComponent(`bibstem:${bibstem}`);
   };
 
   const startRow = useMemo(() => {
@@ -88,19 +90,32 @@ const HistoricalLitPage: NextPage = () => {
           <AccordionIcon />
         </AccordionButton>
         <AccordionPanel>
+          <SimpleLink href="" newTab>
+            View Bibstem in Journals Database
+          </SimpleLink>
           <Flex gap={2} flexWrap="wrap">
+            <Card key={`card-all-vols-${bibstem}`}>
+              <CardBody>
+                <Heading size="sm">All Volumes</Heading>
+                <Flex direction="column" key="all" p={1} gap={2}>
+                  <SimpleLink href={`/scan/search?q=${createQParam(bibstem)}&t=collection`} newTab>
+                    Scan Explorer
+                  </SimpleLink>
+                  <SimpleLink href={`/search?d=astrophysics&q=${createQParam(bibstem)}`} newTab>
+                    Search Results
+                  </SimpleLink>
+                </Flex>
+              </CardBody>
+            </Card>
             {volumes.map(({ volume_number }, i) => (
-              <Card key={`card-${i}`}>
+              <Card key={`card-${i}-${bibstem}`}>
                 <CardBody>
                   <Heading size="sm">{`Vol ${volume_number}`}</Heading>
                   <Flex direction="column" key={volume_number} p={1} gap={2}>
-                    <SimpleLink href={`/scan/search?q=${createQParam(bibstem, volume_number)}`}>
+                    <SimpleLink href={`/scan/search?q=${createQParam(bibstem, volume_number)}&t=page`} newTab>
                       Scan Explorer
                     </SimpleLink>
-                    <SimpleLink href={`/scan/search?q=${createQParam(bibstem, volume_number)}`}>
-                      Download PDF
-                    </SimpleLink>
-                    <SimpleLink href={`/search?d=astrophysics&q=${createQParam(bibstem, volume_number)}`}>
+                    <SimpleLink href={`/search?d=astrophysics&q=${createQParam(bibstem, volume_number)}`} newTab>
                       Search Results
                     </SimpleLink>
                   </Flex>
