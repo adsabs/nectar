@@ -66,6 +66,12 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
 export type Store = ReturnType<typeof createStore>;
 
 let store: Store;
+// Tracks the last incomingState.mode that was applied synchronously. Used to distinguish
+// genuine page-navigation state (new incomingState reference → apply) from same-page
+// re-renders caused by client-side mode changes (same incomingState → skip, preserving
+// the user's change). Reset when incomingState changes.
+let lastSyncedIncomingMode: string | undefined;
+
 export const useCreateStore = (incomingState: Partial<AppState> = {}): (() => Store) => {
   // always return a new store if server-side
   if (typeof window === 'undefined') {
@@ -79,6 +85,23 @@ export const useCreateStore = (incomingState: Partial<AppState> = {}): (() => St
   // initialize the store
   store = store ?? createStore(incomingState);
 
+  // Synchronously apply mode from GSSP state on page navigation (new incomingState).
+  // useApplyBoostTypeToParams derives boostType from appMode. If mode is stale on the first
+  // render (singleton store from a previous page), boostType is wrong → cache key changes
+  // after the useEffect correction → second search fires. Applying before children render
+  // keeps boostType stable.
+  //
+  // The lastSyncedIncomingMode guard prevents overriding client-side mode changes: when the
+  // user switches discipline on the same page, incomingState.mode stays at the SSR value but
+  // we should NOT revert their change on subsequent re-renders.
+  if (incomingState.mode !== lastSyncedIncomingMode && !store.getState().urlModeOverride) {
+    lastSyncedIncomingMode = incomingState.mode;
+    const currentMode = store.getState().mode;
+    if (incomingState.mode && currentMode !== incomingState.mode) {
+      store.setState({ mode: incomingState.mode });
+    }
+  }
+
   // force reset of the search facets
   setTimeout(() => store.getState().resetSearchFacets(), 300);
 
@@ -86,7 +109,11 @@ export const useCreateStore = (incomingState: Partial<AppState> = {}): (() => St
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (incomingState && store) {
-      store.setState(mergeDeepLeft(incomingState, store.getState()) as AppState);
+      // searchMode is owned by setSearchMode (user action) and createStore (initial SSR seed).
+      // Merging it here on navigation would restore ADS_COMPAT even after the user explicitly
+      // cleared it by switching disciplines. Exclude it so user changes are sticky.
+      const { searchMode: _s, ...rest } = incomingState;
+      store.setState(mergeDeepLeft(rest, store.getState()) as AppState);
     }
   }, [incomingState]);
 

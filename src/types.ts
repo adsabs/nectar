@@ -68,4 +68,3 @@ declare global {
     onResponse: unknown;
   };
 }
-

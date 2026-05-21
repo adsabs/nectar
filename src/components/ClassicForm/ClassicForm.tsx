@@ -41,6 +41,7 @@ import { Sort } from '@/components/Sort';
 import { Expandable } from '@/components/Expandable';
 import { SimpleCopyButton } from '@/components/CopyButton';
 import { normalizeSolrSort } from '@/utils/common/search';
+import { ADS_COMPAT_URL_PARAM } from '@/utils/common/searchMode';
 import { SolrSort, SolrSortField } from '@/api/models';
 
 const propTypes = {
@@ -84,7 +85,9 @@ export const ClassicForm = (props: IClassicFormProps) => {
     void handleSubmit((params) => {
       try {
         const search = getSearchQuery(params, { mode });
-        void router.push({ pathname: '/search', search });
+        const urlParams = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
+        urlParams.set(ADS_COMPAT_URL_PARAM, '1');
+        void router.push({ pathname: '/search', search: '?' + urlParams.toString() });
       } catch (e) {
         setQueryError((e as Error)?.message);
       }

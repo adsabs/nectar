@@ -1,4 +1,4 @@
-import { render } from '@/test-utils';
+import { fireEvent, render } from '@/test-utils';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { SearchBar } from '../index';
@@ -21,7 +21,9 @@ vi.mock('@/lib/useLandingFormPreference', () => ({
 }));
 
 beforeEach(() => {
-  vi.useFakeTimers();
+  // Exclude requestAnimationFrame from fake timers to prevent Framer Motion's animation
+  // loop from cascading under vi.advanceTimersByTimeAsync and inflating test runtime.
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'] });
 });
 
 afterEach(() => {
@@ -104,10 +106,12 @@ test('Escape key closes typeahead', async () => {
   await user.type(input, 'sim');
   await vi.advanceTimersByTimeAsync(500);
   expect(queryByTestId('search-autocomplete-menu')).toBeVisible();
+  // Escape dispatches KEYDOWN_ESCAPE synchronously; no timer advancement needed.
   await user.keyboard('{Escape}');
-  await vi.advanceTimersByTimeAsync(500);
   expect(queryByTestId('search-autocomplete-menu')).not.toBeVisible();
-});
+  // 15s timeout: vi.advanceTimersByTimeAsync(500) triggers Chakra/React work that
+  // accumulates across the suite; this test passes easily in isolation but needs headroom.
+}, 15000);
 
 test('Clearing input closes typeahead menu', async () => {
   const user = createUser();
@@ -116,8 +120,8 @@ test('Clearing input closes typeahead menu', async () => {
   await user.type(input, 'sim');
   await vi.advanceTimersByTimeAsync(500);
   expect(queryByTestId('search-autocomplete-menu')).toBeVisible();
+  // HARD_RESET dispatches synchronously; no timer advancement needed.
   await user.click(getByTestId('search-clearbtn'));
-  await vi.advanceTimersByTimeAsync(500);
   expect(queryByTestId('search-autocomplete-menu')).not.toBeVisible();
 });
 
@@ -184,10 +188,11 @@ test('Typing a non-matching term does not open typeahead', async () => {
 });
 
 test('Typing an exact match for a typeahead option closes the menu', async () => {
-  const user = createUser();
   const { getByTestId, queryByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input');
-  await user.type(input, 'similar()');
+  // fireEvent.change simulates the handleInputChange path without triggering the
+  // React-scheduler timer cascade that makes long user.type() calls exceed the timeout.
+  fireEvent.change(input, { target: { value: 'similar()', selectionStart: 9 } });
   await vi.advanceTimersByTimeAsync(500);
   expect(queryByTestId('search-autocomplete-menu')).not.toBeVisible();
 });
@@ -253,8 +258,9 @@ test('Arrow down does nothing when cursor is not at end of input', async () => {
   const user = createUser();
   const { getByTestId, queryByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input') as HTMLInputElement;
-  await user.type(input, 'test query');
-  input.setSelectionRange(4, 4);
+  await user.type(input, 'test');
+  // Place cursor before the end to disable ArrowDown menu-open behaviour
+  input.setSelectionRange(0, 0);
   await user.keyboard('{ArrowDown}');
   await vi.advanceTimersByTimeAsync(500);
   expect(queryByTestId('search-autocomplete-menu')).not.toBeVisible();
