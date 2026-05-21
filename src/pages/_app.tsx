@@ -1,10 +1,10 @@
 import { AppState, useStore, useStoreApi } from '@/store';
 import { AppMode } from '@/types';
-import { AppProps, NextWebVitalsMetric } from 'next/app';
+import App, { AppContext, AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
-import { memo, ReactElement, useEffect, useMemo } from 'react';
+import { ReactElement, useEffect, useMemo } from 'react';
 import { DehydratedState, useQuery, useQueryClient } from '@tanstack/react-query';
 import { IronSession } from 'iron-session';
 import axios from 'axios';
@@ -48,10 +48,11 @@ const TopProgressBar = dynamic<Record<string, never>>(
 export type AppPageProps = {
   dehydratedState: DehydratedState;
   dehydratedAppState: AppState;
+  cookies?: string;
   [key: string]: unknown;
 };
 
-const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
+function NectarApp({ Component, pageProps }: AppProps): ReactElement {
   logger.debug('App', { props: pageProps as unknown });
   const router = useRouter();
 
@@ -76,8 +77,20 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
       </Providers>
     </>
   );
-});
+}
+
 NectarApp.displayName = 'NectarApp';
+
+NectarApp.getInitialProps = async (appContext: AppContext) => {
+  const appProps = await App.getInitialProps(appContext);
+  return {
+    ...appProps,
+    pageProps: {
+      ...appProps.pageProps,
+      cookies: appContext.ctx.req?.headers.cookie ?? '',
+    },
+  };
+};
 
 const AppModeRouter = (): ReactElement => {
   const mode = useStore((state) => state.mode);

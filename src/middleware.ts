@@ -8,7 +8,8 @@ import { rateLimit } from '@/rateLimit';
 import { isLegacySearchURL, legacySearchURLMiddleware } from '@/middlewares/legacySearchURLMiddleware';
 import { ErrorSource, handleError } from '@/lib/errorHandler.edge';
 import { getUserLogId, sanitizeHeaderValue } from '@/utils/logging';
-import { mapPathToDisciplineParam } from '@/utils/appMode';
+import { mapDisciplineParamToAppMode, mapPathToDisciplineParam } from '@/utils/appMode';
+import { AppMode } from '@/types';
 import { isFromLegacyApp } from '@/utils/legacyAppDetection';
 import { pickTracingHeadersEdge } from '@/utils/tracing.edge';
 
@@ -301,6 +302,28 @@ const getIp = (req: NextRequest) =>
     .split(',')
     .shift() || 'unknown';
 
+const PREFS_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
+const setPrefsCookie = (response: NextResponse, req: NextRequest, updates: Record<string, unknown>): void => {
+  let existing: Record<string, unknown> = {};
+  try {
+    const raw = req.cookies.get('scix_prefs')?.value;
+    if (raw) {
+      existing = JSON.parse(decodeURIComponent(raw)) as Record<string, unknown>;
+    }
+  } catch {
+    // ignore malformed cookie
+  }
+  const merged = { ...existing, ...updates };
+  Object.keys(merged).forEach((k) => merged[k] === undefined && delete merged[k]);
+  response.cookies.set('scix_prefs', JSON.stringify(merged), {
+    maxAge: PREFS_COOKIE_MAX_AGE,
+    path: '/',
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  });
+};
+
 export async function middleware(req: NextRequest) {
   const startTime = Date.now();
   const path = req.nextUrl.pathname;
@@ -335,22 +358,36 @@ export async function middleware(req: NextRequest) {
   }
 
   // Discipline route handling - redirect /astrophysics, /heliophysics, etc. to /?forceMode=X
+  // Also stamp the prefs cookie so SSR can seed the mode on subsequent pages without a forceMode param.
   const disciplineParam = mapPathToDisciplineParam(path);
   if (disciplineParam) {
     const url = new URL('/', req.url);
     url.searchParams.set('forceMode', disciplineParam);
     log.info({ path, disciplineParam, duration: Date.now() - startTime }, 'Discipline route redirect');
-    return NextResponse.redirect(url);
+    const response = NextResponse.redirect(url);
+    const mappedMode = mapDisciplineParamToAppMode(disciplineParam);
+    if (mappedMode) {
+      const updates: Record<string, unknown> = { mode: mappedMode };
+      if (mappedMode !== AppMode.ASTROPHYSICS) {
+        updates.searchMode = undefined; // clear ADS_COMPAT when not in astrophysics context
+      }
+      setPrefsCookie(response, req, updates);
+    }
+    return response;
   }
 
-  // Legacy ADS app referrer handling - redirect to /?forceMode=astrophysics
-  // This ensures the discipline switch happens immediately, not on next search
-  if (path === '/' && !req.nextUrl.searchParams.has('forceMode')) {
+  // Legacy ADS app referrer handling - redirect to /?fromADS=true and set scix_prefs cookie
+  // so updateUserStateSSR seeds mode/searchMode without URL pollution.
+  // Guard includes fromADS to prevent a redirect loop: some browsers preserve the Referer
+  // header across same-origin redirects, which would re-trigger this block on the follow-up GET.
+  if (path === '/' && !req.nextUrl.searchParams.has('forceMode') && !req.nextUrl.searchParams.has('fromADS')) {
     if (isFromLegacyApp(referer)) {
       const url = new URL('/', req.url);
-      url.searchParams.set('forceMode', 'astrophysics');
+      url.searchParams.set('fromADS', 'true');
       log.info({ referer, duration: Date.now() - startTime }, 'Legacy ADS referrer redirect');
-      return NextResponse.redirect(url);
+      const response = NextResponse.redirect(url);
+      setPrefsCookie(response, req, { mode: 'ASTROPHYSICS', searchMode: 'ADS_COMPAT' });
+      return response;
     }
   }
 

@@ -14,6 +14,7 @@ import {
   StatLabel,
   StatNumber,
   Text,
+  useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
 
@@ -27,8 +28,10 @@ import { useSettings } from '@/lib/useSettings';
 
 import { NotificationId } from '@/store/slices';
 import { SearchBar } from '@/components/SearchBar';
+import { SearchModifierBar } from '@/components/SearchModifierBar';
 import { SimpleLink } from '@/components/SimpleLink';
 import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
+import { buildSearchOutgoing } from '@/utils/common/searchMode';
 import { SolrSort } from '@/api/models';
 import { SearchExamples } from '@/components/SearchExamples/SearchExamples';
 import { Pager } from '@/components/Pager/Pager';
@@ -47,6 +50,7 @@ import { useShepherd } from 'react-shepherd';
 import { useIsClient } from '@/lib/useIsClient';
 import { useScreenSize } from '@/lib/useScreenSize';
 import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
+import { useSearchMode } from '@/lib/useSearchMode';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
@@ -68,6 +72,24 @@ const HomePage: NextPage = () => {
   const { isScreenSmall } = useScreenSize();
   const isClient = useIsClient();
   const { persistCurrentForm } = useLandingFormPreference();
+  const [searchMode, setSearchMode] = useSearchMode();
+  const toast = useToast();
+
+  // Show toast when middleware has auto-set ADS_COMPAT (cookie/GSSP path)
+  useEffect(() => {
+    if (router.query.fromADS !== 'true') {
+      return;
+    }
+    toast({
+      status: 'info',
+      duration: 10000,
+      isClosable: true,
+      position: 'top',
+      title: 'ADS Compatibility mode enabled',
+      description:
+        "Looks like you came from ADS — we've switched to ADS Compatibility mode automatically. You can change this using the Search mode menu.",
+    });
+  }, [router.query.fromADS, toast]);
 
   // start tour if first time
   useTour();
@@ -143,17 +165,18 @@ const HomePage: NextPage = () => {
         setIsLoading(true);
         submitQuery();
         const defaultedQuery = applyDefaultFilters({ q: query, sort, p: 1 }) as IADSApiSearchParams;
+        const outgoing = buildSearchOutgoing(defaultedQuery, searchMode);
         void router
           .push({
             pathname: '/search',
-            search: makeSearchParams(defaultedQuery),
+            search: makeSearchParams(outgoing),
           })
           .finally(() => {
             setIsLoading(false);
           });
       }
     },
-    [applyDefaultFilters, router, setIsLoading, sort, submitQuery],
+    [applyDefaultFilters, router, searchMode, setIsLoading, sort, submitQuery],
   );
 
   const handleQueryExampleSelect = useCallback(
@@ -173,6 +196,11 @@ const HomePage: NextPage = () => {
         <Flex direction="column">
           <Box my={2}>
             <SearchBar isLoading={isLoading} query={query} queryAddition={queryAddition} />
+            {mode === AppMode.ASTROPHYSICS && (
+              <Flex direction="row" mt={1}>
+                <SearchModifierBar onModeChange={(m) => setSearchMode(m)} ml="auto" />
+              </Flex>
+            )}
           </Box>
           {isScreenSmall && isClient ? (
             <>

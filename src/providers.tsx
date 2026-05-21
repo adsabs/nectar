@@ -1,8 +1,8 @@
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { MathJaxProvider } from './mathjax';
-import { ChakraProvider } from '@chakra-ui/react';
-import { AppState, StoreProvider, useCreateStore, useStore } from './store';
-import { DehydratedState, Hydrate, QueryClientProvider } from '@tanstack/react-query';
+import { ChakraProvider, cookieStorageManagerSSR } from '@chakra-ui/react';
+import { StoreProvider, useCreateStore, useStore } from './store';
+import { Hydrate, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { FC, useEffect, useRef } from 'react';
 import { useCreateQueryClient } from './lib/useCreateQueryClient';
@@ -14,15 +14,11 @@ import { IADSApiSearchParams } from './api/search/types';
 import { PERF_SPANS, getResultCountBucket, getQueryType } from '@/lib/performance';
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 import { ShepherdJourneyProvider } from 'react-shepherd';
-
-type AppPageProps = {
-  dehydratedState: DehydratedState;
-  dehydratedAppState: AppState;
-  [key: string]: unknown;
-};
+import type { AppPageProps } from '@/pages/_app';
 
 export const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
+  const colorModeManager = cookieStorageManagerSSR(pageProps.cookies ?? '');
 
   return (
     <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
@@ -30,6 +26,7 @@ export const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps
         <ShepherdJourneyProvider>
           <ChakraProvider
             theme={theme}
+            colorModeManager={colorModeManager}
             toastOptions={{
               defaultOptions: {
                 position: 'top',
