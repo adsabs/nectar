@@ -2,7 +2,7 @@ import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { FormControl, FormLabel, HStack, IconButton, Input, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react';
 import { Select, SelectOption } from '@/components/Select';
 
-import { ChangeEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
+import { ChangeEvent, FocusEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { SelectInstance } from 'react-select';
 import { FormValues, IResourceUrl, ResourceUrlType, resourceUrlTypes } from './types';
@@ -40,6 +40,7 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
 
   // New row being added
   const [newUrl, setNewUrl] = useState<IResourceUrl>({ type: 'arXiv', url: `${ARXIV_ORIGIN}/` });
+  const [newTypeMenuIsOpen, setNewTypeMenuIsOpen] = useState(false);
 
   // Existing row being edited
   const [editUrl, setEditUrl] = useState<{ index: number; url: IResourceUrl }>({
@@ -140,9 +141,19 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
     }
   };
 
+  const handleBlurNewUrlGroup = (e: FocusEvent<HTMLTableRowElement>) => {
+    if (e.currentTarget.contains(e.relatedTarget as Node) || newTypeMenuIsOpen) {
+      return;
+    }
+    if (newUrlIsValid) {
+      append(newUrl);
+      setNewUrl({ type: 'arXiv', url: `${ARXIV_ORIGIN}/` });
+    }
+  };
+
   // Row for adding new url
   const newUrlTableRow = (
-    <Tr>
+    <Tr onBlur={handleBlurNewUrlGroup}>
       <Td color="gray.200">{urls.length + 1}</Td>
       <Td>
         {isClient && (
@@ -155,6 +166,8 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
             stylesTheme="default.sm"
             onChange={handleNewTypeChange}
             menuPortalTarget={document.body}
+            onMenuOpen={() => setNewTypeMenuIsOpen(true)}
+            onMenuClose={() => setNewTypeMenuIsOpen(false)}
             ref={newURLTypeInputRef}
           />
         )}
