@@ -161,7 +161,7 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
                     <Tooltip label="add to library">
                       <IconButton
                         aria-label="Add to library"
-                        icon={<FolderPlusIcon />}
+                        icon={<FolderPlusIcon width={40} height={40} />}
                         variant="ghost"
                         onClick={onOpenAddToLibrary}
                         id="tour-add-to-library"
