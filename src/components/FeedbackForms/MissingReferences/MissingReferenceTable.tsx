@@ -14,7 +14,7 @@ import {
   IconButton,
   FormErrorMessage,
 } from '@chakra-ui/react';
-import { useState, ChangeEvent, MouseEvent, useRef, KeyboardEvent } from 'react';
+import { useState, ChangeEvent, FocusEvent, MouseEvent, useRef, KeyboardEvent } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { FormValues, Reference } from './types';
 
@@ -101,6 +101,16 @@ export const MissingReferenceTable = () => {
       editingReference.reference.cited.length > 0
     ) {
       handleApplyEdit(editingReference.index);
+    }
+  };
+
+  const handleBlurNewRefGroup = (e: FocusEvent<HTMLTableRowElement>) => {
+    if (e.currentTarget.contains(e.relatedTarget as Node)) {
+      return;
+    }
+    if (newReference.citing.length > 0 && newReference.cited.length > 0) {
+      append(newReference);
+      setNewReference({ citing: newReference.citing, cited: '' });
     }
   };
 
@@ -206,7 +216,7 @@ export const MissingReferenceTable = () => {
                 </Tr>
               ),
             )}
-            <Tr>
+            <Tr onBlur={handleBlurNewRefGroup}>
               <Td color="gray.200">{references.length + 1}</Td>
               <Td>
                 <FormControl isInvalid={!!errors.references?.message}>

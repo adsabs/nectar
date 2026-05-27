@@ -16,7 +16,7 @@ import {
 
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChangeEvent, KeyboardEvent, MouseEventHandler, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, FocusEvent, KeyboardEvent, MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { FormProvider, useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { omit } from 'ramda';
 
@@ -332,6 +332,7 @@ export const AssociatedTable = () => {
   const handleAddAssociatedBibcode = () => {
     append({ value: newAssociatedBibcode });
     setNewAssociatedBibcode('');
+    newAssociatedBibcodeRef.current.focus();
   };
 
   const handleKeydownNewBibcode = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -340,11 +341,15 @@ export const AssociatedTable = () => {
     }
   };
 
-  useEffect(() => {
-    if (newAssociatedBibcode === '') {
-      newAssociatedBibcodeRef.current.focus();
+  const handleBlurNewBibcodeGroup = (e: FocusEvent<HTMLElement>) => {
+    if (e.currentTarget.contains(e.relatedTarget as Node)) {
+      return;
     }
-  }, [newAssociatedBibcode]);
+    if (newAssociatedBibcode.length > 0) {
+      append({ value: newAssociatedBibcode });
+      setNewAssociatedBibcode('');
+    }
+  };
 
   return (
     <>
@@ -423,7 +428,7 @@ export const AssociatedTable = () => {
             </FormControl>
 
             <FormControl>
-              <HStack>
+              <HStack onBlur={handleBlurNewBibcodeGroup}>
                 <Input
                   onChange={handleNewAssociatedBibcodeChange}
                   value={newAssociatedBibcode}

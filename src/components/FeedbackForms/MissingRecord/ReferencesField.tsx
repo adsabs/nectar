@@ -1,7 +1,7 @@
 import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { FormControl, FormLabel, HStack, IconButton, Input, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react';
 import { Select, SelectOption } from '@/components/Select';
-import { ChangeEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
+import { ChangeEvent, FocusEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import { FormValues, IReference, ReferenceType, referenceTypes } from './types';
 import { SelectInstance } from 'react-select';
 import { useFieldArray } from 'react-hook-form';
@@ -33,6 +33,7 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
 
   // New row being added
   const [newReference, setNewReference] = useState<IReference>({ type: 'Bibcode', reference: '' });
+  const [newTypeMenuIsOpen, setNewTypeMenuIsOpen] = useState(false);
 
   // Existing row being edited
   const [editReference, setEditReference] = useState<{ index: number; reference: IReference }>({
@@ -107,9 +108,20 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
       handleAddReference();
     }
   };
+
+  const handleBlurNewRefGroup = (e: FocusEvent<HTMLTableRowElement>) => {
+    if (e.currentTarget.contains(e.relatedTarget as Node) || newTypeMenuIsOpen) {
+      return;
+    }
+    if (newReferenceIsValid) {
+      append(newReference);
+      setNewReference({ type: 'Bibcode', reference: '' });
+    }
+  };
+
   // Row for adding new Reference
   const newReferenceTableRow = (
-    <Tr>
+    <Tr onBlur={handleBlurNewRefGroup}>
       <Td color="gray.200">{references.length + 1}</Td>
       <Td>
         {isClient && (
@@ -122,6 +134,8 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
             stylesTheme="default.sm"
             onChange={handleNewTypeChange}
             menuPortalTarget={document.body}
+            onMenuOpen={() => setNewTypeMenuIsOpen(true)}
+            onMenuClose={() => setNewTypeMenuIsOpen(false)}
             ref={newReferenceInputRef}
           />
         )}
