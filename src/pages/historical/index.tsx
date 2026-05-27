@@ -73,7 +73,11 @@ const HistoricalLitPage: NextPage = () => {
   useEffect(() => {
     setPageIndex(0);
     setAccordionIndex(-1);
-  }, [filteredList]);
+  }, [filteredList, pageSize]);
+
+  useEffect(() => {
+    setAccordionIndex(-1);
+  }, [pageIndex, pageSize]);
 
   const handleClearSearch = () => {
     setSearchTerm('');
