@@ -7,6 +7,7 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
+  Box,
   Card,
   CardBody,
   CloseButton,
@@ -90,9 +91,11 @@ const HistoricalLitPage: NextPage = () => {
           <AccordionIcon />
         </AccordionButton>
         <AccordionPanel>
-          <SimpleLink href="" newTab>
-            View Bibstem in Journals Database
-          </SimpleLink>
+          <Box mb={4}>
+            <SimpleLink href={`/journalsdb/${bibstem}`} newTab>
+              View publication information
+            </SimpleLink>
+          </Box>
           <Flex gap={2} flexWrap="wrap">
             <Card key={`card-all-vols-${bibstem}`}>
               <CardBody>
