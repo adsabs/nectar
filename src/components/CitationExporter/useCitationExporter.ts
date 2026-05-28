@@ -82,12 +82,14 @@ export const useCitationExporter = ({
   // trigger updates to machine state if incoming props change
   useEffect(() => dispatch({ type: 'SET_SINGLEMODE', payload: singleMode }), [singleMode, dispatch]);
 
-  // watch for format changes
+  // One-way prop -> machine sync. Must depend only on the prop; adding the
+  // derived machine value (params.format) would cause the effect to re-fire
+  // after a user-initiated SET_FORMAT and immediately revert it.
   useEffect(() => {
     if (format !== params.format) {
       dispatch({ type: 'SET_FORMAT', payload: format });
     }
-  }, [format, params.format, dispatch]);
+  }, [format]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // if we're in singleMode and format is changed, trigger a submit
   useEffect(() => {
@@ -96,21 +98,21 @@ export const useCitationExporter = ({
     }
   }, [params.format, singleMode, dispatch]);
 
-  // watch for changes to records
+  // One-way prop -> machine sync. See note on the format effect above.
   useEffect(() => {
     // naively compare only the first record, this should be enough to determine
     // there is a difference
     if (records[0] !== state.context.records[0]) {
       dispatch({ type: 'SET_RECORDS', payload: records });
     }
-  }, [records, state.context.records, dispatch]);
+  }, [records]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // watch for changes to sort
+  // One-way prop -> machine sync. See note on the format effect above.
   useEffect(() => {
     if (sort !== params.sort) {
       dispatch({ type: 'SET_SORT', payload: sort });
     }
-  }, [sort, params.sort, dispatch]);
+  }, [sort]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // main result fetcher, this will not run unless we're in the 'fetching' state
   const result = useGetExportCitation(params, {
