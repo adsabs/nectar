@@ -7,7 +7,7 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
-  Box,
+  Button,
   Card,
   CardBody,
   CloseButton,
@@ -15,6 +15,7 @@ import {
   Flex,
   Heading,
   Input,
+  Image,
   InputGroup,
   InputRightElement,
   Text,
@@ -25,6 +26,8 @@ import histLitList from 'public/data/hist_lit/histLitList.json';
 import { useEffect, useMemo, useState } from 'react';
 import { useDebounce } from '@/lib/useDebounce';
 import { APP_DEFAULTS } from '@/config';
+import { InfoOutlineIcon } from '@chakra-ui/icons';
+import { BookOpenIcon, DocumentTextIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 interface HistoricalPublication {
   label: string;
   bibstem: string;
@@ -95,35 +98,49 @@ const HistoricalLitPage: NextPage = () => {
           <AccordionIcon />
         </AccordionButton>
         <AccordionPanel>
-          <Box mb={4}>
-            <SimpleLink href={`/journalsdb/${bibstem}`} newTab>
-              View publication information
-            </SimpleLink>
-          </Box>
+          <Flex direction={{ base: 'column', sm: 'row' }} gap={2} my={4}>
+            <Button as={SimpleLink} href={`/journalsdb/${bibstem}`} newTab mb={2} variant="outline" gap={2}>
+              <InfoOutlineIcon />
+              Publication info
+            </Button>
+            <Button
+              as={SimpleLink}
+              href={`/scan/search?q=${createQParam(bibstem)}&t=collection`}
+              newTab
+              mb={2}
+              variant="outline"
+              gap={2}
+            >
+              <BookOpenIcon width={24} height={24} aria-hidden />
+              Browse all scans
+            </Button>
+            <Button
+              as={SimpleLink}
+              href={`/search?d=astrophysics&q=${createQParam(bibstem)}`}
+              newTab
+              variant="outline"
+              gap={2}
+            >
+              <MagnifyingGlassIcon width={24} height={24} aria-hidden />
+              Search publication
+            </Button>
+          </Flex>
           <Flex gap={2} flexWrap="wrap">
-            <Card key={`card-all-vols-${bibstem}`}>
-              <CardBody>
-                <Heading size="sm">All Volumes</Heading>
-                <Flex direction="column" key="all" p={1} gap={2}>
-                  <SimpleLink href={`/scan/search?q=${createQParam(bibstem)}&t=collection`} newTab>
-                    Scan Explorer
-                  </SimpleLink>
-                  <SimpleLink href={`/search?d=astrophysics&q=${createQParam(bibstem)}`} newTab>
-                    Search Results
-                  </SimpleLink>
-                </Flex>
-              </CardBody>
-            </Card>
             {volumes.map(({ volume_number }, i) => (
               <Card key={`card-${i}-${bibstem}`}>
                 <CardBody>
-                  <Heading size="sm">{`Vol ${volume_number}`}</Heading>
+                  <Heading size="sm" mb={1}>{`Vol ${volume_number}`}</Heading>
                   <Flex direction="column" key={volume_number} p={1} gap={2}>
                     <SimpleLink href={`/scan/search?q=${createQParam(bibstem, volume_number)}&t=page`} newTab>
-                      Scan Explorer
+                      <Flex gap={2}>
+                        <DocumentTextIcon width={24} height={24} aria-hidden /> View scans
+                      </Flex>
                     </SimpleLink>
                     <SimpleLink href={`/search?d=astrophysics&q=${createQParam(bibstem, volume_number)}`} newTab>
-                      Search Results
+                      <Flex gap={2}>
+                        <MagnifyingGlassIcon width={24} height={24} aria-hidden />
+                        Search volume
+                      </Flex>
                     </SimpleLink>
                   </Flex>
                 </CardBody>
@@ -141,17 +158,22 @@ const HistoricalLitPage: NextPage = () => {
         <title>Historical Observatory Publications</title>
       </Head>
       <Container maxW="container.lg" my={4} minH="container.sm">
-        <Heading as="h1" my={8}>
-          Historical Observatory Publications
-        </Heading>
-        <Text aria-label="Historical Observatory Publications description" my={8}>
-          The following publications have been scanned from high-resolution 35mm film and are being made available to
-          our users on an &quot;as-is&quot; basis, in collaboration with the John G. Wolbach Library at the{' '}
-          <SimpleLink href="https://www.cfa.harvard.edu/">Harvard-Smithsonian Center for Astrophysics</SimpleLink>.
-          Funding for this project was provided in part by the Atherton Seidell Fund of the{' '}
-          <SimpleLink href="https://www.si.edu/">Smithsonian Institution</SimpleLink>. Please note that these files can
-          be viewed and downloaded for personal use only. Any commercial use or large-scale harvesting is prohibited.
-        </Text>
+        <Flex direction="column" gap={8} mb={8}>
+          <Heading as="h1">Historical Observatory Publications</Heading>
+          <Flex direction={{ base: 'column', md: 'row' }} gap={8} justifyContent="start" alignItems="start">
+            <Image src="/images/historical/historical_observatory.png" alt="Historical Observatory" />
+            <Text>
+              The following publications have been scanned from high-resolution 35mm film and are being made available
+              to our users on an &quot;as-is&quot; basis, in collaboration with the John G. Wolbach Library at the{' '}
+              <SimpleLink href="https://www.cfa.harvard.edu/">Harvard-Smithsonian Center for Astrophysics</SimpleLink>.
+              Funding for this project was provided in part by the Atherton Seidell Fund of the{' '}
+              <SimpleLink href="https://www.si.edu/">Smithsonian Institution</SimpleLink>. Please note that these files
+              can be viewed and downloaded for personal use only. Any commercial use or large-scale harvesting is
+              prohibited.
+            </Text>
+          </Flex>
+        </Flex>
+
         <InputGroup>
           <Input
             placeholder="Search by publication name or bibstem"
