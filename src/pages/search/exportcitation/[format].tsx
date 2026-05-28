@@ -149,7 +149,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
         format: resolvedFormat,
         query: searchParams,
         referrer,
-        dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
+        dehydratedState: dehydrate(queryClient),
       },
     };
   } catch (error) {
