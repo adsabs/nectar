@@ -2,7 +2,6 @@ import { Alert, AlertIcon, Box, Flex, Heading, HStack } from '@chakra-ui/react';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
-import { useIsClient } from '@/lib/useIsClient';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -14,6 +13,7 @@ import { useSettings } from '@/lib/useSettings';
 import { logger } from '@/logger';
 import { SimpleLink } from '@/components/SimpleLink';
 import { CitationExporter } from '@/components/CitationExporter';
+import { ExportSkeleton } from '@/components/CitationExporter/components/ExportSkeleton';
 import { JournalFormatMap } from '@/components/Settings';
 import { parseQueryFromUrl } from '@/utils/common/search';
 import { unwrapStringValue } from '@/utils/common/formatters';
@@ -34,10 +34,9 @@ interface IExportCitationPageProps {
 }
 
 const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
-  const { format, query, referrer } = props;
-  const isClient = useIsClient();
+  const { format, query, referrer, error } = props;
+  const router = useRouter();
 
-  // get export related user settings
   const { settings } = useSettings({
     suspense: false,
   });
@@ -57,21 +56,17 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
           maxauthor: parseInt(settings.bibtexMaxAuthors),
         };
 
-  const router = useRouter();
-  const { data, fetchNextPage, hasNextPage, error } = useSearchInfinite(query);
+  const { data, fetchNextPage, hasNextPage, isLoading, error: searchError } = useSearchInfinite(query);
 
-  // TODO: add more error handling here
-  if (!data) {
-    return null;
-  }
-
-  const res = last(data?.pages).response;
-  const records = res.docs.map((d) => d.bibcode);
-  const numFound = res.numFound;
+  const lastPage = data ? last(data.pages) : null;
+  const records = lastPage ? lastPage.response.docs.map((d) => d.bibcode) : [];
+  const numFound = lastPage ? lastPage.response.numFound : 0;
 
   const handleNextPage = () => {
     void fetchNextPage();
   };
+
+  const errorMessage = error?.message ?? (searchError instanceof Error ? searchError.message : undefined);
 
   return (
     <>
@@ -95,12 +90,14 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
           </Heading>
         </HStack>
         <Box pt="1">
-          {error ? (
+          {errorMessage ? (
             <Alert status="error">
               <AlertIcon />
-              {error.message}
+              {errorMessage}
             </Alert>
-          ) : isClient ? (
+          ) : isLoading || !data ? (
+            <ExportSkeleton />
+          ) : (
             <CitationExporter
               initialFormat={format}
               keyformat={keyformat}
@@ -112,13 +109,6 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
               nextPage={handleNextPage}
               hasNextPage={hasNextPage}
               page={data.pages.length - 1}
-              sort={query.sort}
-            />
-          ) : (
-            <CitationExporter.Static
-              initialFormat={format}
-              records={records}
-              totalRecords={numFound}
               sort={query.sort}
             />
           )}
