@@ -283,8 +283,8 @@ export interface IDocsEntity {
   keyword?: string[];
   lang?: string;
   links_data?: string[];
-  mention: string[];
-  mention_count: number;
+  mention?: string[];
+  mention_count?: number;
   nedid?: string;
   nedtype_object_facet_hier?: string;
   nedtype?: string;
