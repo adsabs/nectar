@@ -1,7 +1,6 @@
 import { Alert, AlertIcon, Box, Flex, Heading, HStack } from '@chakra-ui/react';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 
-import { getExportCitationDefaultContext } from '@/components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
 import { useIsClient } from '@/lib/useIsClient';
 import axios from 'axios';
@@ -21,8 +20,8 @@ import { unwrapStringValue } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { IADSApiSearchParams } from '@/api/search/types';
-import { fetchSearchInfinite, searchKeys, useSearchInfinite } from '@/api/search/search';
-import { exportCitationKeys, fetchExportCitation, fetchExportFormats } from '@/api/export/export';
+import { useSearchInfinite } from '@/api/search/search';
+import { exportCitationKeys, fetchExportFormats } from '@/api/export/export';
 
 interface IExportCitationPageProps {
   format: string;
@@ -131,83 +130,43 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const {
     qid = null,
-    p,
     referrer = null,
     ...query
   } = parseQueryFromUrl<{ qid: string; format: string }>(ctx.req.url, { sortPostfix: 'id asc' });
 
   const { format } = ctx.params as { format: string };
 
-  if (!query && !qid) {
-    return {
-      props: {
-        format,
-        query,
-        qid,
-        referrer,
-        error: 'No Records',
-      },
-    };
-  }
-
-  const queryClient = new QueryClient();
-  const params: IADSApiSearchParams = {
+  const searchParams: IADSApiSearchParams = {
     rows: APP_DEFAULTS.EXPORT_PAGE_SIZE,
     fl: ['bibcode'],
     sort: query.sort ?? APP_DEFAULTS.SORT,
     ...(qid ? { q: `docs(${qid})` } : query),
   };
 
-  try {
-    // primary search, this is based on query params
-    const data = await queryClient.fetchInfiniteQuery({
-      queryKey: searchKeys.infinite(params),
-      queryFn: fetchSearchInfinite,
-      meta: { params },
-    });
+  const queryClient = new QueryClient();
 
+  try {
     const formatsData = await queryClient.fetchQuery({
       queryKey: exportCitationKeys.manifest(),
       queryFn: fetchExportFormats,
     });
 
     const formats = map(prop('route'), formatsData).map((r) => r.substring(1));
-
-    // extract bibcodes to use for export
-    const records = data.pages[0].response.docs.map((d) => d.bibcode);
-
-    const { params: exportParams } = getExportCitationDefaultContext({
-      format: formats.includes(format) ? format : ExportApiFormatKey.bibtex,
-      records,
-      singleMode: false,
-      sort: params.sort,
-    });
-
-    // fetch export string, format is pulled from the url
-    void (await queryClient.prefetchQuery({
-      queryKey: exportCitationKeys.primary(exportParams),
-      queryFn: fetchExportCitation,
-      meta: { params: exportParams },
-    }));
-
-    // react-query infinite queries cannot be serialized by next, currently.
-    // see https://github.com/tannerlinsley/react-query/issues/3301#issuecomment-1041374043
-
-    const dehydratedState = JSON.parse(JSON.stringify(dehydrate(queryClient)));
+    const resolvedFormat = formats.includes(format) ? format : ExportApiFormatKey.bibtex;
 
     return {
       props: {
-        format: exportParams.format,
-        query: params,
+        format: resolvedFormat,
+        query: searchParams,
         referrer,
-        dehydratedState,
+        dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
       },
     };
   } catch (error) {
     logger.error({ msg: 'GSSP error in export citation page', error });
     return {
       props: {
-        query: params,
+        query: searchParams,
         pageError: parseAPIError(error),
         error: axios.isAxiosError(error) ? error.message : 'Unable to fetch data',
       },
