@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import { processLinkData } from '@/components/AbstractSources/linkGenerator';
+import { getOpenUrl } from '@/components/AbstractSources/openUrlGenerator';
 
 test('processLinkData produces correct output', () => {
   expect(
@@ -150,4 +151,16 @@ test('processLinkData can handle empty input', () => {
       'https://hollis.harvard.edu/openurl/01HVD/HVD_URL',
     ),
   ).toEqual(defaultReturn);
+});
+
+test('encodes # in DOI when building OpenURL', () => {
+  const url = getOpenUrl({
+    metadata: {
+      doi: ['10.1002/1521-3994(199908)320:4/5<163::AID-ASNA163>3.0.CO;2-#'],
+      bibcode: '1999AN....320..163M',
+    },
+    linkServer: 'https://example.com/openurl',
+  });
+  expect(url).not.toContain('#');
+  expect(url).toContain('%23');
 });

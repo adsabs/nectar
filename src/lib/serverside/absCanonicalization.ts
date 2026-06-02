@@ -152,6 +152,47 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
       ctx.res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
 
       const initialDoc = data?.response?.docs?.[0] ?? null;
+
+      // Some Wiley DOIs end with '#', which browsers strip as a URL fragment when the
+      // character is not percent-encoded. Retry once with '#' appended and redirect to
+      // the canonical bibcode URL so the page always loads correctly.
+      // Scoped to DOIs only (10.NNNN/ prefix) to avoid the extra round-trip for
+      // bibcodes, arXiv IDs, and other identifiers that can never end with '#'.
+      const isDoi = /^10\.\d{4,}\//.test(requestedId);
+      if (!initialDoc && isDoi && !requestedId.endsWith('#')) {
+        try {
+          const retryId = requestedId + '#';
+          const retryUrl = new URL(`${process.env.API_HOST_SERVER}${ApiTargets.SEARCH}`);
+          retryUrl.search = stringifySearchParams(getAbstractParams(retryId));
+          const retryResponse = await fetch(retryUrl, {
+            headers: {
+              Authorization: `Bearer ${bootstrapResult.token.access_token}`,
+              ...tracingHeaders,
+            },
+          });
+          if (retryResponse.ok) {
+            const retryData = (await retryResponse.json()) as IADSApiSearchResponse;
+            const retryDoc = retryData?.response?.docs?.[0] ?? null;
+            if (retryDoc?.bibcode) {
+              const requestUrl = new URL(ctx.req.url ?? ctx.resolvedUrl, 'http://adsabs.local');
+              log.info({ requestedId, retryId, bibcode: retryDoc.bibcode, viewPath }, 'Hash fallback redirect');
+              return {
+                redirect: {
+                  destination: buildRedirect({
+                    canonicalIdentifier: retryDoc.bibcode,
+                    viewPath,
+                    search: requestUrl.search,
+                  }),
+                  statusCode: 302,
+                },
+              };
+            }
+          }
+        } catch (retryError) {
+          log.warn({ err: retryError, requestedId }, 'Hash fallback retry failed');
+        }
+      }
+
       const canonicalIdentifier = initialDoc?.bibcode;
 
       if (canonicalIdentifier && canonicalIdentifier !== requestedId) {

@@ -1,4 +1,5 @@
 import type { PropertyValue } from 'schema-dts';
+import { encodeDOIPath } from '@/utils/common/encodeDOI';
 
 /**
  * Minimal structure containing only identifiers we parse.
@@ -68,7 +69,7 @@ function buildSameAs(pvs: PropertyValue[]) {
     const v = String(value);
     switch (propertyID) {
       case 'DOI':
-        out.add(`https://doi.org/${v}`);
+        out.add(`https://doi.org/${encodeDOIPath(v)}`);
         break;
       case 'arXiv':
         out.add(`https://arxiv.org/abs/${v}`);

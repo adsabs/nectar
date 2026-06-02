@@ -22,6 +22,21 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
   const rawTitle = doc ? unwrapStringValue(doc.title) : '';
 
   useEffect(() => {
+    // After a server-side redirect from a legacy DOI URL whose '#' was stripped by the
+    // browser as a fragment, the browser re-attaches the original fragment to the redirect
+    // destination (RFC 9110). Strip it when it's just a redundant view name.
+    const hash = window.location.hash;
+    if (
+      hash &&
+      /^#\/?(?:abstract|citations|references|credits|mentions|coreads|similar|graphics|metrics|toc|exportcitation)/.test(
+        hash,
+      )
+    ) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!doc?.bibcode) {
       return;
     }
