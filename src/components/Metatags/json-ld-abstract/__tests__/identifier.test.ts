@@ -73,4 +73,16 @@ describe('collectIdentifiersFromArray', () => {
     expect(sa.has('https://hdl.handle.net/1234/abc')).toBe(true);
     expect(sa.size).toBe(3);
   });
+
+  it('encodes special characters in DOI sameAs URL', () => {
+    const { sameAs } = collectIdentifiersFromArray({
+      identifier: ['10.1002/1521-3994(199908)320:4/5<163::AID-ASNA163>3.0.CO;2-#'],
+    });
+    const doiLink = sameAs.find((u) => u.startsWith('https://doi.org/'));
+    expect(doiLink).toBeDefined();
+    expect(doiLink).not.toContain('#');
+    expect(doiLink).toContain('%23');
+    expect(doiLink).not.toContain('<');
+    expect(doiLink).toContain('%3C');
+  });
 });
