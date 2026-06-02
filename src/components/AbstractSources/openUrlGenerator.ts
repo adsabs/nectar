@@ -53,10 +53,10 @@ export const getOpenUrl = (options: IGetOpenUrlOptions): string => {
   const parsed: Record<string, string | string[]> = {
     ...STATIC_FIELDS,
     'rft.spage': isArray(page) ? page[0].split('-')[0] : undefined,
-    id: isArray(doi) ? 'doi:' + encodeURIComponent(doi[0]) : undefined,
+    id: isArray(doi) ? 'doi:' + doi[0] : undefined,
     genre: genre,
     rft_id: [
-      isArray(doi) ? 'info:doi/' + encodeURIComponent(doi[0]) : undefined,
+      isArray(doi) ? 'info:doi/' + doi[0] : undefined,
       isString(bibcode) ? 'info:bibcode/' + bibcode : undefined,
     ],
     'rft.degree': degree,
