@@ -53,10 +53,10 @@ export const getOpenUrl = (options: IGetOpenUrlOptions): string => {
   const parsed: Record<string, string | string[]> = {
     ...STATIC_FIELDS,
     'rft.spage': isArray(page) ? page[0].split('-')[0] : undefined,
-    id: isArray(doi) ? 'doi:' + doi[0] : undefined,
+    id: isArray(doi) ? 'doi:' + encodeURIComponent(doi[0]) : undefined,
     genre: genre,
     rft_id: [
-      isArray(doi) ? 'info:doi/' + doi[0] : undefined,
+      isArray(doi) ? 'info:doi/' + encodeURIComponent(doi[0]) : undefined,
       isString(bibcode) ? 'info:bibcode/' + bibcode : undefined,
     ],
     'rft.degree': degree,
@@ -74,15 +74,15 @@ export const getOpenUrl = (options: IGetOpenUrlOptions): string => {
   };
 
   interface IContext extends Partial<typeof parsed> {
-    spage: typeof parsed['rft.spage'];
-    volume: typeof parsed['rft.volume'];
-    title: typeof parsed['rft.jtitle'];
-    atitle: typeof parsed['rft.atitle'];
-    aulast: typeof parsed['rft.aulast'];
-    aufirst: typeof parsed['rft.aufirst'];
-    date: typeof parsed['rft.date'];
-    isbn: typeof parsed['rft.isbn'];
-    issn: typeof parsed['rft.issn'];
+    spage: (typeof parsed)['rft.spage'];
+    volume: (typeof parsed)['rft.volume'];
+    title: (typeof parsed)['rft.jtitle'];
+    atitle: (typeof parsed)['rft.atitle'];
+    aulast: (typeof parsed)['rft.aulast'];
+    aufirst: (typeof parsed)['rft.aufirst'];
+    date: (typeof parsed)['rft.date'];
+    isbn: (typeof parsed)['rft.isbn'];
+    issn: (typeof parsed)['rft.issn'];
   }
 
   // add extra fields to context object
@@ -116,5 +116,5 @@ export const getOpenUrl = (options: IGetOpenUrlOptions): string => {
       return `${k}=${val}`;
     });
 
-  return encodeURI(openUrl + fields.join('&'));
+  return openUrl + fields.join('&');
 };
