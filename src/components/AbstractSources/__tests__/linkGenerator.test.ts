@@ -108,7 +108,7 @@ describe('processLinkData', () => {
             rawType: 'INSTITUTION',
             shortName: 'My Institution',
             type: 'INSTITUTION',
-            url: 'http://my-link-server.com/?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:article&rfr_id=info:sid/ADS&sid=ADS&id=doi:foo&genre=article&rft_id=info:doi/foo&rft.degree=false&rft.genre=article',
+            url: 'http://my-link-server.com/?url_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Aarticle&rfr_id=info%3Asid%2FADS&sid=ADS&id=doi%3Afoo&genre=article&rft_id=info%3Adoi%2Ffoo&rft.degree=false&rft.genre=article',
           },
         ],
         dataProducts: [],
@@ -163,7 +163,7 @@ describe('processLinkData', () => {
             rawType: 'INSTITUTION',
             shortName: 'My Institution',
             type: 'INSTITUTION',
-            url: 'http://my-link-server.com/?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:article&rfr_id=info:sid/ADS&sid=ADS&id=doi:foo&genre=article&rft_id=info:doi/foo&rft_id=info:bibcode/test&rft.genre=article',
+            url: 'http://my-link-server.com/?url_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Aarticle&rfr_id=info%3Asid%2FADS&sid=ADS&id=doi%3Afoo&genre=article&rft_id=info%3Adoi%2Ffoo&rft_id=info%3Abibcode%2Ftest&rft.genre=article',
           },
           {
             description: 'Publisher PDF',
