@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, beforeAll, afterAll, vi } from 'vitest';
+import { describe, expect, test, beforeEach, beforeAll, afterAll, vi } from 'vitest';
 import type { GetServerSidePropsContext } from 'next';
 
 import { createAbsGetServerSideProps } from '../absCanonicalization';
@@ -77,7 +77,7 @@ beforeEach(() => {
 });
 
 describe('createAbsGetServerSideProps', () => {
-  it('redirects to canonical bibcode with encoding and preserves query', async () => {
+  test('redirects to canonical bibcode with encoding and preserves query', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -100,7 +100,7 @@ describe('createAbsGetServerSideProps', () => {
     }
   });
 
-  it('redirects for other views', async () => {
+  test('redirects for other views', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -123,7 +123,7 @@ describe('createAbsGetServerSideProps', () => {
     }
   });
 
-  it('returns props when identifier is already canonical', async () => {
+  test('returns props when identifier is already canonical', async () => {
     const bibcode = 'MATCHING';
     fetchMock.mockResolvedValue({
       ok: true,
@@ -150,7 +150,7 @@ describe('createAbsGetServerSideProps', () => {
     );
   });
 
-  it('forwards tracing headers to the search API', async () => {
+  test('forwards tracing headers to the search API', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -182,7 +182,7 @@ describe('createAbsGetServerSideProps', () => {
     );
   });
 
-  it('does not redirect when no docs are returned', async () => {
+  test('does not redirect when no docs are returned', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -198,6 +198,55 @@ describe('createAbsGetServerSideProps', () => {
     const gssp = createAbsGetServerSideProps('abstract');
     const result = await gssp(ctx);
 
+    expect(result).not.toHaveProperty('redirect');
+    expect(result).toHaveProperty('props');
+  });
+
+  test('retries with # appended for DOIs when not found and redirects to canonical bibcode', async () => {
+    // DOIs like 10.1002/...3.0.CO;2-# end with '#', which browsers strip as a URL
+    // fragment when the character is not percent-encoded. The fallback detects this
+    // by retrying with '#' appended (DOIs only) and redirecting to the canonical bibcode URL.
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ response: { docs: [] } }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ response: { docs: [{ bibcode: '1999AN....320..163H' }] } }),
+      });
+
+    const ctx = buildCtx({
+      id: '10.1002/1521-3994(199908)320:4/5<163::AID-ASNA163>3.0.CO;2-',
+      resolvedUrl: '/abs/10.1002/1521-3994(199908)320:4/5<163::AID-ASNA163>3.0.CO;2-/abstract',
+    });
+
+    const gssp = createAbsGetServerSideProps('abstract');
+    const result = await gssp(ctx);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result).toHaveProperty('redirect');
+    if ('redirect' in result) {
+      expect(result.redirect?.destination).toBe('/abs/1999AN....320..163H/abstract');
+      expect(result.redirect?.statusCode).toBe(302);
+    }
+  });
+
+  test('does not retry with # for non-DOI identifiers', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ response: { docs: [] } }),
+    });
+
+    const ctx = buildCtx({
+      id: '2024ApJ...123..456X',
+      resolvedUrl: '/abs/2024ApJ...123..456X/abstract',
+    });
+
+    const gssp = createAbsGetServerSideProps('abstract');
+    const result = await gssp(ctx);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(result).not.toHaveProperty('redirect');
     expect(result).toHaveProperty('props');
   });

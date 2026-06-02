@@ -74,15 +74,15 @@ export const getOpenUrl = (options: IGetOpenUrlOptions): string => {
   };
 
   interface IContext extends Partial<typeof parsed> {
-    spage: typeof parsed['rft.spage'];
-    volume: typeof parsed['rft.volume'];
-    title: typeof parsed['rft.jtitle'];
-    atitle: typeof parsed['rft.atitle'];
-    aulast: typeof parsed['rft.aulast'];
-    aufirst: typeof parsed['rft.aufirst'];
-    date: typeof parsed['rft.date'];
-    isbn: typeof parsed['rft.isbn'];
-    issn: typeof parsed['rft.issn'];
+    spage: (typeof parsed)['rft.spage'];
+    volume: (typeof parsed)['rft.volume'];
+    title: (typeof parsed)['rft.jtitle'];
+    atitle: (typeof parsed)['rft.atitle'];
+    aulast: (typeof parsed)['rft.aulast'];
+    aufirst: (typeof parsed)['rft.aufirst'];
+    date: (typeof parsed)['rft.date'];
+    isbn: (typeof parsed)['rft.isbn'];
+    issn: (typeof parsed)['rft.issn'];
   }
 
   // add extra fields to context object
@@ -110,11 +110,11 @@ export const getOpenUrl = (options: IGetOpenUrlOptions): string => {
       if (isArray(val)) {
         return val
           .filter((v) => v)
-          .map((v) => `${k}=${v}`)
+          .map((v) => `${k}=${encodeURIComponent(String(v))}`)
           .join('&');
       }
-      return `${k}=${val}`;
+      return `${k}=${encodeURIComponent(String(val))}`;
     });
 
-  return encodeURI(openUrl + fields.join('&'));
+  return openUrl + fields.join('&');
 };

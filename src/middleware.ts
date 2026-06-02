@@ -147,7 +147,7 @@ export const normalizeAbsPath = (
 
   let view = 'abstract';
   let idSegments: string[] = [];
-  const hasEncodedId = parts.some((segment, idx) => idx > 0 && segment.includes('%2F'));
+  const hasEncodedId = parts.some((segment, idx) => idx > 0 && /%2F/i.test(segment));
 
   if (parts.length >= 3 && parts[parts.length - 2] === 'exportcitation') {
     view = `exportcitation/${parts[parts.length - 1]}`;
@@ -163,7 +163,11 @@ export const normalizeAbsPath = (
       } else if (parts.length === 3) {
         idSegments = parts.slice(1); // treat as no explicit view, keep both segments
       } else if (parts.length > 3) {
-        idSegments = parts.slice(1, -1); // drop trailing unknown segment
+        // Keep all segments: there is no reliable way to distinguish an unknown
+        // view token from a legitimate DOI suffix component. Preserving the full
+        // identifier is safer — a 404 for a bad DOI is better than silently
+        // routing to the wrong paper.
+        idSegments = parts.slice(1);
       } else {
         idSegments = parts.slice(1);
       }
@@ -181,7 +185,16 @@ export const normalizeAbsPath = (
   }
 
   const rawIdentifier = idSegments.join('/');
-  const encodedIdentifier = hasEncodedId ? rawIdentifier : encodeURIComponent(rawIdentifier);
+  // Decode first to avoid double-encoding any %-sequences already present in the
+  // path (e.g. %3C/%3E for < and > in a DOI), then re-encode cleanly.
+  const safeDecoded = (() => {
+    try {
+      return decodeURIComponent(rawIdentifier);
+    } catch {
+      return rawIdentifier;
+    }
+  })();
+  const encodedIdentifier = hasEncodedId ? rawIdentifier : encodeURIComponent(safeDecoded);
   const rewrittenPath = `/abs/${encodedIdentifier}/${view}`;
 
   return { shouldRewrite: true, rewrittenPath, rawIdentifier, view };

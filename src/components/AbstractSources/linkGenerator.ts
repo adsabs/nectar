@@ -4,6 +4,7 @@ import { getOpenUrl } from './openUrlGenerator';
 import { isNilOrEmpty, isNonEmptyString } from 'ramda-adjunct';
 import { IDataProductSource, IFullTextSource, ProcessLinkDataReturns } from '@/components/AbstractSources/types';
 import { Esources, IDocsEntity } from '@/api/search/types';
+import { encodeDOIPath } from '@/utils/common/encodeDOI';
 
 /**
  * Create the resolver url
@@ -139,7 +140,7 @@ export const processLinkData = (doc: IDocsEntity, linkServer?: string): ProcessL
  */
 export const createUrlByType = function (bibcode: string, type: string, identifier: string): string {
   if (typeof bibcode === 'string' && typeof type === 'string' && typeof identifier === 'string') {
-    return `${GATEWAY_BASE_URL + bibcode}/${type}:${identifier}`;
+    return `${GATEWAY_BASE_URL + bibcode}/${type}:${encodeDOIPath(identifier)}`;
   }
   return '';
 };
