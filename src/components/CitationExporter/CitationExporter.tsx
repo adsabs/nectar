@@ -87,7 +87,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
     ...divProps
   } = props;
 
-  const { data, state, dispatch } = useCitationExporter({
+  const { data, state, dispatch, isLoading } = useCitationExporter({
     format: initialFormat,
     authorcutoff,
     keyformat,
@@ -98,7 +98,6 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
     sort,
   });
   const ctx = state.context;
-  const isLoading = state.matches('fetching');
   const router = useRouter();
 
   const { isValidFormat } = useExportFormats();
@@ -120,6 +119,9 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
         },
       );
     }
+    // one-way format->route sync; adding state/router/singleMode would revert
+    // user-initiated format changes (see machine sync note)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.value, router.query, ctx.params.format]);
 
   // Attempt to parse the url to grab the format, then update it, otherwise allow the server to handle the path
@@ -140,6 +142,8 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
       return true;
     });
     return () => router.beforePopState(() => true);
+    // isValidFormat is stable; re-register only on dispatch/router change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, router]);
 
   const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = (e) => {
