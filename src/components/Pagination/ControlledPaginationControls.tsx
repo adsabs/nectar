@@ -10,10 +10,11 @@ export interface IControlledPaginationControlsProps extends FlexProps {
   pageSize: NumPerPageType;
   onChangePageSize: (size: NumPerPageType) => void;
   onChangePageIndex: (index: number) => void;
+  compact?: boolean;
 }
 
 export const ControlledPaginationControls = (props: IControlledPaginationControlsProps) => {
-  const { entries, pageSize, pageIndex, onChangePageIndex, onChangePageSize, ...flexProps } = props;
+  const { entries, pageSize, pageIndex, onChangePageIndex, onChangePageSize, compact = false, ...flexProps } = props;
 
   const pageCount = Math.ceil(entries / pageSize);
 
@@ -60,12 +61,14 @@ export const ControlledPaginationControls = (props: IControlledPaginationControl
         >
           Prev
         </Button>
-        <ManualPageSelect
-          page={pageIndex + 1}
-          totalPages={pageCount}
-          onPageSelect={(p) => onChangePageIndex(p - 1)}
-          isDisabled={pageCount <= 1}
-        />
+        {!compact && (
+          <ManualPageSelect
+            page={pageIndex + 1}
+            totalPages={pageCount}
+            onPageSelect={(p) => onChangePageIndex(p - 1)}
+            isDisabled={pageCount <= 1}
+          />
+        )}
         <Button
           aria-label="go to next page"
           variant="pageNext"
