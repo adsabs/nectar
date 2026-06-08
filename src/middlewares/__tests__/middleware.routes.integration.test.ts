@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { MockedRequest, rest } from 'msw';
 import { NextRequest, NextResponse } from 'next/server';
 import { middleware } from '@/middleware';
@@ -76,7 +76,7 @@ describe('middleware route integration', () => {
 
   const makeReq = (url: string, init?: RequestInit) => new NextRequest(url, init);
 
-  it('hydrates root path without redirect', async () => {
+  test('hydrates root path without redirect', async () => {
     const session = { save: vi.fn(), destroy: vi.fn(), updateConfig: vi.fn() };
     getIronSessionMock.mockResolvedValue(session);
     const req = makeReq('https://example.com/');
@@ -85,7 +85,7 @@ describe('middleware route integration', () => {
     expect(res.headers.get('location')).toBeNull();
   });
 
-  it('redirects unauthenticated protected routes to login with next param', async () => {
+  test('redirects unauthenticated protected routes to login with next param', async () => {
     getIronSessionMock.mockResolvedValue({
       isAuthenticated: false,
       token: { access_token: 'token' },
@@ -102,7 +102,7 @@ describe('middleware route integration', () => {
     expect(location).toContain('next=%252Fuser%252Flibraries');
   });
 
-  it('allows authenticated protected routes to continue', async () => {
+  test('allows authenticated protected routes to continue', async () => {
     getIronSessionMock.mockResolvedValue({
       isAuthenticated: true,
       token: { access_token: 'token' },
@@ -115,20 +115,20 @@ describe('middleware route integration', () => {
     expect(res.headers.get('location')).toBeNull();
   });
 
-  it('routes verify endpoints through verifyMiddleware', async () => {
+  test('routes verify endpoints through verifyMiddleware', async () => {
     const req = makeReq('https://example.com/user/account/verify/change-email/token123');
     await middleware(req);
     expect(verifyMiddlewareMock).toHaveBeenCalled();
   });
 
-  it('redirects legacy search URLs via legacySearchURLMiddleware', async () => {
+  test('redirects legacy search URLs via legacySearchURLMiddleware', async () => {
     isLegacySearchURLMock.mockReturnValue(true);
     const req = makeReq('https://example.com/search/q=foo');
     await middleware(req);
     expect(legacySearchMiddlewareMock).toHaveBeenCalled();
   });
 
-  it('skips auth middleware for Next.js data prefetch routes', async () => {
+  test('skips auth middleware for Next.js data prefetch routes', async () => {
     const req = {
       method: 'GET',
       nextUrl: {
@@ -145,7 +145,7 @@ describe('middleware route integration', () => {
     expect(rateLimitMock).not.toHaveBeenCalled();
   });
 
-  it('redirects to / when session token is missing after initSession', async () => {
+  test('redirects to / when session token is missing after initSession', async () => {
     getIronSessionMock.mockResolvedValue({
       isAuthenticated: false,
       token: undefined,
@@ -159,7 +159,7 @@ describe('middleware route integration', () => {
     expect(res.headers.get('location')).toContain('/?notify=api-connect-failed');
   });
 
-  it('login route: redirects authenticated users to decoded relative next param', async () => {
+  test('login route: redirects authenticated users to decoded relative next param', async () => {
     getIronSessionMock.mockResolvedValue({
       isAuthenticated: true,
       token: { access_token: 'token' },
@@ -173,7 +173,7 @@ describe('middleware route integration', () => {
     expect(res.headers.get('location')).toBe('https://example.com/user/settings?notify=account-login-success');
   });
 
-  it('login route: redirects authenticated users to / when next param is external', async () => {
+  test('login route: redirects authenticated users to / when next param is external', async () => {
     getIronSessionMock.mockResolvedValue({
       isAuthenticated: true,
       token: { access_token: 'token' },
@@ -187,7 +187,7 @@ describe('middleware route integration', () => {
     expect(res.headers.get('location')).toBe('https://example.com/?notify=account-login-success');
   });
 
-  it('login route: redirects authenticated users to / when next param is missing', async () => {
+  test('login route: redirects authenticated users to / when next param is missing', async () => {
     getIronSessionMock.mockResolvedValue({
       isAuthenticated: true,
       token: { access_token: 'token' },
@@ -201,7 +201,7 @@ describe('middleware route integration', () => {
     expect(res.headers.get('location')).toBe('https://example.com/');
   });
 
-  it('login route: allows unauthenticated users to continue', async () => {
+  test('login route: allows unauthenticated users to continue', async () => {
     getIronSessionMock.mockResolvedValue({
       isAuthenticated: false,
       token: { access_token: 'token' },
@@ -214,7 +214,7 @@ describe('middleware route integration', () => {
     expect(res.headers.get('location')).toBeNull();
   });
 
-  it('register route: redirects authenticated users to /', async () => {
+  test('register route: redirects authenticated users to /', async () => {
     getIronSessionMock.mockResolvedValue({
       isAuthenticated: true,
       token: { access_token: 'token' },
@@ -228,7 +228,7 @@ describe('middleware route integration', () => {
     expect(res.headers.get('location')).toBe('https://example.com/');
   });
 
-  it('register route: allows unauthenticated users to continue', async () => {
+  test('register route: allows unauthenticated users to continue', async () => {
     getIronSessionMock.mockResolvedValue({
       isAuthenticated: false,
       token: { access_token: 'token' },
@@ -241,7 +241,7 @@ describe('middleware route integration', () => {
     expect(res.headers.get('location')).toBeNull();
   });
 
-  it('forgot password route: redirects authenticated users to /', async () => {
+  test('forgot password route: redirects authenticated users to /', async () => {
     getIronSessionMock.mockResolvedValue({
       isAuthenticated: true,
       token: { access_token: 'token' },
@@ -255,7 +255,7 @@ describe('middleware route integration', () => {
     expect(res.headers.get('location')).toBe('https://example.com/');
   });
 
-  it('forgot password route: allows unauthenticated users to continue', async () => {
+  test('forgot password route: allows unauthenticated users to continue', async () => {
     getIronSessionMock.mockResolvedValue({
       isAuthenticated: false,
       token: { access_token: 'token' },
@@ -268,13 +268,13 @@ describe('middleware route integration', () => {
     expect(res.headers.get('location')).toBeNull();
   });
 
-  it('rewrites abs identifiers to canonical form', async () => {
+  test('rewrites abs identifiers to canonical form', async () => {
     const req = makeReq('https://example.com/abs/123/456');
     const res = await middleware(req);
     expect(res.headers.get('x-middleware-rewrite')).toContain('/abs/123%2F456/abstract');
   });
 
-  it('emits analytics for abs paths when BASE_URL is set', async () => {
+  test('emits analytics for abs paths when BASE_URL is set', async () => {
     process.env.BASE_URL = 'https://base.example.com';
     const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(new Response(null, { status: 200 }) as Response);
     const req = makeReq('https://example.com/abs/123%2F456/abstract');
@@ -286,7 +286,7 @@ describe('middleware route integration', () => {
     fetchSpy.mockRestore();
   });
 
-  it('routes analytics calls through msw when BASE_URL is configured', async () => {
+  test('routes analytics calls through msw when BASE_URL is configured', async () => {
     process.env.BASE_URL = 'https://base.example.com';
     const requests: string[] = [];
     server.use(
@@ -317,14 +317,14 @@ describe('middleware route integration', () => {
     expect(requests[0]).toBe('https://base.example.com/link_gateway/789/abstract');
   });
 
-  it('honors rate limiting and short-circuits', async () => {
+  test('honors rate limiting and short-circuits', async () => {
     rateLimitMock.mockReturnValue(false);
     const req = makeReq('https://example.com/search');
     const res = (await middleware(req)) as NextResponse;
     expect(res.headers.get('location')).toContain('notify=rate-limit-exceeded');
   });
 
-  it('handles requests with tracing headers', async () => {
+  test('handles requests with tracing headers', async () => {
     const req = makeReq('https://example.com/search', {
       headers: {
         'X-Original-Uri': '/original/path',

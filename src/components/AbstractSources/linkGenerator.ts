@@ -4,6 +4,7 @@ import { getOpenUrl } from './openUrlGenerator';
 import { isNilOrEmpty, isNonEmptyString } from 'ramda-adjunct';
 import { IDataProductSource, IFullTextSource, ProcessLinkDataReturns } from '@/components/AbstractSources/types';
 import { Esources, IDocsEntity } from '@/api/search/types';
+import { encodeDOIPath } from '@/utils/common/encodeDOI';
 
 /**
  * Create the resolver url
@@ -139,7 +140,11 @@ export const processLinkData = (doc: IDocsEntity, linkServer?: string): ProcessL
  */
 export const createUrlByType = function (bibcode: string, type: string, identifier: string): string {
   if (typeof bibcode === 'string' && typeof type === 'string' && typeof identifier === 'string') {
-    return `${GATEWAY_BASE_URL + bibcode}/${type}:${identifier}`;
+    // DOIs use path-safe encoding that preserves '/' as a path separator; all
+    // other identifiers (e.g. legacy arXiv ids like "hep-th/9901001") must fully
+    // encode '/' so it is not interpreted as an extra path segment.
+    const encodedIdentifier = type.toLowerCase() === 'doi' ? encodeDOIPath(identifier) : encodeURIComponent(identifier);
+    return `${GATEWAY_BASE_URL + encodeURIComponent(bibcode)}/${type}:${encodedIdentifier}`;
   }
   return '';
 };

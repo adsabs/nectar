@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { collectIdentifiersFromArray } from '../identifiers';
 
 describe('collectIdentifiersFromArray', () => {
-  it('parses common IDs from identifier[] only', () => {
+  test('parses common IDs from identifier[] only', () => {
     const { identifiers, sameAs } = collectIdentifiersFromArray({
       identifier: [
         'arXiv:2503.12263',
@@ -40,7 +40,7 @@ describe('collectIdentifiersFromArray', () => {
     expect(sameAs).toContain('https://www.semanticscholar.org/paper/abcdef');
   });
 
-  it('ignores junk without throwing', () => {
+  test('ignores junk without throwing', () => {
     const { identifiers, sameAs } = collectIdentifiersFromArray({
       identifier: ['', '  ', 'not-an-id', 0 as unknown as string],
     });
@@ -48,7 +48,7 @@ describe('collectIdentifiersFromArray', () => {
     expect(Array.isArray(sameAs)).toBe(true);
   });
 
-  it('dedupes duplicate identifiers and trims spaces/tags', () => {
+  test('dedupes duplicate identifiers and trims spaces/tags', () => {
     const { identifiers, sameAs } = collectIdentifiersFromArray({
       identifier: [
         'arXiv:2503.12263',
@@ -72,5 +72,17 @@ describe('collectIdentifiersFromArray', () => {
     expect(sa.has('https://pubmed.ncbi.nlm.nih.gov/12345/')).toBe(true);
     expect(sa.has('https://hdl.handle.net/1234/abc')).toBe(true);
     expect(sa.size).toBe(3);
+  });
+
+  test('encodes special characters in DOI sameAs URL', () => {
+    const { sameAs } = collectIdentifiersFromArray({
+      identifier: ['10.1002/1521-3994(199908)320:4/5<163::AID-ASNA163>3.0.CO;2-#'],
+    });
+    const doiLink = sameAs.find((u) => u.startsWith('https://doi.org/'));
+    expect(doiLink).toBeDefined();
+    expect(doiLink).not.toContain('#');
+    expect(doiLink).toContain('%23');
+    expect(doiLink).not.toContain('<');
+    expect(doiLink).toContain('%3C');
   });
 });

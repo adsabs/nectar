@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { encodingTransform } from '@/components/Metatags/json-ld-abstract/encoding';
 
 // minimal types (no `any`)
@@ -25,7 +25,7 @@ describe('buildEncodingsFromSources', () => {
     mockSources = [];
   });
 
-  it('maps PDF/HTML to MediaObject with absolutized URLs and MIME in encodingFormat', () => {
+  test('maps PDF/HTML to MediaObject with absolutized URLs and MIME in encodingFormat', () => {
     mockSources = [
       { url: '/link_gateway/BIB/EPRINT_PDF', name: 'Preprint PDF', type: 'PDF', description: 'Preprint PDF' },
       { url: '/link_gateway/BIB/EPRINT_HTML', name: 'Preprint HTML', type: 'HTML', description: 'Preprint Article' },
@@ -51,7 +51,7 @@ describe('buildEncodingsFromSources', () => {
     ]);
   });
 
-  it('falls back to shortName when name is missing', () => {
+  test('falls back to shortName when name is missing', () => {
     mockSources = [{ url: '/link_gateway/BIB/EPRINT_PDF', shortName: 'Preprint', type: 'PDF' }];
 
     const enc = encodingTransform({}, 'https://scixplorer.org');
@@ -64,7 +64,7 @@ describe('buildEncodingsFromSources', () => {
     });
   });
 
-  it('absolutizes even odd-looking relative paths (no throw), and also handles a normal entry', () => {
+  test('absolutizes even odd-looking relative paths (no throw), and also handles a normal entry', () => {
     mockSources = [
       { url: '::not a url::', name: 'Bad', type: 'PDF' }, // becomes encoded path
       { url: '/ok', name: 'OK', type: 'HTML' },
@@ -90,7 +90,7 @@ describe('buildEncodingsFromSources', () => {
     ]);
   });
 
-  it('leaves encodingFormat undefined for unknown types', () => {
+  test('leaves encodingFormat undefined for unknown types', () => {
     mockSources = [{ url: '/foo', name: 'Foo', type: 'XML' }];
 
     const enc = encodingTransform({}, 'https://scixplorer.org');
@@ -103,7 +103,7 @@ describe('buildEncodingsFromSources', () => {
     expect((enc[0] as { encodingFormat?: string }).encodingFormat).toBeUndefined();
   });
 
-  it('returns empty array when there are no sources', () => {
+  test('returns empty array when there are no sources', () => {
     mockSources = [];
 
     const enc = encodingTransform({}, 'https://scixplorer.org');

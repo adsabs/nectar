@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, beforeAll, afterAll, vi } from 'vitest';
+import { describe, expect, test, beforeEach, beforeAll, afterAll, vi } from 'vitest';
 import type { GetServerSidePropsContext } from 'next';
 
 import { createAbsGetServerSideProps } from '../absCanonicalization';
@@ -77,7 +77,7 @@ beforeEach(() => {
 });
 
 describe('createAbsGetServerSideProps', () => {
-  it('redirects to canonical bibcode with encoding and preserves query', async () => {
+  test('redirects to canonical bibcode with encoding and preserves query', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -100,7 +100,7 @@ describe('createAbsGetServerSideProps', () => {
     }
   });
 
-  it('redirects for other views', async () => {
+  test('redirects for other views', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -123,7 +123,7 @@ describe('createAbsGetServerSideProps', () => {
     }
   });
 
-  it('returns props when identifier is already canonical', async () => {
+  test('returns props when identifier is already canonical', async () => {
     const bibcode = 'MATCHING';
     fetchMock.mockResolvedValue({
       ok: true,
@@ -150,7 +150,7 @@ describe('createAbsGetServerSideProps', () => {
     );
   });
 
-  it('forwards tracing headers to the search API', async () => {
+  test('forwards tracing headers to the search API', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -182,7 +182,7 @@ describe('createAbsGetServerSideProps', () => {
     );
   });
 
-  it('does not redirect when no docs are returned', async () => {
+  test('does not redirect when no docs are returned', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({

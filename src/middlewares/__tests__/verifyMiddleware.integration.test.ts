@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
 import { rest } from 'msw';
 import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
@@ -46,7 +46,7 @@ describe('verifyMiddleware', () => {
       .spyOn(global, 'fetch')
       .mockResolvedValue(new Response(JSON.stringify(body), { status, headers }) as unknown as Response);
 
-  it('redirects to login with success notify when verification succeeds', async () => {
+  test('redirects to login with success notify when verification succeeds', async () => {
     const session = makeSession();
     const fetchSpy = mockFetch({ message: 'success' }, 200, { 'set-cookie': `${cookieName}=new-value` });
     const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/abc'), NextResponse.next(), session);
@@ -56,13 +56,13 @@ describe('verifyMiddleware', () => {
     expect(location).toContain('notify=verify-account-success');
   });
 
-  it('redirects with failure when access token is missing', async () => {
+  test('redirects with failure when access token is missing', async () => {
     const session = makeSession(false);
     const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/abc'), NextResponse.next(), session);
     expect((res as NextResponse).headers.get('location')).toContain('notify=verify-account-failed');
   });
 
-  it('handles unknown verification token error', async () => {
+  test('handles unknown verification token error', async () => {
     const session = makeSession();
     mockFetch({ error: 'unknown verification token' });
     const res = await verifyMiddleware(
@@ -73,7 +73,7 @@ describe('verifyMiddleware', () => {
     expect((res as NextResponse).headers.get('location')).toContain('notify=verify-account-failed');
   });
 
-  it('handles already validated token error', async () => {
+  test('handles already validated token error', async () => {
     const session = makeSession();
     mockFetch({ error: 'already been validated' });
     const res = await verifyMiddleware(
@@ -84,21 +84,21 @@ describe('verifyMiddleware', () => {
     expect((res as NextResponse).headers.get('location')).toContain('notify=verify-account-was-valid');
   });
 
-  it('redirects with failure on non-200 responses', async () => {
+  test('redirects with failure on non-200 responses', async () => {
     const session = makeSession();
     mockFetch({ error: 'server error' }, 500);
     const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/abc'), NextResponse.next(), session);
     expect((res as NextResponse).headers.get('location')).toContain('notify=verify-account-failed');
   });
 
-  it('redirects with failure when fetch throws', async () => {
+  test('redirects with failure when fetch throws', async () => {
     const session = makeSession();
     vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network down'));
     const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/abc'), NextResponse.next(), session);
     expect((res as NextResponse).headers.get('location')).toContain('notify=verify-account-failed');
   });
 
-  it('forwards tracing headers to the verify API', async () => {
+  test('forwards tracing headers to the verify API', async () => {
     const session = makeSession();
     const fetchSpy = mockFetch({ message: 'success' });
     const req = new NextRequest('https://example.com/user/account/verify/change-email/tok', {
@@ -118,7 +118,7 @@ describe('verifyMiddleware', () => {
   });
 
   describe('msw contract coverage', () => {
-    it('calls the verify API with bearer and session cookie and forwards Set-Cookie', async () => {
+    test('calls the verify API with bearer and session cookie and forwards Set-Cookie', async () => {
       const setCookieValue = `${cookieName}=verified; Domain=example.com; Secure; Path=/; SameSite=None; HttpOnly`;
       let authHeader: string | null = null;
       let cookieHeader: string | null = null;
@@ -146,7 +146,7 @@ describe('verifyMiddleware', () => {
       expect(location).toContain('notify=verify-account-success');
     });
 
-    it('maps API error payloads from msw', async () => {
+    test('maps API error payloads from msw', async () => {
       server.use(
         rest.get('https://api.example.com/accounts/verify/:token', (_req, res, ctx) =>
           res(ctx.status(200), ctx.json({ error: 'already been validated' })),

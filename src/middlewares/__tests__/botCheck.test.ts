@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
 import { botCheck } from '@/middlewares/botCheck';
 import { getIronSession } from 'iron-session/edge';
@@ -60,7 +60,7 @@ describe('botCheck', () => {
       }) as unknown as Response,
     );
 
-  it('marks verified bot with bot token and clears apiCookieHash', async () => {
+  test('marks verified bot with bot token and clears apiCookieHash', async () => {
     mockCrawlerResponse(0); // BOT
     const session = await getIronSessionMock();
     const req = makeReq('1.1.1.1', 'TestUA');
@@ -73,7 +73,7 @@ describe('botCheck', () => {
     expect(session.save).toHaveBeenCalled();
   });
 
-  it('marks unverifiable bot with dedicated token', async () => {
+  test('marks unverifiable bot with dedicated token', async () => {
     mockCrawlerResponse(3); // UNVERIFIABLE
     const session = await getIronSessionMock();
     await botCheck(makeReq(), NextResponse.next());
@@ -82,7 +82,7 @@ describe('botCheck', () => {
     expect(session.bot).toBe(true);
   });
 
-  it('marks malicious bot with dedicated token', async () => {
+  test('marks malicious bot with dedicated token', async () => {
     mockCrawlerResponse(2); // POTENTIAL_MALICIOUS_BOT
     const session = await getIronSessionMock();
     await botCheck(makeReq(), NextResponse.next());
@@ -91,7 +91,7 @@ describe('botCheck', () => {
     expect(session.bot).toBe(true);
   });
 
-  it('does nothing for human responses', async () => {
+  test('does nothing for human responses', async () => {
     mockCrawlerResponse(1); // HUMAN
     const session = await getIronSessionMock();
     await botCheck(makeReq(), NextResponse.next());
@@ -101,7 +101,7 @@ describe('botCheck', () => {
     expect(session.save).not.toHaveBeenCalled();
   });
 
-  it('treats fetch failure as human to avoid blocking users', async () => {
+  test('treats fetch failure as human to avoid blocking users', async () => {
     vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network down'));
     const session = await getIronSessionMock();
     await botCheck(makeReq(), NextResponse.next());

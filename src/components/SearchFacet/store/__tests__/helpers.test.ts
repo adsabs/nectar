@@ -1,6 +1,6 @@
 import { IFacetStoreState } from '@/components/SearchFacet/store/FacetStore';
 import { computeNextSelectionState } from '@/components/SearchFacet/store/helpers';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 
 describe('computeNextSelectionState', () => {
   const ids = {
@@ -36,7 +36,7 @@ describe('computeNextSelectionState', () => {
     };
   });
 
-  it('selects a non-hierarchial root item', () => {
+  test('selects a non-hierarchial root item', () => {
     const nextState = computeNextSelectionState(ids.rootAlt, nonHierarchialState);
     expect(nextState).toStrictEqual<typeof nonHierarchialState>({
       ...nonHierarchialState,
@@ -44,7 +44,7 @@ describe('computeNextSelectionState', () => {
     });
   });
 
-  it('should select a root item if unselected', () => {
+  test('should select a root item if unselected', () => {
     const nextState = computeNextSelectionState(ids.root, state);
     expect(nextState).toEqual<typeof state>({
       ...state,
@@ -52,7 +52,7 @@ describe('computeNextSelectionState', () => {
     });
   });
 
-  it('should part-select the parent if we select a child', () => {
+  test('should part-select the parent if we select a child', () => {
     const nextState = computeNextSelectionState(ids.grandChild, state);
     expect(nextState).toStrictEqual<typeof state>({
       ...state,
@@ -62,7 +62,7 @@ describe('computeNextSelectionState', () => {
     });
   });
 
-  it('should unselect all children if parent is selected', () => {
+  test('should unselect all children if parent is selected', () => {
     const nextState = computeNextSelectionState(ids.root, {
       ...state,
       [ids.root]: { selected: false, partSelected: true },
@@ -75,7 +75,7 @@ describe('computeNextSelectionState', () => {
     });
   });
 
-  it('should keep parent part-selected if unselecting a sibling', () => {
+  test('should keep parent part-selected if unselecting a sibling', () => {
     const nextState = computeNextSelectionState(ids.child2, {
       ...state,
       [ids.root]: { selected: false, partSelected: true },
@@ -89,7 +89,7 @@ describe('computeNextSelectionState', () => {
     });
   });
 
-  it('should keep parent part-selected if unselecting a grandchild with a selected sibling', () => {
+  test('should keep parent part-selected if unselecting a grandchild with a selected sibling', () => {
     const nextState = computeNextSelectionState(ids.grandChild, {
       ...state,
       [ids.root]: { selected: false, partSelected: true },
@@ -105,7 +105,7 @@ describe('computeNextSelectionState', () => {
     });
   });
 
-  it('should unselect all children if parent is part-selected', () => {
+  test('should unselect all children if parent is part-selected', () => {
     const nextState = computeNextSelectionState(ids.root, {
       ...state,
       [ids.root]: { selected: false, partSelected: true },

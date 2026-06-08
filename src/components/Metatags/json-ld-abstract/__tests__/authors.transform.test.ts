@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { authorsTransform } from '../authors';
 import type { IDocsEntity } from '@/api/search/types';
 
@@ -12,7 +12,7 @@ describe('authorsTransform', () => {
     vi.clearAllMocks();
   });
 
-  it('maps authors to Person and attaches valid ORCIDs', () => {
+  test('maps authors to Person and attaches valid ORCIDs', () => {
     const doc: Partial<IDocsEntity> = {
       author: ['Jane Doe', 'John Smith', 'Sam Lee'],
       orcid_user: [
@@ -48,7 +48,7 @@ describe('authorsTransform', () => {
     ]);
   });
 
-  it('is resilient when orcid_user is missing or shorter than author list', () => {
+  test('is resilient when orcid_user is missing or shorter than author list', () => {
     const doc: Partial<IDocsEntity> = {
       author: ['A', 'B', 'C'],
       // no orcid_user
@@ -60,7 +60,7 @@ describe('authorsTransform', () => {
     ]);
   });
 
-  it('ignores empty, whitespace, and invalid ORCID values', () => {
+  test('ignores empty, whitespace, and invalid ORCID values', () => {
     const doc: Partial<IDocsEntity> = {
       author: ['A1', 'A2', 'A3', 'A4'],
       orcid_user: [' ', '', 'not-an-orcid', '-'],
@@ -73,7 +73,7 @@ describe('authorsTransform', () => {
     ]);
   });
 
-  it('does not throw if inputs are not arrays (coerces to arrays)', () => {
+  test('does not throw if inputs are not arrays (coerces to arrays)', () => {
     const doc = {
       author: 'Single Author',
       orcid_user: '0000-0002-1825-0097',
@@ -93,7 +93,7 @@ describe('authorsTransform', () => {
     ]);
   });
 
-  it('handles non-string author entries without throwing', () => {
+  test('handles non-string author entries without throwing', () => {
     const doc = {
       author: [' A ', 42, null, undefined],
       orcid_user: [],
