@@ -1,15 +1,15 @@
 import * as Q from '@/query';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
 describe('Query Utilities', () => {
-  it('can join conditions with an operator', () => {
+  test('can join conditions with an operator', () => {
     expect(Q.joinConditions('AND', ['foo', 'bar', 'baz'])).toEqual('foo AND bar AND baz');
   });
 
   /**
    * Escaping
    */
-  it.concurrent.each<[string, Parameters<typeof Q.escape>, ReturnType<typeof Q.escape>]>([
+  test.concurrent.each<[string, Parameters<typeof Q.escape>, ReturnType<typeof Q.escape>]>([
     ['\\ is properly escaped', ['f\\oooooo'], 'f\\\\oooooo'],
     ['+ is properly escaped', ['foo+oooo'], 'foo\\+oooo'],
     ['- is properly escaped', ['f-oooooo'], 'f\\-oooooo'],
@@ -34,7 +34,7 @@ describe('Query Utilities', () => {
     return Promise.resolve();
   });
 
-  it.concurrent.each<[string, Parameters<typeof Q.splitQuery>, ReturnType<typeof Q.splitQuery>]>([
+  test.concurrent.each<[string, Parameters<typeof Q.splitQuery>, ReturnType<typeof Q.splitQuery>]>([
     ['simple case', ['(1 AND 2)'], ['(1 AND 2)']],
     ['2 clauses', ['(1 AND 2) AND (3 OR 4)'], ['(1 AND 2)', '(3 OR 4)']],
     ['single clauses', ['(1) AND (2) AND (3)'], ['(1)', '(2)', '(3)']],

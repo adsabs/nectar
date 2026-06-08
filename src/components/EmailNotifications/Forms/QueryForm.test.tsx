@@ -44,7 +44,7 @@ vi.mock('@/components/Select', () => ({
       aria-label={typeof label === 'string' ? label : 'select'}
       data-testid={id}
       value={String(value?.id ?? '')}
-      onChange={(event) => onChange(options.find((option) => String(option.id) === event.target.value))}
+      onChange={(event) => onChange(options.find((option) => String(option.id) === event.target.value)!)}
     >
       {options.map((option) => (
         <option key={String(option.id)} value={String(option.id)}>

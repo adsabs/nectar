@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { pickTracingHeaders, TRACING_HEADERS } from '@/config';
 
 describe('pickTracingHeaders', () => {
-  it('extracts tracing headers from lowercase IncomingHttpHeaders', () => {
+  test('extracts tracing headers from lowercase IncomingHttpHeaders', () => {
     const headers = {
       'x-original-uri': '/some/path',
       'x-amzn-trace-id': 'Root=1-abc-def',
@@ -17,12 +17,12 @@ describe('pickTracingHeaders', () => {
     });
   });
 
-  it('handles missing headers gracefully', () => {
+  test('handles missing headers gracefully', () => {
     const result = pickTracingHeaders({});
     expect(result).toEqual({});
   });
 
-  it('ignores array-valued headers', () => {
+  test('ignores array-valued headers', () => {
     const headers = {
       'x-forwarded-for': ['1.2.3.4', '5.6.7.8'],
     };
@@ -31,7 +31,7 @@ describe('pickTracingHeaders', () => {
     expect(result).toEqual({});
   });
 
-  it('preserves original key casing from TRACING_HEADERS', () => {
+  test('preserves original key casing from TRACING_HEADERS', () => {
     const headers = {
       'x-original-uri': '/path',
       'x-original-forwarded-for': '1.2.3.4',

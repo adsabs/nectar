@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useGetAuthors } from '../useGetAuthors';
 import { IDocsEntity } from '@/api/search/types';
 
 describe('useGetAuthors', () => {
-  it('filters out empty string orcid values from result', () => {
+  test('filters out empty string orcid values from result', () => {
     const doc = {
       author: ['Smith, John', 'Doe, Jane'],
       aff: ['University A', 'University B'],
@@ -23,7 +23,7 @@ describe('useGetAuthors', () => {
     ]);
   });
 
-  it('preserves valid orcid values while filtering empty ones', () => {
+  test('preserves valid orcid values while filtering empty ones', () => {
     const doc = {
       author: ['Smith, John', 'Doe, Jane'],
       aff: ['University A', 'University B'],

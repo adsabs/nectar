@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { AxiosError } from 'axios';
 
 import api from '@/api/api';
@@ -11,7 +11,7 @@ describe('fetchUserSettings', () => {
     vi.restoreAllMocks();
   });
 
-  it('returns default user settings on authorization errors', async () => {
+  test('returns default user settings on authorization errors', async () => {
     const error = new AxiosError('Forbidden', AxiosError.ERR_BAD_RESPONSE, {}, undefined, {
       status: 403,
       statusText: 'Forbidden',
@@ -38,7 +38,7 @@ describe('fetchUserSettings', () => {
     );
   });
 
-  it('rethrows non-authorization errors', async () => {
+  test('rethrows non-authorization errors', async () => {
     const error = new AxiosError('Internal Server Error', AxiosError.ERR_BAD_RESPONSE, {}, undefined, {
       status: 500,
       statusText: 'Internal Server Error',

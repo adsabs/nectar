@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
 import { rest } from 'msw';
 import { webcrypto } from 'crypto';
@@ -56,7 +56,7 @@ describe('initSession msw contracts', () => {
     vi.clearAllMocks();
   });
 
-  it('hydrates from the bootstrap API and rewrites cookie attributes', async () => {
+  test('hydrates from the bootstrap API and rewrites cookie attributes', async () => {
     const bootstrapCookie = `${cookieName}=rotated; Domain=.example.com; SameSite=None; HttpOnly; Secure; Path=/; Max-Age=3600`;
     const expiresAt = `${Math.floor(Date.now() / 1000) + 600}`;
     let receivedCookie: string | null = null;
@@ -104,7 +104,7 @@ describe('initSession msw contracts', () => {
     expect(session.apiCookieHash).toBe(await hash('rotated'));
   });
 
-  it('avoids setting Set-Cookie when the API returns the same cookie value', async () => {
+  test('avoids setting Set-Cookie when the API returns the same cookie value', async () => {
     const expiresAt = `${Math.floor(Date.now() / 1000) + 600}`;
     server.use(
       rest.get('https://api.example.com/accounts/bootstrap', (_req, res, ctx) =>

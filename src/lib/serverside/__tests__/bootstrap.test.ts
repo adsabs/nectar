@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
+import { describe, expect, test, beforeEach, afterEach, vi } from 'vitest';
 import { bootstrap } from '../bootstrap';
 import { getIronSession } from 'iron-session/edge';
 
@@ -38,7 +38,7 @@ describe('bootstrap', () => {
     fetchSpy.mockRestore();
   });
 
-  it('forwards tracing headers to the bootstrap API', async () => {
+  test('forwards tracing headers to the bootstrap API', async () => {
     const req = {
       headers: {
         cookie: 'ads_session=abc',
@@ -60,7 +60,7 @@ describe('bootstrap', () => {
     expect(headers.get('X-Forwarded-For')).toBe('10.0.0.1');
   });
 
-  it('makes fetch call without tracing headers when none present', async () => {
+  test('makes fetch call without tracing headers when none present', async () => {
     const req = {
       headers: {
         cookie: 'ads_session=abc',
