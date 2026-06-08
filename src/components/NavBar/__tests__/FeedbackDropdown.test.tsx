@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { FeedbackDropdown, feedbackItems } from '../FeedbackDropdown';
 import { ListType } from '../types';
 import { render, screen } from '@/test-utils';
@@ -41,7 +41,7 @@ const items = Object.values(feedbackItems);
 
 describe('FeedbackDropdown', () => {
   describe('dropdown variant', () => {
-    it('renders menu items as <a> elements with href', async () => {
+    test('renders menu items as <a> elements with href', async () => {
       mockRouter = createMockRouter();
 
       const { user } = render(<FeedbackDropdown type={ListType.DROPDOWN} />);
@@ -58,7 +58,7 @@ describe('FeedbackDropdown', () => {
       }
     });
 
-    it('includes correct path and from query param in href', async () => {
+    test('includes correct path and from query param in href', async () => {
       mockRouter = createMockRouter({ asPath: '/search?q=star' });
 
       const { user } = render(<FeedbackDropdown type={ListType.DROPDOWN} />);
@@ -76,7 +76,7 @@ describe('FeedbackDropdown', () => {
       }
     });
 
-    it('strips existing from param before encoding', async () => {
+    test('strips existing from param before encoding', async () => {
       mockRouter = createMockRouter({
         asPath: '/search?q=star&from=/abs/1234',
       });
@@ -97,7 +97,7 @@ describe('FeedbackDropdown', () => {
   });
 
   describe('accordion variant', () => {
-    it('renders list items with <a> elements containing href', () => {
+    test('renders list items with <a> elements containing href', () => {
       mockRouter = createMockRouter();
 
       render(<FeedbackDropdown type={ListType.ACCORDION} />);
@@ -112,7 +112,7 @@ describe('FeedbackDropdown', () => {
       }
     });
 
-    it('calls onFinished when a link is clicked', async () => {
+    test('calls onFinished when a link is clicked', async () => {
       mockRouter = createMockRouter();
       const onFinished = vi.fn();
 

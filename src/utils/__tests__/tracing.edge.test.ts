@@ -1,8 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { pickTracingHeadersEdge } from '@/utils/tracing.edge';
 
 describe('pickTracingHeadersEdge', () => {
-  it('extracts tracing headers from a Request-like headers object', () => {
+  test('extracts tracing headers from a Request-like headers object', () => {
     const headers = new Headers({
       'X-Amzn-Trace-Id': 'Root=1-abc-def',
       'X-Forwarded-For': '10.0.0.1',
@@ -17,12 +17,12 @@ describe('pickTracingHeadersEdge', () => {
     });
   });
 
-  it('handles missing headers gracefully', () => {
+  test('handles missing headers gracefully', () => {
     const result = pickTracingHeadersEdge(new Headers());
     expect(result).toEqual({});
   });
 
-  it('sanitizes control characters from header values', () => {
+  test('sanitizes control characters from header values', () => {
     // jsdom Headers rejects control characters per Fetch spec, but real
     // edge runtimes can receive them from upstream proxies. Stub .get()
     // to simulate a value containing control characters.

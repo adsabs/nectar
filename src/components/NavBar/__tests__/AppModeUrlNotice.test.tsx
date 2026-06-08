@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { NavBar } from '../NavBar';
 import { AppMode } from '@/types';
 import { render, waitFor } from '@/test-utils';
@@ -68,7 +68,7 @@ describe('AppModeUrlNotice', () => {
     mockRouter = createMockRouter();
   });
 
-  it('applies discipline from URL param on /search and shows notice with switch back', async () => {
+  test('applies discipline from URL param on /search and shows notice with switch back', async () => {
     // The notice logic only runs on /search, so we must set the pathname.
     mockRouter = createMockRouter({ query: { d: 'heliophysics' }, pathname: '/search' });
 
@@ -82,7 +82,7 @@ describe('AppModeUrlNotice', () => {
     expect(mockRouter.query.d).toBe('astrophysics');
   });
 
-  it('does nothing when URL param is missing', async () => {
+  test('does nothing when URL param is missing', async () => {
     mockRouter = createMockRouter({ pathname: '/search' }); // No 'd' param
 
     const { queryByTestId } = render(<NavBar />, { initialStore: { mode: AppMode.ASTROPHYSICS } });
@@ -92,7 +92,7 @@ describe('AppModeUrlNotice', () => {
     expect(queryByTestId('app-mode-url-notice')).toBeNull();
   });
 
-  it('normalizes uppercase discipline param to lowercase in the URL', async () => {
+  test('normalizes uppercase discipline param to lowercase in the URL', async () => {
     mockRouter = createMockRouter({ query: { d: 'HELIOPHYSICS' }, pathname: '/search' });
 
     render(<NavBar />, { initialStore: { mode: AppMode.GENERAL } });

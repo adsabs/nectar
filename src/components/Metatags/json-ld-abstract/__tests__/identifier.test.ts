@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { collectIdentifiersFromArray } from '../identifiers';
 
 describe('collectIdentifiersFromArray', () => {
-  it('parses common IDs from identifier[] only', () => {
+  test('parses common IDs from identifier[] only', () => {
     const { identifiers, sameAs } = collectIdentifiersFromArray({
       identifier: [
         'arXiv:2503.12263',
@@ -40,7 +40,7 @@ describe('collectIdentifiersFromArray', () => {
     expect(sameAs).toContain('https://www.semanticscholar.org/paper/abcdef');
   });
 
-  it('ignores junk without throwing', () => {
+  test('ignores junk without throwing', () => {
     const { identifiers, sameAs } = collectIdentifiersFromArray({
       identifier: ['', '  ', 'not-an-id', 0 as unknown as string],
     });
@@ -48,7 +48,7 @@ describe('collectIdentifiersFromArray', () => {
     expect(Array.isArray(sameAs)).toBe(true);
   });
 
-  it('dedupes duplicate identifiers and trims spaces/tags', () => {
+  test('dedupes duplicate identifiers and trims spaces/tags', () => {
     const { identifiers, sameAs } = collectIdentifiersFromArray({
       identifier: [
         'arXiv:2503.12263',
@@ -74,7 +74,7 @@ describe('collectIdentifiersFromArray', () => {
     expect(sa.size).toBe(3);
   });
 
-  it('encodes special characters in DOI sameAs URL', () => {
+  test('encodes special characters in DOI sameAs URL', () => {
     const { sameAs } = collectIdentifiersFromArray({
       identifier: ['10.1002/1521-3994(199908)320:4/5<163::AID-ASNA163>3.0.CO;2-#'],
     });
