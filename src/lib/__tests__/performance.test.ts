@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 import * as Sentry from '@sentry/nextjs';
 
 // Mock Sentry
@@ -14,7 +14,7 @@ describe('performance utilities', () => {
   });
 
   describe('trackUserFlow', () => {
-    it('should create a span with the correct name and call the callback', async () => {
+    test('should create a span with the correct name and call the callback', async () => {
       const { trackUserFlow } = await import('../performance');
       const mockFn = vi.fn().mockResolvedValue('result');
 
@@ -30,7 +30,7 @@ describe('performance utilities', () => {
       expect(result).toBe('result');
     });
 
-    it('should pass additional tags to the span', async () => {
+    test('should pass additional tags to the span', async () => {
       const { trackUserFlow } = await import('../performance');
       const mockFn = vi.fn().mockResolvedValue('result');
 
@@ -51,7 +51,7 @@ describe('performance utilities', () => {
       );
     });
 
-    it('should handle errors and still end the span', async () => {
+    test('should handle errors and still end the span', async () => {
       const { trackUserFlow } = await import('../performance');
       const error = new Error('Test error');
       const mockFn = vi.fn().mockRejectedValue(error);
@@ -61,7 +61,7 @@ describe('performance utilities', () => {
   });
 
   describe('startRenderSpan', () => {
-    it('should start an inactive span and return end function', async () => {
+    test('should start an inactive span and return end function', async () => {
       const { startRenderSpan } = await import('../performance');
       const mockEnd = vi.fn();
       vi.mocked(Sentry.startInactiveSpan).mockReturnValue({
@@ -83,7 +83,7 @@ describe('performance utilities', () => {
   });
 
   describe('getResultCountBucket', () => {
-    it('should return correct buckets', async () => {
+    test('should return correct buckets', async () => {
       const { getResultCountBucket } = await import('../performance');
 
       expect(getResultCountBucket(0)).toBe('0');
@@ -97,14 +97,14 @@ describe('performance utilities', () => {
   });
 
   describe('getQueryType', () => {
-    it('should detect simple queries', async () => {
+    test('should detect simple queries', async () => {
       const { getQueryType } = await import('../performance');
 
       expect(getQueryType('black holes')).toBe('simple');
       expect(getQueryType('exoplanet')).toBe('simple');
     });
 
-    it('should detect fielded queries', async () => {
+    test('should detect fielded queries', async () => {
       const { getQueryType } = await import('../performance');
 
       expect(getQueryType('author:Einstein')).toBe('fielded');
@@ -112,7 +112,7 @@ describe('performance utilities', () => {
       expect(getQueryType('bibcode:2020ApJ')).toBe('fielded');
     });
 
-    it('should detect boolean queries', async () => {
+    test('should detect boolean queries', async () => {
       const { getQueryType } = await import('../performance');
 
       expect(getQueryType('black holes AND exoplanets')).toBe('boolean');

@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { normalizePubdate, prune } from '../docToJsonld';
 
 describe('normalizePubdate', () => {
-  it('returns undefined for falsy or invalid inputs', () => {
+  test('returns undefined for falsy or invalid inputs', () => {
     expect(normalizePubdate(undefined)).toBeUndefined();
     expect(normalizePubdate('')).toBeUndefined();
     expect(normalizePubdate('  ')).toBeUndefined();
@@ -12,7 +12,7 @@ describe('normalizePubdate', () => {
     expect(normalizePubdate('2025-00-32')).toBeUndefined();
   });
 
-  it('passes through valid values including placeholders', () => {
+  test('passes through valid values including placeholders', () => {
     expect(normalizePubdate('2025')).toBe('2025');
     expect(normalizePubdate('2025-03')).toBe('2025-03');
     expect(normalizePubdate('2025-03-00')).toBe('2025-03-00');
@@ -21,7 +21,7 @@ describe('normalizePubdate', () => {
 });
 
 describe('prune', () => {
-  it('drops undefined, null, empty strings, and empty arrays by default', () => {
+  test('drops undefined, null, empty strings, and empty arrays by default', () => {
     const input: Record<string, unknown> = {
       a: undefined,
       b: null,

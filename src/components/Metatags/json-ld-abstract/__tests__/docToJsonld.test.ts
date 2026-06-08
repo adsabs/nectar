@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 // --- Import after mocks so they take effect ---
 import { docToJsonld } from '../docToJsonld';
 import { IDocsEntity } from '@/api/search/types';
@@ -31,7 +31,7 @@ describe('docToJsonld', () => {
     mockCollect.mockClear();
   });
 
-  it('builds a ScholarlyArticle JSON-LD with canonical SciXplorer URL/ID and mapped fields', () => {
+  test('builds a ScholarlyArticle JSON-LD with canonical SciXplorer URL/ID and mapped fields', () => {
     const doc: Partial<IDocsEntity> = {
       bibcode: '2025arXiv250312263A',
       title: ['The Science of the Einstein Telescope'],
@@ -95,7 +95,7 @@ describe('docToJsonld', () => {
     ]);
   });
 
-  it('URL-encodes the bibcode in @id and url', () => {
+  test('URL-encodes the bibcode in @id and url', () => {
     // Simulate an unusual bibcode that needs encoding to ensure code path is correct
     const doc: Partial<IDocsEntity> = {
       bibcode: '2025arXiv2503/12263A', // slash will be encoded
@@ -113,7 +113,7 @@ describe('docToJsonld', () => {
     expect(jsonld.url).toBe('https://scixplorer.org/abs/2025arXiv2503%2F12263A/abstract');
   });
 
-  it('strips HTML tags from abstract for JSON-LD', () => {
+  test('strips HTML tags from abstract for JSON-LD', () => {
     const doc: Partial<IDocsEntity> = {
       bibcode: '2025arXiv250312263A',
       title: ['X'],
@@ -129,7 +129,7 @@ describe('docToJsonld', () => {
     expect(jsonld.abstract).toBe('Einstein Telescope is the European project...');
   });
 
-  it('strips HTML tags from title for JSON-LD', () => {
+  test('strips HTML tags from title for JSON-LD', () => {
     const doc: Partial<IDocsEntity> = {
       bibcode: '2025arXiv250312263A',
       title: ['<b>The</b> <i>Science</i> of <span>ET</span>'],

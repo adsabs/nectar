@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { ResetSettingsButton } from './ResetSettingsButton';
 import { UserDataKeys } from '@/api/user/types';
 import { DEFAULT_USER_DATA } from '@/api/user/models';
@@ -20,12 +20,12 @@ describe('ResetSettingsButton', () => {
     mockUpdateSettings.mockClear();
   });
 
-  it('renders reset button', () => {
+  test('renders reset button', () => {
     render(<ResetSettingsButton settingsKeys={[UserDataKeys.PREFERRED_SEARCH_SORT]} label="Reset Search Settings" />);
     expect(screen.getByRole('button', { name: /reset search settings/i })).toBeInTheDocument();
   });
 
-  it('opens confirmation dialog on click', async () => {
+  test('opens confirmation dialog on click', async () => {
     render(<ResetSettingsButton settingsKeys={[UserDataKeys.PREFERRED_SEARCH_SORT]} label="Reset Search Settings" />);
     fireEvent.click(screen.getByRole('button', { name: /reset search settings/i }));
     await waitFor(() => {
@@ -34,7 +34,7 @@ describe('ResetSettingsButton', () => {
     expect(screen.getByText(/are you sure/i)).toBeInTheDocument();
   });
 
-  it('calls updateSettings with default values when confirmed', async () => {
+  test('calls updateSettings with default values when confirmed', async () => {
     render(
       <ResetSettingsButton
         settingsKeys={[UserDataKeys.PREFERRED_SEARCH_SORT, UserDataKeys.MIN_AUTHOR_RESULT]}
@@ -54,7 +54,7 @@ describe('ResetSettingsButton', () => {
     });
   });
 
-  it('closes dialog without action when cancelled', async () => {
+  test('closes dialog without action when cancelled', async () => {
     render(<ResetSettingsButton settingsKeys={[UserDataKeys.PREFERRED_SEARCH_SORT]} label="Reset Search Settings" />);
     fireEvent.click(screen.getByRole('button', { name: /reset search settings/i }));
     await waitFor(() => {
@@ -67,7 +67,7 @@ describe('ResetSettingsButton', () => {
     expect(mockUpdateSettings).not.toHaveBeenCalled();
   });
 
-  it('displays tab-specific text when tabName is provided', async () => {
+  test('displays tab-specific text when tabName is provided', async () => {
     render(
       <ResetSettingsButton
         settingsKeys={[UserDataKeys.PREFERRED_SEARCH_SORT]}
@@ -82,7 +82,7 @@ describe('ResetSettingsButton', () => {
     expect(screen.getByText(/search settings/i)).toBeInTheDocument();
   });
 
-  it('displays generic text when tabName is not provided', async () => {
+  test('displays generic text when tabName is not provided', async () => {
     render(<ResetSettingsButton settingsKeys={[UserDataKeys.PREFERRED_SEARCH_SORT]} label="Reset to defaults" />);
     fireEvent.click(screen.getByRole('button', { name: /reset to defaults/i }));
     await waitFor(() => {

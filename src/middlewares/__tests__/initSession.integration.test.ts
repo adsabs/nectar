@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, it, vi, afterEach } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi, afterEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
 import { webcrypto } from 'crypto';
 import { initSession, isValidToken, hash } from '@/middlewares/initSession';
@@ -75,7 +75,7 @@ describe('initSession integration', () => {
       },
     });
 
-  it('uses fast path when token is valid and hash matches', async () => {
+  test('uses fast path when token is valid and hash matches', async () => {
     const cookieValue = 'abc123';
     const cookieHash = await hash(cookieValue);
     const session = createSession({
@@ -107,7 +107,7 @@ describe('initSession integration', () => {
     expect(session.apiCookieHash).toBe(cookieHash);
   });
 
-  it('hydrates session on slow path and rewrites session cookie', async () => {
+  test('hydrates session on slow path and rewrites session cookie', async () => {
     process.env.NEXT_PUBLIC_API_MOCKING = 'enabled';
     const session = createSession({
       token: {
@@ -141,7 +141,7 @@ describe('initSession integration', () => {
     expect(session.apiCookieHash).toBe(await hash('mocked'));
   });
 
-  it('leaves session untouched when bootstrap fails', async () => {
+  test('leaves session untouched when bootstrap fails', async () => {
     process.env.NEXT_PUBLIC_API_MOCKING = '';
     const session = createSession({
       token: {
@@ -172,7 +172,7 @@ describe('initSession integration', () => {
     expect(session.apiCookieHash).toBe('stale');
   });
 
-  it('forces slow path when refresh header present even with valid token', async () => {
+  test('forces slow path when refresh header present even with valid token', async () => {
     const cookieValue = 'abc123';
     const session = createSession({
       token: {
@@ -210,7 +210,7 @@ describe('initSession integration', () => {
     expect(setCookie?.path).toBe('/');
   });
 
-  it('does not set response cookie when API cookie value is unchanged', async () => {
+  test('does not set response cookie when API cookie value is unchanged', async () => {
     const cookieValue = 'unchanged';
     const session = createSession({
       token: {
@@ -239,7 +239,7 @@ describe('initSession integration', () => {
     expect(session.apiCookieHash).toBe(await hash(cookieValue));
   });
 
-  it('forwards tracing headers to bootstrap call', async () => {
+  test('forwards tracing headers to bootstrap call', async () => {
     const cookieValue = 'test-cookie';
     const session = createSession({
       token: {
