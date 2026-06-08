@@ -25,6 +25,18 @@ describe('createUrlByType', () => {
     expect(url).toContain('10.48550/arXiv.2507.19320');
   });
 
+  test('fully encodes / in non-DOI identifiers (e.g. legacy arXiv ids)', () => {
+    const url = createUrlByType('test', 'arxiv', 'hep-th/9901001');
+    expect(url).toContain('arxiv:hep-th%2F9901001');
+    expect(url).not.toContain('arxiv:hep-th/9901001');
+  });
+
+  test('encodes the bibcode for consistency with the gateway url', () => {
+    const url = createUrlByType('2020A&A...1..1X', 'doi', '10.1000/x');
+    expect(url).toContain('2020A%26A...1..1X');
+    expect(url).not.toContain('2020A&A');
+  });
+
   test('returns empty string for non-string arguments', () => {
     expect(createUrlByType(null as unknown as string, 'doi', '10.1000/x')).toBe('');
     expect(createUrlByType('bib', null as unknown as string, '10.1000/x')).toBe('');
