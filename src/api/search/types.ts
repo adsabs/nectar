@@ -123,6 +123,7 @@ export type FacetField =
   | 'nedtype_object_facet_hier'
   | 'simbad_object_facet_hier'
   | 'planetary_feature_facet_hier_3level'
+  | 'uat'
   | 'uat_facet_hier';
 
 export interface IFacetCountsFields {
