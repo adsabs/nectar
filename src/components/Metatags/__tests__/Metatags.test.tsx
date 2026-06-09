@@ -357,25 +357,25 @@ describe('Metatags Component', () => {
   });
 
   describe('Edge Cases', () => {
-    test('handles PhD Thesis doctype', () => {
-      const doc = createMockDoc({ doctype: 'PhD Thesis' });
+    test('handles phdthesis doctype', () => {
+      const doc = createMockDoc({ doctype: 'phdthesis' });
       const { container } = render(<Metatags doc={doc} />);
 
       const dissertationTag = container.querySelector('meta[name="citation_dissertation_name"]');
       expect(dissertationTag?.getAttribute('content')).toBe('Phd');
     });
 
-    test('handles Masters Thesis doctype', () => {
-      const doc = createMockDoc({ doctype: 'Masters Thesis' });
+    test('handles mastersthesis doctype', () => {
+      const doc = createMockDoc({ doctype: 'mastersthesis' });
       const { container } = render(<Metatags doc={doc} />);
 
       const dissertationTag = container.querySelector('meta[name="citation_dissertation_name"]');
       expect(dissertationTag?.getAttribute('content')).toBe('MS');
     });
 
-    test('handles Proceedings doctype with conference tag', () => {
+    test('handles proceedings doctype with conference tag', () => {
       const doc = createMockDoc({
-        doctype: 'Proceedings',
+        doctype: 'proceedings',
         bibstem: ['SPIE'],
         pub: undefined,
       });
@@ -461,6 +461,72 @@ describe('Metatags Component', () => {
 
       const citationTitle = container.querySelector('meta[name="citation_title"]');
       expect(citationTitle?.getAttribute('content')).toBe('Study of Drosophila melanogaster and key findings');
+    });
+  });
+
+  describe('Google Scholar Doctype Gating', () => {
+    const countScholarTags = (container: HTMLElement) => ({
+      citation: container.querySelectorAll('meta[name^="citation_"]').length,
+      prism: container.querySelectorAll('meta[name^="prism."]').length,
+      dc: container.querySelectorAll('meta[name^="dc."]').length,
+    });
+
+    test('renders citation_, prism., and dc. tags for a whitelisted doctype', () => {
+      const doc = createMockDoc({ doctype: 'article' });
+      const { container } = render(<Metatags doc={doc} />);
+
+      const counts = countScholarTags(container);
+      expect(counts.citation).toBeGreaterThan(0);
+      expect(counts.prism).toBeGreaterThan(0);
+      expect(counts.dc).toBeGreaterThan(0);
+    });
+
+    test('omits all Google Scholar tags for a removed doctype', () => {
+      const doc = createMockDoc({ doctype: 'dataset' });
+      const { container } = render(<Metatags doc={doc} />);
+
+      const counts = countScholarTags(container);
+      expect(counts.citation).toBe(0);
+      expect(counts.prism).toBe(0);
+      expect(counts.dc).toBe(0);
+    });
+
+    test('omits all Google Scholar tags for an unlisted doctype', () => {
+      const doc = createMockDoc({ doctype: 'intechreport' });
+      const { container } = render(<Metatags doc={doc} />);
+
+      const counts = countScholarTags(container);
+      expect(counts.citation).toBe(0);
+      expect(counts.prism).toBe(0);
+      expect(counts.dc).toBe(0);
+    });
+
+    test('omits all Google Scholar tags when doctype is missing', () => {
+      const doc = createMockDoc({ doctype: undefined });
+      const { container } = render(<Metatags doc={doc} />);
+
+      const counts = countScholarTags(container);
+      expect(counts.citation).toBe(0);
+      expect(counts.prism).toBe(0);
+      expect(counts.dc).toBe(0);
+    });
+
+    test('matches the whitelist case-insensitively', () => {
+      const doc = createMockDoc({ doctype: 'ARTICLE' });
+      const { container } = render(<Metatags doc={doc} />);
+
+      expect(container.querySelectorAll('meta[name^="citation_"]').length).toBeGreaterThan(0);
+    });
+
+    test('keeps JSON-LD, OpenGraph, Twitter, canonical, and description for a removed doctype', () => {
+      const doc = createMockDoc({ doctype: 'software' });
+      const { container } = render(<Metatags doc={doc} />);
+
+      expect(container.querySelector('script[type="application/ld+json"]')).toBeTruthy();
+      expect(container.querySelector('meta[property="og:title"]')).toBeTruthy();
+      expect(container.querySelector('meta[name="twitter:card"]')).toBeTruthy();
+      expect(container.querySelector('link[rel="canonical"]')).toBeTruthy();
+      expect(container.querySelector('meta[name="description"]')).toBeTruthy();
     });
   });
 });
