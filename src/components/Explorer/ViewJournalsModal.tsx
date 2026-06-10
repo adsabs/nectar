@@ -1,4 +1,3 @@
-import { useColorModeColors } from '@/lib/useColorModeColors';
 import { kFormatNumber } from '@/utils/common/formatters';
 import {
   Modal,
@@ -23,26 +22,21 @@ import { APP_DEFAULTS } from '@/config';
 import { NumPerPageType } from '@/types';
 import { useDebounce } from '@/lib/useDebounce';
 import { CloseIcon } from '@chakra-ui/icons';
-import { IExplorerCollection } from './types';
-import { parseTitleFromKey } from '../SearchFacet/helpers';
+import { SimpleLink } from '../SimpleLink';
+import { IADSApiSearchParams } from '@/api/search/types';
+import { makeJournalSearchLink } from './helpers';
 
-export const ViewCollectionModal = ({
-  collectionId,
-  label,
+export const ViewJournalsModal = ({
+  query,
   data,
   isOpen,
   onClose,
-  onSelectFacet,
 }: {
-  collectionId: IExplorerCollection['id'];
-  label: string;
+  query: IADSApiSearchParams;
   data: { val: number | string; count: number }[];
   isOpen: boolean;
   onClose: () => void;
-  onSelectFacet: (collectionId: IExplorerCollection['id'], facetKey: string) => void;
 }) => {
-  const colors = useColorModeColors();
-
   const [pageIndex, setPageIndex] = useState(0);
 
   const [pageSize, setPageSize] = useState<number>(APP_DEFAULTS.RESULT_PER_PAGE);
@@ -55,11 +49,7 @@ export const ViewCollectionModal = ({
     if (!debouncedSearchTerm) {
       return data;
     }
-    return data.filter((d) =>
-      parseTitleFromKey(d.val as string)
-        .toLowerCase()
-        .includes(debouncedSearchTerm.toLowerCase()),
-    );
+    return data.filter((d) => (d.val as string).toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
   }, [data, debouncedSearchTerm]);
 
   const pageData = useMemo(() => {
@@ -94,16 +84,12 @@ export const ViewCollectionModal = ({
     <Modal isOpen={isOpen} onClose={handleOnClose} size="2xl" scrollBehavior="inside">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{label}</ModalHeader>
+        <ModalHeader>Top 100 Journals</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Flex direction="column" gap={4} h="600px">
             <InputGroup>
-              <Input
-                placeholder={`Search within ${label.toLowerCase()}`}
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
+              <Input placeholder={`Search within top 100 journals`} value={searchTerm} onChange={handleSearchChange} />
               <InputRightElement>
                 <IconButton
                   aria-label="clear search"
@@ -118,21 +104,14 @@ export const ViewCollectionModal = ({
             <Flex direction="column" gap={4}>
               <Table variant="simple" size="sm">
                 <Tbody>
-                  {pageData.map((d) => (
-                    <Tr
-                      key={d.val}
-                      cursor="pointer"
-                      _hover={{ backgroundColor: colors.highlightBackground, color: colors.highlightForeground }}
-                      onClick={() => onSelectFacet(collectionId, d.val as string)}
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          onSelectFacet(collectionId, d.val as string);
-                        }
-                      }}
-                    >
-                      <Td>{parseTitleFromKey(d.val as string)}</Td>
-                      <Td isNumeric>{kFormatNumber(d.count)}</Td>
+                  {pageData.map((pub) => (
+                    <Tr key={pub.val} cursor="pointer">
+                      <Td>
+                        <SimpleLink href={makeJournalSearchLink(query, pub.val as string)} newTab>
+                          {pub.val as string}
+                        </SimpleLink>
+                      </Td>
+                      <Td isNumeric>{kFormatNumber(pub.count)}</Td>
                     </Tr>
                   ))}
                 </Tbody>

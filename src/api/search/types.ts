@@ -108,6 +108,7 @@ export type FacetField =
   | 'author_facet'
   | 'bibgroup_facet'
   | 'bibstem_facet'
+  | 'pub'
   | 'pub_abbrev'
   | 'data_facet'
   | 'keyword_facet'

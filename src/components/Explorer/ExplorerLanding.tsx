@@ -4,35 +4,16 @@ import { kFormatNumber } from '@/utils/common/formatters';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
 import { useDisclosure, Heading, Flex, Box, Card, CardBody, Text } from '@chakra-ui/react';
 import { useState } from 'react';
-import { getSearchFacetParams, IUseGetFacetDataProps } from '../SearchFacet/useGetFacetData';
-import { collectionSearchParams, collections, explorerFacets } from './data';
+import { getSearchFacetParams } from '../SearchFacet/useGetFacetData';
+import { explorerCollections, explorerFacets } from './data';
 import { ViewCollectionModal } from './ViewCollectionModal';
-import { IADSApiSearchParams } from '@/api/search/types';
-import { APP_DEFAULTS } from '@/config';
 import { IExplorerCollection } from './types';
-
-const allRecordsQuery: IADSApiSearchParams = {
-  q: '*:*',
-  sort: APP_DEFAULTS.SORT,
-  rows: 0,
-};
-
-const extractFacetVal = (key: string) => {
-  return key.split('/').pop();
-};
-
-const searchFacetDefaultParams: IUseGetFacetDataProps & { offset: number; limit?: number } = {
-  field: 'database',
-  prefix: '',
-  query: '',
-  level: 'root',
-  sortField: 'count',
-  sortDir: 'desc',
-  offset: 0,
-  limit: 500,
-};
+import { useRouter } from 'next/router';
+import { allRecordsQuery, searchFacetDefaultParams } from './helpers';
 
 export const ExplorerLanding = () => {
+  const router = useRouter();
+
   // disciplines
   const {
     data: databaseData,
@@ -41,10 +22,10 @@ export const ExplorerLanding = () => {
   } = useGetSearchFacetJSON({
     ...allRecordsQuery,
     filter: [],
-    field: collectionSearchParams.database.field,
+    field: explorerCollections.database.facetSearchParams.field,
     ['json.facet']: getSearchFacetParams({
       ...searchFacetDefaultParams,
-      ...collectionSearchParams.database,
+      ...explorerCollections.database.facetSearchParams,
     }),
   });
 
@@ -56,10 +37,10 @@ export const ExplorerLanding = () => {
   } = useGetSearchFacetJSON({
     ...allRecordsQuery,
     filter: [],
-    field: collectionSearchParams.doctype.field,
+    field: explorerCollections.doctype.facetSearchParams.field,
     ['json.facet']: getSearchFacetParams({
       ...searchFacetDefaultParams,
-      ...collectionSearchParams.doctype,
+      ...explorerCollections.doctype.facetSearchParams,
     }),
   });
 
@@ -71,10 +52,10 @@ export const ExplorerLanding = () => {
   } = useGetSearchFacetJSON({
     ...allRecordsQuery,
     filter: [],
-    field: collectionSearchParams.bibgroup.field,
+    field: explorerCollections.bibgroup.facetSearchParams.field,
     ['json.facet']: getSearchFacetParams({
       ...searchFacetDefaultParams,
-      ...collectionSearchParams.bibgroup,
+      ...explorerCollections.bibgroup.facetSearchParams,
     }),
   });
 
@@ -86,10 +67,10 @@ export const ExplorerLanding = () => {
   } = useGetSearchFacetJSON({
     ...allRecordsQuery,
     filter: [],
-    field: collectionSearchParams.data.field,
+    field: explorerCollections.data.facetSearchParams.field,
     ['json.facet']: getSearchFacetParams({
       ...searchFacetDefaultParams,
-      ...collectionSearchParams.data,
+      ...explorerCollections.data.facetSearchParams,
     }),
   });
 
@@ -117,8 +98,8 @@ export const ExplorerLanding = () => {
     onOpen();
   };
 
-  const handleSelectFacet = (facetKey: string) => {
-    console.log(facetKey);
+  const handleSelectFacet = (collection: IExplorerCollection['id'], facet: string) => {
+    router.push({ pathname: router.pathname, query: { collection, facet: facet } });
     onClose();
   };
 
@@ -128,7 +109,7 @@ export const ExplorerLanding = () => {
       <Flex direction="column" mt={4} gap={12} w="full">
         <Box as="section" w="full">
           <Heading as="h3" size="md" mb={2}>
-            {collections.database.label}
+            {explorerCollections.database.label}
           </Heading>
           <Flex gap={4} width="full" flexWrap="wrap">
             {explorerFacets.database.map((discipline) => (
@@ -158,11 +139,11 @@ export const ExplorerLanding = () => {
                   _before: { opacity: 0 }, // Fades out the dark overlay
                 }}
                 tabIndex={0}
-                onClick={() => handleSelectFacet(discipline.facetKey)}
+                onClick={() => handleSelectFacet(explorerCollections.database.id, discipline.facetKey)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    handleSelectFacet(discipline.facetKey);
+                    handleSelectFacet(explorerCollections.database.id, discipline.facetKey);
                   }
                 }}
               >
@@ -191,7 +172,7 @@ export const ExplorerLanding = () => {
         <Box as="section" w="full">
           <Flex justifyContent="space-between" alignItems="center" mb={4}>
             <Heading as="h3" size="md" mb={2}>
-              {collections.doctype.label}
+              {explorerCollections.doctype.label}
             </Heading>
             <Text
               fontSize="sm"
@@ -233,11 +214,11 @@ export const ExplorerLanding = () => {
                   boxShadow: 'xl',
                 }}
                 tabIndex={0}
-                onClick={() => handleSelectFacet(rt.facetKey)}
+                onClick={() => handleSelectFacet(explorerCollections.doctype.id, rt.facetKey)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    handleSelectFacet(rt.facetKey);
+                    handleSelectFacet(explorerCollections.doctype.id, rt.facetKey);
                   }
                 }}
               >
@@ -251,7 +232,7 @@ export const ExplorerLanding = () => {
                       {!isRtypeError && !isRtypeLoading && (
                         <Text fontSize="sm">
                           {kFormatNumber(
-                            rtypeData.doctype_facet_hier.buckets.find((t) => extractFacetVal(t.val as string) === rt.id)
+                            rtypeData.doctype_facet_hier.buckets.find((t) => (t.val as string) === rt.facetKey)
                               ?.count || 0,
                           )}{' '}
                           records
@@ -267,7 +248,7 @@ export const ExplorerLanding = () => {
         <Box as="section" w="full">
           <Flex justifyContent="space-between" alignItems="center" mb={4}>
             <Heading as="h3" size="md" mb={2}>
-              {collections.bibgroup.label}
+              {explorerCollections.bibgroup.label}
             </Heading>
             <Text
               fontSize="sm"
@@ -309,11 +290,11 @@ export const ExplorerLanding = () => {
                   boxShadow: 'xl',
                 }}
                 tabIndex={0}
-                onClick={() => handleSelectFacet(bg.facetKey)}
+                onClick={() => handleSelectFacet(explorerCollections.bibgroup.id, bg.facetKey)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    handleSelectFacet(bg.facetKey);
+                    handleSelectFacet(explorerCollections.bibgroup.id, bg.facetKey);
                   }
                 }}
               >
@@ -328,7 +309,7 @@ export const ExplorerLanding = () => {
                         <Text fontSize="sm">
                           {kFormatNumber(
                             bibgroupData.bibgroup_facet.buckets.find(
-                              (bibgroup) => extractFacetVal(bibgroup.val as string) === bg.id,
+                              (bibgroup) => (bibgroup.val as string) === bg.facetKey,
                             )?.count || 0,
                           )}{' '}
                           records
@@ -344,7 +325,7 @@ export const ExplorerLanding = () => {
         <Box as="section" w="full">
           <Flex justifyContent="space-between" alignItems="center" mb={4}>
             <Heading as="h3" size="md" mb={2}>
-              {collections.data.label}
+              {explorerCollections.data.label}
             </Heading>
             <Text
               fontSize="sm"
@@ -386,11 +367,11 @@ export const ExplorerLanding = () => {
                   boxShadow: 'xl',
                 }}
                 tabIndex={0}
-                onClick={() => handleSelectFacet(dc.facetKey)}
+                onClick={() => handleSelectFacet(explorerCollections.data.id, dc.facetKey)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    handleSelectFacet(dc.facetKey);
+                    handleSelectFacet(explorerCollections.data.id, dc.facetKey);
                   }
                 }}
               >
@@ -404,8 +385,8 @@ export const ExplorerLanding = () => {
                       {!isDataLoading && !isDataError && (
                         <Text fontSize="sm">
                           {kFormatNumber(
-                            dataData.data_facet.buckets.find((data) => extractFacetVal(data.val as string) === dc.id)
-                              ?.count || 0,
+                            dataData.data_facet.buckets.find((data) => (data.val as string) === dc.facetKey)?.count ||
+                              0,
                           )}{' '}
                           records
                         </Text>
@@ -418,7 +399,8 @@ export const ExplorerLanding = () => {
           </Flex>
         </Box>
         <ViewCollectionModal
-          label={collections[focusedCollection]?.label}
+          collectionId={focusedCollection}
+          label={explorerCollections[focusedCollection]?.label}
           data={focusedData}
           isOpen={isOpen}
           onClose={onClose}

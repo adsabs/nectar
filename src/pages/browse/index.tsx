@@ -3,7 +3,8 @@ import { NextPage } from 'next';
 import { BRAND_NAME_FULL } from '@/config';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { ExplorerLanding } from '@/components/Explorer';
+import { DatabaseItem, ExplorerLanding, isExplorerCollection } from '@/components/Explorer';
+import { FacetItem } from '@/components/Explorer/FacetItem';
 
 const BrowsePage: NextPage = () => {
   const router = useRouter();
@@ -15,7 +16,15 @@ const BrowsePage: NextPage = () => {
       <Head>
         <title>{`${BRAND_NAME_FULL} - Explorer`}</title>
       </Head>
-      {collection && facet ? <></> : <ExplorerLanding></ExplorerLanding>}
+      {collection && facet && isExplorerCollection(collection as string) ? (
+        collection === 'database' ? (
+          <DatabaseItem facetValue={facet as string} />
+        ) : (
+          <FacetItem cid={collection as string} facetKey={facet as string} />
+        )
+      ) : (
+        <ExplorerLanding />
+      )}
     </Container>
   );
 };
