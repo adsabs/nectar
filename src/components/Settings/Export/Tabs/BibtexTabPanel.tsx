@@ -2,13 +2,14 @@ import { Button, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tooltip, VStack
 
 import { JournalFormatSelect } from '@/components/CitationExporter';
 import { JournalFormatMap } from '@/components/Settings/model';
-import { UserDataSetterEvent } from '@/pages/user/settings/export';
+import { UserDataSetterEvent } from '@/components/Settings/Export/types';
 import { Dispatch, useState } from 'react';
 import { bibtexExportFormatDescription, journalNameHandlingDescription, maxAuthorDescription } from '../Description';
 import { KeyFormatInputApply } from '../KeyFormatInputApply';
 import { MaxAuthorCutoffField } from '../MaxAuthorCutoffField';
 import { useSettings } from '@/lib/useSettings';
-import { MaxAuthorField, SampleTextArea } from '@/components/Settings';
+import { MaxAuthorField } from '../MaxAuthorField';
+import { SampleTextArea } from '../SampleTextArea';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetExportCitation } from '@/api/export/export';
 import { ExportApiFormatKey, ExportApiJournalFormat } from '@/api/export/types';

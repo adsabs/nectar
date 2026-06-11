@@ -4,7 +4,7 @@ import { useDebounce } from 'use-debounce';
 
 import { ILineGraph, Y_Axis } from '../types';
 import { getHIndexGraphData, getLineGraphXTicks } from '../utils';
-import { LineGraph } from '@/components/Visualizations';
+import { LineGraph } from '../Graphs/LineGraph';
 import { DataDownloader } from '@/components/DataDownloader';
 import { Slider } from '@/components/Slider';
 import { IBucket, ISearchStats } from '@/api/search/types';

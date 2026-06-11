@@ -1,7 +1,8 @@
 import { Text } from '@chakra-ui/react';
 
 import { getLineGraphXTicks } from '@/components/Visualizations/utils';
-import { ILineGraph, LineGraph } from '@/components/Visualizations';
+import { ILineGraph } from '../../types';
+import { LineGraph } from '../../Graphs/LineGraph';
 import { CustomInfoMessage } from '@/components/Feedbacks';
 
 // Show Summary graph of network

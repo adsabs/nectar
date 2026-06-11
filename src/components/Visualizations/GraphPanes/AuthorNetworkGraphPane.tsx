@@ -3,7 +3,7 @@ import { FormControl, FormLabel, Radio, RadioGroup, Stack, Switch } from '@chakr
 import { ChangeEvent, ReactElement, useState } from 'react';
 import { PaperLimit } from '../Widgets';
 import { IView } from './types';
-import { AuthorNetworkGraph } from '@/components/Visualizations';
+import { AuthorNetworkGraph } from '../Graphs/AuthorNetworkGraph';
 import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@/api/vis/types';
 
 export interface IAuthorNetworkGraphPaneProps {

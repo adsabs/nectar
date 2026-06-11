@@ -1,6 +1,7 @@
 import { Box, Button, Radio, RadioGroup, Stack, Text, VStack } from '@chakra-ui/react';
 import { ReactElement, useState } from 'react';
-import { BubblePlot, BubblePlotConfig } from '../Graphs/BubblePlot';
+import { BubblePlot } from '../Graphs/BubblePlot';
+import { BubblePlotConfig } from '../Graphs/BubblePlot.types';
 import { IBubblePlot, IBubblePlotNodeData } from '../types';
 
 const defaultReadCountConfig: BubblePlotConfig = {

@@ -20,7 +20,7 @@ import { ChangeEvent, FocusEvent, KeyboardEvent, MouseEventHandler, useEffect, u
 import { FormProvider, useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { omit } from 'ramda';
 
-import { PreviewModal } from '@/components/FeedbackForms';
+import { PreviewModal } from '../PreviewModal';
 import { Select, SelectOption } from '@/components/Select';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
 import { useSearch } from '@/api/search/search';

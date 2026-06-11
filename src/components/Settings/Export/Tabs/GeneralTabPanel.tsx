@@ -1,12 +1,12 @@
 import { Box, Stack, Text } from '@chakra-ui/react';
 
 import { JournalFormatMap } from '@/components/Settings/model';
-import { UserDataSetterEvent } from '@/pages/user/settings/export';
+import { UserDataSetterEvent } from '@/components/Settings/Export/types';
 import { Dispatch, useMemo } from 'react';
 import { ExportFormatSelect } from '../ExportFormatSelect';
 import { CustomFormatSelect } from '../CustomFormatSelect';
 import { useSettings } from '@/lib/useSettings';
-import { SampleTextArea } from '@/components/Settings';
+import { SampleTextArea } from '../SampleTextArea';
 import { IDocsEntity } from '@/api/search/types';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { useGetExportCitation } from '@/api/export/export';

@@ -31,15 +31,12 @@ import {
 } from '../types';
 import { getIndicesTableData, getLineGraphXTicks, plotTimeSeriesGraph } from '../utils';
 import { DataDownloader } from '@/components/DataDownloader';
-import {
-  BarGraph,
-  CitationsTable,
-  CustomBarTooltip,
-  IndicesTable,
-  LineGraph,
-  PapersTable,
-  ReadsTable,
-} from '@/components/Visualizations';
+import { BarGraph, CustomBarTooltip } from '../Graphs/BarGraph';
+import { LineGraph } from '../Graphs/LineGraph';
+import { CitationsTable } from '../Tables/CitationsTable';
+import { IndicesTable } from '../Tables/IndicesTable';
+import { PapersTable } from '../Tables/PapersTable';
+import { ReadsTable } from '../Tables/ReadsTable';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { IADSApiMetricsResponse, MetricsResponseKey, TimeSeriesKey } from '@/api/metrics/types';
 import { IDocsEntity } from '@/api/search/types';

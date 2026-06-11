@@ -22,24 +22,8 @@ import { SummaryPane } from './SummaryPane';
 import { MathJax } from 'better-react-mathjax';
 
 import { unwrapStringValue } from '@/utils/common/formatters';
-import { IADSApiPaperNetworkSummaryGraphNode } from '@/api/vis/types';
 import { IDocsEntity } from '@/api/search/types';
-
-export interface IPaperNetworkNodeDetails extends IADSApiPaperNetworkSummaryGraphNode {
-  papers: IDocsEntity[];
-  titleWords: string[];
-  topCommonReferences: {
-    bibcode: string;
-    percent: string;
-    inGroup: boolean;
-  }[];
-}
-
-export interface IPaperNetworkLinkDetails {
-  groupOne: { name: string; color: string };
-  groupTwo: { name: string; color: string };
-  papers: { bibcode: string; percent1: number; percent2: number }[];
-}
+import { IPaperNetworkLinkDetails, IPaperNetworkNodeDetails } from './types';
 
 export type PaperNetworkDetailsProps = {
   node?: IPaperNetworkNodeDetails;

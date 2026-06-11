@@ -26,7 +26,7 @@ import { ReactElement, Reducer, useCallback, useReducer } from 'react';
 import { NONESYMBOL } from './models';
 import { AuthorAffStoreProvider, useAuthorAffStore } from './store';
 import { IADSApiSearchParams } from '@/api/search/types';
-import { IGroupedAuthorAffilationData } from './types';
+import { AffTableAction, AffTableState, IGroupedAuthorAffilationData } from './types';
 import { AuthorAffiliationsErrorMessage, errorMessages } from '@/components/AuthorAffiliations/ErrorMessage';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { useFetchAffData } from '@/components/AuthorAffiliations/hooks/UseFetchAffData';
@@ -34,13 +34,6 @@ import { AffiliationControls } from '@/components/AuthorAffiliations/Affiliation
 import { useSubCaption } from '@/components/AuthorAffiliations/hooks/UseSubCaption';
 
 /** ---------- Types & constants ---------- */
-
-export type AffTableState = {
-  maxAuthors: number;
-  numYears: number;
-};
-
-export type AffTableAction = { type: 'setMaxAuthors'; payload: number } | { type: 'setNumYears'; payload: number };
 
 export type AuthorAffiliationsProps =
   | (BoxProps & { params: IAuthorAffiliationPayload; query?: IADSApiSearchParams; ssrError?: string })

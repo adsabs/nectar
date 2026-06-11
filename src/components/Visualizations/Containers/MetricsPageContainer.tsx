@@ -4,7 +4,7 @@ import { useBatchedSearch } from '@/lib/useBatchedSearch';
 import axios from 'axios';
 import { ReactElement } from 'react';
 import { CustomInfoMessage } from '@/components/Feedbacks';
-import { MetricsPane } from '@/components/Visualizations';
+import { MetricsPane } from '../GraphPanes/MetricsPane';
 import { Bibcode, IADSApiSearchParams } from '@/api/search/types';
 import { useGetMetrics } from '@/api/metrics/metrics';
 

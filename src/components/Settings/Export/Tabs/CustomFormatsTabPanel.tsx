@@ -1,11 +1,11 @@
 import { Flex } from '@chakra-ui/react';
 
-import { UserDataSetterEvent } from '@/pages/user/settings/export';
+import { UserDataSetterEvent } from '@/components/Settings/Export/types';
 import { Dispatch, useEffect, useMemo, useState } from 'react';
 import { CustomFormatsTable } from '../CustomFormatsTable';
 import { useSettings } from '@/lib/useSettings';
 
-import { SampleTextArea } from '@/components/Settings';
+import { SampleTextArea } from '../SampleTextArea';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { IDocsEntity } from '@/api/search/types';
 import { CustomFormat } from '@/api/user/types';

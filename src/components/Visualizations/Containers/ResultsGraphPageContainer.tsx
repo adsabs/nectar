@@ -9,7 +9,7 @@ import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { BubblePlotPane } from '../GraphPanes';
 import { getResultsGraph } from '../utils';
 import { CustomInfoMessage, LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
-import { IBubblePlotNodeData } from '@/components/Visualizations';
+import { IBubblePlotNodeData } from '../types';
 import { DataDownloader } from '@/components/DataDownloader';
 import { makeSearchParams } from '@/utils/common/search';
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';

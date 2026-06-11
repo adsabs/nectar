@@ -1,7 +1,7 @@
 import { useColorMode } from '@chakra-ui/react';
 import * as d3 from 'd3';
 import { useMemo } from 'react';
-import { BubblePlotProps, Scale } from './BubblePlot';
+import { BubblePlotProps, Scale } from './BubblePlot.types';
 
 export const useBubblePlot = ({
   width,

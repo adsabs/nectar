@@ -1,6 +1,6 @@
 import { useGetExportFormats } from '@/api/export/export';
 import { ExportFormatsApiResponse, IExportFormat, MostUsedExportFormats } from '@/api/export/types';
-import { DEFAULT_EXPORT_FORMATS } from '@/components/CitationExporter';
+import { DEFAULT_EXPORT_FORMATS } from '@/components/CitationExporter/models';
 import { SelectOption } from '@/components/Select';
 import { UseQueryOptions } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';

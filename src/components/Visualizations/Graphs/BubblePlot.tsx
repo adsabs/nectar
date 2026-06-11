@@ -3,30 +3,8 @@ import { useD3 } from './useD3';
 import * as d3 from 'd3';
 import { BaseType, D3BrushEvent, Selection } from 'd3';
 import { useBubblePlot } from './useBubblePlot';
-import { IBubblePlot, IBubblePlotNodeData } from '../types';
 import { findIndex, propEq, without } from 'ramda';
-
-export type Scale = 'linear' | 'log';
-
-export type BubblePlotConfig = {
-  xKey: 'date' | 'citation_count';
-  yKey: 'citation_count' | 'read_count';
-  rKey: 'citation_count' | 'read_count' | 'year'; // radius
-  xScaleTypes: Scale[];
-  yScaleTypes: Scale[];
-  xLabel: string;
-  yLabel: string;
-};
-
-interface IBubbleNode extends IBubblePlotNodeData {
-  cx: number;
-  cy: number;
-}
-
-export type BubblePlotProps = BubblePlotConfig & {
-  graph: IBubblePlot;
-  onSelectNodes: (nodes: IBubbleNode[]) => void;
-};
+import { BubblePlotProps, IBubbleNode, Scale } from './BubblePlot.types';
 
 const margin = { top: 80, right: 200, bottom: 80, left: 80 };
 const width = 1000 - margin.left - margin.right;
