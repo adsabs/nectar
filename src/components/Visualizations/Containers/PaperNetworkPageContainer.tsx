@@ -11,12 +11,9 @@ import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getPaperNetworkLinkDetails, getPaperNetworkNodeDetails, getPaperNetworkSummaryGraph } from '../utils';
 import { FilterSearchBar, IFilterSearchBarProps, NotEnoughData } from '../Widgets';
-import {
-  IPaperNetworkLinkDetails,
-  IPaperNetworkNodeDetails,
-  PaperNetworkDetailsPane,
-  PaperNetworkGraphPane,
-} from '@/components/Visualizations';
+import { PaperNetworkDetailsPane } from '../Panes/NetworkDetails/PaperNetworkDetailsPane';
+import { IPaperNetworkLinkDetails, IPaperNetworkNodeDetails } from '../Panes/NetworkDetails/types';
+import { PaperNetworkGraphPane } from '../GraphPanes/PaperNetworkGraphPane';
 import { ITagItem } from '@/components/Tags';
 import { CustomInfoMessage, LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
 import { Expandable } from '@/components/Expandable';

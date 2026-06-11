@@ -5,7 +5,7 @@ import { useDebounce } from 'use-debounce';
 import { IBarGraph, YearDatum } from '../types';
 import { getYearGraphTicks, getYearsGraph } from '../utils';
 import { DataDownloader } from '@/components/DataDownloader';
-import { BarGraph, CustomBarTooltip } from '@/components/Visualizations';
+import { BarGraph, CustomBarTooltip } from '../Graphs/BarGraph';
 import { Slider } from '@/components/Slider';
 import { IFacetCountsFields } from '@/api/search/types';
 

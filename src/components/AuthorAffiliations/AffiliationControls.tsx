@@ -4,7 +4,7 @@ import { useAuthorAffStore } from '@/components/AuthorAffiliations/store';
 import { Button, Flex, FormControl, FormLabel, Select, Stack, VisuallyHidden, Wrap, WrapItem } from '@chakra-ui/react';
 import { ExportModal } from '@/components/AuthorAffiliations/ExportModal';
 import { countOptions } from '@/components/AuthorAffiliations/models';
-import { AffTableAction, AffTableState } from '@/components/AuthorAffiliations/AuthorAffiliations';
+import { AffTableAction, AffTableState } from '@/components/AuthorAffiliations/types';
 
 export const AffiliationControls = ({
   formState,

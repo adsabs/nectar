@@ -1,5 +1,12 @@
 import { countOptions, exportTypes } from './models';
 
+export type AffTableState = {
+  maxAuthors: number;
+  numYears: number;
+};
+
+export type AffTableAction = { type: 'setMaxAuthors'; payload: number } | { type: 'setNumYears'; payload: number };
+
 export interface IGroupedAuthorAffilationData {
   authorName: string;
   years: string[][];

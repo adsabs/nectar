@@ -20,7 +20,8 @@ import {
   ResetSettingsButton,
 } from '@/components/Settings';
 import { parseAPIError } from '@/utils/common/parseAPIError';
-import { CustomFormat, IADSApiUserDataResponse, JournalFormatName, UserDataKeys } from '@/api/user/types';
+import { IADSApiUserDataResponse, UserDataKeys } from '@/api/user/types';
+import { UserDataSetterEvent } from '@/components/Settings/Export/types';
 import { getSearchParams } from '@/api/search/models';
 import { fetchSearch, searchKeys, useSearch } from '@/api/search/search';
 import { IADSApiSearchParams } from '@/api/search/types';
@@ -30,25 +31,6 @@ import { useExportFormats } from '@/lib/useExportFormats';
 // partial user data params
 // used to update user data
 type UserDataSetterState = Partial<IADSApiUserDataResponse>;
-
-export type UserDataSetterEvent =
-  | { type: 'SET_DEFAULT_EXPORT_FORMAT'; payload: string }
-  | { type: 'SET_DEFAULT_CITATION_FORMAT'; payload: string }
-  | { type: 'ADD_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; name: string; code: string } }
-  | { type: 'EDIT_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; id: string; name: string; code: string } }
-  | { type: 'DELETE_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; id: string } }
-  | { type: 'SORT_CUSTOM_FORMAT'; payload: CustomFormat[] }
-  | { type: 'SET_ALL_BIBTEX_KEY_FORMAT'; payload: string }
-  | { type: 'SET_ALL_BIBTEX_MAX_AUTHORS'; payload: string }
-  | { type: 'SET_ALL_BIBTEX_SETTINGS'; payload: { keyFormat: string; maxAuthors: string; cutoff: string } }
-  | { type: 'SET_BIBTEX_KEY_FORMAT'; payload: string }
-  | { type: 'SET_BIBTEX_MAX_AUTHORS'; payload: string }
-  | { type: 'SET_BIBTEX_AUTHORS_CUTOFF'; payload: string }
-  | { type: 'SET_BIBTEX_ABS_KEY_FORMAT'; payload: string }
-  | { type: 'SET_BIBTEX_ABS_MAX_AUTHORS'; payload: string }
-  | { type: 'SET_BIBTEX_ABS_AUTHORS_CUTOFF'; payload: string }
-  | { type: 'SET_JOURNAL_NAME_HANDLING'; payload: JournalFormatName }
-  | { type: 'CLEAR' };
 
 const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, action) => {
   switch (action.type) {

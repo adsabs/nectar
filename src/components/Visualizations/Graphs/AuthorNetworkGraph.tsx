@@ -1,11 +1,12 @@
 import { useD3 } from './useD3';
 import * as d3 from 'd3';
-import { BaseType, D3ZoomEvent, HierarchyRectangularNode, Selection } from 'd3';
+import { BaseType, D3ZoomEvent, Selection } from 'd3';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAuthorNetworkGraph } from './useAuthorNetworkGraph';
 import { ADSSVGPathElement } from './types';
 import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey, IRootName } from '@/api/vis/types';
+import { ILink, NetworkHierarchyNode } from './AuthorNetworkGraph.types';
 
 export interface IAuthorNetworkGraphProps {
   root: IADSApiAuthorNetworkNode;
@@ -13,16 +14,6 @@ export interface IAuthorNetworkGraphProps {
   showLinkLayer: boolean;
   onClickNode: (node: IADSApiAuthorNetworkNode) => void;
   keyToUseAsValue: IADSApiAuthorNetworkNodeKey;
-}
-
-export interface NetworkHierarchyNode<Datum> extends HierarchyRectangularNode<Datum> {
-  color: string; // cache color data
-}
-
-export interface ILink {
-  source: NetworkHierarchyNode<IADSApiAuthorNetworkNode>;
-  target: NetworkHierarchyNode<IADSApiAuthorNetworkNode>;
-  weight: number;
 }
 
 const width = 900;

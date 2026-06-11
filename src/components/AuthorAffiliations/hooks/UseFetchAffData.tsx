@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { errorMessages } from '@/components/AuthorAffiliations/ErrorMessage';
 import { useBibcodesFromQuery } from '@/components/AuthorAffiliations/hooks/UseBibcodesFromQuery';
-import { AffTableState } from '@/components/AuthorAffiliations';
+import { AffTableState } from '@/components/AuthorAffiliations/types';
 
 export const useFetchAffData = (query: IADSApiSearchParams, formState: AffTableState) => {
   const setItems = useAuthorAffStore((s) => s.setItems);

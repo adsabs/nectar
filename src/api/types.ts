@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosRequestConfig } from 'axios';
 import {
   QueryKey,
   UseInfiniteQueryOptions,
@@ -8,6 +8,8 @@ import {
   UseQueryOptions,
   UseQueryResult,
 } from '@tanstack/react-query';
+
+export type ApiRequestConfig = AxiosRequestConfig;
 
 export type ADSQuery<
   TProps,

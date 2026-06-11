@@ -1,6 +1,6 @@
 import { Box, Stack, Text, Textarea } from '@chakra-ui/react';
 
-import { UserDataSetterEvent } from '@/pages/user/settings/export';
+import { UserDataSetterEvent } from '@/components/Settings/Export/types';
 import { Dispatch, useMemo } from 'react';
 import { useSettings } from '@/lib/useSettings';
 import { IDocsEntity } from '@/api/search/types';

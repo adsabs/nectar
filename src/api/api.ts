@@ -1,6 +1,7 @@
 import { APP_STORAGE_KEY, updateAppUser } from '@/store';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { defaultRequestConfig } from './config';
+import type { ApiRequestConfig } from './types';
 import { IApiUserResponse } from '@/pages/api/user';
 import { logger } from '@/logger';
 import { buildStorage, CacheOptions, setupCache, StorageValue } from 'axios-cache-interceptor';
@@ -48,7 +49,7 @@ const applyTokenToRequest = (request: ApiRequestConfig, token: string): ApiReque
   };
 };
 
-export type ApiRequestConfig = AxiosRequestConfig;
+export type { ApiRequestConfig };
 
 enum API_STATUS {
   UNAUTHORIZED = 401,
