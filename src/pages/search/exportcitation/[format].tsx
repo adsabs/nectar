@@ -15,6 +15,7 @@ import { useSettings } from '@/lib/useSettings';
 import { logger } from '@/logger';
 import { SimpleLink } from '@/components/SimpleLink';
 import { CitationExporter } from '@/components/CitationExporter';
+import { ExportContainer } from '@/components/CitationExporter/components/ExportContainer';
 import { JournalFormatMap } from '@/components/Settings';
 import { parseQueryFromUrl } from '@/utils/common/search';
 import { unwrapStringValue } from '@/utils/common/formatters';
@@ -61,14 +62,9 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
   const router = useRouter();
   const { data, fetchNextPage, hasNextPage, error } = useSearchInfinite(query);
 
-  // TODO: add more error handling here
-  if (!data) {
-    return null;
-  }
-
-  const res = last(data?.pages).response;
-  const records = res.docs.map((d) => d.bibcode);
-  const numFound = res.numFound;
+  const res = data ? last(data.pages).response : null;
+  const records = res ? res.docs.map((d) => d.bibcode) : [];
+  const numFound = res?.numFound ?? 0;
 
   const handleNextPage = () => {
     void fetchNextPage();
@@ -101,7 +97,14 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
               <AlertIcon />
               {error.message}
             </Alert>
-          ) : isClient ? (
+          ) : !data || !isClient ? (
+            // Render a loading state until the data is ready AND we are on the
+            // client. Gating the interactive vs. static exporter on isClient
+            // otherwise renders the simplified static version on the first
+            // (server) render, then visibly swaps to the full version after
+            // hydration.
+            <ExportContainer header={<>Loading records&hellip;</>} isLoading />
+          ) : (
             <CitationExporter
               initialFormat={format}
               keyformat={keyformat}
@@ -113,13 +116,6 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
               nextPage={handleNextPage}
               hasNextPage={hasNextPage}
               page={data.pages.length - 1}
-              sort={query.sort}
-            />
-          ) : (
-            <CitationExporter.Static
-              initialFormat={format}
-              records={records}
-              totalRecords={numFound}
               sort={query.sort}
             />
           )}
