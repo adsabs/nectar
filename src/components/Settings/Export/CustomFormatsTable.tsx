@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react';
 import { sort } from 'ramda';
 
 import { DescriptionCollapse } from '@/components/CitationExporter';
-import { customFormatDescription } from '@/components/Settings';
+import { customFormatDescription } from './Description';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { noop } from '@/utils/common/noop';
 import { CustomFormat } from '@/api/user/types';

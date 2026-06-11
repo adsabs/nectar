@@ -48,7 +48,7 @@ import {
   IAuthorNetworkNodeDetails,
   IPaperNetworkLinkDetails,
   IPaperNetworkNodeDetails,
-} from '@/components/Visualizations';
+} from '../Panes/NetworkDetails/types';
 import {
   BasicStatsKey,
   CitationsHistogramKey,

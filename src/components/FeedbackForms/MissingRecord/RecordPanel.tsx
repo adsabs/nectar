@@ -31,7 +31,7 @@ import { AxiosError } from 'axios';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SimpleLink } from '@/components/SimpleLink';
-import { PreviewModal } from '@/components/FeedbackForms';
+import { PreviewModal } from '../PreviewModal';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
 import { parsePublicationDate } from '@/utils/common/parsePublicationDate';
 import type { Database, IDocsEntity } from '@/api/search/types';

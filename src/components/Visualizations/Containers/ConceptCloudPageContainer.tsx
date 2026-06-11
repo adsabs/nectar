@@ -5,7 +5,7 @@ import { ReactElement, Reducer, useCallback, useMemo, useReducer } from 'react';
 import { ISliderRange } from '../types';
 import { buildWCDict } from '../utils';
 import { FilterSearchBar, IFilterSearchBarProps } from '../Widgets';
-import { IWordCloudPaneProps, WordCloudPane } from '@/components/Visualizations';
+import { IWordCloudPaneProps, WordCloudPane } from '../GraphPanes/WordCloudPane';
 import { ITagItem } from '@/components/Tags';
 import { LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
 import { Expandable } from '@/components/Expandable';

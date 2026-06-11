@@ -11,11 +11,9 @@ import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getAuthorNetworkNodeDetails, getAuthorNetworkSummaryGraph } from '../utils';
 import { FilterSearchBar, IFilterSearchBarProps, NotEnoughData } from '../Widgets';
-import {
-  AuthorNetworkDetailsPane,
-  AuthorNetworkGraphPane,
-  IAuthorNetworkNodeDetails,
-} from '@/components/Visualizations';
+import { AuthorNetworkDetailsPane } from '../Panes/NetworkDetails/AuthorNetworkDetailsPane';
+import { IAuthorNetworkNodeDetails } from '../Panes/NetworkDetails/types';
+import { AuthorNetworkGraphPane } from '../GraphPanes/AuthorNetworkGraphPane';
 import { ITagItem } from '@/components/Tags';
 import { CustomInfoMessage, LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
 import { Expandable } from '@/components/Expandable';

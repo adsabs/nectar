@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { AffTableState } from '@/components/AuthorAffiliations/AuthorAffiliations';
+import { AffTableState } from '@/components/AuthorAffiliations/types';
 
 export const useSubCaption = (state: AffTableState) => {
   return useMemo(() => {
