@@ -1,12 +1,4 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Box,
-  Button,
-  CloseButton,
-  HStack,
-} from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, Box, Button, CloseButton, HStack } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
 import { useRouter } from 'next/router';
 import { FC, useEffect, useRef, useState } from 'react';
@@ -202,10 +194,12 @@ export const AppModeUrlNotice: FC = () => {
         return;
       }
       if (router.query?.d !== undefined) {
-        return; // URL already carries a discipline; avoid rewriting it here.
+        // URL already carries a discipline; avoid rewriting it here.
+        return;
       }
       if (urlModeOverride) {
-        return; // honor active URL override; avoid feedback loop while override is present
+        // honor active URL override; avoid feedback loop while override is present
+        return;
       }
       const currentParam = normalizeDisciplineParam(router.query?.d);
       const targetParam = appModeToDisciplineParam(mode);
@@ -252,7 +246,7 @@ export const AppModeUrlNotice: FC = () => {
       px={3}
       py={2}
       width="auto"
-      maxW="420px"
+      maxW="450px"
       flex="0 0 auto"
       animation={`${pulse} 600ms ease-out`}
       style={{ animationDelay: '2s' }}
