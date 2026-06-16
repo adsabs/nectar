@@ -14,8 +14,6 @@ import {
   PERF_SPANS,
   getResultCountBucket,
   getQueryType,
-  openResultsRenderSpan,
-  openFacetsRenderSpan,
   openFullTextTimingSpan,
   closeFullTextTimingSpan,
   getPageNumber,
@@ -142,10 +140,6 @@ const Telemetry: FC = () => {
         paginationSpanRef.current.end();
         paginationSpanRef.current = null;
       }
-      // Open while the nav transaction is still alive; both render spans closed
-      // together by useResultsRenderSpan in SimpleResultList after paint.
-      openResultsRenderSpan();
-      openFacetsRenderSpan();
       openFullTextTimingSpan();
     } catch (err) {
       logger.error({ err }, 'Telemetry: docs span error');

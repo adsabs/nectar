@@ -429,6 +429,7 @@ const SearchPage: NextPage = () => {
                             docs={data.response.docs}
                             indexStart={params.start}
                             useNormCite={sort.startsWith('citation_count_norm')}
+                            measureRenderSpan
                           />
                         </ErrorBoundary>
                       )}
