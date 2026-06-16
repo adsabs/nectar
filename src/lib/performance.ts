@@ -4,8 +4,8 @@ import type { IADSApiSearchParams } from '@/api/search/types';
 export type ResultCountBucket = '0' | '1-10' | '11-100' | '100+';
 export type QueryType = 'simple' | 'fielded' | 'boolean';
 
-// Span slots: opened in Telemetry while the nav transaction is live, closed after paint.
-// Each slot is a module-level singleton — client-only, one browser instance per process.
+// Span slot: opened in Telemetry when docs arrive, closed on full-text click.
+// Module-level singleton — client-only, one browser instance per process.
 function makeSpanSlot(name: string, op: string) {
   let _span: ReturnType<typeof Sentry.startInactiveSpan> | null = null;
   return {
@@ -31,14 +31,8 @@ function makeSpanSlot(name: string, op: string) {
   };
 }
 
-const resultsSlot = makeSpanSlot('search.results.render', 'ui.render');
-const facetsSlot = makeSpanSlot('search.facets.render', 'ui.render');
 const fullTextSlot = makeSpanSlot('ux.full_text_time', 'user.flow');
 
-export const openResultsRenderSpan = (): void => resultsSlot.open();
-export const closeResultsRenderSpan = (docCount: number): void => resultsSlot.close({ doc_count: docCount });
-export const openFacetsRenderSpan = (): void => facetsSlot.open();
-export const closeFacetsRenderSpan = (): void => facetsSlot.close();
 export const openFullTextTimingSpan = (): void => fullTextSlot.open();
 export const closeFullTextTimingSpan = (): void => fullTextSlot.close();
 
