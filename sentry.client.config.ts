@@ -4,12 +4,17 @@
 
 import * as Sentry from '@sentry/nextjs';
 
+import { beforeSendApiSpan } from '@/lib/normalizeApiSpan';
+
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
   tunnel: '/api/monitor',
   sendDefaultPii: false,
   enableLogs: true,
+
+  // Tag /v1/* API spans with normalized api.domain / api.endpoint for grouping.
+  beforeSendSpan: beforeSendApiSpan,
 
   // Add app tag for dashboard filtering
   initialScope: {
