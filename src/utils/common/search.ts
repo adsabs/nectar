@@ -174,6 +174,17 @@ export const normalizeSolrSort = (rawSolrSort: unknown, postfixSort?: SolrSort):
   return uniq(validSort.concat(tieBreaker));
 };
 
+// Matches second-order operator queries that should default to relevance sort.
+const SECOND_ORDER_OPERATOR_RE = /\b(trending|reviews|useful|similar)\s*\(/i;
+
+/**
+ * Returns the appropriate default sort for a query. Second-order operator queries
+ * (trending, reviews, useful, similar) sort by relevance score; all others use
+ * the provided fallback (typically the user's saved preference).
+ */
+export const getDefaultSortForQuery = (q: string, fallback: SolrSort[]): SolrSort[] =>
+  SECOND_ORDER_OPERATOR_RE.test(q) ? normalizeSolrSort(['score desc']) : fallback;
+
 /**
  * Splits a string by a given delimiter or returns the array if the input is already an array.
  *

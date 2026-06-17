@@ -28,7 +28,7 @@ import { useSettings } from '@/lib/useSettings';
 import { NotificationId } from '@/store/slices';
 import { SearchBar } from '@/components/SearchBar';
 import { SimpleLink } from '@/components/SimpleLink';
-import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
+import { getDefaultSortForQuery, makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
 import { SolrSort } from '@/api/models';
 import { SearchExamples } from '@/components/SearchExamples/SearchExamples';
 import { Pager } from '@/components/Pager/Pager';
@@ -142,7 +142,8 @@ const HomePage: NextPage = () => {
       if (query && query.trim().length > 0) {
         setIsLoading(true);
         submitQuery();
-        const defaultedQuery = applyDefaultFilters({ q: query, sort, p: 1 }) as IADSApiSearchParams;
+        const querySortOverride = getDefaultSortForQuery(query, sort);
+        const defaultedQuery = applyDefaultFilters({ q: query, sort: querySortOverride, p: 1 }) as IADSApiSearchParams;
         void router
           .push({
             pathname: '/search',
