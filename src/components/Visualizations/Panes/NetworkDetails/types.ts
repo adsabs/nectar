@@ -1,5 +1,5 @@
-import { IADSApiPaperNetworkSummaryGraphNode } from '@/api/vis/types';
-import { IDocsEntity } from '@/api/search/types';
+import type { IADSApiPaperNetworkSummaryGraphNode } from '@/api/vis/types';
+import type { IDocsEntity } from '@/api/search/types';
 
 export interface Paper extends IDocsEntity {
   groupAuthorCount?: number;

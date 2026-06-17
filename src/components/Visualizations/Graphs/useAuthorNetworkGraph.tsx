@@ -1,7 +1,7 @@
 import { useColorMode } from '@chakra-ui/react';
 import * as d3 from 'd3';
 import { useCallback, useMemo } from 'react';
-import { ILink, NetworkHierarchyNode } from './AuthorNetworkGraph.types';
+import type { ILink, NetworkHierarchyNode } from './AuthorNetworkGraph.types';
 import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@/api/vis/types';
 
 /**

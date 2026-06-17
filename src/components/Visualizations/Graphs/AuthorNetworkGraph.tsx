@@ -6,7 +6,7 @@ import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuthorNetworkGraph } from './useAuthorNetworkGraph';
 import { ADSSVGPathElement } from './types';
 import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey, IRootName } from '@/api/vis/types';
-import { ILink, NetworkHierarchyNode } from './AuthorNetworkGraph.types';
+import type { ILink, NetworkHierarchyNode } from './AuthorNetworkGraph.types';
 
 export interface IAuthorNetworkGraphProps {
   root: IADSApiAuthorNetworkNode;
@@ -121,7 +121,7 @@ export const AuthorNetworkGraph = ({
 
   // handle mouse over label
   const handleMouseOverLabel = useCallback(
-    (e, n: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
+    (_e: Event, n: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
       if (!showLinkLayer) {
         return;
       }
@@ -148,7 +148,7 @@ export const AuthorNetworkGraph = ({
 
   // handle mouse over link
   const handleMouseOverLink = useCallback(
-    (e, link: ILink) => {
+    (_e: Event, link: ILink) => {
       if (!showLinkLayer) {
         return;
       }

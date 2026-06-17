@@ -44,7 +44,7 @@ import {
   ISliderRange,
   YearDatum,
 } from '../types';
-import {
+import type {
   IAuthorNetworkNodeDetails,
   IPaperNetworkLinkDetails,
   IPaperNetworkNodeDetails,
