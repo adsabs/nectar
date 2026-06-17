@@ -1,4 +1,4 @@
-import { IBubblePlot, IBubblePlotNodeData } from '../types';
+import type { IBubblePlot, IBubblePlotNodeData } from '../types';
 
 export type Scale = 'linear' | 'log';
 

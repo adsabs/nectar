@@ -1,7 +1,7 @@
 import { Text } from '@chakra-ui/react';
 
 import { getLineGraphXTicks } from '@/components/Visualizations/utils';
-import { ILineGraph } from '../../types';
+import type { ILineGraph } from '../../types';
 import { LineGraph } from '../../Graphs/LineGraph';
 import { CustomInfoMessage } from '@/components/Feedbacks';
 

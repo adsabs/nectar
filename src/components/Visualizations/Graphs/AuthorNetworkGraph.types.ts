@@ -1,5 +1,5 @@
-import { HierarchyRectangularNode } from 'd3';
-import { IADSApiAuthorNetworkNode } from '@/api/vis/types';
+import type { HierarchyRectangularNode } from 'd3';
+import type { IADSApiAuthorNetworkNode } from '@/api/vis/types';
 
 export interface NetworkHierarchyNode<Datum> extends HierarchyRectangularNode<Datum> {
   color: string; // cache color data

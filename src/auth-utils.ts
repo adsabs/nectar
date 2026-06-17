@@ -5,7 +5,7 @@ import { isNil } from 'ramda';
 import { APP_DEFAULTS } from '@/config';
 import { IBootstrapPayload, ICSRFResponse, IUserData } from '@/api/user/types';
 import { ApiTargets } from '@/api/models';
-import { ApiRequestConfig } from '@/api/types';
+import type { ApiRequestConfig } from '@/api/types';
 import { edgeLogger as logger } from '@/logger';
 
 const fetchCSRF = async () => {

@@ -1,4 +1,4 @@
-import { CustomFormat, JournalFormatName } from '@/api/user/types';
+import type { CustomFormat, JournalFormatName } from '@/api/user/types';
 
 export type UserDataSetterEvent =
   | { type: 'SET_DEFAULT_EXPORT_FORMAT'; payload: string }
