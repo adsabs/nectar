@@ -52,7 +52,7 @@ import { XMarkIcon } from '@heroicons/react/20/solid';
 import { CustomInfoMessage } from '@/components/Feedbacks';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { SimpleLink } from '@/components/SimpleLink';
-import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@/utils/common/search';
+import { getDefaultSortForQuery, makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@/utils/common/search';
 import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
 import { SEARCH_API_KEYS, useSearch } from '@/api/search/search';
 import { sendGTMEvent } from '@next/third-parties/google';
@@ -258,7 +258,8 @@ const SearchPage: NextPage = () => {
     clearSelectedDocs();
 
     // generate a URL search string and trigger a page transition, and update store
-    const search = makeSearchParams({ ...params, ...query, q, p: 1 });
+    const overriddenSort = getDefaultSortForQuery(q, params.sort);
+    const search = makeSearchParams({ ...params, ...query, q, sort: overriddenSort, p: 1 });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
