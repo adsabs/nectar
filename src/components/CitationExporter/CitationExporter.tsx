@@ -103,13 +103,15 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
 
   const { isValidFormat } = useExportFormats();
 
-  // Updates the route when format has changed
+  // Updates the route when format has changed. Use replace (not push) so each
+  // format change overwrites the current entry instead of polluting browser
+  // history, keeping native back tied to how the user reached this page.
   useEffect(() => {
     if (
       router.query.format !== ctx.params.format &&
       (state.matches('idle') || (state.matches('fetching') && !singleMode))
     ) {
-      void router.push(
+      void router.replace(
         {
           pathname: router.pathname,
           query: { ...router.query, format: ctx.params.format },
