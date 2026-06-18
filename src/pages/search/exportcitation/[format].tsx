@@ -1,9 +1,7 @@
 import { Alert, AlertIcon, Box, Flex, Heading, HStack } from '@chakra-ui/react';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 
-import { getExportCitationDefaultContext } from '@/components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
-import { useIsClient } from '@/lib/useIsClient';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -15,14 +13,15 @@ import { useSettings } from '@/lib/useSettings';
 import { logger } from '@/logger';
 import { SimpleLink } from '@/components/SimpleLink';
 import { CitationExporter } from '@/components/CitationExporter';
+import { ExportSkeleton } from '@/components/CitationExporter/components/ExportSkeleton';
 import { JournalFormatMap } from '@/components/Settings';
 import { parseQueryFromUrl } from '@/utils/common/search';
 import { unwrapStringValue } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { IADSApiSearchParams } from '@/api/search/types';
-import { fetchSearchInfinite, searchKeys, useSearchInfinite } from '@/api/search/search';
-import { exportCitationKeys, fetchExportCitation, fetchExportFormats } from '@/api/export/export';
+import { useSearchInfinite } from '@/api/search/search';
+import { exportCitationKeys, fetchExportFormats } from '@/api/export/export';
 
 interface IExportCitationPageProps {
   format: string;
@@ -35,10 +34,9 @@ interface IExportCitationPageProps {
 }
 
 const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
-  const { format, query, referrer } = props;
-  const isClient = useIsClient();
+  const { format, query, referrer, error } = props;
+  const router = useRouter();
 
-  // get export related user settings
   const { settings } = useSettings({
     suspense: false,
   });
@@ -58,21 +56,17 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
           maxauthor: parseInt(settings.bibtexMaxAuthors),
         };
 
-  const router = useRouter();
-  const { data, fetchNextPage, hasNextPage, error } = useSearchInfinite(query);
+  const { data, fetchNextPage, hasNextPage, isLoading, error: searchError } = useSearchInfinite(query);
 
-  // TODO: add more error handling here
-  if (!data) {
-    return null;
-  }
-
-  const res = last(data?.pages).response;
-  const records = res.docs.map((d) => d.bibcode);
-  const numFound = res.numFound;
+  const lastPage = data ? last(data.pages) : null;
+  const records = lastPage ? lastPage.response.docs.map((d) => d.bibcode) : [];
+  const numFound = lastPage ? lastPage.response.numFound : 0;
 
   const handleNextPage = () => {
     void fetchNextPage();
   };
+
+  const errorMessage = error?.message ?? (searchError instanceof Error ? searchError.message : undefined);
 
   return (
     <>
@@ -96,12 +90,14 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
           </Heading>
         </HStack>
         <Box pt="1">
-          {error ? (
+          {errorMessage ? (
             <Alert status="error">
               <AlertIcon />
-              {error.message}
+              {errorMessage}
             </Alert>
-          ) : isClient ? (
+          ) : isLoading || !data ? (
+            <ExportSkeleton />
+          ) : (
             <CitationExporter
               initialFormat={format}
               keyformat={keyformat}
@@ -115,13 +111,6 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
               page={data.pages.length - 1}
               sort={query.sort}
             />
-          ) : (
-            <CitationExporter.Static
-              initialFormat={format}
-              records={records}
-              totalRecords={numFound}
-              sort={query.sort}
-            />
           )}
         </Box>
       </Flex>
@@ -131,83 +120,43 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const {
     qid = null,
-    p,
     referrer = null,
     ...query
   } = parseQueryFromUrl<{ qid: string; format: string }>(ctx.req.url, { sortPostfix: 'id asc' });
 
   const { format } = ctx.params as { format: string };
 
-  if (!query && !qid) {
-    return {
-      props: {
-        format,
-        query,
-        qid,
-        referrer,
-        error: 'No Records',
-      },
-    };
-  }
-
-  const queryClient = new QueryClient();
-  const params: IADSApiSearchParams = {
+  const searchParams: IADSApiSearchParams = {
     rows: APP_DEFAULTS.EXPORT_PAGE_SIZE,
     fl: ['bibcode'],
     sort: query.sort ?? APP_DEFAULTS.SORT,
     ...(qid ? { q: `docs(${qid})` } : query),
   };
 
-  try {
-    // primary search, this is based on query params
-    const data = await queryClient.fetchInfiniteQuery({
-      queryKey: searchKeys.infinite(params),
-      queryFn: fetchSearchInfinite,
-      meta: { params },
-    });
+  const queryClient = new QueryClient();
 
+  try {
     const formatsData = await queryClient.fetchQuery({
       queryKey: exportCitationKeys.manifest(),
       queryFn: fetchExportFormats,
     });
 
     const formats = map(prop('route'), formatsData).map((r) => r.substring(1));
-
-    // extract bibcodes to use for export
-    const records = data.pages[0].response.docs.map((d) => d.bibcode);
-
-    const { params: exportParams } = getExportCitationDefaultContext({
-      format: formats.includes(format) ? format : ExportApiFormatKey.bibtex,
-      records,
-      singleMode: false,
-      sort: params.sort,
-    });
-
-    // fetch export string, format is pulled from the url
-    void (await queryClient.prefetchQuery({
-      queryKey: exportCitationKeys.primary(exportParams),
-      queryFn: fetchExportCitation,
-      meta: { params: exportParams },
-    }));
-
-    // react-query infinite queries cannot be serialized by next, currently.
-    // see https://github.com/tannerlinsley/react-query/issues/3301#issuecomment-1041374043
-
-    const dehydratedState = JSON.parse(JSON.stringify(dehydrate(queryClient)));
+    const resolvedFormat = formats.includes(format) ? format : ExportApiFormatKey.bibtex;
 
     return {
       props: {
-        format: exportParams.format,
-        query: params,
+        format: resolvedFormat,
+        query: searchParams,
         referrer,
-        dehydratedState,
+        dehydratedState: dehydrate(queryClient),
       },
     };
   } catch (error) {
     logger.error({ msg: 'GSSP error in export citation page', error });
     return {
       props: {
-        query: params,
+        query: searchParams,
         pageError: parseAPIError(error),
         error: axios.isAxiosError(error) ? error.message : 'Unable to fetch data',
       },
