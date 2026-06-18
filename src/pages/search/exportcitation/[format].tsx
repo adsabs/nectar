@@ -1,5 +1,4 @@
-import { Alert, AlertIcon, Box, Flex, Heading, HStack } from '@chakra-ui/react';
-import { ChevronLeftIcon } from '@chakra-ui/icons';
+import { Alert, AlertIcon, Box, Flex, Heading } from '@chakra-ui/react';
 
 import { getExportCitationDefaultContext } from '@/components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
@@ -7,16 +6,15 @@ import { useIsClient } from '@/lib/useIsClient';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { last, map, prop } from 'ramda';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { composeNextGSSP } from '@/ssr-utils';
 import { useSettings } from '@/lib/useSettings';
 import { logger } from '@/logger';
-import { SimpleLink } from '@/components/SimpleLink';
+import { BackToSearchResults } from '@/components/BackToSearchResults';
 import { CitationExporter } from '@/components/CitationExporter';
 import { JournalFormatMap } from '@/components/Settings';
-import { parseQueryFromUrl } from '@/utils/common/search';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { unwrapStringValue } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { ExportApiFormatKey } from '@/api/export/types';
@@ -58,7 +56,6 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
           maxauthor: parseInt(settings.bibtexMaxAuthors),
         };
 
-  const router = useRouter();
   const { data, fetchNextPage, hasNextPage, error } = useSearchInfinite(query);
 
   // TODO: add more error handling here
@@ -80,21 +77,14 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
         <title>{`${unwrapStringValue(query?.q)} - ${BRAND_NAME_FULL} Export Citations`}</title>
       </Head>
       <Flex direction="column">
-        <HStack my={10}>
-          {referrer ? (
-            <SimpleLink href={referrer}>
-              <ChevronLeftIcon w={8} h={8} />
-            </SimpleLink>
-          ) : (
-            <button type="button" onClick={() => router.back()} aria-label="Go back">
-              <ChevronLeftIcon w={8} h={8} />
-            </button>
-          )}
-
-          <Heading as="h2" fontSize="2xl">
-            Export Citations
-          </Heading>
-        </HStack>
+        <BackToSearchResults
+          referrer={referrer}
+          reconstructed={`/search?${makeSearchParams(query)}`}
+          buttonProps={{ mt: 6 }}
+        />
+        <Heading as="h2" fontSize="2xl" mt={2} mb={6}>
+          Export Citations
+        </Heading>
         <Box pt="1">
           {error ? (
             <Alert status="error">

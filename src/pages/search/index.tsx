@@ -38,6 +38,7 @@ import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagin
 import { FormEventHandler, RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useIsClient } from '@/lib/useIsClient';
 import { useScrollRestoration } from '@/lib/useScrollRestoration';
+import { useCaptureSearchReturnUrl } from '@/lib/useSearchReturnTo';
 import { LocalSettings, NumPerPageType } from '@/types';
 import Head from 'next/head';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
@@ -217,6 +218,9 @@ const SearchPage: NextPage = () => {
 
   // Scroll restoration hook - automatically restores scroll position when returning from abstract page
   useScrollRestoration();
+
+  // Capture this tab's results URL so other pages can offer a reliable "back to results" link
+  useCaptureSearchReturnUrl();
 
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 

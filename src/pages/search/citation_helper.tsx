@@ -3,7 +3,7 @@ import { composeNextGSSP } from '@/ssr-utils';
 import { SimpleLink } from '@/components/SimpleLink';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
 import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
-import { ChevronLeftIcon, ExternalLinkIcon, InfoIcon } from '@chakra-ui/icons';
+import { ExternalLinkIcon, InfoIcon } from '@chakra-ui/icons';
 import {
   Flex,
   HStack,
@@ -16,13 +16,12 @@ import {
   Stack,
   useDisclosure,
   Button,
-  IconButton,
   Tooltip,
 } from '@chakra-ui/react';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { parseQueryFromUrl } from '@/utils/common/search';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import { BackToSearchResults } from '@/components/BackToSearchResults';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { fetchSearch, searchKeys, useSearch } from '@/api/search/search';
 import { citationHelperKeys, fetchCitationHelper, useCitationHelper } from '@/api/citation_helper/citation_helper';
@@ -55,8 +54,6 @@ interface ICitationHelperPageProps {
 }
 
 export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, bibcodes, error }) => {
-  const router = useRouter();
-
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
   const [selectedBibcodes, setSelectedBibcodes] = useState<string[]>([]);
@@ -155,17 +152,10 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
         <title>{`${unwrapStringValue(query?.q)} - ${BRAND_NAME_FULL} Citation Helper`}</title>
       </Head>
       <Flex direction="column">
-        <HStack mt={10} mb={4}>
-          <IconButton
-            aria-label="Go back"
-            icon={<ChevronLeftIcon w={8} h={8} />}
-            variant="ghost"
-            onClick={() => router.back()}
-          />
-          <Heading as="h2" fontSize="2xl">
-            Citation Helper
-          </Heading>
-        </HStack>
+        <BackToSearchResults reconstructed={`/search?${makeSearchParams(query)}`} buttonProps={{ mt: 6 }} />
+        <Heading as="h2" fontSize="2xl" mt={2} mb={4}>
+          Citation Helper
+        </Heading>
         <Box pt="1">
           {error ? (
             <Alert status="error">

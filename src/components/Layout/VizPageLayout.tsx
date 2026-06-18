@@ -1,13 +1,12 @@
-import { Flex, Heading, HStack } from '@chakra-ui/react';
+import { Flex, Heading } from '@chakra-ui/react';
 
 import Head from 'next/head';
 import { FC } from 'react';
 import { UrlObject } from 'url';
-import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { BRAND_NAME_FULL } from '@/config';
 import { useRouter } from 'next/router';
 import { VisualizationsTabs, VizSection } from '@/components/Visualizations';
-import { SimpleLink } from '@/components/SimpleLink';
+import { BackToSearchResults } from '@/components/BackToSearchResults';
 
 interface IVizPageLayoutProps {
   vizPage: VizSection;
@@ -31,22 +30,20 @@ export const VizPageLayout: FC<IVizPageLayoutProps> = ({ children, vizPage, from
       }`
     : `${sectionTitle[vizPage]} - ${BRAND_NAME_FULL}`;
 
+  // The viz page URL is canonical, so reconstruction from `from` outranks any
+  // captured session URL (with session as fallback if `from` is absent).
+  const reconstructed = from && typeof from.query === 'string' ? `${from.pathname ?? '/search'}?${from.query}` : null;
+
   return (
     <>
       <Head>
         <title>{title}</title>
       </Head>
       <Flex direction="column">
-        <HStack my={10}>
-          {from && (
-            <SimpleLink href={from} aria-label="Back to search Results">
-              <ChevronLeftIcon w={8} h={8} />
-            </SimpleLink>
-          )}
-          <Heading as="h2" fontSize="2xl">
-            Visualizations
-          </Heading>
-        </HStack>
+        <BackToSearchResults reconstructed={reconstructed} preferReconstructed buttonProps={{ mt: 6 }} />
+        <Heading as="h2" fontSize="2xl" mt={2} mb={6}>
+          Visualizations
+        </Heading>
         <VisualizationsTabs selectedSection={vizPage} />
         {children}
       </Flex>

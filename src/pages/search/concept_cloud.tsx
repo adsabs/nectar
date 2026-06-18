@@ -2,7 +2,7 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { VizPageLayout } from '@/components/Layout';
 import { ConceptCloudPageContainer } from '@/components/Visualizations';
-import { parseQueryFromUrl } from '@/utils/common/search';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 
 const ConceptCloudPage: NextPage = () => {
   const router = useRouter();
@@ -17,7 +17,7 @@ const ConceptCloudPage: NextPage = () => {
 
   return (
     <div>
-      <VizPageLayout vizPage="concept_cloud" from={{ pathname: '/search', query: { ...query, p } }}>
+      <VizPageLayout vizPage="concept_cloud" from={{ pathname: '/search', query: makeSearchParams({ ...query, p }) }}>
         <ConceptCloudPageContainer query={newQuery} />
       </VizPageLayout>
     </div>
