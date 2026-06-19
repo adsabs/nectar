@@ -68,6 +68,7 @@ export const ORCID_BULK_DELETE_CHUNK_SIZE = 4;
 export const ORCID_BULK_DELETE_DELAY = 1000;
 export const SCIX_CANONICAL_BASE_URL = 'https://scixplorer.org';
 export const ADS_CANONICAL_BASE_URL = 'https://ui.adsabs.harvard.edu';
+export const WHATS_NEW_FEED_URL = process.env.WHATS_NEW_FEED_URL ?? `${SCIX_CANONICAL_BASE_URL}/help/common/feed.xml`;
 
 export const EXTERNAL_URLS = {
   USGS_PLANETARY_FEATURES: 'https://planetarynames.wr.usgs.gov/Feature/' as const,

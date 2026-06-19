@@ -83,6 +83,7 @@
     "downshift": "^6.1.7",
     "escape-html": "^1.0.3",
     "express": "^5.2.1",
+    "fast-xml-parser": "^5.9.2",
     "file-saver": "^2.0.5",
     "framer-motion": "^6.5.1",
     "fuse.js": "^6.6.2",

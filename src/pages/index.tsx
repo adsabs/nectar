@@ -32,6 +32,7 @@ import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
 import { SolrSort } from '@/api/models';
 import { SearchExamples } from '@/components/SearchExamples/SearchExamples';
 import { Pager } from '@/components/Pager/Pager';
+import { WidgetRow, WhatsNewWidget } from '@/components/WhatsNewWidget/WhatsNewWidget';
 import {
   ChatBubbleBottomCenterIcon,
   DocumentIcon,
@@ -194,6 +195,9 @@ const HomePage: NextPage = () => {
       </form>
       <Stats />
       <IntroVideoSection />
+      <WidgetRow>
+        <WhatsNewWidget />
+      </WidgetRow>
       <FloatingIntroLink />
     </Flex>
   );

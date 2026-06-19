@@ -7,6 +7,11 @@ export default defineConfig({
   plugins: [...react(), tsconfigPaths()],
   test: {
     environment: 'jsdom',
+    environmentOptions: {
+      jsdom: {
+        url: 'http://localhost:3000',
+      },
+    },
     exclude: [...defaultExclude, '**/e2e/**', '**/.worktrees/**'],
     setupFiles: ['./vitest-setup.ts'],
     isolate: true,
