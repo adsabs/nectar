@@ -1,4 +1,4 @@
-import type { spanToJSON } from '@sentry/nextjs';
+import { spanToJSON } from '@sentry/nextjs';
 
 // @sentry/nextjs doesn't re-export SpanJSON, so derive it from spanToJSON.
 export type SpanJSON = ReturnType<typeof spanToJSON>;
