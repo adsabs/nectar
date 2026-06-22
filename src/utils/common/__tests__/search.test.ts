@@ -20,11 +20,16 @@ describe('getDefaultSortForQuery', () => {
   });
 
   describe('regular queries — returns fallback', () => {
-    test.each([['star formation'], ['author:kurtz'], ['trending_topic:foo'], [''], ['reviews_count > 5']])(
-      '%s',
-      (q) => {
-        expect(getDefaultSortForQuery(q, PREF_SORT)).toBe(PREF_SORT);
-      },
-    );
+    test.each([
+      ['star formation'],
+      ['author:kurtz'],
+      ['trending_topic:foo'],
+      [''],
+      ['reviews_count > 5'],
+      ['title:trending(foo)'],
+      ['"trending("'],
+    ])('%s', (q) => {
+      expect(getDefaultSortForQuery(q, PREF_SORT)).toBe(PREF_SORT);
+    });
   });
 });
