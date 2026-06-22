@@ -4,6 +4,10 @@ import * as Sentry from '@sentry/nextjs';
 import { IDocsEntity } from '@/api/search/types';
 import { PERF_SPANS } from '@/lib/performance';
 
+// Avoids the "useLayoutEffect does nothing on the server" SSR warning for
+// components like SimpleResultList that can be rendered server-side.
+const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
 // Paint timing for the search results list: open after DOM commit
 // (useLayoutEffect), close after paint (rAF). Results and facets share one
 // lifecycle — they render in the same React commit.
@@ -17,8 +21,14 @@ export function useResultsRenderSpan(docs: IDocsEntity[], enabled = false): void
   const rafRef = useRef<number | null>(null);
 
   // Open after DOM commit, before the browser paints.
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!enabled) {
+      try {
+        resultsSpanRef.current?.end();
+        facetsSpanRef.current?.end();
+      } catch {}
+      resultsSpanRef.current = null;
+      facetsSpanRef.current = null;
       return;
     }
     try {
@@ -38,6 +48,10 @@ export function useResultsRenderSpan(docs: IDocsEntity[], enabled = false): void
   // Close after the browser has painted.
   useEffect(() => {
     if (!enabled) {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
       return;
     }
     if (rafRef.current !== null) {
