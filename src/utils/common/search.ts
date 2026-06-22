@@ -175,7 +175,7 @@ export const normalizeSolrSort = (rawSolrSort: unknown, postfixSort?: SolrSort):
 };
 
 // Matches second-order operator queries that should default to relevance sort.
-const SECOND_ORDER_OPERATOR_RE = /\b(trending|reviews|useful|similar)\s*\(/i;
+const SECOND_ORDER_OPERATOR_RE = /^\s*[+-]?(trending|reviews|useful|similar)\s*\(/i;
 
 /**
  * Returns the appropriate default sort for a query. Second-order operator queries
