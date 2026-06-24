@@ -22,7 +22,6 @@ import {
 } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import histLitList from 'public/data/hist_lit/histLitList.json';
 import { useEffect, useMemo, useState } from 'react';
 import { useDebounce } from '@/lib/useDebounce';
 import { APP_DEFAULTS } from '@/config';
@@ -35,6 +34,14 @@ interface HistoricalPublication {
 }
 
 const HistoricalLitPage: NextPage = () => {
+  const [histLitList, setHistLitList] = useState<HistoricalPublication[]>([]);
+
+  useEffect(() => {
+    fetch('/data/hist_lit/histLitList.json')
+      .then((r) => r.json())
+      .then((data) => setHistLitList(data as HistoricalPublication[]));
+  }, []);
+
   const [pageIndex, setPageIndex] = useState(0);
 
   const [pageSize, setPageSize] = useState<NumPerPageType>(APP_DEFAULTS.RESULT_PER_PAGE);
@@ -65,7 +72,7 @@ const HistoricalLitPage: NextPage = () => {
         bibstem.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
       );
     });
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, histLitList]);
 
   const pagedFilteredList = useMemo<HistoricalPublication[]>(() => {
     return filteredList.slice(startRow, startRow + pageSize);
