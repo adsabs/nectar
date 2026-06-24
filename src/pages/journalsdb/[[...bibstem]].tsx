@@ -3,7 +3,7 @@ import { IADSApiJournal } from '@/api/journals/types';
 import { SimpleLink } from '@/components/SimpleLink';
 import { useDebounce } from '@/lib/useDebounce';
 import { makeSearchParams } from '@/utils/common/search';
-import { ArrowBackIcon, ArrowUpDownIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
+import { ArrowUpDownIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -71,14 +71,14 @@ const AbstractPage: NextPage = () => {
 const JournalSearch = () => {
   const router = useRouter();
 
+  const bibstem = router.query.bibstem?.[0] || null;
+
   const [term, setTerm] = useState('');
 
   const [sort, setSort] = useState<{ col: keyof IADSApiJournal; dir: 'asc' | 'desc' }>({
     col: 'bibstem',
     dir: 'asc',
   });
-
-  const [bibstem, setBibstem] = useState<string>(null);
 
   const searchTerm = useDebounce(term, 500);
 
@@ -105,7 +105,7 @@ const JournalSearch = () => {
       </InputGroup>
       <Box as="section" mt={4}>
         {isFetching && <Spinner />}
-        {bibstem && <JournalSummary bibstem={bibstem} onClose={() => setBibstem(null)} />}
+        {bibstem && <JournalSummary bibstem={bibstem} />}
         {!bibstem && !isFetching && data && (
           <>
             <Text size="sm" my={4}>
@@ -202,7 +202,7 @@ const JournalSearch = () => {
                         <Td>
                           <Button
                             variant="link"
-                            onClick={() => setBibstem(bibstem)}
+                            onClick={() => router.push(`/journalsdb/${bibstem}`)}
                             fontWeight="medium"
                             _hover={{ textDecoration: 'none' }}
                           >
@@ -222,7 +222,7 @@ const JournalSearch = () => {
   );
 };
 
-const JournalSummary = ({ bibstem, onClose }: { bibstem: string; onClose: () => void }) => {
+const JournalSummary = ({ bibstem }: { bibstem: string }) => {
   const { data, isFetching } = useGetJournalSummary({ bibstem });
 
   const summary = useMemo(() => {
@@ -233,7 +233,6 @@ const JournalSummary = ({ bibstem, onClose }: { bibstem: string; onClose: () => 
 
   return (
     <>
-      <IconButton icon={<ArrowBackIcon />} aria-label="Back" onClick={onClose} />
       <Box as="section" mt={4}>
         {isFetching && <Spinner />}
         {!isFetching && summary && (
