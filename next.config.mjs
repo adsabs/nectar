@@ -44,6 +44,10 @@ const nextConfig = {
           source: '/link_gateway/:path*',
           destination: `${process.env.BASE_CANONICAL_URL}/link_gateway/:path*`,
         });
+        beforeFiles.push({
+          source: '/scixblog/:path*',
+          destination: `${process.env.BASE_CANONICAL_URL}/scixblog/:path*`,
+        });
       }
 
       if (process.env.API_HOST_CLIENT) {
