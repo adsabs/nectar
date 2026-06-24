@@ -97,7 +97,9 @@ const AppModeRouter = (): ReactElement => {
     if (!isClient) {
       return;
     }
-    const onFormRoute = /^\/(classic|paper)-form.*$/.test(router.asPath);
+    // Match /classic-form and /paper-form exactly, allowing a query or hash
+    // suffix — but not lookalikes such as /classic-former.
+    const onFormRoute = /^\/(classic|paper)-form(?:[/?#]|$)/.test(router.asPath);
     const { mode, forcedAstroFromMode } = storeApi.getState();
 
     // Navigating away from the form route without acting on the notice: clear

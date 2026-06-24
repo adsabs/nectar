@@ -41,7 +41,7 @@ import { fetchVaultSearch, vaultKeys } from '@/api/vault/vault';
 import { SimpleLink } from '@/components/SimpleLink';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { AppMode } from '@/types';
-import { syncUrlDisciplineParam } from '@/utils/appMode';
+import { appModeToDisciplineParam, syncUrlDisciplineParam } from '@/utils/appMode';
 import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
 
 const MAX_SIMPLE_QUERY_BIBCODES = 50;
@@ -135,7 +135,15 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
           setMode(AppMode.ASTROPHYSICS);
         }
         const destination = await getSearchQuery(params, queryClient);
-        await router.push(destination);
+        // Pin the discipline in the URL so a shared/bookmarked result stays
+        // Astrophysics regardless of the recipient's mode (classic form does
+        // this via the query builder; the paper builder does not).
+        const url = new URL(destination, 'http://localhost');
+        const disciplineParam = appModeToDisciplineParam(AppMode.ASTROPHYSICS);
+        if (disciplineParam) {
+          url.searchParams.set('d', disciplineParam);
+        }
+        await router.push(`${url.pathname}${url.search}`);
       } catch (e) {
         setError({ form: params.form, message: (e as Error).message });
       }
