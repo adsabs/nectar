@@ -116,6 +116,8 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
       });
       setPath(null);
     }
+    // runs on vault result/path change; router/toast/clearSelected are stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, error, path]);
 
   const handleExploreOption = (value: string | string[]) => {
@@ -165,6 +167,8 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     }
   };
 
+  // keyed on exploreAll/router; handleOperationsLink is re-created each render
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleOpsLink = useCallback((name: Operator) => () => handleOperationsLink(name), [exploreAll, router]);
 
   const colors = useColorModeColors();
@@ -441,7 +445,11 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
   const defaultExportFormatValue = getFormatOptionByLabel(defaultExportFormat).value;
 
   useEffect(() => {
-    if (data) {
+    // Only use a vault qid in 'selected' mode. A disabled vault query keeps its
+    // cached data, so in 'all' mode `data` may still hold the qid from a prior
+    // subselection — navigating with it would re-export just that subset. The
+    // route[0] guard ensures we only navigate in response to an export click.
+    if (!exploreAll && data && isNonEmptyString(route[0])) {
       setSelected([]);
 
       // when vault query is done, transition to the export page passing only qid
@@ -450,9 +458,14 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
         { pathname: route[1], query: { ...router.query, qid: data.qid } },
       );
     }
+    // Runs only on `data`/`route` change, using the latest render's
+    // `exploreAll`. It's intentionally not a dep: adding it would re-run on a
+    // mode toggle and could navigate with a stale qid (route[0] persists from a
+    // prior click). The `!exploreAll` guard keeps the qid to 'selected' mode.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, route]);
 
-  // on route change
+  // on route change (export click)
   useEffect(() => {
     if (!exploreAll) {
       // if using a selection, update the state value (triggers a vault request)
@@ -463,6 +476,8 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
       // if explore all, then just use the current query, and do not trigger vault (redirect immediately)
       void router.push({ pathname: route[0], query: router.query }, { pathname: route[1], query: router.query });
     }
+    // runs only on export click (route change); router/store are stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route]);
 
   const handleExportItemClick = curryN(2, (format: string) => {

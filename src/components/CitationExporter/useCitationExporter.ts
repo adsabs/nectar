@@ -1,5 +1,5 @@
 import { useMachine } from '@xstate/react/fsm';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { generateMachine, ICitationExporterState } from './CitationExporter.machine';
 import { purifyString } from '@/utils/common/formatters';
@@ -53,6 +53,12 @@ export const useCitationExporter = ({
   const [state, dispatch] = useMachine(machine);
   const queryClient = useQueryClient();
 
+  // True while the on-mount prefetch below is in flight. The machine stays in
+  // `idle` during that prefetch (a guarded SUBMIT cannot transition on mount),
+  // so without this flag the result area would show its static "press submit"
+  // placeholder for the entire initial fetch instead of a loading indicator.
+  const [isInitialLoading, setIsInitialLoading] = useState(false);
+
   // clean params before submitting to API
   const params: IExportApiParams = {
     ...state.context.params,
@@ -63,20 +69,24 @@ export const useCitationExporter = ({
   // subsequent renders — doing so would re-trigger the initial load on every
   // format/record change, bypassing the state machine's normal flow.
   useEffect(() => {
-    (async () => {
-      const queryKey = exportCitationKeys.primary(params);
-      const cached = queryClient.getQueryData<IExportApiParams>(queryKey);
+    let cancelled = false;
+    const queryKey = exportCitationKeys.primary(params);
+    const cached = queryClient.getQueryData(queryKey);
 
-      if (!cached) {
-        // no cached value, prefetch and submit it here since we know the params
-        await queryClient.prefetchQuery({
-          queryKey,
-          queryFn: fetchExportCitation,
-          meta: { params },
-        });
-        dispatch('SUBMIT');
-      }
-    })();
+    if (!cached) {
+      // no cached value: surface a loading state, prefetch, then submit
+      setIsInitialLoading(true);
+      void queryClient.prefetchQuery({ queryKey, queryFn: fetchExportCitation, meta: { params } }).finally(() => {
+        if (!cancelled) {
+          setIsInitialLoading(false);
+          dispatch('SUBMIT');
+        }
+      });
+    }
+
+    return () => {
+      cancelled = true;
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // trigger updates to machine state if incoming props change
@@ -141,5 +151,8 @@ export const useCitationExporter = ({
     }
   }, [state.value, result.data, dispatch]);
 
-  return { ...result, state, dispatch };
+  // `isLoading` reflects both the machine's fetching state and the on-mount
+  // prefetch, so the result area shows a loading indicator throughout the
+  // initial load rather than the static "press submit" placeholder.
+  return { ...result, state, dispatch, isLoading: state.matches('fetching') || isInitialLoading };
 };
