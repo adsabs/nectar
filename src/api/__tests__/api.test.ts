@@ -162,9 +162,7 @@ test('Fallback to bootstrapping directly if the /api/user endpoint continuously 
 
   // the refresh header was added to force a new session
   expect(onReq.mock.calls[1][0].headers.get('x-refresh-token')).toMatchInlineSnapshot('"1"');
-  expect(onReq.mock.calls[3][0].headers.get('authorization')).toMatchInlineSnapshot(
-    '"Bearer mocked-anonymous-token"',
-  );
+  expect(onReq.mock.calls[3][0].headers.get('authorization')).toMatchInlineSnapshot('"Bearer mocked-anonymous-token"');
 });
 
 test('passing token initially skips bootstrap', async ({ server }: TestContext) => {
@@ -296,6 +294,17 @@ test('request rejects if the refreshed user data is not valid', async ({ server 
   expect(onReq).toBeCalledTimes(3);
   expect(urls(onReq)).toStrictEqual(['/test', API_USER, ApiTargets.BOOTSTRAP]);
   expect(onReq.mock.calls[1][0].headers.get('x-refresh-token')).toEqual('1');
+});
+
+test('request interceptor sets X-Ui-Tag header from ui_tag', async ({ server }: TestContext) => {
+  const { onRequest: onReq } = createServerListenerMocks(server);
+  server.use(testHandlerWith200);
+  api.setUserData(mockUserData);
+
+  await api.request({ method: 'GET', url: '/test', ui_tag: 'search/primary' } as ApiRequestConfig);
+
+  expect(onReq).toHaveBeenCalledOnce();
+  expect(onReq.mock.calls[0][0].headers.get('x-ui-tag')).toEqual('search/primary');
 });
 
 test('duplicate requests are provided the same promise', async ({ server }: TestContext) => {

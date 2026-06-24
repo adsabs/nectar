@@ -145,6 +145,7 @@ const fetchExchangeToken: QueryFunction<IOrcidUser> = async ({ meta }) => {
     method: 'GET',
     url: ApiTargets.ORCID_EXCHANGE_TOKEN,
     params,
+    ui_tag: 'orcid/exchange-token',
   };
 
   return trackUserFlow(PERF_SPANS.ORCID_OAUTH_TOTAL, async () => {
@@ -166,6 +167,7 @@ const getPreferences: QueryFunction<IOrcidResponse['getPreferences']> = async ({
     headers: {
       'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
+    ui_tag: 'orcid/get-preferences',
   };
 
   const { data } = await api.request<IOrcidResponse['getPreferences']>(config);
@@ -187,6 +189,7 @@ export const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ m
     headers: {
       'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
+    ui_tag: 'orcid/profile',
   };
 
   return trackUserFlow(PERF_SPANS.ORCID_PROFILE_LOAD, async () => {
@@ -212,6 +215,7 @@ const removeWorks: MutationFunction<IOrcidResponse['removeWorks'], IOrcidMutatio
     headers: {
       'orcid-authorization': `Bearer ${user.access_token}`,
     },
+    ui_tag: 'orcid/remove-works',
   };
 
   const makeRequest = async (putcode: IOrcidWork['put-code']) => {
@@ -260,6 +264,7 @@ const addWorks: MutationFunction<IOrcidResponse['addWorks'], IOrcidMutationParam
     headers: {
       'orcid-authorization': `Bearer ${user.access_token}`,
     },
+    ui_tag: 'orcid/add-works',
   };
 
   const data = await trackUserFlow(PERF_SPANS.ORCID_CLAIM_TOTAL, () =>
@@ -296,6 +301,7 @@ const updateWork: MutationFunction<IOrcidResponse['updateWork'], IOrcidMutationP
       'orcid-authorization': `Bearer ${user.access_token}`,
     },
     data: work,
+    ui_tag: 'orcid/update-work',
   };
 
   return trackUserFlow(PERF_SPANS.ORCID_SYNC_TOTAL, async () => {
@@ -316,6 +322,7 @@ const getName: QueryFunction<IOrcidResponse['name']> = async ({ meta }) => {
     headers: {
       'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
+    ui_tag: 'orcid/name',
   };
 
   const { data } = await api.request<null>(config);
@@ -335,6 +342,7 @@ const getWork: QueryFunction<IOrcidResponse['getWork']> = async ({ meta }) => {
     headers: {
       'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
+    ui_tag: 'orcid/get-work',
   };
 
   const { data } = await api.request<null>(config);
@@ -359,6 +367,7 @@ const setPreferences: MutationFunction<
     headers: {
       'orcid-authorization': `Bearer ${user.access_token}`,
     },
+    ui_tag: 'orcid/set-preferences',
   };
 
   const { data } = await api.request<IOrcidResponse['setPreferences']>(config);

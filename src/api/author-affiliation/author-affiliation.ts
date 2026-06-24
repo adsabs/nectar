@@ -10,8 +10,11 @@ export const authorAffiliationsKeys = {
   export: (params: IAuthorAffiliationExportPayload) => ['authoraffiliation/export', params] as const,
 };
 
-type SearchQuery = ADSQuery<Parameters<typeof authorAffiliationsKeys['search']>[0], IAuthorAffiliationResponse['data']>;
-type ExportQuery = ADSQuery<Parameters<typeof authorAffiliationsKeys['export']>[0], string>;
+type SearchQuery = ADSQuery<
+  Parameters<(typeof authorAffiliationsKeys)['search']>[0],
+  IAuthorAffiliationResponse['data']
+>;
+type ExportQuery = ADSQuery<Parameters<(typeof authorAffiliationsKeys)['export']>[0], string>;
 
 export const useAuthorAffiliationSearch: SearchQuery = (params, options) => {
   const searchParams = getAuthorAffiliationSearchParams(params);
@@ -39,6 +42,7 @@ export const fetchAuthorAffiliationSearch: QueryFunction<IAuthorAffiliationRespo
     method: 'POST',
     url: ApiTargets.AUTHOR_AFFILIATION_SEARCH,
     data: params,
+    ui_tag: 'author-affiliation/search',
   };
 
   const { data } = await api.request<IAuthorAffiliationResponse>(config);
@@ -53,6 +57,7 @@ export const fetchAuthorAffiliationExport: QueryFunction<string> = async ({ meta
     method: 'POST',
     url: ApiTargets.AUTHOR_AFFILIATION_EXPORT,
     data: params,
+    ui_tag: 'author-affiliation/export',
   };
 
   const { data } = await api.request<string>(config);

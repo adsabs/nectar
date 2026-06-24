@@ -60,7 +60,7 @@ export const useVaultSearch: ADSQuery<IADSApiSearchParams, IADSApiVaultResponse>
   return useQuery({
     queryKey: vaultKeys.primary(params),
     queryFn: fetchVaultSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'vault/primary' },
     ...options,
   });
 };
@@ -73,7 +73,7 @@ export const useVaultExecuteQuery: ADSQuery<IADSVaultExecuteQueryParams, IADSApi
   return useQuery({
     queryKey: vaultKeys.executeQuery(qid),
     queryFn: fetchVaultSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'vault/execute-query' },
     ...options,
   });
 };
@@ -86,18 +86,19 @@ export const useVaultBigQuerySearch: ADSQuery<IDocsEntity['bibcode'][], IADSApiV
   return useQuery({
     queryKey: vaultKeys.bigquery(bibcodes),
     queryFn: fetchVaultSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'vault/bigquery' },
     ...options,
   });
 };
 
 export const fetchVaultSearch: QueryFunction<IADSApiVaultResponse> = async ({ meta }) => {
-  const { params } = meta as { params: IADSApiSearchParams };
+  const { params, ui_tag } = meta as { params: IADSApiSearchParams; ui_tag?: string };
 
   const config: ApiRequestConfig = {
     method: 'POST',
     url: ApiTargets.MYADS_STORAGE_QUERY,
     data: params,
+    ui_tag,
   };
 
   const { data } = await api.request<IADSApiVaultResponse>(config);
@@ -110,6 +111,7 @@ export const fetchVaultExecuteQuery: QueryFunction<IADSApiSearchResponse['respon
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.MYADS_STORAGE}/execute_query/${params.qid}`,
+    ui_tag: 'vault/execute-query',
   };
 
   const { data } = await api.request<IADSApiSearchResponse['response']>(config);
@@ -120,6 +122,7 @@ export const fetchLibraryLinkServers: QueryFunction<IADSApiLibraryLinkServersRes
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.LINK_SERVERS,
+    ui_tag: 'vault/library-link-servers',
   };
 
   const { data } = await api.request<IADSApiLibraryLinkServersResponse>(config);
@@ -150,6 +153,7 @@ export const fetchNotifications: QueryFunction<IADSApiNotificationsReponse> = as
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.MYADS_NOTIFICATIONS,
+    ui_tag: 'vault/notifications',
   };
 
   const { data } = await api.request<IADSApiNotificationsReponse>(config);
@@ -175,6 +179,7 @@ export const fetchNotification: QueryFunction<IADSApiNotificationReponse> = asyn
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.MYADS_NOTIFICATIONS}/${params.id.toString()}`,
+    ui_tag: 'vault/notification',
   };
 
   const { data } = await api.request<IADSApiNotificationReponse>(config);
@@ -183,14 +188,17 @@ export const fetchNotification: QueryFunction<IADSApiNotificationReponse> = asyn
 
 // add notification
 
-export const useAddNotification: ADSMutation<IADSApiAddNotificationResponse, undefined, IADSApiAddNotificationParams> =
-  (_, options) => {
-    return useMutation({
-      mutationKey: vaultKeys.addNotification(),
-      mutationFn: addNotification,
-      ...options,
-    });
-  };
+export const useAddNotification: ADSMutation<
+  IADSApiAddNotificationResponse,
+  undefined,
+  IADSApiAddNotificationParams
+> = (_, options) => {
+  return useMutation({
+    mutationKey: vaultKeys.addNotification(),
+    mutationFn: addNotification,
+    ...options,
+  });
+};
 
 export const addNotification: MutationFunction<IADSApiAddNotificationResponse, IADSApiAddNotificationParams> = async (
   params,
@@ -199,6 +207,7 @@ export const addNotification: MutationFunction<IADSApiAddNotificationResponse, I
     method: 'POST',
     url: ApiTargets.MYADS_NOTIFICATIONS,
     data: params,
+    ui_tag: 'vault/add-notification',
   };
 
   const { data } = await api.request<IADSApiAddNotificationResponse>(config);
@@ -219,17 +228,20 @@ export const useEditNotification: ADSMutation<
   });
 };
 
-export const editNotification: MutationFunction<IADSApiEditNotificationResponse, IADSApiEditNotificationParams> =
-  async (params) => {
-    const config: ApiRequestConfig = {
-      method: 'PUT',
-      url: `${ApiTargets.MYADS_NOTIFICATIONS}/${params.id}`,
-      data: omit(['id'], params),
-    };
-
-    const { data } = await api.request<IADSApiEditNotificationResponse>(config);
-    return data;
+export const editNotification: MutationFunction<
+  IADSApiEditNotificationResponse,
+  IADSApiEditNotificationParams
+> = async (params) => {
+  const config: ApiRequestConfig = {
+    method: 'PUT',
+    url: `${ApiTargets.MYADS_NOTIFICATIONS}/${params.id}`,
+    data: omit(['id'], params),
+    ui_tag: 'vault/edit-notification',
   };
+
+  const { data } = await api.request<IADSApiEditNotificationResponse>(config);
+  return data;
+};
 
 export const useDelNotification: ADSMutation<
   IADSApiDeleteNotificationResponse,
@@ -243,16 +255,19 @@ export const useDelNotification: ADSMutation<
   });
 };
 
-export const deleteNotification: MutationFunction<IADSApiDeleteNotificationResponse, IADSApiDeleteNotificationParams> =
-  async ({ id }) => {
-    const config: ApiRequestConfig = {
-      method: 'DELETE',
-      url: `${ApiTargets.MYADS_NOTIFICATIONS}/${id}`,
-    };
-
-    const { data } = await api.request<IADSApiDeleteNotificationResponse>(config);
-    return data;
+export const deleteNotification: MutationFunction<
+  IADSApiDeleteNotificationResponse,
+  IADSApiDeleteNotificationParams
+> = async ({ id }) => {
+  const config: ApiRequestConfig = {
+    method: 'DELETE',
+    url: `${ApiTargets.MYADS_NOTIFICATIONS}/${id}`,
+    ui_tag: 'vault/delete-notification',
   };
+
+  const { data } = await api.request<IADSApiDeleteNotificationResponse>(config);
+  return data;
+};
 
 // get notification query
 
@@ -273,6 +288,7 @@ export const fetchNotificationQuery: QueryFunction<IADSApiNotificationQueryRespo
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.MYADS_NOTIFICATIONS_QUERY}/${params.id.toString()}`,
+    ui_tag: 'vault/notification-query',
   };
 
   const { data } = await api.request<IADSApiNotificationQueryResponse>(config);
@@ -292,6 +308,7 @@ export const fetchSiteWideMsg: QueryFunction<IADSApiSiteWideMsgResponse> = async
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.SITE_SIDE_MESSAGE}`,
+    ui_tag: 'vault/site-wide-msg',
   };
 
   const { data } = await api.request<IADSApiSiteWideMsgResponse>(config);

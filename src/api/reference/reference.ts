@@ -12,7 +12,7 @@ export const referenceKeys = {
   [ReferenceKeysEnum.TEXT]: (text: string) => [ReferenceKeysEnum.TEXT, { text }] as const,
 };
 
-type ReferenceQuery = ADSQuery<Parameters<typeof referenceKeys[ReferenceKeysEnum.TEXT]>[0], IADSApiReferenceResponse>;
+type ReferenceQuery = ADSQuery<Parameters<(typeof referenceKeys)[ReferenceKeysEnum.TEXT]>[0], IADSApiReferenceResponse>;
 
 /**
  * Generic reference search, will accept raw text and make request for reference string
@@ -32,6 +32,7 @@ export const fetchReferenceText: QueryFunction<IADSApiReferenceResponse> = async
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.REFERENCE}/${params.text}`,
+    ui_tag: 'reference/primary',
   };
 
   const { data } = await api.request<IADSApiReferenceResponse>(config);

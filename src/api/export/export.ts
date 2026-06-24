@@ -36,6 +36,7 @@ export const fetchExportFormats: QueryFunction<ExportFormatsApiResponse> = async
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.EXPORT_MANIFEST,
+    ui_tag: 'export/manifest',
   };
 
   const { data } = await api.request<ExportFormatsApiResponse>(config);
@@ -58,6 +59,7 @@ export const fetchExportCitation: QueryFunction<IExportApiResponse> = async ({ m
       ...params,
       ...(format === ExportApiFormatKey.custom ? { format: customFormat } : {}),
     },
+    ui_tag: 'export/citation',
   };
 
   return trackUserFlow(PERF_SPANS.EXPORT_API_REQUEST, async () => {

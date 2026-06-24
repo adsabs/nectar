@@ -109,6 +109,14 @@ class Api {
   }
 
   private async init() {
+    this.service.interceptors.request.use((config) => {
+      if ((config as ApiRequestConfig).ui_tag) {
+        config.headers['X-Ui-Tag'] = (config as ApiRequestConfig).ui_tag;
+        delete (config as ApiRequestConfig).ui_tag;
+      }
+      return config;
+    });
+
     this.service.interceptors.response.use(identity, (error: AxiosError & { canRefresh: boolean }) => {
       // Use global error handler (skip Sentry as React Query will handle it)
       handleAPIError(error, error.config?.url, {

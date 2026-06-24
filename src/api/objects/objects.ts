@@ -50,6 +50,7 @@ export const resolveObjectQuery = async (params: IObjectsQueryApiParams) => {
     url: ApiTargets.SERVICE_OBJECTS_QUERY,
     method: 'POST',
     data: { query: [query] },
+    ui_tag: 'objects/primary',
   };
 
   const { data } = await api.request<ObjectService['response']>(config);
@@ -86,6 +87,7 @@ export const resolveObjectQuerySSR = async (params: IObjectsQueryApiParams, ctx:
       ...defaultRequestConfig.headers,
       ...pickTracingHeaders(ctx.req.headers),
       Authorization: `Bearer ${token}`,
+      'X-Ui-Tag': 'objects/primary',
     },
   };
 
@@ -114,6 +116,7 @@ export const resolveObjects = async (params: IObjectsApiParams) => {
     url: ApiTargets.SERVICE_OBJECTS,
     method: 'POST',
     data: { identifiers },
+    ui_tag: 'objects/primary',
   };
 
   const { data } = await api.request<IObjectsApiResponse>(config);

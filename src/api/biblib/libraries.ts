@@ -95,6 +95,7 @@ export const fetchLibraries: QueryFunction<IADSApiLibraryResponse> = async ({ me
     method: 'GET',
     url: ApiTargets.LIBRARIES,
     params,
+    ui_tag: 'library/libraries',
   };
 
   return trackUserFlow(PERF_SPANS.LIBRARY_LIST_LOAD, async () => {
@@ -119,6 +120,7 @@ export const addLibrary: MutationFunction<IADSApiLibraryAddResponse, IADSApiLibr
     method: 'POST',
     url: `${ApiTargets.LIBRARIES}`,
     data: params,
+    ui_tag: 'library/add',
   };
 
   return trackUserFlow(PERF_SPANS.LIBRARY_CREATE_TOTAL, async () => {
@@ -145,6 +147,7 @@ export const fetchLibraryEntity: QueryFunction<IADSApiLibraryEntityResponse> = a
     method: 'GET',
     url: `${ApiTargets.LIBRARIES}/${params.id}`,
     params: omit(['id'], params),
+    ui_tag: 'library/library',
   };
 
   const { data } = await api.request<IADSApiLibraryEntityResponse>(config);
@@ -170,6 +173,7 @@ export const deleteLibrary: MutationFunction<IADSApiLibraryDeleteResponse, IADSA
   const config: ApiRequestConfig = {
     method: 'DELETE',
     url: `${ApiTargets.DOCUMENTS}/${id}`,
+    ui_tag: 'library/delete',
   };
 
   const { data } = await api.request<IADSApiLibraryDeleteResponse>(config);
@@ -195,6 +199,7 @@ export const editLibraryMeta: MutationFunction<IADSApiLibraryEditMetaResponse, I
     method: 'PUT',
     url: `${ApiTargets.DOCUMENTS}/${params.id}`,
     data: omit(['id'], params),
+    ui_tag: 'library/edit',
   };
 
   const { data } = await api.request<IADSApiLibraryEditMetaResponse>(config);
@@ -221,6 +226,7 @@ export const editLibraryDocuments: MutationFunction<
     method: 'POST',
     url: `${ApiTargets.DOCUMENTS}/${params.id}`,
     data: omit(['id'], params),
+    ui_tag: 'library/document',
   };
 
   return trackUserFlow(PERF_SPANS.LIBRARY_ADD_TOTAL, async () => {
@@ -250,6 +256,7 @@ export const operation: MutationFunction<IADSApiLibraryOperationResponse, IADSAp
     method: 'POST',
     url: `${ApiTargets.LIBRARY_OPERATION}/${params.id}`,
     data: omit(['id'], params),
+    ui_tag: 'library/operation',
   };
 
   const { data } = await api.request<IADSApiLibraryOperationResponse>(config);
@@ -276,6 +283,7 @@ export const addDocumentsByQuery: MutationFunction<IADSApiLibraryQueryResponse, 
     method: 'POST',
     url: `${ApiTargets.LIBRARY_QUERY}/${params.id}`,
     data: params,
+    ui_tag: 'library/query',
   };
 
   const { data } = await api.request<IADSApiLibraryQueryResponse>(config);
@@ -302,6 +310,7 @@ export const updateDocumentsByQuery: MutationFunction<
     method: 'POST',
     url: `${ApiTargets.LIBRARY_QUERY}/${params.id}`,
     data: omit(['id'], params),
+    ui_tag: 'library/query-update',
   };
 
   const { data } = await api.request<IADSApiLibraryQueryUpdateResponse>(config);
@@ -327,6 +336,7 @@ export const getPermission: QueryFunction<IADSApiLibraryPermissionResponse> = as
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.PERMISSIONS}/${params.id}`,
+    ui_tag: 'library/permission',
   };
 
   const { data } = await api.request<IADSApiLibraryPermissionResponse>(config);
@@ -353,6 +363,7 @@ export const modifyPermission: MutationFunction<
     method: 'POST',
     url: `${ApiTargets.PERMISSIONS}/${params.id}`,
     data: omit(['id'], params),
+    ui_tag: 'library/permission-update',
   };
 
   const { data } = await api.request<IADSApiLibraryPermissionUpdateResponse>(config);
@@ -379,6 +390,7 @@ export const transfer: MutationFunction<IADSApiLibraryTransferResponse, IADSApiL
     method: 'POST',
     url: `${ApiTargets.LIBRARY_TRANSFER}/${params.id}`,
     data: omit(['id'], params),
+    ui_tag: 'library/transfer',
   };
 
   const { data } = await api.request<IADSApiLibraryTransferResponse>(config);
@@ -407,6 +419,7 @@ export const fetchAnnotation: QueryFunction<IADSApiLibraryGetAnnotationResponse>
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.LIBRARY_NOTES}/${params.library}/${params.bibcode}`,
+    ui_tag: 'library/get-annotation',
   };
 
   const { data } = await api.request<IADSApiLibraryGetAnnotationResponse>(config);
@@ -435,6 +448,7 @@ export const addAnnotation: MutationFunction<
     method: 'POST',
     url: `${ApiTargets.LIBRARY_NOTES}/${params.library}/${params.bibcode}`,
     data: { content: params.content },
+    ui_tag: 'library/add-annotation',
   };
 
   const { data } = await api.request<IADSApiLibraryAddAnnotationResponse>(config);
@@ -463,6 +477,7 @@ export const updateAnnotation: MutationFunction<
     method: 'PUT',
     url: `${ApiTargets.LIBRARY_NOTES}/${params.library}/${params.bibcode}`,
     data: { content: params.content },
+    ui_tag: 'library/update-annotation',
   };
 
   const { data } = await api.request<IADSApiLibraryAddAnnotationResponse>(config);
@@ -490,6 +505,7 @@ export const deleteAnnotation: MutationFunction<
   const config: ApiRequestConfig = {
     method: 'DELETE',
     url: `${ApiTargets.LIBRARY_NOTES}/${params.library}/${params.bibcode}`,
+    ui_tag: 'library/delete-annotation',
   };
 
   const { data } = await api.request<IADSApiLibraryDeleteAnnotationResponse>(config);

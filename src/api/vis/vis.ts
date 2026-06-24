@@ -48,6 +48,7 @@ export const fetchAuthorNetwork: QueryFunction<IADSApiAuthorNetworkResponse> = a
     method: 'POST',
     url: ApiTargets.SERVICE_AUTHOR_NETWORK,
     data: params,
+    ui_tag: 'vis/author-network',
   };
 
   const { data } = await api.request<IADSApiAuthorNetworkResponse>(config);
@@ -73,6 +74,7 @@ export const fetchPaperNetwork: QueryFunction<IADSApiPaperNetworkResponse> = asy
     method: 'POST',
     url: ApiTargets.SERVICE_PAPER_NETWORK,
     data: params,
+    ui_tag: 'vis/paper-network',
   };
 
   const { data } = await api.request<IADSApiPaperNetworkResponse>(config);
@@ -98,6 +100,7 @@ export const fetchWordCloud: QueryFunction<IADSApiWordCloudResponse> = async ({ 
     method: 'POST',
     url: ApiTargets.SERVICE_WORDCLOUD,
     data: params,
+    ui_tag: 'vis/word-cloud',
   };
 
   const { data } = await api.request<IADSApiWordCloudResponse>(config);
@@ -123,6 +126,7 @@ export const fetchResultsGraph: QueryFunction<IADSApiSearchResponse> = async ({ 
     method: 'GET',
     url: ApiTargets.SEARCH,
     params,
+    ui_tag: 'vis/results-graph',
   };
 
   const { data } = await api.request<IADSApiSearchResponse>(config);

@@ -65,6 +65,7 @@ export const fetchGraphics: QueryFunction<IADSApiGraphicsResponse> = async ({ me
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.GRAPHICS}/${params.bibcode}`,
+    ui_tag: 'graphics/primary',
   };
 
   const { data: graphics } = await api.request<IADSApiGraphicsResponse>(config);
