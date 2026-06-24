@@ -157,7 +157,14 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
             divider={divider}
           >
             <Text>{formattedPubDate}</Text>
-            <Text>{truncatedPub}</Text>
+            <Tooltip
+              label={pub}
+              aria-label="publication tooltip"
+              placement="top"
+              isDisabled={!pub || pub.length <= APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF}
+            >
+              <Text>{truncatedPub}</Text>
+            </Tooltip>
             {cite}
           </Stack>
           <Stack
