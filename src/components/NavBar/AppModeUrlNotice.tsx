@@ -63,6 +63,8 @@ export const AppModeUrlNotice: FC = () => {
     shallow,
   );
   const urlModePrevious = useStore((state) => state.urlModePrevious);
+  const forcedAstroFromMode = useStore((state) => state.forcedAstroFromMode);
+  const setForcedAstroFromMode = useStore((state) => state.setForcedAstroFromMode);
   const [previousMode, setPreviousMode] = useState<AppMode | null>(null);
   const [appliedMode, setAppliedMode] = useState<AppMode | null>(null);
   const [visible, setVisible] = useState(false);
@@ -214,20 +216,40 @@ export const AppModeUrlNotice: FC = () => {
     void sync();
   }, [router, mode, urlModeOverride]);
 
-  const shouldRender = !!appliedMode && !!previousMode && (visible || modeNoticeVisible);
+  // A forced switch (from a classic/paper form route) has no URL `d` param, so
+  // the local appliedMode/previousMode are never set — fall back to the store.
+  const isForcedSwitch = forcedAstroFromMode !== null;
+  const effectiveAppliedMode = appliedMode ?? (isForcedSwitch ? AppMode.ASTROPHYSICS : null);
+  const effectivePreviousMode = previousMode ?? forcedAstroFromMode;
+  const shouldRender = !!effectiveAppliedMode && !!effectivePreviousMode && (visible || modeNoticeVisible);
   if (!shouldRender) {
     return null;
   }
 
-  const handleKeep = () => setVisible(false);
+  const handleKeep = () => {
+    setVisible(false);
+    if (isForcedSwitch) {
+      setForcedAstroFromMode(null);
+      dismissModeNotice();
+    }
+  };
 
   const handleSwitchBack = () => {
-    const targetMode = previousMode ?? urlModePrevious ?? null;
+    const targetMode = effectivePreviousMode ?? urlModePrevious ?? null;
     if (targetMode && targetMode !== mode) {
       setMode(targetMode);
     }
     setVisible(false);
     dismissModeNotice();
+
+    // Forced switches come from an Astrophysics-only form route. Reverting the
+    // discipline there would just re-trigger the switch, so navigate home.
+    if (isForcedSwitch) {
+      setForcedAstroFromMode(null);
+      void router.push('/');
+      return;
+    }
+
     setUrlModeOverride(null);
     setUrlModePrevious(targetMode);
     setUrlModeUserSelected(true);
@@ -254,7 +276,7 @@ export const AppModeUrlNotice: FC = () => {
     >
       <AlertIcon color="blue.100" />
       <Box>
-        <AlertDescription fontSize="sm">Changed to {getAppModeLabel(appliedMode)}.</AlertDescription>
+        <AlertDescription fontSize="sm">Changed to {getAppModeLabel(effectiveAppliedMode)}.</AlertDescription>
       </Box>
       <HStack spacing={2} ml={3}>
         <Button
