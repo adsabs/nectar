@@ -7,6 +7,7 @@ import {
   Stack,
   Text,
   Tooltip,
+  useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react';
 import { AuthorList } from '@/components/AllAuthorsModal';
@@ -96,6 +97,8 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
     </SimpleLink>
   ) : null;
 
+  const divider = useBreakpointValue({ base: undefined, md: <Text px="2">·</Text> });
+
   return (
     <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md">
       <Flex
@@ -145,15 +148,36 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
         </Flex>
         <Flex direction="column">
           <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} maxAuthors={maxAuthors} />
-          <Text fontSize="xs" mt={0.5}>
-            {formattedPubDate}
-            {formattedPubDate && pub ? <span className="px-2">·</span> : ''}
-            <Tooltip label={pub} aria-label="publication tooltip" placement="top">
-              <span>{truncatedPub}</span>
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
+            fontSize="xs"
+            mt={0.5}
+            gap={{ base: 0.5, md: 0 }}
+            flexWrap="wrap"
+            divider={divider}
+          >
+            <Text>{formattedPubDate}</Text>
+            <Tooltip
+              label={pub}
+              aria-label="publication tooltip"
+              placement="top"
+              isDisabled={!pub || pub.length <= APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF}
+            >
+              <Text>{truncatedPub}</Text>
             </Tooltip>
-            {cite && (formattedPubDate || pub) ? <span className="px-2">·</span> : null}
             {cite}
-          </Text>
+          </Stack>
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
+            fontSize="xs"
+            mt={0.5}
+            gap={{ base: 0.5, md: 0 }}
+            flexWrap="wrap"
+            divider={divider}
+          >
+            {doc.volume && <Text>Volume: {doc.volume}</Text>}
+            {doc.page && <Text>Page/ID: {doc.page}</Text>}
+          </Stack>
           <ItemAnnotation
             library={library}
             bibcode={bibcode}

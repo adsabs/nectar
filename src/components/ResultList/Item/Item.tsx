@@ -8,6 +8,7 @@ import {
   Stack,
   Text,
   Tooltip,
+  useBreakpointValue,
   useTimeout,
 } from '@chakra-ui/react';
 import { AuthorList } from '@/components/AllAuthorsModal';
@@ -65,7 +66,6 @@ export const Item = (props: IItemProps): ReactElement => {
     showHighlights,
     isFetchingHighlights,
     highlights,
-    extraInfo,
     linkNewTab = false,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
@@ -122,6 +122,8 @@ export const Item = (props: IItemProps): ReactElement => {
       </SimpleLink>
     ) : null;
 
+  const divider = useBreakpointValue({ base: undefined, md: <Text px="2">·</Text> });
+
   return (
     <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md" id={bibcode}>
       <Flex
@@ -163,23 +165,37 @@ export const Item = (props: IItemProps): ReactElement => {
           {author_count > 0 && (
             <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} maxAuthors={maxAuthors} />
           )}
-          <Flex fontSize="xs" mt={0.5}>
-            {formattedPubDate}
-            {formattedPubDate && pub ? <Text px="2">·</Text> : ''}
-            <Tooltip label={pub} aria-label="publication tooltip" placement="top">
-              <span>{truncatedPub}</span>
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
+            fontSize="xs"
+            mt={0.5}
+            gap={{ base: 0.5, md: 0 }}
+            flexWrap="wrap"
+            divider={divider}
+          >
+            <Text>{formattedPubDate}</Text>
+            <Tooltip
+              label={pub}
+              aria-label="publication tooltip"
+              placement="top"
+              isDisabled={!pub || pub.length <= APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF}
+            >
+              <Text>{truncatedPub}</Text>
             </Tooltip>
-            {cite && (formattedPubDate || pub) ? <Text px="2">·</Text> : null}
+            {!!credited && <>{credited}</>}
             {cite}
-            {!!credited && (
-              <>
-                <Text px="2">·</Text>
-                {credited}
-              </>
-            )}
-            {cite && extraInfo && '; '}
-            {extraInfo}
-          </Flex>
+          </Stack>
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
+            fontSize="xs"
+            mt={0.5}
+            gap={{ base: 0.5, md: 0 }}
+            flexWrap="wrap"
+            divider={divider}
+          >
+            {doc.volume && <Text>Volume: {doc.volume}</Text>}
+            {doc.page && <Text>Page/ID: {doc.page}</Text>}
+          </Stack>
           {showHighlights && <Highlights highlights={highlights} isFetchingHighlights={isFetchingHighlights} />}
           <AbstractPreview bibcode={bibcode} />
         </Flex>

@@ -13,12 +13,14 @@ export const defaultFields: IADSApiSearchParams['fl'] = [
   'citation_count_norm',
   'credit',
   'esources',
+  'page',
   'property',
   'pub',
   'reference_count',
   'data',
   'id',
   'identifier',
+  'volume',
 ];
 
 export const defaultSort: IADSApiSearchParams['sort'] = ['score desc'];
