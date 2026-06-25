@@ -1,4 +1,4 @@
-import { describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { reconcileDocIdentifier } from '@/components/Orcid/helpers';
 
 describe('reconcileDocIdentifier', () => {
