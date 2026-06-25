@@ -25,7 +25,7 @@ describe('ListActions notification bell button', () => {
     isLoading: false,
   };
 
-  describe.concurrent('unauthenticated user', () => {
+  describe('unauthenticated user', () => {
     test('shows login prompt popover with correct links when bell is clicked', async () => {
       mocks.useSession.mockReturnValue({ isAuthenticated: false, logout: vi.fn() });
 
@@ -47,7 +47,7 @@ describe('ListActions notification bell button', () => {
     });
   });
 
-  describe.concurrent('authenticated user', () => {
+  describe('authenticated user', () => {
     test('sees normal bell button without login prompt', () => {
       mocks.useSession.mockReturnValue({ isAuthenticated: true, logout: vi.fn() });
 
