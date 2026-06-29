@@ -4,12 +4,12 @@ import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { databases, explorerCollections } from './data';
 import { useGetSearchFacetJSON } from '@/api/search/search';
 import { getSearchFacetParams } from '../SearchFacet/useGetFacetData';
-import { allRecordsQuery, searchFacetDefaultParams } from './helpers';
+import { allRecordsQuery, makeDataGroupSearchLink, makeJournalSearchLink, searchFacetDefaultParams } from './helpers';
 import { kFormatNumber } from '@/utils/common/formatters';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { useMemo, useState } from 'react';
 import { FeaturedPapers } from './FeaturedPapers';
-import { JournalsTable } from './JournalsTable';
+import { FacetFieldTable } from './FacetFieldTable';
 import { applyFiltersToQuery, parseTitleFromKey } from '../SearchFacet/helpers';
 import { pipe } from 'ramda';
 import { SubFacetCard } from './SubFacetCard';
@@ -150,11 +150,31 @@ export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; f
           </Heading>
           <OverTimeChart type={cid === 'doctype' ? 'refereed' : 'doctype'} query={searchQueryParams} />
         </Flex>
-        <Flex direction="column">
-          <Heading as="h3" size="md" my={4}>
-            Popular Journals in {facet}
-          </Heading>
-          <JournalsTable query={searchQueryParams} />
+        <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
+          <Flex direction="column" flex={1}>
+            <Heading as="h3" size="md" my={4}>
+              Popular Journals in {facet}
+            </Heading>
+            <FacetFieldTable
+              label="Popular Journals"
+              query={searchQueryParams}
+              facetField="pub"
+              makeSearchLink={(facetVal) => makeJournalSearchLink(searchQueryParams, facetVal)}
+            />
+          </Flex>
+          {cid === 'doctype' && (
+            <Flex direction="column" flex={1}>
+              <Heading as="h3" size="md" my={4}>
+                Browse by Archive
+              </Heading>
+              <FacetFieldTable
+                label="Archive"
+                query={searchQueryParams}
+                facetField="data_facet"
+                makeSearchLink={(facetVal) => makeDataGroupSearchLink(searchQueryParams, facetVal)}
+              />
+            </Flex>
+          )}
         </Flex>
       </Flex>
     );

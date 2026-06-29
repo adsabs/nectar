@@ -8,18 +8,27 @@ import { useDisclosure, Skeleton, Table, Tbody, Tr, Td, Text, Stack } from '@cha
 import { CustomInfoMessage } from '../Feedbacks';
 import { getSearchFacetParams } from '../SearchFacet/useGetFacetData';
 import { SimpleLink } from '../SimpleLink';
-import { makeJournalSearchLink, searchFacetDefaultParams } from './helpers';
-import { ViewJournalsModal } from './ViewJournalsModal';
+import { searchFacetDefaultParams } from './helpers';
+import { ViewFacetFieldModal } from './ViewFacetFieldModal';
 
-export const JournalsTable = ({ query }: { query: IADSApiSearchParams }) => {
-  // Journals data should have database facet applied
+export const FacetFieldTable = ({
+  label,
+  query,
+  facetField,
+  makeSearchLink,
+}: {
+  label: string;
+  query: IADSApiSearchParams;
+  facetField: FacetField;
+  makeSearchLink: (facetVal: string) => string;
+}) => {
   const { data, isError, isLoading, error } = useGetSearchFacetJSON({
     ...query,
     filter: [],
-    field: 'pub' as FacetField,
+    field: facetField,
     ['json.facet']: getSearchFacetParams({
       ...searchFacetDefaultParams,
-      field: 'pub' as FacetField,
+      field: facetField,
       level: 'root',
       limit: 100,
     }),
@@ -27,57 +36,58 @@ export const JournalsTable = ({ query }: { query: IADSApiSearchParams }) => {
 
   const colors = useColorModeColors();
 
-  const { isOpen, onOpen, onClose } = useDisclosure(); // view journals list
+  const { isOpen, onOpen, onClose } = useDisclosure(); // view full list
 
-  const handleViewMoreJournals = () => {
+  const handleViewMore = () => {
     onOpen();
   };
 
-  const JournalTableSkeleton = (
-    <Stack>
-      <Skeleton height="25px" />
-      <Skeleton height="25px" />
-      <Skeleton height="25px" />
-      <Skeleton height="25px" />
-      <Skeleton height="25px" />
+  const TableSkeleton = (
+    <Stack gap={0}>
+      <Skeleton height="15px" my="8px" />
+      <Skeleton height="15px" my="8px" />
+      <Skeleton height="15px" my="8px" />
+      <Skeleton height="15px" my="8px" />
+      <Skeleton height="15px" my="8px" />
+      <Skeleton height="15px" my="8px" />
     </Stack>
   );
 
   return (
     <>
       {isLoading ? (
-        JournalTableSkeleton
+        TableSkeleton
       ) : isError ? (
-        <CustomInfoMessage status="error" alertTitle="Error fetching top journals" description={parseAPIError(error)} />
+        <CustomInfoMessage status="error" alertTitle={`Error fetching data`} description={parseAPIError(error)} />
       ) : (
         <>
           <Table variant="simple" size="sm">
             <Tbody>
-              {data?.pub.buckets.slice(0, 5).map((pub, index) => (
-                <Tr key={pub.val} cursor="pointer">
+              {data?.[facetField].buckets.slice(0, 5).map((f, index) => (
+                <Tr key={f.val} cursor="pointer">
                   <Td width="20px">{index + 1}</Td>
                   <Td>
-                    <SimpleLink href={makeJournalSearchLink(query, pub.val as string)} newTab>
-                      {pub.val as string}
+                    <SimpleLink href={makeSearchLink(f.val as string)} newTab>
+                      {f.val as string}
                     </SimpleLink>
                   </Td>
-                  <Td isNumeric>{kFormatNumber(pub.count)}</Td>
+                  <Td isNumeric>{kFormatNumber(f.count)}</Td>
                 </Tr>
               ))}
             </Tbody>
           </Table>
-          {data.pub.numBuckets > 5 && (
+          {data[facetField].numBuckets > 5 && (
             <Text
               fontSize="sm"
               color={colors.link}
               cursor="pointer"
               fontWeight="bold"
-              onClick={() => handleViewMoreJournals()}
+              onClick={() => handleViewMore()}
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  handleViewMoreJournals();
+                  handleViewMore();
                 }
               }}
               my={4}
@@ -85,7 +95,13 @@ export const JournalsTable = ({ query }: { query: IADSApiSearchParams }) => {
               View more <ArrowForwardIcon boxSize={5} aria-hidden />
             </Text>
           )}
-          <ViewJournalsModal data={data.pub.buckets} query={query} isOpen={isOpen} onClose={onClose} />
+          <ViewFacetFieldModal
+            label={label}
+            data={data[facetField].buckets}
+            makeSearchLink={makeSearchLink}
+            isOpen={isOpen}
+            onClose={onClose}
+          />
         </>
       )}
     </>

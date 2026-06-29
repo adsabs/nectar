@@ -5,12 +5,12 @@ import { IExplorerFacet } from './types';
 import { databases, explorerCollections, explorerFacets } from './data';
 import { useGetSearchFacetJSON } from '@/api/search/search';
 import { getSearchFacetParams } from '../SearchFacet/useGetFacetData';
-import { allRecordsQuery, searchFacetDefaultParams } from './helpers';
+import { allRecordsQuery, makeBibgroupSearchLink, makeJournalSearchLink, searchFacetDefaultParams } from './helpers';
 import { kFormatNumber } from '@/utils/common/formatters';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { useEffect, useState } from 'react';
 import { FeaturedPapers } from './FeaturedPapers';
-import { JournalsTable } from './JournalsTable';
+import { FacetFieldTable } from './FacetFieldTable';
 import { SubFacetCard } from './SubFacetCard';
 import { OverTimeChart } from './OverTimeChart';
 
@@ -117,11 +117,29 @@ export const DatabaseItem = ({ facetValue }: { facetValue: IExplorerFacet['searc
           </Heading>
           <OverTimeChart type="doctype" query={{ q: query }} />
         </Flex>
-        <Flex direction="column">
-          <Heading as="h3" size="md" my={4}>
-            Popular Journals in {facet.label}
-          </Heading>
-          <JournalsTable query={{ q: query }} />
+        <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
+          <Flex direction="column" flex={1}>
+            <Heading as="h3" size="md" my={4}>
+              Popular Journals in {facet.label}
+            </Heading>
+            <FacetFieldTable
+              label="Popular Journals"
+              query={{ q: query }}
+              facetField="pub"
+              makeSearchLink={(facetVal) => makeJournalSearchLink({ q: query }, facetVal)}
+            />
+          </Flex>
+          <Flex direction="column" flex={1}>
+            <Heading as="h3" size="md" my={4}>
+              Curated Collections
+            </Heading>
+            <FacetFieldTable
+              label="Curated Collections"
+              query={{ q: query }}
+              facetField="bibgroup_facet"
+              makeSearchLink={(facetVal) => makeBibgroupSearchLink({ q: query }, facetVal)}
+            />
+          </Flex>
         </Flex>
       </Flex>
     );

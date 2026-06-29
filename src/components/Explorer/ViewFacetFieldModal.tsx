@@ -23,19 +23,19 @@ import { NumPerPageType } from '@/types';
 import { useDebounce } from '@/lib/useDebounce';
 import { CloseIcon } from '@chakra-ui/icons';
 import { SimpleLink } from '../SimpleLink';
-import { IADSApiSearchParams } from '@/api/search/types';
-import { makeJournalSearchLink } from './helpers';
 
-export const ViewJournalsModal = ({
-  query,
+export const ViewFacetFieldModal = ({
+  label,
   data,
   isOpen,
   onClose,
+  makeSearchLink,
 }: {
-  query: IADSApiSearchParams;
+  label: string;
   data: { val: number | string; count: number }[];
   isOpen: boolean;
   onClose: () => void;
+  makeSearchLink: (facetVal: string) => string;
 }) => {
   const [pageIndex, setPageIndex] = useState(0);
 
@@ -84,12 +84,12 @@ export const ViewJournalsModal = ({
     <Modal isOpen={isOpen} onClose={handleOnClose} size="2xl" scrollBehavior="inside">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Top 100 Journals</ModalHeader>
+        <ModalHeader>{label}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Flex direction="column" gap={4} h="600px">
             <InputGroup>
-              <Input placeholder={`Search within top 100 journals`} value={searchTerm} onChange={handleSearchChange} />
+              <Input placeholder={`Search within ${label}`} value={searchTerm} onChange={handleSearchChange} />
               <InputRightElement>
                 <IconButton
                   aria-label="clear search"
@@ -104,14 +104,14 @@ export const ViewJournalsModal = ({
             <Flex direction="column" gap={4}>
               <Table variant="simple" size="sm">
                 <Tbody>
-                  {pageData.map((pub) => (
-                    <Tr key={pub.val} cursor="pointer">
+                  {pageData.map((f) => (
+                    <Tr key={f.val} cursor="pointer">
                       <Td>
-                        <SimpleLink href={makeJournalSearchLink(query, pub.val as string)} newTab>
-                          {pub.val as string}
+                        <SimpleLink href={makeSearchLink(f.val as string)} newTab>
+                          {f.val as string}
                         </SimpleLink>
                       </Td>
-                      <Td isNumeric>{kFormatNumber(pub.count)}</Td>
+                      <Td isNumeric>{kFormatNumber(f.count)}</Td>
                     </Tr>
                   ))}
                 </Tbody>

@@ -23,7 +23,7 @@ export const searchFacetDefaultParams: IUseGetFacetDataProps & { offset: number;
 export const makeJournalSearchLink = (query: IADSApiSearchParams, facetKey: string) => {
   const params = makeSearchParams({
     ...query,
-    q: `${query.q} pub:"${facetKey}"`,
+    q: query.q === '*:*' ? `pub:"${facetKey}"` : `${query.q} pub:"${facetKey}"`,
   });
   return `/search?${params}`;
 };
@@ -37,3 +37,19 @@ export const makeJournalSearchLink = (query: IADSApiSearchParams, facetKey: stri
 //   });
 //   return `/search?${makeSearchParams(newQuery)}`;
 // };
+
+export const makeBibgroupSearchLink = (query: IADSApiSearchParams, facetKey: string) => {
+  const params = makeSearchParams({
+    ...query,
+    q: query.q === '*:*' ? `bibgroup:"${facetKey}"` : `${query.q} bibgroup:"${facetKey}"`,
+  });
+  return `/search?${params}`;
+};
+
+export const makeDataGroupSearchLink = (query: IADSApiSearchParams, facetKey: string) => {
+  const params = makeSearchParams({
+    ...query,
+    q: query.q === '*:*' ? `data:"${facetKey}"` : `${query.q} data:"${facetKey}"`,
+  });
+  return `/search?${params}`;
+};
