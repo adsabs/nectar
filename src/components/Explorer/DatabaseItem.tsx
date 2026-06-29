@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import { FeaturedPapers } from './FeaturedPapers';
 import { JournalsTable } from './JournalsTable';
 import { SubFacetCard } from './SubFacetCard';
+import { OverTimeChart } from './OverTimeChart';
 
 const cid = 'database';
 
@@ -110,6 +111,12 @@ export const DatabaseItem = ({ facetValue }: { facetValue: IExplorerFacet['searc
           </Box>
         )}
         <FeaturedPapers query={{ q: query }} />
+        <Flex direction="column">
+          <Heading as="h3" size="md" my={4}>
+            Publication Over Time by Document Type
+          </Heading>
+          <OverTimeChart type="doctype" query={{ q: query }} />
+        </Flex>
         <Flex direction="column">
           <Heading as="h3" size="md" my={4}>
             Popular Journals in {facet.label}

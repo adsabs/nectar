@@ -414,6 +414,21 @@ export const useGetSearchFacetJSON: SearchADSQuery<
   });
 };
 
+export const useCustomFacetSearch: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse['facets']> = (
+  params,
+  options,
+) => {
+  const searchParams: IADSApiSearchParams = getSearchFacetParams(params);
+
+  return useQuery({
+    queryKey: searchKeys.facet(searchParams),
+    queryFn: fetchSearch,
+    meta: { params: searchParams },
+    select: facetFieldSelector,
+    ...options,
+  });
+};
+
 export const useSearchInfinite: InfiniteADSQuery<IADSApiSearchParams, IADSApiSearchResponse & { pageParam: string }> = (
   params,
   options,

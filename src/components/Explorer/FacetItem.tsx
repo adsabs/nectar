@@ -14,6 +14,7 @@ import { applyFiltersToQuery, parseTitleFromKey } from '../SearchFacet/helpers';
 import { pipe } from 'ramda';
 import { SubFacetCard } from './SubFacetCard';
 import { IExplorerCollection } from './types';
+import { OverTimeChart } from './OverTimeChart';
 
 const databaseFacetIds = ['astrophysics', 'heliophysics', 'planetary', 'earthscience'];
 
@@ -143,6 +144,12 @@ export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; f
           </Flex>
         </Box>
         <FeaturedPapers query={searchQueryParams} />
+        <Flex direction="column">
+          <Heading as="h3" size="md" my={4}>
+            {cid === 'doctype' ? `${facet} Over Time by Refereed Status` : 'Publication Over Time by Document Type'}
+          </Heading>
+          <OverTimeChart type={cid === 'doctype' ? 'refereed' : 'doctype'} query={searchQueryParams} />
+        </Flex>
         <Flex direction="column">
           <Heading as="h3" size="md" my={4}>
             Popular Journals in {facet}

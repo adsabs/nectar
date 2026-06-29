@@ -99,10 +99,18 @@ export type JSONFacetCounts = {
   }
 >;
 
-export interface IBucket {
+export type IBucket = {
   val: number | string;
   count: number;
-}
+} & Partial<
+  Record<
+    string,
+    {
+      numBuckets?: number;
+      buckets: IBucket[];
+    }
+  >
+>;
 
 export type FacetField =
   | 'author_facet'
