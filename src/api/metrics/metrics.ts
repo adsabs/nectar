@@ -35,7 +35,7 @@ export const useHasMetrics: ADSQuery<Bibcode, IADSApiMetricsResponse, null, bool
     queryKey: metricsKeys.primary([bibcode]),
     queryFn: fetchMetrics,
     retry: retryFn,
-    meta: { params, skipGlobalErrorHandler: true },
+    meta: { params, skipGlobalErrorHandler: true, ui_tag: 'metrics/primary' },
     ...options,
   });
 
@@ -67,7 +67,7 @@ export const useGetMetrics: ADSQuery<Bibcode | Bibcode[], IADSApiMetricsResponse
     queryKey: metricsKeys.primary(bibcodes),
     queryFn: fetchMetrics,
     retry: retryFn,
-    meta: { params },
+    meta: { params, ui_tag: 'metrics/primary' },
     ...options,
   });
 };
@@ -82,18 +82,19 @@ export const useGetMetricsTimeSeries: ADSQuery<Bibcode[], IADSApiMetricsResponse
     queryKey: metricsKeys.timeSeries(bibcodes),
     queryFn: fetchMetrics,
     retry: retryFn,
-    meta: { params },
+    meta: { params, ui_tag: 'metrics/time-series' },
     ...options,
   });
 };
 
 export const fetchMetrics: QueryFunction<IADSApiMetricsResponse> = async ({ meta }) => {
-  const { params } = meta as { params: IADSApiMetricsParams };
+  const { params, ui_tag } = meta as { params: IADSApiMetricsParams; ui_tag?: string };
 
   const config: ApiRequestConfig = {
     method: 'POST',
     url: ApiTargets.SERVICE_METRICS,
     data: params,
+    ui_tag,
   };
 
   const metrics = await trackUserFlow(PERF_SPANS.ABSTRACT_METRICS_REQUEST, async () => {

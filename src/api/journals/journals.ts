@@ -48,6 +48,7 @@ export const fetchJournal: QueryFunction<IADSApiJournalsJournalResponse> = async
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.JOURNAL}/${params.term}`,
+    ui_tag: 'journals/journal',
   };
 
   const { data } = await api.request<IADSApiJournalsJournalResponse>(config);
@@ -71,6 +72,7 @@ export const fetchSummary: QueryFunction<IADSApiJournalsSummaryResponse> = async
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.JOURNAL_SUMMARY}/${params.bibstem}`,
+    ui_tag: 'journals/summary',
   };
 
   const { data } = await api.request<IADSApiJournalsSummaryResponse>(config);
@@ -91,6 +93,7 @@ export const fetchISSN: QueryFunction<IADSApiJournalsISSNResponse> = async ({ me
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.JOURNAL_ISSN}/${params.issn}`,
+    ui_tag: 'journals/issn',
   };
 
   const { data } = await api.request<IADSApiJournalsISSNResponse>(config);

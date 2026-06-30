@@ -21,6 +21,7 @@ const feedbackQueryFn: MutationFunction<IADSApiFeedbackResponse, Partial<IFeedba
     method: 'POST',
     url: ApiTargets.FEEDBACK,
     data: params,
+    ui_tag: 'feedback/primary',
   };
 
   const { data } = await api.request<IADSApiFeedbackResponse>(config);

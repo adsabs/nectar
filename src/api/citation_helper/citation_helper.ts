@@ -24,6 +24,7 @@ export const fetchCitationHelper: QueryFunction<ICitationHelperResponse> = async
     method: 'POST',
     url: ApiTargets.SERVICE_CITATION_HELPER,
     data: params,
+    ui_tag: 'citation-helper/primary',
   };
 
   const { data } = await api.request<ICitationHelperResponse>(config);

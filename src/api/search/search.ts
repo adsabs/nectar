@@ -119,7 +119,7 @@ export function useSearch<TData = IADSApiSearchResponse['response']>(
     queryKey: searchKeys.primary(cleanParams),
     queryHash: JSON.stringify(searchKeys.primary(cleanParams)),
     queryFn: fetchSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'search/primary' },
     select,
     retry: (failCount, error) => failCount < 1 && axios.isAxiosError(error) && error.response?.status !== 400,
     ...(options as Omit<UseQueryOptions<IADSApiSearchResponse, ErrorType, TData>, 'queryKey' | 'queryFn' | 'select'>),
@@ -143,7 +143,7 @@ export const useGetHighlights: SearchADSQuery<
   return useQuery({
     queryKey: searchKeys.highlight(omitParams(highlightParams)),
     queryFn: fetchSearch,
-    meta: { params: highlightParams },
+    meta: { params: highlightParams, ui_tag: 'search/highlight' },
     select: highlightingSelector,
     ...options,
   });
@@ -157,7 +157,7 @@ export const useGetCitations: SubPageQuery = ({ bibcode, start = 0, rows = APP_D
   return useQuery({
     queryKey: searchKeys.citations({ bibcode, start, rows }),
     queryFn: fetchSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'search/citations' },
     select: responseSelector,
     ...options,
   });
@@ -174,7 +174,7 @@ export const useGetReferences: SubPageQuery = (
   return useQuery({
     queryKey: searchKeys.references({ bibcode, start, rows }),
     queryFn: fetchSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'search/references' },
     select: responseSelector,
     ...options,
   });
@@ -188,7 +188,7 @@ export const useGetCredits: SubPageQuery = ({ bibcode, start = 0, rows = APP_DEF
   return useQuery({
     queryKey: searchKeys.credits({ bibcode, start, rows }),
     queryFn: fetchSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'search/credits' },
     select: responseSelector,
     ...options,
   });
@@ -202,7 +202,7 @@ export const useGetMentions: SubPageQuery = ({ bibcode, start = 0, rows = APP_DE
   return useQuery({
     queryKey: searchKeys.mentions({ bibcode, start, rows }),
     queryFn: fetchSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'search/mentions' },
     select: responseSelector,
     ...options,
   });
@@ -216,7 +216,7 @@ export const useGetCoreads: SubPageQuery = ({ bibcode, start = 0, rows = APP_DEF
   return useQuery({
     queryKey: searchKeys.coreads({ bibcode, start, rows }),
     queryFn: fetchSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'search/coreads' },
     select: responseSelector,
     ...options,
   });
@@ -230,7 +230,7 @@ export const useGetSimilar: SubPageQuery = ({ bibcode, start = 0, rows = APP_DEF
   return useQuery({
     queryKey: searchKeys.similar({ bibcode, start, rows }),
     queryFn: fetchSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'search/similar' },
     select: responseSelector,
     ...options,
   });
@@ -244,7 +244,7 @@ export const useGetToc: SubPageQuery = ({ bibcode, start = 0, rows = APP_DEFAULT
   return useQuery({
     queryKey: searchKeys.toc({ bibcode, start, rows }),
     queryFn: fetchSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'search/toc' },
     select: responseSelector,
     ...options,
   });
@@ -258,7 +258,7 @@ export const useGetAbstract: SearchADSQuery<{ id: string }> = ({ id }, options) 
   return useQuery({
     queryKey: searchKeys.abstract(id),
     queryFn: fetchSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'search/abstract' },
     select: responseSelector,
     ...options,
   });
@@ -272,7 +272,7 @@ export const useGetAffiliations: SearchADSQuery<{ bibcode: IDocsEntity['bibcode'
   return useQuery({
     queryKey: searchKeys.affiliations({ bibcode }),
     queryFn: fetchSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'search/affiliations' },
     select: responseSelector,
     ...options,
   });
@@ -287,7 +287,7 @@ export const useGetAbstractPreview: SearchADSQuery<{ bibcode: IDocsEntity['bibco
     queryKey: searchKeys.preview(bibcode),
     queryHash: JSON.stringify(searchKeys.preview(bibcode)),
     queryFn: fetchSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'search/preview' },
     select: responseSelector,
     ...options,
   });
@@ -301,7 +301,7 @@ export const useGetSingleRecord: SearchADSQuery<{ id: string }> = ({ id }, optio
   return useQuery({
     queryKey: searchKeys.record(id),
     queryFn: fetchSearch,
-    meta: { params },
+    meta: { params, ui_tag: 'search/record' },
     select: responseSelector,
     ...options,
   });
@@ -330,7 +330,7 @@ export const useGetSearchStats: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
   return useQuery({
     queryKey: searchKeys.stats(cleanParams),
     queryFn: fetchSearch,
-    meta: { params: searchParams },
+    meta: { params: searchParams, ui_tag: 'search/stats' },
     enabled: isCitationSort,
     select: statsSelector,
     ...options,
@@ -350,7 +350,7 @@ export const useGetSearchFacetCounts: SearchADSQuery<IADSApiSearchParams, IADSAp
     queryKey: searchKeys.facet(cleanParams),
     queryFn: fetchSearch,
     queryHash: JSON.stringify(cleanParams),
-    meta: { params: searchParams },
+    meta: { params: searchParams, ui_tag: 'search/facet' },
     select: facetCountSelector,
     ...options,
   });
@@ -365,7 +365,7 @@ export const useGetSearchFacet: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
   return useQuery({
     queryKey: searchKeys.facet(cleanParams),
     queryFn: fetchSearch,
-    meta: { params: searchParams },
+    meta: { params: searchParams, ui_tag: 'search/facet' },
     ...options,
   });
 };
@@ -408,7 +408,7 @@ export const useGetSearchFacetJSON: SearchADSQuery<
   return useQuery({
     queryKey: searchKeys.facet(cleanParams),
     queryFn: fetchSearch,
-    meta: { params: searchParams, postTransformers: [transformData] },
+    meta: { params: searchParams, postTransformers: [transformData], ui_tag: `search/facet/${params.field}` },
     select: facetFieldSelector,
     ...options,
   });
@@ -427,7 +427,7 @@ export const useSearchInfinite: InfiniteADSQuery<IADSApiSearchParams, IADSApiSea
         ? lastPage.nextCursorMark
         : false;
     },
-    meta: { ...options?.meta, params },
+    meta: { ...options?.meta, params, ui_tag: 'search/infinite' },
     ...options,
   });
 };
@@ -456,6 +456,7 @@ export const fetchBigQuerySearch: MutationFunction<
     params: { ...params, rows: variables.rows, sort: variables.sort },
     data: `bibcode\n${variables.bibcodes.join('\n')}`,
     headers: { 'Content-Type': 'bigquery/csv' },
+    ui_tag: 'search/bigquery',
   };
 
   const { data } = await api.request<IADSApiSearchResponse>(config);
@@ -473,9 +474,10 @@ export const fetchBigQuerySearch: MutationFunction<
  * @returns {Promise<IADSApiSearchResponse>} - A promise that resolves to the search response data.
  */
 export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }) => {
-  const { params, postTransformers } = meta as {
+  const { params, postTransformers, ui_tag } = meta as {
     params: IADSApiSearchParams;
     postTransformers?: Array<PostTransformer>;
+    ui_tag?: string;
   };
 
   const finalParams = { ...params };
@@ -491,6 +493,7 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }
     method: 'GET',
     url: ApiTargets.SEARCH,
     params: finalParams,
+    ui_tag,
   };
 
   // Wrap API request in performance span
@@ -549,6 +552,7 @@ export const fetchSearchSSR = async (
       ...defaultRequestConfig.headers,
       Authorization: `Bearer ${token}`,
       ...pickTracingHeaders(ctx.req.headers),
+      'X-Ui-Tag': 'search/primary',
     },
   };
 
@@ -560,7 +564,7 @@ export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pagePa
   meta,
   pageParam = '*',
 }: QueryFunctionContext<QueryKey, string>) => {
-  const { params } = meta as { params: IADSApiSearchParams };
+  const { params, ui_tag } = meta as { params: IADSApiSearchParams; ui_tag?: string };
 
   const finalParams = { ...params };
   if (isString(params.q) && params.q.includes('object:')) {
@@ -578,6 +582,7 @@ export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pagePa
       ...finalParams,
       cursorMark: pageParam,
     } as IADSApiSearchParams,
+    ui_tag,
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
 

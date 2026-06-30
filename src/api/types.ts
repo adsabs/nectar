@@ -9,7 +9,7 @@ import {
   UseQueryResult,
 } from '@tanstack/react-query';
 
-export type ApiRequestConfig = AxiosRequestConfig;
+export type ApiRequestConfig = AxiosRequestConfig & { ui_tag?: string };
 
 export type ADSQuery<
   TProps,

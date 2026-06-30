@@ -28,6 +28,7 @@ export const fetchLinks: QueryFunction<IADSApiResolverResponse> = async ({ meta 
     method: 'GET',
     url: `${ApiTargets.RESOLVER}/${params.bibcode}/${params.link_type}`,
     validateStatus: (status) => status === 200 || status === 404,
+    ui_tag: 'resolver/primary',
   };
 
   const { data } = await api.request<IADSApiResolverResponse>(config);
