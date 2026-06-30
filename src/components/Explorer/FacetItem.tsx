@@ -108,7 +108,7 @@ export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; f
           <Box my={5}>
             <h2>
               <Text fontSize="sm" p={0}>
-                doctype
+                {collection.label}
               </Text>
               <Text fontSize="2xl" fontWeight="bold" p={0} m={0}>
                 {facet}
