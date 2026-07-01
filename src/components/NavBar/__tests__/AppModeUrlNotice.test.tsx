@@ -82,6 +82,25 @@ describe('AppModeUrlNotice', () => {
     expect(mockRouter.query.d).toBe('astrophysics');
   });
 
+  test('shows the notice for a route-forced Astrophysics switch and navigates home on switch back', async () => {
+    mockRouter = createMockRouter({ pathname: '/classic-form', asPath: '/classic-form' });
+
+    const { getByTestId, queryByTestId, user } = render(<NavBar />, {
+      initialStore: {
+        mode: AppMode.ASTROPHYSICS,
+        forcedAstroFromMode: AppMode.GENERAL,
+        modeNoticeVisible: true,
+      },
+    });
+
+    await waitFor(() => expect(getByTestId('app-mode-url-notice')).toBeInTheDocument());
+    expect(getByTestId('app-mode-url-notice').textContent).toContain('Astrophysics');
+
+    await user.click(getByTestId('app-mode-url-notice-switch-back'));
+    await waitFor(() => expect(queryByTestId('app-mode-url-notice')).not.toBeInTheDocument());
+    expect(mockRouter.push).toHaveBeenCalledWith('/');
+  });
+
   test('does nothing when URL param is missing', async () => {
     mockRouter = createMockRouter({ pathname: '/search' }); // No 'd' param
 

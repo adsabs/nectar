@@ -82,18 +82,42 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
 NectarApp.displayName = 'NectarApp';
 
 const AppModeRouter = (): ReactElement => {
-  const mode = useStore((state) => state.mode);
+  const storeApi = useStoreApi();
+  const setMode = useStore((state) => state.setMode);
+  const setForcedAstroFromMode = useStore((state) => state.setForcedAstroFromMode);
+  const showModeNotice = useStore((state) => state.showModeNotice);
+  const dismissModeNotice = useStore((state) => state.dismissModeNotice);
   const router = useRouter();
   const isClient = useIsClient();
 
   useEffect(() => {
-    // redirect to main form if path is not valid
-    if (isClient) {
-      if (mode !== AppMode.ASTROPHYSICS && /^\/(classic|paper)-form.*$/.test(router.asPath)) {
-        void router.replace('/');
-      }
+    // The classic/paper forms are Astrophysics-only. When a user in another
+    // discipline lands here, switch them to Astrophysics and surface the
+    // "Switch back?" notice instead of bouncing them to the home page.
+    if (!isClient) {
+      return;
     }
-  }, [mode, router.asPath, isClient, router]);
+    // Match /classic-form and /paper-form exactly, allowing a query or hash
+    // suffix — but not lookalikes such as /classic-former.
+    const onFormRoute = /^\/(classic|paper)-form(?:[/?#]|$)/.test(router.asPath);
+    const { mode, forcedAstroFromMode } = storeApi.getState();
+
+    // Navigating away from the form route without acting on the notice: clear
+    // the forced switch so its notice does not linger on unrelated routes.
+    if (!onFormRoute) {
+      if (forcedAstroFromMode !== null) {
+        setForcedAstroFromMode(null);
+        dismissModeNotice();
+      }
+      return;
+    }
+
+    if (mode !== AppMode.ASTROPHYSICS) {
+      setForcedAstroFromMode(mode);
+      setMode(AppMode.ASTROPHYSICS);
+      showModeNotice();
+    }
+  }, [router.asPath, isClient, storeApi, setMode, setForcedAstroFromMode, showModeNotice, dismissModeNotice]);
 
   // Clean forceMode from URL after it has been applied to the store.
   // The param is only needed for initial SSR load; keeping it in the URL

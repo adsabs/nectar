@@ -33,6 +33,7 @@ import { Control, Controller, useForm, UseFormRegisterReturn, useWatch } from 'r
 import { getSearchQuery, getSearchQueryParams } from './helpers';
 import { IClassicFormState, IRawClassicFormState } from './types';
 import { useStore } from '@/store';
+import { AppMode } from '@/types';
 
 import { solrSortOptions } from '@/components/Sort/model';
 import { SimpleLink } from '@/components/SimpleLink';
@@ -73,6 +74,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
   const router = useRouter();
   const [queryError, setQueryError] = useErrorMessage<string>(props.ssrError);
   const mode = useStore((state) => state.mode);
+  const setMode = useStore((state) => state.setMode);
 
   const { register, control, handleSubmit } = useForm<IClassicFormState>({
     defaultValues: defaultClassicFormState,
@@ -83,7 +85,12 @@ export const ClassicForm = (props: IClassicFormProps) => {
 
     void handleSubmit((params) => {
       try {
-        const search = getSearchQuery(params, { mode });
+        // The classic form is Astrophysics-only, so the search it produces must
+        // run in Astrophysics regardless of the discipline the user is viewing.
+        if (mode !== AppMode.ASTROPHYSICS) {
+          setMode(AppMode.ASTROPHYSICS);
+        }
+        const search = getSearchQuery(params, { mode: AppMode.ASTROPHYSICS });
         void router.push({ pathname: '/search', search });
       } catch (e) {
         setQueryError((e as Error)?.message);

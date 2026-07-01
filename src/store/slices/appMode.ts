@@ -8,6 +8,10 @@ export interface IAppModeState {
   urlModeOverride: AppMode | null;
   urlModeUserSelected: boolean;
   urlModePendingParam: string | null;
+  // Discipline the user had before a /classic-form or /paper-form route forced
+  // ASTROPHYSICS mode; null when no such forced switch is active. Distinct from
+  // urlModeOverride/urlModePrevious, which the form pages reset on mount.
+  forcedAstroFromMode: AppMode | null;
 }
 
 export interface IAppModeAction {
@@ -19,6 +23,7 @@ export interface IAppModeAction {
   setUrlModeOverride: (mode: AppMode | null) => void;
   setUrlModeUserSelected: (selected: boolean) => void;
   setUrlModePendingParam: (param: string | null) => void;
+  setForcedAstroFromMode: (mode: AppMode | null) => void;
 }
 
 export const appModeSlice: StoreSlice<IAppModeState & IAppModeAction> = (set, get) => ({
@@ -28,6 +33,7 @@ export const appModeSlice: StoreSlice<IAppModeState & IAppModeAction> = (set, ge
   urlModeOverride: null,
   urlModeUserSelected: false,
   urlModePendingParam: null,
+  forcedAstroFromMode: null,
   setMode: (mode) => {
     set({ mode }, false, 'mode/setMode');
 
@@ -41,4 +47,5 @@ export const appModeSlice: StoreSlice<IAppModeState & IAppModeAction> = (set, ge
   setUrlModeOverride: (mode) => set({ urlModeOverride: mode }, false, 'mode/setUrlModeOverride'),
   setUrlModeUserSelected: (selected) => set({ urlModeUserSelected: selected }, false, 'mode/setUrlModeUserSelected'),
   setUrlModePendingParam: (param) => set({ urlModePendingParam: param }, false, 'mode/setUrlModePendingParam'),
+  setForcedAstroFromMode: (mode) => set({ forcedAstroFromMode: mode }, false, 'mode/setForcedAstroFromMode'),
 });
