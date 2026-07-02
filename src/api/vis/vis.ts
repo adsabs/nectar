@@ -11,8 +11,21 @@ import { getAuthorNetworkParams, getPaperNetworkParams, getResultsGraphParams, g
 import { ADSQuery } from '@/api/types';
 import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
 import api, { ApiRequestConfig } from '@/api/api';
+import { resolveObjectQuery } from '@/api/objects/objects';
+import { hasObjectTerm } from '@/api/objects/helpers';
+import { isString } from '@/utils/common/guards';
 
 const MAX_RETRIES = 3;
+
+// vis services forward `q` to Solr untouched, so object terms
+// must be resolved here before the request is built
+const resolveObjectTerms = async (params: IADSApiSearchParams): Promise<IADSApiSearchParams> => {
+  if (isString(params.q) && hasObjectTerm(params.q)) {
+    const { query } = await resolveObjectQuery({ query: params.q });
+    return { ...params, q: query };
+  }
+  return params;
+};
 
 export const visKeys = {
   authorNetwork: (params: IADSApiVisParams) => ['vis/authorNetwork', { ...params }] as const,
@@ -36,18 +49,18 @@ export const useGetAuthorNetwork: ADSQuery<IADSApiSearchParams, IADSApiAuthorNet
     queryKey: visKeys.authorNetwork(authorNetworkParams),
     queryFn: fetchAuthorNetwork,
     retry: retryFn,
-    meta: { params: authorNetworkParams },
+    meta: { params },
     ...options,
   });
 };
 
 export const fetchAuthorNetwork: QueryFunction<IADSApiAuthorNetworkResponse> = async ({ meta }) => {
-  const { params } = meta as { params: IADSApiVisParams };
+  const { params } = meta as { params: IADSApiSearchParams };
 
   const config: ApiRequestConfig = {
     method: 'POST',
     url: ApiTargets.SERVICE_AUTHOR_NETWORK,
-    data: params,
+    data: getAuthorNetworkParams(await resolveObjectTerms(params)),
   };
 
   const { data } = await api.request<IADSApiAuthorNetworkResponse>(config);
@@ -61,18 +74,18 @@ export const useGetPaperNetwork: ADSQuery<IADSApiSearchParams, IADSApiPaperNetwo
     queryKey: visKeys.paperNetwork(paperNetworkParams),
     queryFn: fetchPaperNetwork,
     retry: retryFn,
-    meta: { params: paperNetworkParams },
+    meta: { params },
     ...options,
   });
 };
 
 export const fetchPaperNetwork: QueryFunction<IADSApiPaperNetworkResponse> = async ({ meta }) => {
-  const { params } = meta as { params: IADSApiVisParams };
+  const { params } = meta as { params: IADSApiSearchParams };
 
   const config: ApiRequestConfig = {
     method: 'POST',
     url: ApiTargets.SERVICE_PAPER_NETWORK,
-    data: params,
+    data: getPaperNetworkParams(await resolveObjectTerms(params)),
   };
 
   const { data } = await api.request<IADSApiPaperNetworkResponse>(config);
@@ -86,18 +99,18 @@ export const useGetWordCloud: ADSQuery<IADSApiSearchParams, IADSApiWordCloudResp
     queryKey: visKeys.wordCloud(wordCloudParams),
     queryFn: fetchWordCloud,
     retry: retryFn,
-    meta: { params: wordCloudParams },
+    meta: { params },
     ...options,
   });
 };
 
 export const fetchWordCloud: QueryFunction<IADSApiWordCloudResponse> = async ({ meta }) => {
-  const { params } = meta as { params: IADSApiWordCloudParams };
+  const { params } = meta as { params: IADSApiSearchParams };
 
   const config: ApiRequestConfig = {
     method: 'POST',
     url: ApiTargets.SERVICE_WORDCLOUD,
-    data: params,
+    data: getWordCloudParams(await resolveObjectTerms(params)),
   };
 
   const { data } = await api.request<IADSApiWordCloudResponse>(config);
@@ -111,7 +124,7 @@ export const useGetResultsGraph: ADSQuery<IADSApiSearchParams, IADSApiSearchResp
     queryKey: visKeys.resultsGraph(resultsGraphParams),
     queryFn: fetchResultsGraph,
     retry: retryFn,
-    meta: { params: resultsGraphParams },
+    meta: { params },
     ...options,
   });
 };
@@ -122,7 +135,7 @@ export const fetchResultsGraph: QueryFunction<IADSApiSearchResponse> = async ({ 
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.SEARCH,
-    params,
+    params: getResultsGraphParams(await resolveObjectTerms(params)),
   };
 
   const { data } = await api.request<IADSApiSearchResponse>(config);
