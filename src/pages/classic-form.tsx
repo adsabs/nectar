@@ -25,6 +25,7 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   const setUrlModePrevious = useStore((state) => state.setUrlModePrevious);
   const urlModeOverride = useStore((state) => state.urlModeOverride);
   const setUrlModeOverride = useStore((state) => state.setUrlModeOverride);
+  const forcedAstroFromMode = useStore((state) => state.forcedAstroFromMode);
   const { persistCurrentForm } = useLandingFormPreference();
 
   // Track this form as the last-used landing form
@@ -32,11 +33,20 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
     persistCurrentForm('classic');
   }, [persistCurrentForm]);
 
-  // clear search on mount
+  // Clear any in-progress search once on entry. clearQuery is recreated each
+  // render, so this is intentionally mount-only.
   useEffect(() => {
     clearSelectedDocs();
     clearQuery();
-    dismissModeNoticeSilently();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Reconcile app mode on entry: drop a stale notice and restore the user's
+  // discipline, unless this route forced the switch to Astrophysics.
+  useEffect(() => {
+    if (forcedAstroFromMode === null) {
+      dismissModeNoticeSilently();
+    }
     if (urlModeOverride) {
       const fallbackMode = urlModePrevious ?? AppMode.GENERAL;
       if (mode !== fallbackMode) {
@@ -50,7 +60,7 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
       setMode(urlModePrevious);
       setUrlModePrevious(null);
     }
-  }, [router, mode, urlModePrevious, urlModeOverride]);
+  }, [router, mode, urlModePrevious, urlModeOverride, forcedAstroFromMode]);
 
   return (
     <Box as="section" aria-labelledby="form-title" my={16}>

@@ -41,7 +41,7 @@ import { fetchVaultSearch, vaultKeys } from '@/api/vault/vault';
 import { SimpleLink } from '@/components/SimpleLink';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { AppMode } from '@/types';
-import { syncUrlDisciplineParam } from '@/utils/appMode';
+import { appModeToDisciplineParam, syncUrlDisciplineParam } from '@/utils/appMode';
 import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
 
 const MAX_SIMPLE_QUERY_BIBCODES = 50;
@@ -89,6 +89,7 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
   const setUrlModePrevious = useStore((state) => state.setUrlModePrevious);
   const urlModeOverride = useStore((state) => state.urlModeOverride);
   const setUrlModeOverride = useStore((state) => state.setUrlModeOverride);
+  const forcedAstroFromMode = useStore((state) => state.forcedAstroFromMode);
   const { persistCurrentForm } = useLandingFormPreference();
 
   // Track this form as the last-used landing form
@@ -96,11 +97,20 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
     persistCurrentForm('paper');
   }, [persistCurrentForm]);
 
-  // clear search on mount
+  // Clear any in-progress search once on entry. clearQuery is recreated each
+  // render, so this is intentionally mount-only.
   useEffect(() => {
     clearSelectedDocs();
     clearQuery();
-    dismissModeNoticeSilently();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Reconcile app mode on entry: drop a stale notice and restore the user's
+  // discipline, unless this route forced the switch to Astrophysics.
+  useEffect(() => {
+    if (forcedAstroFromMode === null) {
+      dismissModeNoticeSilently();
+    }
     if (urlModeOverride) {
       const fallbackMode = urlModePrevious ?? AppMode.GENERAL;
       if (mode !== fallbackMode) {
@@ -114,18 +124,31 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
       setMode(urlModePrevious);
       setUrlModePrevious(null);
     }
-  }, [router, mode, urlModePrevious, urlModeOverride]);
+  }, [router, mode, urlModePrevious, urlModeOverride, forcedAstroFromMode]);
 
   const handleSubmit = useCallback(
     async (params: PaperFormState[PaperFormType]) => {
       try {
+        // The paper form is Astrophysics-only, so the search it produces must
+        // run in Astrophysics regardless of the discipline the user is viewing.
+        if (mode !== AppMode.ASTROPHYSICS) {
+          setMode(AppMode.ASTROPHYSICS);
+        }
         const destination = await getSearchQuery(params, queryClient);
-        await router.push(destination);
+        // Pin the discipline in the URL so a shared/bookmarked result stays
+        // Astrophysics regardless of the recipient's mode (classic form does
+        // this via the query builder; the paper builder does not).
+        const url = new URL(destination, 'http://localhost');
+        const disciplineParam = appModeToDisciplineParam(AppMode.ASTROPHYSICS);
+        if (disciplineParam) {
+          url.searchParams.set('d', disciplineParam);
+        }
+        await router.push(`${url.pathname}${url.search}`);
       } catch (e) {
         setError({ form: params.form, message: (e as Error).message });
       }
     },
-    [queryClient, router, setError],
+    [queryClient, router, setError, mode, setMode],
   );
 
   return (
