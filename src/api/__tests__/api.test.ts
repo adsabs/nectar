@@ -162,9 +162,7 @@ test('Fallback to bootstrapping directly if the /api/user endpoint continuously 
 
   // the refresh header was added to force a new session
   expect(onReq.mock.calls[1][0].headers.get('x-refresh-token')).toMatchInlineSnapshot('"1"');
-  expect(onReq.mock.calls[3][0].headers.get('authorization')).toMatchInlineSnapshot(
-    '"Bearer mocked-anonymous-token"',
-  );
+  expect(onReq.mock.calls[3][0].headers.get('authorization')).toMatchInlineSnapshot('"Bearer mocked-anonymous-token"');
 });
 
 test('passing token initially skips bootstrap', async ({ server }: TestContext) => {
@@ -224,7 +222,7 @@ test('401 does not cause infinite loop if refresh repeatedly fails', async ({ se
     }),
   );
 
-  await expect(testRequest).rejects.toThrowErrorMatchingInlineSnapshot('"Unable to obtain API access"');
+  await expect(testRequest).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: Unable to obtain API access]`);
 
   expect(onReq).toBeCalledTimes(4);
   expect(urls(onReq)).toEqual([
@@ -269,7 +267,9 @@ test('request fails without a response body are rejected', async ({ server }: Te
   // simulates a timeout, by aborting the request after a timeout
   const control = new AbortController();
   setTimeout(() => control.abort(), 500);
-  await expect(testRequest({}, { signal: control.signal })).rejects.toThrowErrorMatchingInlineSnapshot('"canceled"');
+  await expect(testRequest({}, { signal: control.signal })).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[CanceledError: canceled]`,
+  );
 });
 
 test('request rejects if the refreshed user data is not valid', async ({ server }: TestContext) => {
@@ -290,7 +290,7 @@ test('request rejects if the refreshed user data is not valid', async ({ server 
 
   api.setUserData(mockUserData);
 
-  await expect(testRequest).rejects.toThrowErrorMatchingInlineSnapshot('"Unable to obtain API access"');
+  await expect(testRequest).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: Unable to obtain API access]`);
 
   // after the 401 from `test` we try to bootstrap, it's invalid so we reject
   expect(onReq).toBeCalledTimes(3);

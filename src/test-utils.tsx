@@ -18,13 +18,13 @@ import { theme } from '@/theme';
  * Attach listeners and return the mocks
  */
 export const createServerListenerMocks = (server: SetupServerApi) => {
-  const onRequest = vi.fn<[MockedRequest]>();
-  const onMatch = vi.fn<[MockedRequest]>();
-  const onUnhandled = vi.fn<[MockedRequest]>();
-  const onRequestEnd = vi.fn<[MockedRequest]>();
-  const onResponse = vi.fn<[response: unknown, requestId: string]>();
-  const onResponseBypass = vi.fn<[response: unknown, requestId: string]>();
-  const onUnhandleException = vi.fn<[error: Error, request: MockedRequest]>();
+  const onRequest = vi.fn<(req: MockedRequest) => void>();
+  const onMatch = vi.fn<(req: MockedRequest) => void>();
+  const onUnhandled = vi.fn<(req: MockedRequest) => void>();
+  const onRequestEnd = vi.fn<(req: MockedRequest) => void>();
+  const onResponse = vi.fn<(response: unknown, requestId: string) => void>();
+  const onResponseBypass = vi.fn<(response: unknown, requestId: string) => void>();
+  const onUnhandledException = vi.fn<(error: Error, request: MockedRequest) => void>();
 
   server.events.on('request:start', onRequest);
   server.events.on('request:match', onMatch);
@@ -32,9 +32,9 @@ export const createServerListenerMocks = (server: SetupServerApi) => {
   server.events.on('request:end', onRequestEnd);
   server.events.on('response:mocked', onResponse);
   server.events.on('response:bypass', onResponseBypass);
-  server.events.on('unhandledException', onUnhandleException);
+  server.events.on('unhandledException', onUnhandledException);
 
-  return { onRequest, onResponse, onMatch, onUnhandled, onRequestEnd, onResponseBypass, onUnhandleException };
+  return { onRequest, onResponse, onMatch, onUnhandled, onRequestEnd, onResponseBypass, onUnhandledException };
 };
 
 export const urls = pipe<[Mock], MockedRequest[], string[]>(

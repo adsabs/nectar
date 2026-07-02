@@ -24,7 +24,7 @@ describe('botCheck', () => {
     updateConfig: ReturnType<typeof vi.fn>;
   };
 
-  const getIronSessionMock = getIronSession as unknown as ReturnType<typeof vi.fn<[], Promise<IronSessionMock>>>;
+  const getIronSessionMock = getIronSession as unknown as ReturnType<typeof vi.fn<() => Promise<IronSessionMock>>>;
   const baseEnv = { ...process.env };
 
   beforeEach(() => {

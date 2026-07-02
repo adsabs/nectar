@@ -21,7 +21,7 @@ vi.mock('@/config', async (importOriginal) => {
 const getIronSessionMock = getIronSession as unknown as ReturnType<typeof vi.fn>;
 
 describe('bootstrap', () => {
-  let fetchSpy: ReturnType<typeof vi.spyOn>;
+  let fetchSpy: ReturnType<typeof vi.spyOn<typeof globalThis, 'fetch'>>;
 
   beforeEach(() => {
     vi.clearAllMocks();

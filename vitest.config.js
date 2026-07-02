@@ -1,35 +1,26 @@
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defaultExclude, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [...react(), tsconfigPaths()],
+  cacheDir: '.vitest',
   test: {
     environment: 'jsdom',
     exclude: [...defaultExclude, '**/e2e/**', '**/.worktrees/**'],
     setupFiles: ['./vitest-setup.ts'],
     isolate: true,
-    threads: true,
     maxConcurrency: 16,
     globals: false,
-    cache: {
-      dir: '.vitest',
-    },
     coverage: {
       provider: 'v8',
       reporter: 'lcov',
-    },
-  },
-  server: {
-    deps: {
-      fallbackCJS: true,
-    },
-  },
-  resolve: {
-    alias: {
-      'react/jsx-dev-runtime.js': resolve(__dirname, 'node_modules/react/jsx-dev-runtime.js'),
-      'react/jsx-runtime.js': resolve(__dirname, 'node_modules/react/jsx-runtime.js'),
+      // Vitest 3's v8 defaults changed the measurement basis vs 0.34. Restore the
+      // prior basis so reported numbers stay comparable across the upgrade:
+      //   all:false            -> only test-touched files (v3 default is the whole repo)
+      //   ignoreEmptyLines:false -> count blank/comment lines (v3 default drops them)
+      all: false,
+      ignoreEmptyLines: false,
     },
   },
 });

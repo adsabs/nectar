@@ -1,8 +1,8 @@
 import { cleanup } from '@/test-utils';
 import type { TestContext } from 'vitest';
-import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest';
 import { server } from '@/mocks/server';
-import matchers from '@testing-library/jest-dom/matchers';
+import '@testing-library/jest-dom/vitest';
 
 import { TextDecoder, TextEncoder } from 'util';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -13,9 +13,17 @@ import { SetupServerApi } from 'msw/node';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
-replaceAllInserter.shim();
+// RTL's async act only advances fake timers when it detects a global `jest`
+// (`typeof jest !== 'undefined'`). Vitest with globals:false has no `jest`,
+// so userEvent + fake timers deadlocks. Bridge the one method RTL calls; its
+// inner `'clock' in setTimeout` check still no-ops correctly on real timers.
+(globalThis as unknown as { jest: { advanceTimersByTime(ms: number): void } }).jest = {
+  advanceTimersByTime: (ms: number) => {
+    vi.advanceTimersByTime(ms);
+  },
+};
 
-expect.extend(matchers);
+replaceAllInserter.shim();
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 beforeEach((context: TestContext) => {
