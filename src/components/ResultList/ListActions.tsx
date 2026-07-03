@@ -52,6 +52,7 @@ import { useColorModeColors } from '@/lib/useColorModeColors';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { noop } from '@/utils/common/noop';
 import { SolrSort, SolrSortField } from '@/api/models';
+import { APP_DEFAULTS } from '@/config';
 import { useVaultBigQuerySearch } from '@/api/vault/vault';
 import { Bibcode } from '@/api/search/types';
 import { ExportApiFormatKey } from '@/api/export/types';
@@ -63,12 +64,16 @@ export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];
   onOpenAddToLibrary: () => void;
   isLoading: boolean;
+  // URL-driven sort and highlights, passed from the page (replaces store reads)
+  currentSort?: SolrSort;
+  showHighlights?: boolean;
+  onToggleHighlights?: () => void;
 }
 
 type Operator = 'trending' | 'reviews' | 'useful' | 'similar';
 
 export const ListActions = (props: IListActionsProps): ReactElement => {
-  const { onSortChange = noop, onOpenAddToLibrary, isLoading } = props;
+  const { onSortChange = noop, onOpenAddToLibrary, isLoading, currentSort, showHighlights, onToggleHighlights } = props;
   const selected = useStore((state) => state.docs.selected ?? []);
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();
@@ -183,11 +188,11 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
           Result Actions
         </VisuallyHidden>
         <Flex justifyContent="space-between" width="full" gap={1}>
-          <SortWrapper onChange={onSortChange} />
+          <SortWrapper onChange={onSortChange} currentSort={currentSort} />
           {isClient && (
             <Flex gap={1}>
               <NotificationBellButton isAuthenticated={isAuthenticated} onOpenNotification={onCreateNotificationOpen} />
-              <HighlightsToggle />
+              <HighlightsToggle showHighlights={showHighlights} onToggle={onToggleHighlights} />
             </Flex>
           )}
         </Flex>
@@ -306,23 +311,30 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   );
 };
 
-const sortSelector: [
-  (state: AppState) => AppState['query'],
-  (prev: AppState['query'], next: AppState['query']) => boolean,
-] = [(state) => state.query, (prev, curr) => prev.sort === curr.sort];
-
-const SortWrapper = ({ onChange }: { onChange: ISortProps<SolrSort, SolrSortField>['onChange'] }) => {
-  const query = useStore(...sortSelector);
-
+const SortWrapper = ({
+  onChange,
+  currentSort,
+}: {
+  onChange: ISortProps<SolrSort, SolrSortField>['onChange'];
+  currentSort?: SolrSort;
+}) => {
   return (
-    <Sort<SolrSort, SolrSortField> sort={query.sort[0]} onChange={onChange} options={solrSortOptions} id="sort-order" />
+    <Sort<SolrSort, SolrSortField>
+      sort={currentSort ?? APP_DEFAULTS.SORT[0]}
+      onChange={onChange}
+      options={solrSortOptions}
+      id="sort-order"
+    />
   );
 };
 
-const HighlightsToggle = () => {
-  const showHighlights = useStore((state) => state.showHighlights);
-  const toggleShowHighlights = useStore((state) => state.toggleShowHighlights);
-
+const HighlightsToggle = ({
+  showHighlights = false,
+  onToggle,
+}: {
+  showHighlights?: boolean;
+  onToggle?: () => void;
+}) => {
   return (
     <Tooltip label={`${showHighlights ? 'Hide' : 'Show'} keyword highlights in the results.`}>
       <IconButton
@@ -330,7 +342,7 @@ const HighlightsToggle = () => {
         icon={<FontAwesomeIcon icon={faHighlighter} />}
         aria-label={`${showHighlights ? 'Hide' : 'Show'} keyword highlights in the results.`}
         variant={showHighlights ? 'solid' : 'outline'}
-        onClick={toggleShowHighlights}
+        onClick={onToggle}
       />
     </Tooltip>
   );

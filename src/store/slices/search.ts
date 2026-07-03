@@ -5,8 +5,6 @@ import { mergeRight } from 'ramda';
 import { isNumPerPageType } from '@/utils/common/guards';
 import { IADSApiSearchParams } from '@/api/search/types';
 
-export type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
-
 export const defaultQueryParams: IADSApiSearchParams = {
   q: '',
   fl: [
@@ -34,40 +32,27 @@ export const defaultQueryParams: IADSApiSearchParams = {
 
 export interface ISearchState {
   query: IADSApiSearchParams;
-  latestQuery: IADSApiSearchParams;
-  prevQuery: IADSApiSearchParams;
   numPerPage: NumPerPageType;
-  showHighlights: boolean;
   queryAddition: string;
   clearQueryFlag: boolean;
-  searchStatus: SearchStatus;
 }
 
 export interface ISearchAction {
-  setQuery: (query: IADSApiSearchParams) => void;
   updateQuery: (query: Partial<IADSApiSearchParams>) => void;
-  swapQueries: () => void;
-  submitQuery: () => void;
-  resetQuery: () => void;
   setNumPerPage: (numPerPage: NumPerPageType) => void;
-  toggleShowHighlights: () => void;
   setQueryAddition: (queryAddition: string) => void;
   setClearQueryFlag: (clearQueryFlag: boolean) => void;
-  setSearchStatus: (status: SearchStatus) => void;
 }
 
+// The submitted query lives in the URL (nuqs); this slice only holds the
+// SearchBar's intermediate draft state and the numPerPage preference.
 export const searchSlice: StoreSlice<ISearchState & ISearchAction> = (set) => ({
   // intermediate query, this one will be changing frequently
   query: defaultQueryParams,
 
-  // can only be updated using `submitQuery` which just moves the current query over
-  latestQuery: defaultQueryParams,
-  prevQuery: defaultQueryParams,
   numPerPage: APP_DEFAULTS.RESULT_PER_PAGE,
-  showHighlights: false,
   queryAddition: null,
   clearQueryFlag: false,
-  searchStatus: 'idle' as SearchStatus,
 
   setNumPerPage: (numPerPage: NumPerPageType) =>
     set(
@@ -76,20 +61,10 @@ export const searchSlice: StoreSlice<ISearchState & ISearchAction> = (set) => ({
       'search/setNumPerPage',
     ),
 
-  setQuery: (query: IADSApiSearchParams) => set(() => ({ query })),
-
   // merge the current query with the partial (or complete) passed in query
   updateQuery: (query: Partial<IADSApiSearchParams>) =>
     set((state) => ({ query: mergeRight(state.query, query) }), false, 'search/updateQuery'),
 
-  submitQuery: () =>
-    set((state) => ({ prevQuery: state.latestQuery, latestQuery: state.query }), false, 'search/submitQuery'),
-  swapQueries: () =>
-    set((state) => ({ latestQuery: state.prevQuery, prevQuery: state.latestQuery }), false, 'search/swapQueries'),
-  resetQuery: () => set({ query: defaultQueryParams, latestQuery: defaultQueryParams }, false, 'search/resetQuery'),
-  toggleShowHighlights: () =>
-    set(({ showHighlights }) => ({ showHighlights: !showHighlights }), false, 'search/toggleShowHighlights'),
   setQueryAddition: (queryAddition: string) => set(() => ({ queryAddition }), false, 'search/setQueryAddition'),
   setClearQueryFlag: (clearQueryFlag: boolean) => set(() => ({ clearQueryFlag }), false, 'search/setClearQueryFlag'),
-  setSearchStatus: (searchStatus: SearchStatus) => set(() => ({ searchStatus }), false, 'search/setSearchStatus'),
 });

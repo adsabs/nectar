@@ -5,7 +5,7 @@ import { HTMLAttributes, ReactElement } from 'react';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { Item, IItemProps } from './Item';
 import { useHighlights } from './useHighlights';
-import { IDocsEntity } from '@/api/search/types';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 import { handleBoundaryError } from '@/lib/errorHandler';
 import { useResultsRenderSpan } from '@/lib/useRenderSpan';
 
@@ -16,6 +16,9 @@ export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   showOrcidAction?: boolean;
   hideActions?: boolean;
   allowHighlight?: boolean;
+  // params of the query that produced `docs` — highlights zip with docs by index
+  highlightsQuery?: IADSApiSearchParams;
+  showHighlights?: boolean;
   useNormCite?: boolean;
   // Opt-in: this list is also used off the search page (abstract refs, library
   // lists), which must not emit search.*.render spans.
@@ -63,6 +66,8 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
     indexStart = 0,
     hideActions = false,
     allowHighlight = true,
+    highlightsQuery,
+    showHighlights: showHighlightsProp = false,
     useNormCite = false,
     measureRenderSpan = false,
     ...divProps
@@ -73,7 +78,10 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
 
   useResultsRenderSpan(docs, measureRenderSpan);
 
-  const { highlights, showHighlights, isFetchingHighlights } = useHighlights();
+  const { highlights, showHighlights, isFetchingHighlights } = useHighlights(
+    highlightsQuery,
+    allowHighlight && showHighlightsProp,
+  );
 
   return (
     <Flex

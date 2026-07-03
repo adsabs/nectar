@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@/test-utils';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { SearchQueryProvider } from '@/lib/SearchQueryContext';
 import { QueryForm } from './QueryForm';
 
 const mocks = vi.hoisted(() => ({
@@ -73,12 +74,15 @@ describe('QueryForm', () => {
     }));
   });
 
-  const renderForm = () =>
-    render(<QueryForm onClose={vi.fn()} onUpdated={vi.fn()} />, {
-      initialStore: {
-        query,
-      },
-    });
+  // QueryForm reads the active search from SearchQueryContext (was the store).
+  // A fresh element per call so rerender() doesn't bail out on identical elements.
+  const formInContext = () => (
+    <SearchQueryProvider value={{ facetParams: query, searchStatus: 'success' }}>
+      <QueryForm onClose={vi.fn()} onUpdated={vi.fn()} />
+    </SearchQueryProvider>
+  );
+
+  const renderForm = () => render(formInContext());
 
   test('renders with the current query and keeps submit disabled when name is empty', () => {
     renderForm();
@@ -134,7 +138,7 @@ describe('QueryForm', () => {
     mocks.searchState.isFetching = false;
     mocks.searchState.data = { qid: 'Q123' };
 
-    rerender(<QueryForm onClose={vi.fn()} onUpdated={vi.fn()} />);
+    rerender(formInContext());
 
     await waitFor(() => {
       expect(mocks.addNotification).toHaveBeenCalledWith(
@@ -171,7 +175,7 @@ describe('QueryForm', () => {
     mocks.searchState.isFetching = false;
     mocks.searchState.error = new Error('Search failed');
 
-    rerender(<QueryForm onClose={vi.fn()} onUpdated={vi.fn()} />);
+    rerender(formInContext());
 
     await waitFor(() => {
       expect(mocks.toast).toHaveBeenCalledWith({
@@ -202,7 +206,7 @@ describe('QueryForm', () => {
     mocks.searchState.isFetching = false;
     mocks.searchState.data = { qid: 'Q999' };
 
-    rerender(<QueryForm onClose={vi.fn()} onUpdated={vi.fn()} />);
+    rerender(formInContext());
 
     await waitFor(() => {
       expect(mocks.addNotification).toHaveBeenCalledWith(

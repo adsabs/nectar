@@ -11,7 +11,6 @@ import { SolrSort } from '@/api/models';
 
 export const AbstractSearchForm = () => {
   const { settings } = useSettings();
-  const submitQuery = useStore((state) => state.submitQuery);
   const sort = [`${settings.preferredSearchSort} desc` as SolrSort];
   const query = useStore((state) => state.query.q);
 
@@ -60,7 +59,6 @@ export const AbstractSearchForm = () => {
       const query = new FormData(e.currentTarget).get('q') as string;
 
       if (query && query.trim().length > 0) {
-        submitQuery();
         const defaultedQuery = applyDefaultFilters({ q: query, sort, p: 1 }) as IADSApiSearchParams;
         void router.push({
           pathname: '/search',
@@ -68,7 +66,7 @@ export const AbstractSearchForm = () => {
         });
       }
     },
-    [applyDefaultFilters, sort, submitQuery],
+    [applyDefaultFilters, sort],
   );
 
   return (

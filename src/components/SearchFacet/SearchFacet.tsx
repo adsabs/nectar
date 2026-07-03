@@ -31,7 +31,8 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from '@dnd-kit/utilities';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
 import { ExclamationCircleIcon } from '@heroicons/react/24/solid';
-import { AppState, useStore, useStoreApi } from '@/store';
+import { AppState, useStore } from '@/store';
+import { useSearchQuery } from '@/lib/SearchQueryContext';
 import { append, uniq, without } from 'ramda';
 import {
   CSSProperties,
@@ -78,7 +79,7 @@ export interface ISearchFacetProps extends AccordionItemProps {
 }
 
 export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
-  const store = useStoreApi();
+  const { facetParams } = useSearchQuery();
   const setFacetState = useStore((state) => state.setSearchFacetState);
   const hideFacet = useStore((state) => state.hideSearchFacet);
   const showFacet = useStore((state) => state.showSearchFacet);
@@ -113,8 +114,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const [hasError, setHasError] = useState(false);
 
   const handleOnFilter = (filterArgs: OnFilterArgs) => {
-    const query = store.getState().latestQuery;
-    onQueryUpdate(applyFiltersToQuery({ ...filterArgs, query }));
+    onQueryUpdate(applyFiltersToQuery({ ...filterArgs, query: facetParams }));
     sendGTMEvent({
       event: 'facet_applied',
       facet_field: filterArgs.field,

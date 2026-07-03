@@ -1,6 +1,7 @@
 import { Box, SkeletonText, Text } from '@chakra-ui/react';
-import { useStore } from '@/store';
 import { ReactElement } from 'react';
+
+import { useSearchQuery } from '@/lib/SearchQueryContext';
 
 import { truncateDecimal } from '@/utils/common/formatters';
 import { useGetSearchStats } from '@/api/search/search';
@@ -17,7 +18,7 @@ const sanitizeNum = (num: number): string => {
 
 export const NumFound = (props: INumFoundProps): ReactElement => {
   const { count = 0, isLoading } = props;
-  const searchStatus = useStore((state) => state.searchStatus);
+  const { searchStatus } = useSearchQuery();
 
   if (isLoading) {
     return (
@@ -43,8 +44,8 @@ export const NumFound = (props: INumFoundProps): ReactElement => {
 };
 
 const SortStats = () => {
-  const latestQuery = useStore((state) => state.latestQuery);
-  const { data, isSuccess } = useGetSearchStats(latestQuery);
+  const { facetParams } = useSearchQuery();
+  const { data, isSuccess } = useGetSearchStats(facetParams);
 
   if (isSuccess && 'citation_count' in data.stats_fields) {
     const count = sanitizeNum(data.stats_fields.citation_count.sum);

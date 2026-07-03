@@ -2,12 +2,12 @@ import { calculatePagination } from '@/components/ResultList/Pagination/usePagin
 import { getLevelFromKey, getPrevKey } from '@/components/SearchFacet/helpers';
 import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { FacetItem } from '@/components/SearchFacet/types';
-import { AppState, useStore } from '@/store';
+import { useSearchQuery } from '@/lib/SearchQueryContext';
 import { sanitize } from 'isomorphic-dompurify';
-import { isEmpty, omit } from 'ramda';
+import { isEmpty } from 'ramda';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { isNonEmptyString } from 'ramda-adjunct';
-import { FacetField, IADSApiSearchParams, IBucket } from '@/api/search/types';
+import { FacetField, IBucket } from '@/api/search/types';
 import { useGetSearchFacetJSON } from '@/api/search/search';
 import { useObjects } from '@/api/objects/objects';
 
@@ -32,11 +32,9 @@ export interface IUseGetFacetDataProps {
 export const FACET_DEFAULT_LIMIT = 10;
 export const FACET_DEFAULT_PREFIX = '0/';
 
-const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.latestQuery) as IADSApiSearchParams;
-
 export const useGetFacetData = (props: IUseGetFacetDataProps) => {
-  const searchQuery = useStore(querySelector);
-  const searchStatus = useStore((state: AppState) => state.searchStatus);
+  // canonical facet-shaped params + status of the active search (SCIX-871 gating)
+  const { facetParams: searchQuery, searchStatus } = useSearchQuery();
   const {
     field,
     query = '',

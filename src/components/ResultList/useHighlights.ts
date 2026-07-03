@@ -1,24 +1,16 @@
-import { AppState, useStore } from '@/store';
 import { useGetHighlights } from '@/api/search/search';
+import { IADSApiSearchParams } from '@/api/search/types';
 
-const selectors = {
-  latestQuery: (state: AppState) => state.latestQuery,
-  showHighlights: (state: AppState) => state.showHighlights,
-};
+const DISABLED_PARAMS: IADSApiSearchParams = { q: '' };
 
-/**
- * Hook to get highlight data
- *
- * This will fetch highlights based on the latest query in the global store.
- * It also watches the global switch for `showHighlights`, so no fetching will happen unless that is set
- */
-export const useHighlights = () => {
-  const latestQuery = useStore(selectors.latestQuery);
-  const showHighlights = useStore(selectors.showHighlights);
+// Fetches highlights for the given search params, which must match the params
+// of the visible results (including start/rows) so highlights zip with docs by
+// index. No fetching happens unless showHighlights is on and params are given.
+export const useHighlights = (params: IADSApiSearchParams | undefined, showHighlights: boolean) => {
+  const enabled = showHighlights && typeof params !== 'undefined';
 
-  const { isFetching, data } = useGetHighlights(latestQuery, {
-    // will not trigger unless the toggle has been set
-    enabled: showHighlights,
+  const { isFetching, data } = useGetHighlights(params ?? DISABLED_PARAMS, {
+    enabled,
     notifyOnChangeProps: ['data', 'isFetching'],
   });
 

@@ -15,7 +15,8 @@ import {
 import * as Sentry from '@sentry/nextjs';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useStore } from '@/store';
+import { SessionStorageKey } from '@/lib/session/sessionStore';
+import { useSessionValue } from '@/lib/session/useSessionValue';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { MouseEvent, useCallback, useState } from 'react';
@@ -38,7 +39,7 @@ import { FeedbackLayout } from '@/components/Layout';
 import { FeedbackAlert } from '@/components/FeedbackForms';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
-import { makeSearchParams } from '@/utils/common/search';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { useFeedback } from '@/api/feedback/feedback';
 import { logger } from '@/logger';
@@ -58,7 +59,9 @@ const validationSchema = z.object({
 
 const General: NextPage = () => {
   const userEmail = useGetUserEmail();
-  const currentQuery = useStore((state) => state.latestQuery);
+  // latest search lives in the URL now; the captured return-to-results URL
+  // (SCIX-881) is the cross-page record of the user's most recent search
+  const { value: searchUrl } = useSessionValue<string>(SessionStorageKey.SearchReturnUrl);
   const [formError, setFormError] = useState<Error | string | null>(null);
 
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
@@ -130,7 +133,7 @@ const General: NextPage = () => {
             platform,
             os: `${osName} ${osVersion}`,
             current_page: router.query.from ? (router.query.from as string) : undefined,
-            current_query: makeSearchParams(currentQuery),
+            current_query: searchUrl ? makeSearchParams(parseQueryFromUrl(searchUrl)) : undefined,
             url: router.asPath,
             comments,
           },
@@ -175,7 +178,7 @@ const General: NextPage = () => {
       onAlertOpen,
       reset,
       makeSearchParams,
-      currentQuery,
+      searchUrl,
       router.query.from,
       router.asPath,
       userEmail,

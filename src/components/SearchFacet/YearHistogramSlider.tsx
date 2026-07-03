@@ -2,7 +2,7 @@ import { Box, Center, CircularProgress, Flex, Heading, Icon, IconButton, Text, V
 
 import { getYearsGraph } from '@/components/Visualizations/utils';
 import { getFQValue, removeFQ, setFQ } from '@/query-utils';
-import { useStore } from '@/store';
+import { useSearchQuery } from '@/lib/SearchQueryContext';
 import { memo, useMemo } from 'react';
 import { withErrorBoundary } from '@/hocs/withErrorBoundary';
 import { ArrowsOutIcon } from '@/components/icons/ArrowsOut';
@@ -24,8 +24,7 @@ export interface IYearHistogramSliderProps {
 }
 
 const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHistogramSliderProps) => {
-  const query = useStore((state) => state.latestQuery);
-  const searchStatus = useStore((state) => state.searchStatus);
+  const { facetParams: query, searchStatus } = useSearchQuery();
 
   // query without the year range filter, to show all years on the histogram
   const cleanedQuery = useMemo(() => {

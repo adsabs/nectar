@@ -1,117 +1,61 @@
 import { describe, test, expect, vi, TestContext } from 'vitest';
-import { renderHook, waitFor, act, createServerListenerMocks, urls } from '@/test-utils';
-import { useStore } from '@/store';
+import { renderHook, waitFor } from '@testing-library/react';
+import { createElement, ReactNode } from 'react';
+import { act, createServerListenerMocks, DefaultProviders, urls } from '@/test-utils';
 import { IUseGetFacetDataProps } from './useGetFacetData';
 import { useGetFacetData } from './useGetFacetData';
-import { defaultQueryParams } from '@/store/slices/search';
-import { FacetField } from '@/api/search/types';
+import { SearchQueryProvider } from '@/lib/SearchQueryContext';
+import { APP_DEFAULTS } from '@/config';
+import { FacetField, IADSApiSearchParams } from '@/api/search/types';
+import { SearchStatus } from '@/types';
 
 vi.mock('@/components/SearchFacet/store/FacetStore', () => ({
   useFacetStore: () => vi.fn(),
 }));
 
-const defaultProps = {
+const defaultProps: IUseGetFacetDataProps = {
   field: 'author_facet_hier' as FacetField,
   prefix: '0/',
   level: 'root' as const,
 };
 
-const useCompound = (props: IUseGetFacetDataProps) => ({
-  setSearchStatus: useStore((state) => state.setSearchStatus),
-  facet: useGetFacetData(props),
-});
+const facetParams: IADSApiSearchParams = { q: 'star', sort: APP_DEFAULTS.SORT };
 
-describe('useGetFacetData', () => {
-  test('does not fire a request when searchStatus is idle', async ({ server }: TestContext) => {
-    const { onRequest } = createServerListenerMocks(server);
-    renderHook(() => useGetFacetData(defaultProps), {
-      initialStore: { searchStatus: 'idle', latestQuery: { ...defaultQueryParams, q: 'star' } },
-    });
-
-    await new Promise((r) => setTimeout(r, 200));
-    const searchRequests = urls(onRequest).filter((u) => u === '/search/query');
-    expect(searchRequests).toHaveLength(0);
-  });
-
-  test('does not fire a request when searchStatus is not success (empty)', async ({ server }: TestContext) => {
-    const { onRequest } = createServerListenerMocks(server);
-    renderHook(() => useGetFacetData(defaultProps), {
-      initialStore: { searchStatus: 'empty', latestQuery: { ...defaultQueryParams, q: 'star' } },
-    });
-
-    await new Promise((r) => setTimeout(r, 200));
-    const searchRequests = urls(onRequest).filter((u) => u === '/search/query');
-    expect(searchRequests).toHaveLength(0);
-  });
-
-  test('fires a request when latestQuery.q is non-empty', async ({ server }: TestContext) => {
-    const { onRequest } = createServerListenerMocks(server);
-    renderHook(() => useGetFacetData(defaultProps), {
-      initialStore: { searchStatus: 'success', latestQuery: { ...defaultQueryParams, q: 'star' } },
-    });
-
-    await waitFor(() => {
-      const searchRequests = urls(onRequest).filter((u) => u === '/search/query');
-      expect(searchRequests.length).toBeGreaterThan(0);
-    });
-  });
-});
+// SCIX-871 gating now flows through SearchQueryContext (was the store's
+// searchStatus + latestQuery). The wrapper reads status from a closure so
+// transitions are driven by mutating it and calling rerender().
+const renderFacetHook = (initialStatus: SearchStatus) => {
+  const statusRef = { current: initialStatus };
+  const wrapper = ({ children }: { children?: ReactNode }) =>
+    createElement(
+      SearchQueryProvider,
+      { value: { facetParams, searchStatus: statusRef.current } },
+      createElement(DefaultProviders, { options: {} }, children),
+    );
+  const rendered = renderHook(() => useGetFacetData(defaultProps), { wrapper });
+  const setStatus = (status: SearchStatus) => {
+    statusRef.current = status;
+    act(() => rendered.rerender());
+  };
+  return { ...rendered, setStatus };
+};
 
 describe('useGetFacetData — searchStatus gating', () => {
-  test('does not fire when searchStatus is loading', async ({ server }: TestContext) => {
-    const { onRequest } = createServerListenerMocks(server);
+  for (const status of ['idle', 'loading', 'empty', 'error'] as SearchStatus[]) {
+    test(`does not fire a request when searchStatus is ${status}`, async ({ server }: TestContext) => {
+      const { onRequest } = createServerListenerMocks(server);
+      renderFacetHook(status);
 
-    renderHook(() => useCompound(defaultProps), {
-      initialStore: {
-        searchStatus: 'loading',
-        latestQuery: { ...defaultQueryParams, q: 'star' },
-      },
+      await new Promise((r) => setTimeout(r, 200));
+      const facetRequests = urls(onRequest).filter((u) => u === '/search/query');
+      expect(facetRequests).toHaveLength(0);
     });
-
-    await new Promise((r) => setTimeout(r, 200));
-    const facetRequests = urls(onRequest).filter((u) => u === '/search/query');
-    expect(facetRequests).toHaveLength(0);
-  });
-
-  test('does not fire when searchStatus is empty', async ({ server }: TestContext) => {
-    const { onRequest } = createServerListenerMocks(server);
-
-    renderHook(() => useCompound(defaultProps), {
-      initialStore: {
-        searchStatus: 'empty',
-        latestQuery: { ...defaultQueryParams, q: 'star' },
-      },
-    });
-
-    await new Promise((r) => setTimeout(r, 200));
-    const facetRequests = urls(onRequest).filter((u) => u === '/search/query');
-    expect(facetRequests).toHaveLength(0);
-  });
-
-  test('does not fire when searchStatus is error', async ({ server }: TestContext) => {
-    const { onRequest } = createServerListenerMocks(server);
-
-    renderHook(() => useCompound(defaultProps), {
-      initialStore: {
-        searchStatus: 'error',
-        latestQuery: { ...defaultQueryParams, q: 'star' },
-      },
-    });
-
-    await new Promise((r) => setTimeout(r, 200));
-    const facetRequests = urls(onRequest).filter((u) => u === '/search/query');
-    expect(facetRequests).toHaveLength(0);
-  });
+  }
 
   test('fires and returns data when searchStatus is success', async ({ server }: TestContext) => {
     const { onRequest } = createServerListenerMocks(server);
 
-    const { result } = renderHook(() => useCompound(defaultProps), {
-      initialStore: {
-        searchStatus: 'success',
-        latestQuery: { ...defaultQueryParams, q: 'star' },
-      },
-    });
+    const { result } = renderFacetHook('success');
 
     await waitFor(() => {
       const facetRequests = urls(onRequest).filter((u) => u === '/search/query');
@@ -119,56 +63,42 @@ describe('useGetFacetData — searchStatus gating', () => {
     });
 
     await waitFor(() => {
-      expect(result.current.facet.treeData.length).toBeGreaterThan(0);
+      expect(result.current.treeData.length).toBeGreaterThan(0);
     });
   });
 
   test('regression: loading→success transition unblocks fetch and populates data', async ({ server }: TestContext) => {
     const { onRequest } = createServerListenerMocks(server);
 
-    const { result } = renderHook(() => useCompound(defaultProps), {
-      initialStore: {
-        searchStatus: 'loading',
-        latestQuery: { ...defaultQueryParams, q: 'star' },
-      },
-    });
+    const { result, setStatus } = renderFacetHook('loading');
 
     await new Promise((r) => setTimeout(r, 200));
     expect(urls(onRequest).filter((u) => u === '/search/query')).toHaveLength(0);
-    expect(result.current.facet.treeData).toHaveLength(0);
+    expect(result.current.treeData).toHaveLength(0);
 
-    act(() => {
-      result.current.setSearchStatus('success');
-    });
+    setStatus('success');
 
     await waitFor(() => {
       expect(urls(onRequest).filter((u) => u === '/search/query').length).toBeGreaterThan(0);
     });
 
     await waitFor(() => {
-      expect(result.current.facet.treeData.length).toBeGreaterThan(0);
+      expect(result.current.treeData.length).toBeGreaterThan(0);
     });
   });
 
   test('success→loading transition clears treeData synchronously', async ({ server }: TestContext) => {
     createServerListenerMocks(server);
 
-    const { result } = renderHook(() => useCompound(defaultProps), {
-      initialStore: {
-        searchStatus: 'success',
-        latestQuery: { ...defaultQueryParams, q: 'star' },
-      },
-    });
+    const { result, setStatus } = renderFacetHook('success');
 
     await waitFor(() => {
-      expect(result.current.facet.treeData.length).toBeGreaterThan(0);
+      expect(result.current.treeData.length).toBeGreaterThan(0);
     });
 
-    act(() => {
-      result.current.setSearchStatus('loading');
-    });
+    setStatus('loading');
 
-    expect(result.current.facet.treeData).toHaveLength(0);
-    expect(result.current.facet.totalResults).toBe(0);
+    expect(result.current.treeData).toHaveLength(0);
+    expect(result.current.totalResults).toBe(0);
   });
 });

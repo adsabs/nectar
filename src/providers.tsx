@@ -10,15 +10,16 @@ import { logger } from './logger';
 import { theme } from './theme';
 import shallow from 'zustand/shallow';
 import * as Sentry from '@sentry/nextjs';
+import { useRouter } from 'next/router';
 import {
   PERF_SPANS,
   getResultCountBucket,
   getQueryType,
   openFullTextTimingSpan,
   closeFullTextTimingSpan,
-  getPageNumber,
   sendQueryAsTags,
 } from '@/lib/performance';
+import { parseQueryFromUrl } from '@/utils/common/search';
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 import { ShepherdJourneyProvider } from 'react-shepherd';
 
@@ -68,7 +69,10 @@ const QCProvider: FC = ({ children }) => {
 };
 
 const Telemetry: FC = () => {
-  const latestQuery = useStore((state) => state.latestQuery, shallow);
+  const router = useRouter();
+  // URL is the source of truth for the submitted query; a change in the
+  // /search URL is a search submission (replaces the store's latestQuery)
+  const searchPath = router.pathname === '/search' ? router.asPath : null;
   const user = useStore((state) => state.user, shallow);
   const docs = useStore((state) => state.docs.current, shallow);
   const searchSpanRef = useRef<ReturnType<typeof Sentry.startInactiveSpan> | null>(null);
@@ -91,12 +95,20 @@ const Telemetry: FC = () => {
   }, [user]);
 
   useEffect(() => {
-    if (!latestQuery) {
+    if (!searchPath) {
+      return;
+    }
+    // The search page stamps resolved sort/rows into arriving URLs with a
+    // replace navigation; skip the transient pre-stamp URL so a single search
+    // submission opens one span instead of two.
+    const urlParams = new URLSearchParams(searchPath.split('?')[1] ?? '');
+    if (!urlParams.has('sort') || !urlParams.has('rows')) {
       return;
     }
     try {
-      sendQueryAsTags(latestQuery);
-      const page = getPageNumber(latestQuery.start, latestQuery.rows);
+      const query = parseQueryFromUrl(searchPath);
+      sendQueryAsTags(query);
+      const page = query.p ?? 1;
       // End prior spans so rapid re-submits don't leak them.
       searchSpanRef.current?.end();
       searchSpanRef.current = null;
@@ -107,7 +119,7 @@ const Telemetry: FC = () => {
       searchSpanRef.current = Sentry.startInactiveSpan({
         name: PERF_SPANS.SEARCH_SUBMIT_TOTAL,
         op: 'user.flow',
-        attributes: { query_type: getQueryType(latestQuery.q ?? ''), page },
+        attributes: { query_type: getQueryType(query.q ?? ''), page },
       });
       if (page > 1) {
         paginationSpanRef.current = Sentry.startInactiveSpan({
@@ -119,7 +131,7 @@ const Telemetry: FC = () => {
     } catch (err) {
       logger.error({ err }, 'Telemetry: query span error');
     }
-  }, [latestQuery]);
+  }, [searchPath]);
 
   useEffect(() => {
     if (!docs || docs.length === 0) {

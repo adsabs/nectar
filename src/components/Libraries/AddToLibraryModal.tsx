@@ -28,6 +28,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 
 import { useStore } from '@/store';
+import { useSearchQuery } from '@/lib/SearchQueryContext';
 
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { LibraryIdentifier } from '@/api/biblib/types';
@@ -54,7 +55,9 @@ export const AddToLibraryModal = ({
 }) => {
   const selectedDocs = useStore((state) => state.docs.selected);
 
-  const query = useStore((state) => state.query);
+  // canonical query of the active search (URL-derived); off the search page
+  // this is empty, but there the bibcodes/selection path is always used
+  const { facetParams: query } = useSearchQuery();
 
   const clearSelections = useStore((state) => state.clearSelected);
 
