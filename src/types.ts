@@ -53,6 +53,10 @@ export type NumPerPageType = (typeof APP_DEFAULTS)['PER_PAGE_OPTIONS'][number];
 
 export type SafeSearchUrlParams = Omit<IADSApiSearchParams, 'fl' | 'start' | 'rows' | 'id'> & { p?: number };
 
+// lifecycle of the active search, derived from the query result
+// (see useSearchResults); gates facet fetching and dependent widgets
+export type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
+
 export interface IBibstemOption {
   label: string[];
   value: string;
@@ -68,4 +72,3 @@ declare global {
     onResponse: unknown;
   };
 }
-

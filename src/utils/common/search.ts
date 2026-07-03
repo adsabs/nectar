@@ -1,11 +1,11 @@
 import { clamp, filter, head, last, omit, uniq } from 'ramda';
 import qs from 'qs';
 
-import { isSolrSort, isString } from '@/utils/common/guards';
+import { isNumPerPageType, isSolrSort, isString } from '@/utils/common/guards';
 import { APP_DEFAULTS } from '@/config';
 import { ParsedUrlQuery } from 'querystring';
-import { AppMode, SafeSearchUrlParams } from '@/types';
-import { SolrSort } from '@/api/models';
+import { AppMode, NumPerPageType, SafeSearchUrlParams } from '@/types';
+import { SolrSort, SolrSortField, solrDefaultSortDirection } from '@/api/models';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { logger } from '@/logger';
 import { appModeToDisciplineParam, normalizeDisciplineParam } from '@/utils/appMode';
@@ -172,6 +172,99 @@ export const normalizeSolrSort = (rawSolrSort: unknown, postfixSort?: SolrSort):
     return ['score desc', tieBreaker];
   }
   return uniq(validSort.concat(tieBreaker));
+};
+
+export type CanonicalSearchParams = IADSApiSearchParams & { p: number; rows: NumPerPageType };
+
+export interface CanonicalSearchParamsDefaults {
+  // user's preferred-sort setting; applied only when the URL has no sort
+  preferredSortField?: SolrSortField;
+  // user's persisted page-size preference; applied when the URL has no valid rows
+  numPerPage?: number;
+}
+
+// keys resolved explicitly below, plus UI-only params that must never reach the API
+const CANONICAL_RESOLVED_KEYS = new Set(['q', 'sort', 'p', 'rows', 'fq', 'showHighlights']);
+
+const toStringValue = (value: unknown): string | undefined => {
+  if (isString(value)) {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return filter(isString, value).join(',');
+  }
+  if (typeof value === 'number') {
+    return String(value);
+  }
+  return undefined;
+};
+
+const resolveRows = (value: unknown, preference?: number): NumPerPageType => {
+  const first = Array.isArray(value) ? value[0] : value;
+  const num = typeof first === 'number' ? first : isString(first) ? parseInt(first, 10) : NaN;
+  if (!Number.isNaN(num) && isNumPerPageType(num)) {
+    return num;
+  }
+  if (typeof preference === 'number' && isNumPerPageType(preference)) {
+    return preference;
+  }
+  return APP_DEFAULTS.RESULT_PER_PAGE;
+};
+
+// Resolves raw URL query values (from router.query or nuqs) into the normalized,
+// defaults-applied search params object — the canonical identity of a search.
+// Rules (matching the pre-rewrite search page):
+// - empty/missing q becomes the match-all query
+// - a sort in the URL wins; otherwise the preferred-sort setting applies, with
+//   its default direction
+// - rows must be a valid page-size option; otherwise the persisted preference
+// - p is clamped to >= 1; start is intentionally NOT computed here
+// - unknown params (fq_author, d, ...) pass through as strings so facet
+//   companion params survive the round trip; fl/start/id/boostType are never
+//   trusted from the URL
+export const canonicalSearchParams = (
+  raw: Record<string, unknown>,
+  defaults: CanonicalSearchParamsDefaults = {},
+): CanonicalSearchParams => {
+  const passthrough: Record<string, string> = {};
+  for (const [key, value] of Object.entries(raw)) {
+    if (CANONICAL_RESOLVED_KEYS.has(key) || IGNORED_URL_KEYS.includes(key)) {
+      continue;
+    }
+    const str = toStringValue(value);
+    if (typeof str !== 'undefined') {
+      passthrough[key] = str;
+    }
+  }
+
+  const preferredSortField = defaults.preferredSortField ?? (APP_DEFAULTS.PREFERRED_SEARCH_SORT as SolrSortField);
+  const hasSort = Array.isArray(raw.sort) ? raw.sort.length > 0 : isString(raw.sort);
+  const sort = hasSort
+    ? normalizeSolrSort(raw.sort)
+    : normalizeSolrSort([`${preferredSortField} ${solrDefaultSortDirection[preferredSortField]}`]);
+
+  const q = toStringValue(raw.q) ?? '';
+
+  return {
+    ...passthrough,
+    q: q === '' ? APP_DEFAULTS.EMPTY_QUERY : q,
+    sort,
+    p: parseNumberAndClamp(raw.p as string | number, 1),
+    rows: resolveRows(raw.rows, defaults.numPerPage),
+    // absent fq stays absent — an empty array (nuqs's "no value") must not add the key
+    ...(raw.fq != null && (!Array.isArray(raw.fq) || raw.fq.length > 0)
+      ? { fq: safeSplitString(raw.fq as string | string[]) }
+      : {}),
+  } as CanonicalSearchParams;
+};
+
+// Shapes canonical search params for facet consumers (facet fetches, histogram,
+// search stats). Strips pagination and field-list keys so the facet query
+// identity is stable across page and page-size changes — matches the previous
+// omit(['fl','start','rows'], latestQuery) plus the page-level p omission.
+export const toFacetSearchParams = (params: IADSApiSearchParams & { p?: number }): IADSApiSearchParams => {
+  const { fl, start, rows, p, ...facetParams } = params;
+  return facetParams;
 };
 
 // Matches second-order operator queries that should default to relevance sort.
