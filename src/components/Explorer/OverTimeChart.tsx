@@ -1,12 +1,23 @@
 import { useCustomFacetSearch } from '@/api/search/search';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { useMemo } from 'react';
-import { Area, AreaChart, CartesianGrid, Tooltip, XAxis, YAxis, ResponsiveContainer, Legend } from 'recharts';
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Tooltip,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Legend,
+  MouseHandlerDataParam,
+} from 'recharts';
 import { parseTitleFromKey } from '../SearchFacet/helpers';
 import { prop, sortBy } from 'ramda';
 import { CustomInfoMessage } from '../Feedbacks';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { Box, Skeleton } from '@chakra-ui/react';
+import { makeYearSearchLink } from './helpers';
 
 const facetJsonDoctype = {
   year: {
@@ -28,13 +39,25 @@ const facetJsonYearRefereed = {
   },
 };
 
+const highlightDoctypes = [
+  'Journal Article',
+  'Abstract',
+  'e-print',
+  'Conference Paper',
+  'Preprint',
+  'Dataset',
+  'Book Chapter',
+];
+
 const doctypeLegends = [
   { doctype: 'Journal Article', color: '#1f77b4' },
+  { doctype: 'Abstract', color: '#7f7f7f' },
   { doctype: 'e-print', color: '#ff7f0e' },
   { doctype: 'Conference Paper', color: '#2ca02c' },
   { doctype: 'Preprint', color: '#d62728' },
   { doctype: 'Dataset', color: '#9467bd' },
   { doctype: 'Book Chapter', color: '#8c564b' },
+  { doctype: 'Others', color: '#e377c2' },
 ];
 
 const refereedLegends = [
@@ -58,11 +81,15 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
       const temp = data.year.buckets.map((yearBucket) => {
         return yearBucket.doctype.buckets.reduce(
           (acc, doctypeBucket) => {
-            const doctype = doctypeBucket.val;
+            const doctype = parseTitleFromKey(doctypeBucket.val as string);
             const count = doctypeBucket.count;
-            return { ...acc, [parseTitleFromKey(doctype as string)]: count };
+            if (highlightDoctypes.includes(doctype)) {
+              return { ...acc, [doctype]: count };
+            } else {
+              return { ...acc, Others: ((acc.Others as number) || 0) + count };
+            }
           },
-          { year: yearBucket.val },
+          { year: yearBucket.val } as Record<string, number | string>,
         );
       });
 
@@ -71,9 +98,9 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
       const temp = data.year.buckets.map((yearBucket) => {
         return yearBucket.property.buckets.reduce(
           (acc, refereedBucket) => {
-            const property = refereedBucket.val;
+            const property = parseTitleFromKey(refereedBucket.val as string);
             const count = refereedBucket.count;
-            return { ...acc, [parseTitleFromKey(property as string)]: count };
+            return { ...acc, [property]: count };
           },
           { year: yearBucket.val },
         );
@@ -82,6 +109,14 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
       return sortBy(prop('year'), temp);
     }
   }, [data]);
+
+  const handleClick = (state: MouseHandlerDataParam) => {
+    if (typeof window !== 'undefined' && state.activeLabel) {
+      const year = state.activeLabel;
+      const url = makeYearSearchLink(query, year.toLocaleString());
+      window.open(url, '_blank');
+    }
+  };
 
   if (isLoading) {
     return <Skeleton w="full" height={300} />;
@@ -118,6 +153,7 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
         throttleDelay="raf"
         throttledEvents={['mousemove', 'touchmove', 'pointermove', 'scroll', 'wheel']}
         width={500}
+        onClick={handleClick}
       >
         <CartesianGrid strokeDasharray="3 3" />
         <YAxis />

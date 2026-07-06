@@ -53,3 +53,11 @@ export const makeDataGroupSearchLink = (query: IADSApiSearchParams, facetKey: st
   });
   return `/search?${params}`;
 };
+
+export const makeYearSearchLink = (query: IADSApiSearchParams, year: string) => {
+  const params = makeSearchParams({
+    ...query,
+    q: query.q === '*:*' ? `year:"${year}"` : `${query.q} year:"${year}"`,
+  });
+  return `/search?${params}`;
+};
