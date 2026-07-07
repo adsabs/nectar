@@ -53,6 +53,10 @@ export const FacetFieldTable = ({
     </Stack>
   );
 
+  if (data?.count === 0) {
+    return <CustomInfoMessage status="info" alertTitle={`No ${label} found`} />;
+  }
+
   return (
     <>
       {isLoading ? (

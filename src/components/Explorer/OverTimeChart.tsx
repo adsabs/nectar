@@ -77,7 +77,7 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
   // transform to format used by rechart
   // [{year, ...properties}]
   const transformedData = useMemo(() => {
-    if (data && type === 'doctype') {
+    if (data && data.count > 0 && type === 'doctype') {
       const temp = data.year.buckets.map((yearBucket) => {
         return yearBucket.doctype.buckets.reduce(
           (acc, doctypeBucket) => {
@@ -94,7 +94,7 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
       });
 
       return sortBy(prop('year'), temp);
-    } else if (data && type === 'refereed') {
+    } else if (data && data.count > 0 && type === 'refereed') {
       const temp = data.year.buckets.map((yearBucket) => {
         return yearBucket.property.buckets.reduce(
           (acc, refereedBucket) => {
