@@ -157,3 +157,28 @@ export const explorerFacets: Record<IExplorerCollection['id'], IExplorerFacet[]>
     { label: 'GitHub', icon: GithubIcon, id: 'GITHUB', facetKey: 'GITHUB', searchQueryValue: 'GITHUB' },
   ],
 };
+
+export const doctypeMap: Record<string, string[]> = {
+  '1/Article/Journal Article': ['article'],
+  '1/Article/Proceedings Article': ['inproceedings'],
+  '1/Article/e-print': ['eprint'],
+  '1/Article/Book Chapter': ['inbook'],
+  '1/Non-Article/Abstract': ['abstract'],
+  '1/Non-Article/Proposal': ['proposal'],
+  '1/Non-Article/Tech Report': ['techreport'],
+  '1/Non-Article/PhD Thesis': ['phdthesis'],
+  '1/Non-Article/Other': ['misc', 'obituary', 'erratum', 'bookreview'],
+  '1/Non-Article/Circular': ['circular'],
+  '1/Non-Article/Proceedings': ['proceedings'],
+  '1/Non-Article/Dataset': ['dataset'],
+  '1/Non-Article/Book': ['book'],
+  '1/Non-Article/Editorial': ['editorial'],
+  '1/Non-Article/Software': ['software'],
+  '1/Non-Article/Newsletter': ['newsletter'],
+  '1/Non-Article/Masters Thesis': ['mastersthesis'],
+  '1/Non-Article/Press Release': ['pressrelease'],
+  '1/Non-Article/Catalog': ['catalog'],
+  '1/Non-Article/Talk': ['talk'],
+  '1/Non-Article/Service': ['service'],
+  '1/Non-Article/Instrument': ['instrument'],
+};

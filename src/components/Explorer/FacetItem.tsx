@@ -1,7 +1,7 @@
 import { SimpleLink } from '@/components/SimpleLink';
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
-import { databases, explorerCollections } from './data';
+import { databases, doctypeMap, explorerCollections } from './data';
 import { useGetSearchFacetJSON } from '@/api/search/search';
 import { getSearchFacetParams } from '../SearchFacet/useGetFacetData';
 import { allRecordsQuery, makeDataGroupSearchLink, makeJournalSearchLink, searchFacetDefaultParams } from './helpers';
@@ -11,7 +11,6 @@ import { useMemo, useState } from 'react';
 import { FeaturedPapers } from './FeaturedPapers';
 import { FacetFieldTable } from './FacetFieldTable';
 import { applyFiltersToQuery, parseTitleFromKey } from '../SearchFacet/helpers';
-import { pipe } from 'ramda';
 import { SubFacetCard } from './SubFacetCard';
 import { IExplorerCollection } from './types';
 import { OverTimeChart } from './OverTimeChart';
@@ -55,28 +54,23 @@ export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; f
 
   // The main query for the page
   const searchQueryParams: IADSApiSearchParams = useMemo(() => {
-    return pipe(
-      // Apply doctype filter
-      (q: IADSApiSearchParams) =>
-        applyFiltersToQuery({
-          query: q,
-          values: [facetKey],
-          field: collection.facetField,
-          logic: 'or',
-        }),
+    const q =
+      collection.id === 'doctype'
+        ? doctypeMap[facetKey].map((dt) => `${collection.searchQueryField}:"${dt}"`).join(' OR ')
+        : `${collection.searchQueryField}:"${facetKey}"`;
 
-      //  Optional database filter
-      (q) =>
-        database
-          ? (applyFiltersToQuery({
-              query: q as IADSApiSearchParams,
-              values: [database],
-              field: 'database',
-              logic: 'or',
-            }) as IADSApiSearchParams)
-          : (q as IADSApiSearchParams),
-    )(allRecordsQuery);
-  }, [database, facet]);
+    //  Optional database filter
+    {
+      return database
+        ? (applyFiltersToQuery({
+            query: { q } as IADSApiSearchParams,
+            values: [database],
+            field: 'database',
+            logic: 'or',
+          }) as IADSApiSearchParams)
+        : ({ q } as IADSApiSearchParams);
+    }
+  }, [collection, facetKey, database]);
 
   const handleSelectDatabase = (selected: (typeof databaseFacetIds)[number]) => {
     if (selected === database) {

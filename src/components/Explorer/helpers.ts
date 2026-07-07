@@ -28,6 +28,7 @@ export const makeJournalSearchLink = (query: IADSApiSearchParams, facetKey: stri
   return `/search?${params}`;
 };
 
+// Use this if using facet filters
 // const makeJournalSearchLink = (facetKey: string) => {
 //   const newQuery = applyFiltersToQuery({
 //     q: query,
