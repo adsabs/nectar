@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
 import { logger } from '@/logger';
+import { safeSessionStorageGet, safeSessionStorageRemove, safeSessionStorageSet } from '@/lib/browserStorage';
 
 const SCROLL_POSITION_KEY = 'search-scroll-position';
 
@@ -12,13 +13,7 @@ export const useScrollRestoration = () => {
   const shouldRestoreRef = useRef(false);
 
   useEffect(() => {
-    // Only run on client side
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    // Check if we should restore scroll position on mount
-    const savedPosition = sessionStorage.getItem(SCROLL_POSITION_KEY);
+    const savedPosition = safeSessionStorageGet(SCROLL_POSITION_KEY);
     logger.debug({ savedPosition }, 'useScrollRestoration');
     if (savedPosition && router.pathname === '/search') {
       shouldRestoreRef.current = true;
@@ -34,7 +29,7 @@ export const useScrollRestoration = () => {
           });
         }
         // Clear the stored position after restoration
-        sessionStorage.removeItem(SCROLL_POSITION_KEY);
+        safeSessionStorageRemove(SCROLL_POSITION_KEY);
         shouldRestoreRef.current = false;
       });
     }
@@ -47,18 +42,15 @@ export const useScrollRestoration = () => {
   const saveScrollPosition = () => {
     if (typeof window !== 'undefined' && router.pathname === '/search') {
       const scrollPosition = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-      sessionStorage.setItem(SCROLL_POSITION_KEY, scrollPosition.toString());
+      safeSessionStorageSet(SCROLL_POSITION_KEY, scrollPosition.toString());
     }
   };
 
   /**
    * Clear saved scroll position
-   * Useful if you want to prevent restoration in certain cases
    */
   const clearScrollPosition = () => {
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem(SCROLL_POSITION_KEY);
-    }
+    safeSessionStorageRemove(SCROLL_POSITION_KEY);
   };
 
   return {

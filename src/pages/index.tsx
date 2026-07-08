@@ -24,6 +24,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { useSettings } from '@/lib/useSettings';
+import { safeLocalStorageGet, safeLocalStorageSet } from '@/lib/browserStorage';
 
 import { NotificationId } from '@/store/slices';
 import { SearchBar } from '@/components/SearchBar';
@@ -207,11 +208,11 @@ const Carousel = (props: { onSelectExample: (text: string) => void }) => {
   const { onSelectExample } = props;
 
   useEffect(() => {
-    setInitialPage(parseInt(localStorage.getItem(LocalSettings.CAROUSEL) ?? '0', 10));
+    setInitialPage(parseInt(safeLocalStorageGet(LocalSettings.CAROUSEL) ?? '0', 10));
   }, []);
 
   const handlePageChange = (page: number) => {
-    localStorage.setItem(LocalSettings.CAROUSEL, page.toString());
+    safeLocalStorageSet(LocalSettings.CAROUSEL, page.toString());
     setInitialPage(page);
   };
 
@@ -473,7 +474,7 @@ const useTour = () => {
   }, []);
 
   useEffect(() => {
-    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_LANDING_TOUR)) {
+    if (isRendered && !safeLocalStorageGet(LocalSettings.SEEN_LANDING_TOUR)) {
       const tour = new Shepherd.Tour({
         useModalOverlay: true,
         defaultStepOptions: {
@@ -501,7 +502,7 @@ const useTour = () => {
       });
 
       tour.addSteps(getHomeSteps(!isScreenLarge));
-      localStorage.setItem(LocalSettings.SEEN_LANDING_TOUR, 'true');
+      safeLocalStorageSet(LocalSettings.SEEN_LANDING_TOUR, 'true');
       setTimeout(() => {
         tour.start();
       }, 1000);

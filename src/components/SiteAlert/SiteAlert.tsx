@@ -1,6 +1,7 @@
 import { useGetSiteWideMsg } from '@/api/vault/vault';
 import { useSession } from '@/lib/useSession';
 import { useSettings } from '@/lib/useSettings';
+import { safeLocalStorageGet, safeLocalStorageSet } from '@/lib/browserStorage';
 import { Alert, AlertDescription, CloseButton, Flex } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
@@ -27,7 +28,7 @@ export const SiteAlert = () => {
     if (isAuthenticated) {
       updateSettings({ last_seen_message: systemMsg });
     } else {
-      localStorage.setItem(LAST_DISMISSED_SYS_MSG, systemMsg);
+      safeLocalStorageSet(LAST_DISMISSED_SYS_MSG, systemMsg);
     }
   };
 
@@ -39,8 +40,8 @@ export const SiteAlert = () => {
           setLastDismissedMsg(settings.last_seen_message);
           setInitialized(true);
         }
-      } else if (typeof window !== 'undefined' && window.localStorage) {
-        setLastDismissedMsg(localStorage.getItem(LAST_DISMISSED_SYS_MSG) ?? '');
+      } else {
+        setLastDismissedMsg(safeLocalStorageGet(LAST_DISMISSED_SYS_MSG) ?? '');
         setInitialized(true);
       }
     }
