@@ -7,6 +7,8 @@ export interface IExplorerCollection {
   label: string;
   image?: string;
   facetSearchParams: { field: FacetField; level: 'root' | 'child' };
+  ignoreFacetKeys?: IExplorerFacet['facetKey'][];
+  filterFacetKeys?: IExplorerFacet['facetKey'][]; // only select these keys, should not be used with ignoreFacetKeys
 }
 
 export type ExplorerCollectionID = (typeof validCollectionIds)[number];

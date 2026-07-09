@@ -59,7 +59,7 @@ export const ExplorerLanding = () => {
     }),
   });
 
-  // data collections
+  // data bibliographies
   const {
     data: dataData,
     isError: isDataError,
@@ -88,11 +88,13 @@ export const ExplorerLanding = () => {
       (id === 'database'
         ? databaseData?.database.buckets
         : id === 'doctype'
-        ? rtypeData?.doctype_facet_hier.buckets.filter((t) => (t.val as string).startsWith('1/')) // only show child record types
+        ? rtypeData?.doctype_facet_hier.buckets.filter(
+            (t) => !explorerCollections.doctype.ignoreFacetKeys.includes(t.val as string),
+          )
         : id === 'bibgroup'
         ? bibgroupData?.bibgroup_facet.buckets
         : id === 'data'
-        ? dataData?.data_facet.buckets
+        ? dataData?.data_facet.buckets.filter((t) => explorerCollections.data.filterFacetKeys.includes(t.val as string))
         : []) ?? [],
     );
     onOpen();
