@@ -166,6 +166,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
           }}
         >
           <Button
+            id={field}
             w="full"
             variant="outline"
             {...attributes}

@@ -27,6 +27,7 @@ import { LocalSettings } from '@/types';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 import { useGetAbstract } from '@/api/search/search';
+import { useStore } from '@/store/store';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () =>
@@ -197,6 +198,7 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
 export default AbstractPage;
 
 const useTour = () => {
+  const appMode = useStore((state) => state.mode);
   const Shepherd = useShepherd();
   const { isScreenLarge } = useScreenSize();
   const [isRendered, setIsRendered] = useState(false);
@@ -246,7 +248,7 @@ const useTour = () => {
         document.removeEventListener('click', listener);
       });
 
-      tour.addSteps(getAbstractSteps(!isScreenLarge));
+      tour.addSteps(getAbstractSteps(!isScreenLarge, appMode === 'ASTROPHYSICS'));
       localStorage.setItem(LocalSettings.SEEN_ABSTRACT_TOUR, 'true');
       setTimeout(() => {
         tour.start();

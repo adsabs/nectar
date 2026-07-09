@@ -688,6 +688,7 @@ const PartialResultsWarning = ({ isPartialResults }: { isPartialResults?: boolea
 };
 
 const useTour = () => {
+  const appMode = useStore((state) => state.mode);
   const Shepherd = useShepherd();
   const [isRendered, setIsRendered] = useState(false);
 
@@ -718,7 +719,7 @@ const useTour = () => {
         },
         exitOnEsc: true,
       });
-      tour.addSteps(getResultsSteps());
+      tour.addSteps(getResultsSteps(appMode === 'ASTROPHYSICS'));
       localStorage.setItem(LocalSettings.SEEN_RESULTS_TOUR, 'true');
 
       const listener = (e: MouseEvent) => {
