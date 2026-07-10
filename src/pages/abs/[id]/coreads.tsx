@@ -23,10 +23,13 @@ const CoreadsPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }) => {
   const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
   const { rows } = getParams();
 
-  const { data, isSuccess, isLoading, isFetching, error, isError } = useGetCoreads({
-    ...getParams(),
-    start: pageIndex * rows,
-  });
+  const { data, isSuccess, isLoading, isFetching, error, isError } = useGetCoreads(
+    {
+      ...getParams(),
+      start: pageIndex * rows,
+    },
+    { enabled: !!doc?.bibcode },
+  );
 
   const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);
   const coreadsParams = getCoreadsParams(doc?.bibcode, 0, rows);

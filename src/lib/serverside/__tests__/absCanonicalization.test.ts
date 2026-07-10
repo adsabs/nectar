@@ -96,7 +96,7 @@ describe('createAbsGetServerSideProps', () => {
     expect(result).toHaveProperty('redirect');
     if ('redirect' in result) {
       expect(result.redirect?.destination).toBe('/abs/canonical%26%2Fbib/abstract?foo=1');
-      expect(result.redirect?.statusCode).toBe(302);
+      expect((result.redirect as { statusCode?: number })?.statusCode).toBe(302);
     }
   });
 
@@ -119,7 +119,7 @@ describe('createAbsGetServerSideProps', () => {
     expect(result).toHaveProperty('redirect');
     if ('redirect' in result) {
       expect(result.redirect?.destination).toBe('/abs/BIBCODE/citations?p=2');
-      expect(result.redirect?.statusCode).toBe(302);
+      expect((result.redirect as { statusCode?: number })?.statusCode).toBe(302);
     }
   });
 
@@ -144,7 +144,7 @@ describe('createAbsGetServerSideProps', () => {
     if ('props' in result) {
       expect(result.props).toHaveProperty('initialDoc');
     }
-    expect((ctx.res as { setHeader: () => void } & Record<string, unknown>).setHeader).toHaveBeenCalledWith(
+    expect((ctx.res as unknown as { setHeader: ReturnType<typeof vi.fn> }).setHeader).toHaveBeenCalledWith(
       'Cache-Control',
       's-maxage=60, stale-while-revalidate=300',
     );
@@ -186,7 +186,7 @@ describe('createAbsGetServerSideProps', () => {
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({
-        response: { docs: [] },
+        response: { docs: [] as Array<{ bibcode: string }> },
       }),
     });
 
@@ -209,7 +209,7 @@ describe('createAbsGetServerSideProps', () => {
     fetchMock
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ response: { docs: [] } }),
+        json: async () => ({ response: { docs: [] as Array<{ bibcode: string }> } }),
       })
       .mockResolvedValueOnce({
         ok: true,
@@ -228,14 +228,14 @@ describe('createAbsGetServerSideProps', () => {
     expect(result).toHaveProperty('redirect');
     if ('redirect' in result) {
       expect(result.redirect?.destination).toBe('/abs/1999AN....320..163H/abstract');
-      expect(result.redirect?.statusCode).toBe(302);
+      expect((result.redirect as { statusCode?: number })?.statusCode).toBe(302);
     }
   });
 
   test('does not retry with # for non-DOI identifiers', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
-      json: async () => ({ response: { docs: [] } }),
+      json: async () => ({ response: { docs: [] as Array<{ bibcode: string }> } }),
     });
 
     const ctx = buildCtx({
@@ -267,10 +267,10 @@ describe('createAbsGetServerSideProps', () => {
     }
   });
 
-  test('confirmed empty result returns ssr:not-found', async () => {
+  test('confirmed empty result returns ssr:not-found and marks the response non-cacheable', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
-      json: async () => ({ response: { docs: [] } }),
+      json: async () => ({ response: { docs: [] as Array<{ bibcode: string }> } }),
     });
 
     const ctx = buildCtx({ id: '2024ApJ...123..456X', resolvedUrl: '/abs/2024ApJ...123..456X/abstract' });
@@ -280,9 +280,18 @@ describe('createAbsGetServerSideProps', () => {
     if ('props' in result) {
       expect(result.props).toMatchObject({ ssr: { outcome: 'not-found' } });
     }
+    // Negatives must override the wrapper's shared cache header (setHeader replaces).
+    expect((ctx.res as unknown as { setHeader: ReturnType<typeof vi.fn> }).setHeader).toHaveBeenCalledWith(
+      'Cache-Control',
+      'no-store',
+    );
+    expect((ctx.res as unknown as { setHeader: ReturnType<typeof vi.fn> }).setHeader).not.toHaveBeenCalledWith(
+      'Cache-Control',
+      expect.stringContaining('s-maxage'),
+    );
   });
 
-  test('non-retryable upstream 404 is classified as an error, not not-found', async () => {
+  test('non-retryable upstream 404 is classified as an error, not not-found, and is non-cacheable', async () => {
     fetchMock.mockResolvedValue({ ok: false, status: 404, statusText: 'Not Found', json: async () => ({}) });
 
     const ctx = buildCtx({ id: 'BIB', resolvedUrl: '/abs/BIB/abstract' });
@@ -292,6 +301,25 @@ describe('createAbsGetServerSideProps', () => {
     expect(result).toHaveProperty('props');
     if ('props' in result) {
       expect(result.props).toMatchObject({ ssr: { outcome: 'error', statusCode: 404 }, initialDoc: null });
+    }
+    expect((ctx.res as unknown as { setHeader: ReturnType<typeof vi.fn> }).setHeader).toHaveBeenCalledWith(
+      'Cache-Control',
+      'no-store',
+    );
+  });
+
+  test('retries a transient 503 during SSR and recovers to a found record', async () => {
+    fetchMock
+      .mockResolvedValueOnce({ ok: false, status: 503, statusText: 'Unavailable', json: async () => ({}) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ response: { docs: [{ bibcode: 'BIB' }] } }) });
+
+    const ctx = buildCtx({ id: 'BIB', resolvedUrl: '/abs/BIB/abstract' });
+    const result = await createAbsGetServerSideProps('abstract')(ctx);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result).toHaveProperty('props');
+    if ('props' in result) {
+      expect(result.props).toMatchObject({ ssr: { outcome: 'found' } });
     }
   });
 

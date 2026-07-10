@@ -29,10 +29,13 @@ const CitationsPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }) => 
     error: citationsError,
     isLoading,
     isFetching,
-  } = useGetCitations({
-    ...getParams(),
-    start: pageIndex * rows,
-  });
+  } = useGetCitations(
+    {
+      ...getParams(),
+      start: pageIndex * rows,
+    },
+    { enabled: !!doc?.bibcode },
+  );
 
   const hasError = citationsError;
   const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);

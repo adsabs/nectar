@@ -1,4 +1,6 @@
+import { useEffect, useRef } from 'react';
 import { path } from 'ramda';
+import * as Sentry from '@sentry/nextjs';
 
 import { useGetAbstract } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
@@ -48,6 +50,26 @@ export const useAbsRecordState = ({ ssr, queryId, initialDoc }: UseAbsRecordStat
     isFetching,
     isError,
   });
+
+  // SSR rendered a negative but the client resolved a real record — measures
+  // residual false negatives. Keyed by queryId (not a bool) so it re-fires across
+  // client-side navigation without a remount.
+  const recoveredQueryId = useRef<string | null>(null);
+  useEffect(() => {
+    if (isNegativeSSR && clientDoc && recoveredQueryId.current !== resolvedQueryId) {
+      recoveredQueryId.current = resolvedQueryId;
+      Sentry.captureMessage('abs_ssr_false_negative_recovered', {
+        level: 'warning',
+        contexts: {
+          absRecord: {
+            queryId: resolvedQueryId,
+            ssrOutcome: resolvedSSR.outcome,
+            bibcode: clientDoc.bibcode ?? null,
+          },
+        },
+      });
+    }
+  }, [isNegativeSSR, clientDoc, resolvedQueryId, resolvedSSR.outcome]);
 
   return { doc, state };
 };
