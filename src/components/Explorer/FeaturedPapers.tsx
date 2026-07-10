@@ -1,4 +1,4 @@
-import { Flex, Icon, Text, VStack } from '@chakra-ui/react';
+import { Button, Flex, Icon, Text, VStack } from '@chakra-ui/react';
 import { FireIcon, ClockIcon, ArrowTrendingUpIcon } from '@heroicons/react/20/solid';
 import { SimpleLink } from '../SimpleLink';
 import { IADSApiSearchParams } from '@/api/search/types';
@@ -33,8 +33,13 @@ export const FeaturedPapers = ({ query }: { query: IADSApiSearchParams }) => {
 
   return (
     <Flex width="full">
-      <Flex
+      <Button
+        as={SimpleLink}
+        href={topPaperHref}
+        newTab
+        variant="ghost"
         borderWidth={1}
+        borderRightRadius={0}
         borderRightWidth={0}
         flexGrow={1}
         borderLeftRadius="md"
@@ -48,23 +53,44 @@ export const FeaturedPapers = ({ query }: { query: IADSApiSearchParams }) => {
             <Text>Top Papers</Text>
           </VStack>
         </SimpleLink>
-      </Flex>
-      <Flex borderWidth={1} borderRightWidth={0} flexGrow={1} h="20" justifyContent="center" alignItems="center">
-        <SimpleLink href={mostRecentHref} newTab>
-          <VStack>
-            <Icon as={ClockIcon} width={6} height={6} />
-            <Text>Most Recent</Text>
-          </VStack>
-        </SimpleLink>
-      </Flex>
-      <Flex borderWidth={1} flexGrow={1} borderRightRadius="md" h="20" justifyContent="center" alignItems="center">
-        <SimpleLink href={trendingHref} newTab>
-          <VStack>
-            <Icon as={ArrowTrendingUpIcon} width={6} height={6} />
-            <Text>Trending</Text>
-          </VStack>
-        </SimpleLink>
-      </Flex>
+      </Button>
+      <Button
+        as={SimpleLink}
+        href={mostRecentHref}
+        newTab
+        variant="ghost"
+        borderWidth={1}
+        borderRightRadius={0}
+        borderRightWidth={0}
+        borderLeftRadius={0}
+        flexGrow={1}
+        h="20"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <VStack>
+          <Icon as={ClockIcon} width={6} height={6} />
+          <Text>Most Recent</Text>
+        </VStack>
+      </Button>
+      <Button
+        as={SimpleLink}
+        variant="ghost"
+        href={trendingHref}
+        newTab
+        borderWidth={1}
+        flexGrow={1}
+        borderRightRadius="md"
+        borderLeftRadius={0}
+        h="20"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <VStack>
+          <Icon as={ArrowTrendingUpIcon} width={6} height={6} />
+          <Text>Trending</Text>
+        </VStack>
+      </Button>
       {/* <Flex borderWidth={1} flexGrow={1} borderRightRadius="md" h="20" justifyContent="center" alignItems="center">
         <SimpleLink href="" newTab>
           <HStack>
