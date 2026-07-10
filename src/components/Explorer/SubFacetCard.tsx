@@ -1,5 +1,5 @@
 import { kFormatNumber } from '@/utils/common/formatters';
-import { ArrowForwardIcon } from '@chakra-ui/icons';
+import { ArrowForwardIcon, CheckCircleIcon } from '@chakra-ui/icons';
 import { Card, CardBody, Flex, Text } from '@chakra-ui/react';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { IExplorerFacet } from './types';
@@ -63,7 +63,11 @@ export const SubFacetCard = ({
               {kFormatNumber(recordCount)} records
             </Text>
           </Flex>
-          <ArrowForwardIcon boxSize={5} />
+          {selected ? (
+            <CheckCircleIcon boxSize={6} color={colors.highlightBackground} aria-hidden />
+          ) : (
+            <ArrowForwardIcon boxSize={5} aria-hidden />
+          )}
         </Flex>
       </CardBody>
     </Card>
