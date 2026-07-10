@@ -23,10 +23,13 @@ const SimilarPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }) => {
   const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
   const { rows } = getParams();
 
-  const { data, isSuccess, isLoading, isFetching, isError, error } = useGetSimilar({
-    ...getParams(),
-    start: pageIndex * rows,
-  });
+  const { data, isSuccess, isLoading, isFetching, isError, error } = useGetSimilar(
+    {
+      ...getParams(),
+      start: pageIndex * rows,
+    },
+    { enabled: !!doc?.bibcode },
+  );
 
   const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);
   const similarParams = getSimilarParams(doc?.bibcode, 0, rows);

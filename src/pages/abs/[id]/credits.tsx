@@ -29,10 +29,13 @@ const CreditsPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }) => {
     error: creditsError,
     isLoading,
     isFetching,
-  } = useGetCredits({
-    ...getParams(),
-    start: pageIndex * rows,
-  });
+  } = useGetCredits(
+    {
+      ...getParams(),
+      start: pageIndex * rows,
+    },
+    { enabled: !!doc?.bibcode },
+  );
 
   const hasError = creditsError;
   const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);

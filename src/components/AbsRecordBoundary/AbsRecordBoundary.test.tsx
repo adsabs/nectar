@@ -102,7 +102,7 @@ describe('AbsRecordBoundary + useAbsRecordState', () => {
     expect(screen.queryByTestId('record-not-found')).not.toBeInTheDocument();
   });
 
-  test('transient error then recover: skeleton first, then content', () => {
+  test('transient error then recover: skeleton first, then content, and reports the recovery', () => {
     setQuery({ data: undefined, isLoading: true, isFetching: true, isError: false });
     const { rerender } = render(<Harness ssr={{ outcome: 'error', statusCode: 503, reason: 'fetch-not-ok' }} />);
     expect(screen.getByTestId('abs-record-skeleton')).toBeInTheDocument();
@@ -111,6 +111,22 @@ describe('AbsRecordBoundary + useAbsRecordState', () => {
     rerender(<Harness ssr={{ outcome: 'error', statusCode: 503, reason: 'fetch-not-ok' }} />);
 
     expect(screen.getByTestId('content')).toHaveTextContent('2024ApJ...1..1X');
+    expect(captureMessage).toHaveBeenCalledWith(
+      'abs_ssr_false_negative_recovered',
+      expect.objectContaining({ level: 'warning' }),
+    );
+  });
+
+  test('reports recovery again after client-side navigation to a different record', () => {
+    setQuery({ data: { docs: [doc] }, isLoading: false, isFetching: false, isError: false });
+    const err = { outcome: 'error', statusCode: 503, reason: 'fetch-not-ok' } as const;
+    const { rerender } = render(<Harness ssr={err} queryId="BIB-A" />);
+    expect(captureMessage).toHaveBeenCalledTimes(1);
+
+    // Same sub-view, different record — the page does not remount; the recovery
+    // signal must still fire for the new queryId.
+    rerender(<Harness ssr={err} queryId="BIB-B" />);
+    expect(captureMessage).toHaveBeenCalledTimes(2);
   });
 
   test('missing ssr props degrade to an error state instead of crashing', () => {

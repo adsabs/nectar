@@ -29,10 +29,13 @@ const ReferencesPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }) =>
     isLoading,
     isFetching,
     error: referencesError,
-  } = useGetReferences({
-    ...getParams(),
-    start: pageIndex * rows,
-  });
+  } = useGetReferences(
+    {
+      ...getParams(),
+      start: pageIndex * rows,
+    },
+    { enabled: !!doc?.bibcode },
+  );
 
   const hasError = referencesError;
   const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);

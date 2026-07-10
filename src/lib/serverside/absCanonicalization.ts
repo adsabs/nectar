@@ -1,5 +1,6 @@
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import * as Sentry from '@sentry/nextjs';
 
 import { ApiTargets } from '@/api/models';
 import { searchKeys } from '@/api/search/search';
@@ -8,6 +9,7 @@ import { IADSApiSearchResponse, IDocsEntity } from '@/api/search/types';
 import { stringifySearchParams } from '@/utils/common/search';
 import { pickTracingHeaders } from '@/config';
 import { bootstrap } from './bootstrap';
+import { fetchWithRetry } from './fetchWithRetry';
 import { logger } from '@/logger';
 import { composeNextGSSP } from '@/ssr-utils';
 import { isAuthenticated } from '@/api/api';
@@ -17,6 +19,9 @@ import { AbsSSRResult } from '@/lib/abs/absRecordState';
 
 const log = logger.child({ module: 'abs-canonical' }, { msgPrefix: '[abs-canonical] ' });
 
+const SSR_FETCH_RETRIES = 2;
+const SSR_FETCH_BACKOFF_MS = 150;
+
 type AbsProps = {
   dehydratedState?: unknown;
   initialDoc?: IDocsEntity | null;
@@ -25,9 +30,20 @@ type AbsProps = {
   ssr: AbsSSRResult;
 };
 
+const addOutcomeBreadcrumb = (data: Record<string, unknown>) => {
+  Sentry.addBreadcrumb({ category: 'abs-ssr', level: 'info', message: 'abs-ssr-outcome', data });
+};
+
 const absErrorProps = (queryId: string, statusCode: number, reason: string): { props: AbsProps } => ({
   props: { initialDoc: null, queryId, ssr: { outcome: 'error', statusCode, reason } },
 });
+
+// composeNextGSSP sets a cache header on every response before we run; mark
+// negatives non-cacheable so a transient error/not-found isn't edge-cached and
+// served stale (setHeader replaces).
+const setNoStore = (ctx: GetServerSidePropsContext) => {
+  ctx.res.setHeader('Cache-Control', 'no-store');
+};
 
 type IncomingGSSPResult = GetServerSidePropsResult<AbsProps>;
 type IncomingGSSP = (
@@ -104,6 +120,8 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
         context: { bootstrapError: bootstrapResult.error, url: ctx.resolvedUrl },
         tags: { feature: 'abs-canonical', stage: 'bootstrap' },
       });
+      addOutcomeBreadcrumb({ requestedId, viewPath, outcome: 'error', stage: 'bootstrap', statusCode: 500 });
+      setNoStore(ctx);
       return absErrorProps(requestedId, 500, 'bootstrap-failed');
     }
 
@@ -127,7 +145,19 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
           : viewPath === 'references'
           ? PERF_SPANS.ABSTRACT_REFERENCES_LOAD
           : PERF_SPANS.ABSTRACT_LOAD_TOTAL;
-      const response = await trackUserFlow(spanName, () => fetch(url, requestInit));
+      const response = await trackUserFlow(spanName, () =>
+        fetchWithRetry(url, requestInit, {
+          retries: SSR_FETCH_RETRIES,
+          backoffMs: SSR_FETCH_BACKOFF_MS,
+          onAttempt: ({ attempt, status, error, willRetry }) =>
+            Sentry.addBreadcrumb({
+              category: 'abs-ssr',
+              level: willRetry ? 'warning' : 'info',
+              message: 'abs-ssr-fetch-attempt',
+              data: { requestedId, viewPath, attempt, status, willRetry, error: error ? String(error) : undefined },
+            }),
+        }),
+      );
 
       if (!response.ok) {
         // Upstream 4xx/5xx are errors, never not-found. Absence is a 200 with zero
@@ -144,6 +174,8 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
           },
           tags: { feature: 'abs-canonical', stage: 'fetch' },
         });
+        addOutcomeBreadcrumb({ requestedId, viewPath, outcome: 'error', stage: 'fetch', statusCode: response.status });
+        setNoStore(ctx);
         return absErrorProps(requestedId, response.status, 'fetch-not-ok');
       }
 
@@ -206,7 +238,10 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
       }
 
       if (!initialDoc) {
-        // Confirmed empty (200, zero docs). Seed the cache so the client agrees.
+        // Confirmed empty (200, zero docs). Seed the cache so the client agrees, but
+        // don't edge-cache a negative.
+        addOutcomeBreadcrumb({ requestedId, viewPath, outcome: 'not-found', statusCode: 200 });
+        setNoStore(ctx);
         return {
           props: {
             dehydratedState: dehydrate(queryClient),
@@ -220,6 +255,7 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
 
       // Only edge-cache confirmed found records.
       ctx.res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+      addOutcomeBreadcrumb({ requestedId, viewPath, outcome: 'found', statusCode: 200, bibcode: initialDoc.bibcode });
       return {
         props: {
           dehydratedState: dehydrate(queryClient),
@@ -235,6 +271,8 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
         context: { url: url.toString(), requestedId, viewPath },
         tags: { feature: 'abs-canonical', stage: 'fetch' },
       });
+      addOutcomeBreadcrumb({ requestedId, viewPath, outcome: 'error', stage: 'fetch-throw', statusCode: 500 });
+      setNoStore(ctx);
       return absErrorProps(requestedId, 500, 'fetch-threw');
     }
   };
@@ -250,6 +288,8 @@ export const createAbsGetServerSideProps = (viewPathResolver: ViewPathResolver) 
     if ('notFound' in result) {
       return { notFound: result.notFound };
     }
-    return result;
+    // composeNextGSSP widens props to Record<string, unknown>; here the shape is
+    // always AbsProps, so restore the concrete return type.
+    return result as IncomingGSSPResult;
   };
 };

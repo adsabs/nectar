@@ -29,10 +29,13 @@ const MentionsPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }) => {
     error: mentionsError,
     isLoading,
     isFetching,
-  } = useGetMentions({
-    ...getParams(),
-    start: pageIndex * rows,
-  });
+  } = useGetMentions(
+    {
+      ...getParams(),
+      start: pageIndex * rows,
+    },
+    { enabled: !!doc?.bibcode },
+  );
 
   const hasError = mentionsError;
   const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);
