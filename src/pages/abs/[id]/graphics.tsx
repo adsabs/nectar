@@ -2,26 +2,22 @@ import { useRouter } from 'next/router';
 import { NextPage } from 'next';
 import NextImage from 'next/image';
 
-import { path } from 'ramda';
-import { AbsLayout } from '@/components/Layout';
 import { Box, Center, Flex, Text } from '@chakra-ui/react';
 import { LoadingMessage } from '@/components/Feedbacks';
 import { SimpleLink } from '@/components/SimpleLink';
-import { useGetAbstract } from '@/api/search/search';
-import { IDocsEntity } from '@/api/search/types';
 import { useGetGraphics } from '@/api/graphics/graphics';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { feedbackItems } from '@/components/NavBar';
-import { RecordNotFound } from '@/components/RecordNotFound';
-import { ServiceUnavailable } from '@/components/ServiceUnavailable';
+import { AbsRecordBoundary } from '@/components/AbsRecordBoundary';
+import { AbsPageProps } from '@/lib/abs/absRecordState';
+import { useAbsRecordState } from '@/lib/abs/useAbsRecordState';
 
-const GraphicsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
+const GraphicsPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }) => {
   const router = useRouter();
   const id = router.query.id as string;
-  const { data } = useGetAbstract({ id });
-  const doc = path<IDocsEntity>(['docs', 0], data);
+  const { doc, state } = useAbsRecordState({ ssr, queryId, initialDoc });
 
   const {
     data: graphics,
@@ -37,12 +33,14 @@ const GraphicsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
   };
 
   return (
-    <AbsLayout doc={doc} titleDescription="Graphics from" label="Graphics">
-      {!doc && statusCode !== undefined && statusCode >= 500 ? (
-        <ServiceUnavailable recordId={id || 'N/A'} statusCode={statusCode} />
-      ) : !doc ? (
-        <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
-      ) : (
+    <AbsRecordBoundary
+      state={state}
+      recordId={id}
+      label="Graphics"
+      titleDescription="Graphics from"
+      onFeedback={handleMissingRecordFeedback}
+    >
+      {() => (
         <>
           {isError && (
             <Box mt={5} fontSize="xl">
@@ -106,7 +104,7 @@ const GraphicsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
           )}
         </>
       )}
-    </AbsLayout>
+    </AbsRecordBoundary>
   );
 };
 

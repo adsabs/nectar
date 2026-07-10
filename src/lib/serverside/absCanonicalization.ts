@@ -13,6 +13,7 @@ import { composeNextGSSP } from '@/ssr-utils';
 import { isAuthenticated } from '@/api/api';
 import { ErrorSeverity, ErrorSource, handleError } from '@/lib/errorHandler';
 import { trackUserFlow, PERF_SPANS } from '@/lib/performance';
+import { AbsSSRResult } from '@/lib/abs/absRecordState';
 
 const log = logger.child({ module: 'abs-canonical' }, { msgPrefix: '[abs-canonical] ' });
 
@@ -20,9 +21,13 @@ type AbsProps = {
   dehydratedState?: unknown;
   initialDoc?: IDocsEntity | null;
   isAuthenticated?: boolean;
-  pageError?: string;
-  statusCode?: number;
+  queryId: string;
+  ssr: AbsSSRResult;
 };
+
+const absErrorProps = (queryId: string, statusCode: number, reason: string): { props: AbsProps } => ({
+  props: { initialDoc: null, queryId, ssr: { outcome: 'error', statusCode, reason } },
+});
 
 type IncomingGSSPResult = GetServerSidePropsResult<AbsProps>;
 type IncomingGSSP = (
@@ -99,7 +104,7 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
         context: { bootstrapError: bootstrapResult.error, url: ctx.resolvedUrl },
         tags: { feature: 'abs-canonical', stage: 'bootstrap' },
       });
-      return { props: { pageError: bootstrapResult.error, initialDoc: null, statusCode: 500 } };
+      return absErrorProps(requestedId, 500, 'bootstrap-failed');
     }
 
     const params = getAbstractParams(requestedId);
@@ -110,22 +115,23 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
 
     try {
       const tracingHeaders = pickTracingHeaders(ctx.req.headers);
+      const requestInit: RequestInit = {
+        headers: {
+          Authorization: `Bearer ${bootstrapResult.token.access_token}`,
+          ...tracingHeaders,
+        },
+      };
       const spanName =
         viewPath === 'citations'
           ? PERF_SPANS.ABSTRACT_CITATIONS_LOAD
           : viewPath === 'references'
           ? PERF_SPANS.ABSTRACT_REFERENCES_LOAD
           : PERF_SPANS.ABSTRACT_LOAD_TOTAL;
-      const response = await trackUserFlow(spanName, () =>
-        fetch(url, {
-          headers: {
-            Authorization: `Bearer ${bootstrapResult.token.access_token}`,
-            ...tracingHeaders,
-          },
-        }),
-      );
+      const response = await trackUserFlow(spanName, () => fetch(url, requestInit));
 
       if (!response.ok) {
+        // Upstream 4xx/5xx are errors, never not-found. Absence is a 200 with zero
+        // docs (below).
         const error = new Error(`Abstract fetch failed with status ${response.status}`);
         handleError(error, {
           source: ErrorSource.SERVER,
@@ -138,18 +144,11 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
           },
           tags: { feature: 'abs-canonical', stage: 'fetch' },
         });
-        return {
-          props: {
-            pageError: 'Failed to load abstract data',
-            initialDoc: null,
-            statusCode: response.status,
-          },
-        };
+        return absErrorProps(requestedId, response.status, 'fetch-not-ok');
       }
 
       const data = (await response.json()) as IADSApiSearchResponse;
       queryClient.setQueryData(searchKeys.abstract(requestedId), data);
-      ctx.res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
 
       const initialDoc = data?.response?.docs?.[0] ?? null;
 
@@ -206,11 +205,28 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
         };
       }
 
+      if (!initialDoc) {
+        // Confirmed empty (200, zero docs). Seed the cache so the client agrees.
+        return {
+          props: {
+            dehydratedState: dehydrate(queryClient),
+            initialDoc: null,
+            isAuthenticated: isAuthenticated(bootstrapResult.token),
+            queryId: requestedId,
+            ssr: { outcome: 'not-found' },
+          },
+        };
+      }
+
+      // Only edge-cache confirmed found records.
+      ctx.res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
       return {
         props: {
           dehydratedState: dehydrate(queryClient),
           initialDoc,
           isAuthenticated: isAuthenticated(bootstrapResult.token),
+          queryId: requestedId,
+          ssr: { outcome: 'found' },
         },
       };
     } catch (error) {
@@ -219,13 +235,7 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
         context: { url: url.toString(), requestedId, viewPath },
         tags: { feature: 'abs-canonical', stage: 'fetch' },
       });
-      return {
-        props: {
-          pageError: 'Failed to load abstract data',
-          initialDoc: null,
-          statusCode: 500,
-        },
-      };
+      return absErrorProps(requestedId, 500, 'fetch-threw');
     }
   };
 };

@@ -2,7 +2,7 @@ import { Box, Heading, Stack, Text } from '@chakra-ui/react';
 
 import { MathJax } from 'better-react-mathjax';
 import Head from 'next/head';
-import { FC, useEffect } from 'react';
+import { FC, ReactNode, useEffect } from 'react';
 import { BRAND_NAME_FULL } from '@/config';
 import { Metatags } from '@/components/Metatags';
 import { AbstractSources } from '@/components/AbstractSources';
@@ -16,6 +16,7 @@ interface IAbsLayoutProps {
   doc?: IDocsEntity;
   titleDescription: string;
   label: string;
+  children?: ReactNode;
 }
 
 export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription, label }) => {

@@ -1,25 +1,24 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { getMentionsParams } from '@/api/search/models';
-import { useGetAbstract, useGetMentions } from '@/api/search/search';
+import { useGetMentions } from '@/api/search/search';
 import { AbstractRefList } from '@/components/AbstractRefList';
 import { EmptyStatePanel, StandardAlertMessage } from '@/components/Feedbacks';
-import { AbsLayout } from '@/components/Layout';
 import { ItemsSkeleton } from '@/components/ResultList';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { feedbackItems } from '@/components/NavBar';
-import { RecordNotFound } from '@/components/RecordNotFound';
-import { ServiceUnavailable } from '@/components/ServiceUnavailable';
+import { AbsRecordBoundary } from '@/components/AbsRecordBoundary';
+import { AbsPageProps } from '@/lib/abs/absRecordState';
+import { useAbsRecordState } from '@/lib/abs/useAbsRecordState';
 
-const MentionsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
+const MentionsPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }) => {
   const router = useRouter();
   const id = router.query.id as string;
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
 
-  const { data: abstractDoc, error: abstractError } = useGetAbstract({ id });
-  const doc = abstractDoc?.docs?.[0];
+  const { doc, state } = useAbsRecordState({ ssr, queryId, initialDoc });
 
   const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
   const { rows } = getParams();
@@ -35,7 +34,7 @@ const MentionsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
     start: pageIndex * rows,
   });
 
-  const hasError = abstractError || mentionsError;
+  const hasError = mentionsError;
   const isEmpty = isSuccess && !isFetching && (!data?.docs || data.docs.length === 0);
   const mentionsParams = getMentionsParams(doc?.bibcode, 0, rows);
 
@@ -46,12 +45,14 @@ const MentionsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
   };
 
   return (
-    <AbsLayout doc={doc} titleDescription="Papers mentioned by" label="Mentions">
-      {!doc && statusCode !== undefined && statusCode >= 500 ? (
-        <ServiceUnavailable recordId={id || 'N/A'} statusCode={statusCode} />
-      ) : !doc ? (
-        <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
-      ) : (
+    <AbsRecordBoundary
+      state={state}
+      recordId={id}
+      label="Mentions"
+      titleDescription="Papers mentioned by"
+      onFeedback={handleMissingRecordFeedback}
+    >
+      {(doc) => (
         <>
           {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
           {hasError && <StandardAlertMessage title={parseAPIError(hasError)} />}
@@ -78,7 +79,7 @@ const MentionsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
           )}
         </>
       )}
-    </AbsLayout>
+    </AbsRecordBoundary>
   );
 };
 
