@@ -1,25 +1,24 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { getSimilarParams } from '@/api/search/models';
-import { useGetAbstract, useGetSimilar } from '@/api/search/search';
+import { useGetSimilar } from '@/api/search/search';
 import { AbstractRefList } from '@/components/AbstractRefList';
 import { EmptyStatePanel, StandardAlertMessage } from '@/components/Feedbacks';
-import { AbsLayout } from '@/components/Layout';
 import { ItemsSkeleton } from '@/components/ResultList';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { feedbackItems } from '@/components/NavBar';
-import { RecordNotFound } from '@/components/RecordNotFound';
-import { ServiceUnavailable } from '@/components/ServiceUnavailable';
+import { AbsRecordBoundary } from '@/components/AbsRecordBoundary';
+import { AbsPageProps } from '@/lib/abs/absRecordState';
+import { useAbsRecordState } from '@/lib/abs/useAbsRecordState';
 
-const SimilarPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
+const SimilarPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }) => {
   const router = useRouter();
   const id = router.query.id as string;
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
 
-  const { data: abstractDoc } = useGetAbstract({ id });
-  const doc = abstractDoc?.docs?.[0];
+  const { doc, state } = useAbsRecordState({ ssr, queryId, initialDoc });
 
   const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
   const { rows } = getParams();
@@ -39,12 +38,14 @@ const SimilarPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
   };
 
   return (
-    <AbsLayout doc={doc} titleDescription="Papers similar to" label="Similar Papers">
-      {!doc && statusCode !== undefined && statusCode >= 500 ? (
-        <ServiceUnavailable recordId={id || 'N/A'} statusCode={statusCode} />
-      ) : !doc ? (
-        <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
-      ) : (
+    <AbsRecordBoundary
+      state={state}
+      recordId={id}
+      label="Similar Papers"
+      titleDescription="Papers similar to"
+      onFeedback={handleMissingRecordFeedback}
+    >
+      {(doc) => (
         <>
           {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
           {isError && <StandardAlertMessage title={parseAPIError(error)} />}
@@ -71,7 +72,7 @@ const SimilarPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
           )}
         </>
       )}
-    </AbsLayout>
+    </AbsRecordBoundary>
   );
 };
 

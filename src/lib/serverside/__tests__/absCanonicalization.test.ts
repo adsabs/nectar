@@ -250,4 +250,60 @@ describe('createAbsGetServerSideProps', () => {
     expect(result).not.toHaveProperty('redirect');
     expect(result).toHaveProperty('props');
   });
+
+  test('found outcome carries ssr:found and the queryId used for the cache', async () => {
+    const bibcode = 'CANONICAL';
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ response: { docs: [{ bibcode }] } }),
+    });
+
+    const ctx = buildCtx({ id: bibcode, resolvedUrl: `/abs/${bibcode}/abstract` });
+    const result = await createAbsGetServerSideProps('abstract')(ctx);
+
+    expect(result).toHaveProperty('props');
+    if ('props' in result) {
+      expect(result.props).toMatchObject({ ssr: { outcome: 'found' }, queryId: bibcode });
+    }
+  });
+
+  test('confirmed empty result returns ssr:not-found', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ response: { docs: [] } }),
+    });
+
+    const ctx = buildCtx({ id: '2024ApJ...123..456X', resolvedUrl: '/abs/2024ApJ...123..456X/abstract' });
+    const result = await createAbsGetServerSideProps('abstract')(ctx);
+
+    expect(result).toHaveProperty('props');
+    if ('props' in result) {
+      expect(result.props).toMatchObject({ ssr: { outcome: 'not-found' } });
+    }
+  });
+
+  test('non-retryable upstream 404 is classified as an error, not not-found', async () => {
+    fetchMock.mockResolvedValue({ ok: false, status: 404, statusText: 'Not Found', json: async () => ({}) });
+
+    const ctx = buildCtx({ id: 'BIB', resolvedUrl: '/abs/BIB/abstract' });
+    const result = await createAbsGetServerSideProps('abstract')(ctx);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result).toHaveProperty('props');
+    if ('props' in result) {
+      expect(result.props).toMatchObject({ ssr: { outcome: 'error', statusCode: 404 }, initialDoc: null });
+    }
+  });
+
+  test('a thrown fetch is classified as a 500 error', async () => {
+    fetchMock.mockRejectedValue(new Error('boom'));
+
+    const ctx = buildCtx({ id: 'BIB', resolvedUrl: '/abs/BIB/abstract' });
+    const result = await createAbsGetServerSideProps('abstract')(ctx);
+
+    expect(result).toHaveProperty('props');
+    if ('props' in result) {
+      expect(result.props).toMatchObject({ ssr: { outcome: 'error', statusCode: 500 } });
+    }
+  });
 });

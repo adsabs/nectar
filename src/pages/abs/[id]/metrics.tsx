@@ -1,24 +1,20 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { path } from 'ramda';
 import { BasicStatsKey, CitationsStatsKey, MetricsResponseKey } from '@/api/lib/metrics/types';
-import { AbsLayout } from '@/components/Layout';
 import { Box } from '@chakra-ui/react';
 import { LoadingMessage } from '@/components/Feedbacks';
 import { MetricsPane } from '@/components/Visualizations';
-import { useGetAbstract } from '@/api/search/search';
-import { IDocsEntity } from '@/api/search/types';
 import { useGetMetrics } from '@/api/metrics/metrics';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { feedbackItems } from '@/components/NavBar';
-import { RecordNotFound } from '@/components/RecordNotFound';
-import { ServiceUnavailable } from '@/components/ServiceUnavailable';
+import { AbsRecordBoundary } from '@/components/AbsRecordBoundary';
+import { AbsPageProps } from '@/lib/abs/absRecordState';
+import { useAbsRecordState } from '@/lib/abs/useAbsRecordState';
 
-const MetricsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
+const MetricsPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }) => {
   const router = useRouter();
   const id = router.query.id as string;
-  const { data } = useGetAbstract({ id });
-  const doc = path<IDocsEntity>(['docs', 0], data);
+  const { doc, state } = useAbsRecordState({ ssr, queryId, initialDoc });
 
   const {
     data: metrics,
@@ -37,12 +33,14 @@ const MetricsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
   };
 
   return (
-    <AbsLayout doc={doc} titleDescription="Metrics for" label="Metrics">
-      {!doc && statusCode !== undefined && statusCode >= 500 ? (
-        <ServiceUnavailable recordId={id || 'N/A'} statusCode={statusCode} />
-      ) : !doc ? (
-        <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
-      ) : (
+    <AbsRecordBoundary
+      state={state}
+      recordId={id}
+      label="Metrics"
+      titleDescription="Metrics for"
+      onFeedback={handleMissingRecordFeedback}
+    >
+      {() => (
         <>
           {isError && (
             <Box mt={5} fontSize="xl">
@@ -60,7 +58,7 @@ const MetricsPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
           )}
         </>
       )}
-    </AbsLayout>
+    </AbsRecordBoundary>
   );
 };
 

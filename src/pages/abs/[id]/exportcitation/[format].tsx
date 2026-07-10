@@ -1,30 +1,26 @@
 import { Box } from '@chakra-ui/react';
 
-import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { NextPage } from 'next';
-import { path } from 'ramda';
 import { useRouter } from 'next/router';
 import { useSettings } from '@/lib/useSettings';
 import { CitationExporter } from '@/components/CitationExporter';
 import { JournalFormatMap } from '@/components/Settings';
 import { ExportApiFormatKey } from '@/api/export/types';
-import { useGetAbstract } from '@/api/search/search';
-import { IDocsEntity } from '@/api/search/types';
 import { useExportFormats } from '@/lib/useExportFormats';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { feedbackItems } from '@/components/NavBar';
-import { RecordNotFound } from '@/components/RecordNotFound';
+import { AbsRecordBoundary } from '@/components/AbsRecordBoundary';
+import { AbsPageProps } from '@/lib/abs/absRecordState';
+import { useAbsRecordState } from '@/lib/abs/useAbsRecordState';
 
-const ExportCitationPage: NextPage = () => {
+const ExportCitationPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }) => {
   const router = useRouter();
 
   const { isValidFormat } = useExportFormats();
 
   const id = router.query.id as string;
 
-  const { data } = useGetAbstract({ id });
-
-  const doc = path<IDocsEntity>(['docs', 0], data);
+  const { state } = useAbsRecordState({ ssr, queryId, initialDoc });
 
   // get export related user settings
   const { settings } = useSettings({
@@ -58,10 +54,14 @@ const ExportCitationPage: NextPage = () => {
   };
 
   return (
-    <AbsLayout doc={doc} titleDescription="Export citation for" label="Export Citations">
-      {!doc ? (
-        <RecordNotFound recordId={id || 'N/A'} onFeedback={handleMissingRecordFeedback} />
-      ) : (
+    <AbsRecordBoundary
+      state={state}
+      recordId={id}
+      label="Export Citations"
+      titleDescription="Export citation for"
+      onFeedback={handleMissingRecordFeedback}
+    >
+      {(doc) => (
         <Box pt="1">
           <CitationExporter
             initialFormat={format}
@@ -74,7 +74,7 @@ const ExportCitationPage: NextPage = () => {
           />
         </Box>
       )}
-    </AbsLayout>
+    </AbsRecordBoundary>
   );
 };
 

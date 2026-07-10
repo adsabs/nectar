@@ -5,16 +5,14 @@ import dynamic from 'next/dynamic';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { isNil, path } from 'ramda';
+import { isNil } from 'ramda';
 import { useShepherd } from 'react-shepherd';
 import { SafeAbstract } from '@/components/SafeAbstract';
 
 import { IAllAuthorsModalProps } from '@/components/AllAuthorsModal';
 import { useGetAuthors } from '@/components/AllAuthorsModal/useGetAuthors';
 import { OrcidActiveIcon } from '@/components/icons/Orcid';
-import { AbsLayout } from '@/components/Layout/AbsLayout';
-import { RecordNotFound } from '@/components/RecordNotFound';
-import { ServiceUnavailable } from '@/components/ServiceUnavailable';
+import { AbsRecordBoundary } from '@/components/AbsRecordBoundary';
 import { feedbackItems, getAbstractSteps } from '@/components/NavBar';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { AbstractSources } from '@/components/AbstractSources';
@@ -25,8 +23,9 @@ import { useTrackAbstractView } from '@/lib/useTrackAbstractView';
 import { useScreenSize } from '@/lib/useScreenSize';
 import { LocalSettings } from '@/types';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
-import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
-import { useGetAbstract } from '@/api/search/search';
+import { IADSApiSearchParams } from '@/api/search/types';
+import { AbsPageProps } from '@/lib/abs/absRecordState';
+import { useAbsRecordState } from '@/lib/abs/useAbsRecordState';
 import { useStore } from '@/store/store';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
@@ -54,23 +53,11 @@ const safeDecode = (value?: string) => {
   }
 };
 
-interface AbstractPageProps {
-  initialDoc?: IDocsEntity | null;
-  isAuthenticated?: boolean;
-  statusCode?: number;
-}
-
-const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated, statusCode }) => {
+const AbstractPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc, isAuthenticated }) => {
   const router = useRouter();
-  const { data } = useGetAbstract({ id: router.query.id as string });
-  const doc = path<IDocsEntity>(['docs', 0], data) ?? initialDoc ?? undefined;
+  const { doc, state } = useAbsRecordState({ ssr, queryId, initialDoc });
   useTrackAbstractView(doc);
 
-  const metadata: IAbstractMetadata = {
-    refereed: !!doc?.property?.includes('REFEREED'),
-    doctype: doc?.doctype && doc.doctype !== 'erratum' ? doc.doctype : undefined,
-    erratum: doc?.doctype === 'erratum',
-  };
   const identifier = safeDecode(router.query.id as string);
 
   const authors = useGetAuthors({ doc, includeAff: false });
@@ -87,111 +74,121 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
   };
 
   return (
-    <AbsLayout doc={doc} titleDescription={''} label="Abstract">
-      <Box as="article" aria-labelledby="title">
-        {!doc && statusCode !== undefined && statusCode >= 500 ? (
-          <ServiceUnavailable recordId={identifier || 'N/A'} statusCode={statusCode} />
-        ) : !doc ? (
-          <RecordNotFound recordId={identifier || 'N/A'} onFeedback={handleFeedback} />
-        ) : (
-          <Stack direction="column" gap={2}>
-            <a className="skip-link" href="#abstract-section">
-              Skip authors list
-            </a>
-            <Flex wrap="wrap" as="section" aria-labelledby="author-list" data-tour="authors-list">
-              <VisuallyHidden as="h3" id="author-list">
-                Authors
-              </VisuallyHidden>
-              {authors.map(([, author, orcid], index) => {
-                const showOrcid = typeof orcid === 'string' && orcid.length > 0;
-                const isTerminalAuthor = index === MAX - 1 || index === doc.author_count - 1;
-                return (
-                  <Flex key={`${author}-${index}`} mr={1} align="center">
-                    <Tooltip label="View all records by this author" shouldWrapChildren>
-                      <SearchQueryLink
-                        params={createQuery('author', author)}
-                        px={1}
-                        aria-label={`author "${author}", search by name`}
-                        flexShrink="0"
-                      >
-                        {author}
-                      </SearchQueryLink>
-                    </Tooltip>
-                    {showOrcid ? (
-                      <Box as="span" display="inline-flex" justifyContent="center" mx={1}>
-                        <Tooltip label="Search by ORCiD" shouldWrapChildren>
+    <AbsRecordBoundary
+      state={state}
+      recordId={identifier}
+      label="Abstract"
+      titleDescription={''}
+      onFeedback={handleFeedback}
+    >
+      {(doc) => {
+        const metadata: IAbstractMetadata = {
+          refereed: !!doc.property?.includes('REFEREED'),
+          doctype: doc.doctype && doc.doctype !== 'erratum' ? doc.doctype : undefined,
+          erratum: doc.doctype === 'erratum',
+        };
+        return (
+          <>
+            <Box as="article" aria-labelledby="title">
+              <Stack direction="column" gap={2}>
+                <a className="skip-link" href="#abstract-section">
+                  Skip authors list
+                </a>
+                <Flex wrap="wrap" as="section" aria-labelledby="author-list" data-tour="authors-list">
+                  <VisuallyHidden as="h3" id="author-list">
+                    Authors
+                  </VisuallyHidden>
+                  {authors.map(([, author, orcid], index) => {
+                    const showOrcid = typeof orcid === 'string' && orcid.length > 0;
+                    const isTerminalAuthor = index === MAX - 1 || index === doc.author_count - 1;
+                    return (
+                      <Flex key={`${author}-${index}`} mr={1} align="center">
+                        <Tooltip label="View all records by this author" shouldWrapChildren>
+
                           <SearchQueryLink
-                            params={createQuery('orcid', orcid)}
-                            aria-label={`author "${author}", search by orKid`}
+                            params={createQuery('author', author)}
+                            px={1}
+                            aria-label={`author "${author}", search by name`}
+                            flexShrink="0"
                           >
-                            <OrcidActiveIcon fontSize={'large'} />
+                            {author}
                           </SearchQueryLink>
                         </Tooltip>
-                      </Box>
-                    ) : null}
-                    {isTerminalAuthor ? null : (
-                      <Text as="span" ml={showOrcid ? 1 : 0} mr={1}>
-                        ;
-                      </Text>
-                    )}
-                  </Flex>
-                );
-              })}
-              {doc.author_count > MAX ? (
-                <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
-              ) : (
-                <>
-                  {doc.author_count > 0 && (
-                    <Tooltip label="List all authors and affiliations" shouldWrapChildren>
-                      <AllAuthorsModal bibcode={doc.bibcode} label={'show details'} />
-                    </Tooltip>
+                        {showOrcid ? (
+                          <Box as="span" display="inline-flex" justifyContent="center" mx={1}>
+                            <Tooltip label="Search by ORCiD" shouldWrapChildren>
+                              <SearchQueryLink
+                                params={createQuery('orcid', orcid)}
+                                aria-label={`author "${author}", search by orKid`}
+                              >
+                                <OrcidActiveIcon fontSize={'large'} />
+                              </SearchQueryLink>
+                            </Tooltip>
+                          </Box>
+                        ) : null}
+                        {isTerminalAuthor ? null : (
+                          <Text as="span" ml={showOrcid ? 1 : 0} mr={1}>
+                            ;
+                          </Text>
+                        )}
+                      </Flex>
+                    );
+                  })}
+                  {doc.author_count > MAX ? (
+                    <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
+                  ) : (
+                    <>
+                      {doc.author_count > 0 && (
+                        <Tooltip label="List all authors and affiliations" shouldWrapChildren>
+                          <AllAuthorsModal bibcode={doc.bibcode} label={'show details'} />
+                        </Tooltip>
+                      )}
+                    </>
                   )}
-                </>
-              )}
-            </Flex>
+                </Flex>
 
-            <Stack direction="column" id="abstract-section" gap={2}>
-              <AbstractMetadata {...metadata} />
+                <Stack direction="column" id="abstract-section" gap={2}>
+                  <AbstractMetadata {...metadata} />
 
-              <Flex justifyContent="space-between">
-                <Box display={{ base: 'block', lg: 'none' }}>
-                  <AbstractSources doc={doc} style="menu" />
-                </Box>
-                {isAuthenticated ? (
-                  <Flex minH={8} align="center" justify="center">
-                    <Tooltip label="add to library">
-                      <IconButton
-                        aria-label="Add to library"
-                        icon={<FolderPlusIcon width={40} height={40} />}
-                        variant="ghost"
-                        onClick={onOpenAddToLibrary}
-                        data-tour="add-to-library"
-                      />
-                    </Tooltip>
+                  <Flex justifyContent="space-between">
+                    <Box display={{ base: 'block', lg: 'none' }}>
+                      <AbstractSources doc={doc} style="menu" />
+                    </Box>
+                    {isAuthenticated ? (
+                      <Flex minH={8} align="center" justify="center">
+                        <Tooltip label="add to library">
+                          <IconButton
+                            aria-label="Add to library"
+                            icon={<FolderPlusIcon width={40} height={40} />}
+                            variant="ghost"
+                            onClick={onOpenAddToLibrary}
+                            data-tour="add-to-library"
+                          />
+                        </Tooltip>
+                      </Flex>
+                    ) : null}
                   </Flex>
-                ) : null}
-              </Flex>
 
-              <Box as="section" pb="2" aria-labelledby="abstract">
-                <VisuallyHidden as="h3" id="abstract">
-                  Abstract
-                </VisuallyHidden>
-                {isNil(doc?.abstract) ? <Text>No Abstract</Text> : <SafeAbstract html={doc.abstract} />}
-              </Box>
-              <AbstractDetails doc={doc} />
-              <Flex justifyContent="end">
-                <Button variant="link" size="sm" onClick={handleFeedback}>
-                  <EditIcon mr={2} /> Make Corrections
-                </Button>
-              </Flex>
-            </Stack>
-          </Stack>
-        )}
-      </Box>
-      {doc ? (
-        <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} bibcodes={[doc.bibcode]} />
-      ) : null}
-    </AbsLayout>
+                  <Box as="section" pb="2" aria-labelledby="abstract">
+                    <VisuallyHidden as="h3" id="abstract">
+                      Abstract
+                    </VisuallyHidden>
+                    {isNil(doc.abstract) ? <Text>No Abstract</Text> : <SafeAbstract html={doc.abstract} />}
+                  </Box>
+                  <AbstractDetails doc={doc} />
+                  <Flex justifyContent="end">
+                    <Button variant="link" size="sm" onClick={handleFeedback}>
+                      <EditIcon mr={2} /> Make Corrections
+                    </Button>
+                  </Flex>
+                </Stack>
+              </Stack>
+            </Box>
+            <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} bibcodes={[doc.bibcode]} />
+          </>
+        );
+      }}
+    </AbsRecordBoundary>
   );
 };
 
