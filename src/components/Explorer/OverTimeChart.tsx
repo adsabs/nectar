@@ -50,19 +50,19 @@ const highlightDoctypes = [
 ];
 
 const doctypeLegends = [
-  { doctype: 'Journal Article', color: '#1f77b4' },
-  { doctype: 'Abstract', color: '#7f7f7f' },
-  { doctype: 'e-print', color: '#ff7f0e' },
-  { doctype: 'Conference Paper', color: '#2ca02c' },
-  { doctype: 'Preprint', color: '#d62728' },
-  { doctype: 'Dataset', color: '#9467bd' },
-  { doctype: 'Book Chapter', color: '#8c564b' },
-  { doctype: 'Others', color: '#e377c2' },
+  { name: 'Journal Article', color: '#1f77b4' },
+  { name: 'Abstract', color: '#7f7f7f' },
+  { name: 'e-print', color: '#ff7f0e' },
+  { name: 'Conference Paper', color: '#2ca02c' },
+  { name: 'Preprint', color: '#d62728' },
+  { name: 'Dataset', color: '#9467bd' },
+  { name: 'Book Chapter', color: '#8c564b' },
+  { name: 'Others', color: '#e377c2' },
 ];
 
 const refereedLegends = [
-  { doctype: 'refereed', color: '#1f77b4' },
-  { doctype: 'notrefereed', color: '#ff7f0e' },
+  { name: 'refereed', color: '#1f77b4' },
+  { name: 'notrefereed', color: '#ff7f0e' },
 ];
 
 export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; query: IADSApiSearchParams }) => {
@@ -93,9 +93,18 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
         );
       });
 
+      // fill any missing data
+      temp.forEach((yearData) => {
+        doctypeLegends.forEach((legend) => {
+          if (!yearData[legend.name]) {
+            yearData[legend.name] = 0;
+          }
+        });
+      });
+
       return sortBy(prop('year'), temp);
     } else if (data && data.count > 0 && type === 'refereed') {
-      const temp = data.year.buckets.map((yearBucket) => {
+      const temp: Record<string, string | number>[] = data.year.buckets.map((yearBucket) => {
         return yearBucket.property.buckets.reduce(
           (acc, refereedBucket) => {
             const property = parseTitleFromKey(refereedBucket.val as string);
@@ -106,9 +115,18 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
         );
       });
 
+      // fill any missing data
+      temp.forEach((yearData) => {
+        refereedLegends.forEach((legend) => {
+          if (!yearData[legend.name]) {
+            yearData[legend.name] = 0;
+          }
+        });
+      });
+
       return sortBy(prop('year'), temp);
     }
-  }, [data]);
+  }, [data, type]);
 
   const handleClick = (state: MouseHandlerDataParam) => {
     if (typeof window !== 'undefined' && state.activeLabel) {
@@ -160,17 +178,10 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
         <XAxis dataKey="year" domain={['auto', 'auto']} scale="time" type="number" />
         {type === 'doctype'
           ? doctypeLegends.map((dt, i) => (
-              <Area
-                key={`area-${i}`}
-                dataKey={dt.doctype}
-                fill={dt.color}
-                stackId="1"
-                stroke={dt.color}
-                type="monotone"
-              />
+              <Area key={`area-${i}`} dataKey={dt.name} fill={dt.color} stackId="1" stroke={dt.color} type="monotone" />
             ))
           : refereedLegends.map((r, i) => (
-              <Area key={`area-${i}`} dataKey={r.doctype} fill={r.color} stackId="1" stroke={r.color} type="monotone" />
+              <Area key={`area-${i}`} dataKey={r.name} fill={r.color} stackId="1" stroke={r.color} type="monotone" />
             ))}
         <Tooltip />
         <Legend />
