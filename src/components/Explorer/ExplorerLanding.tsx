@@ -10,6 +10,7 @@ import { ViewCollectionModal } from './ViewCollectionModal';
 import { IExplorerCollection } from './types';
 import { useRouter } from 'next/router';
 import { allRecordsQuery, searchFacetDefaultParams } from './helpers';
+import { CompassIcon } from '../icons/browser/CompassIcon';
 
 export const ExplorerLanding = () => {
   const router = useRouter();
@@ -107,7 +108,12 @@ export const ExplorerLanding = () => {
 
   return (
     <>
-      <Heading as="h2">Browse by...</Heading>
+      <Heading as="h2" my={8}>
+        <Flex alignItems="center" gap={2}>
+          <CompassIcon width={48} height={48} />
+          Start Exploring with SciX
+        </Flex>
+      </Heading>
       <Flex direction="column" mt={4} gap={12} w="full">
         <Box as="section" w="full">
           <Heading as="h3" size="md" mb={2}>
