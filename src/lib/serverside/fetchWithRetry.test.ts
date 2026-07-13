@@ -1,21 +1,19 @@
 import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from 'vitest';
 
 import { fetchWithRetry, isRetryableStatus } from './fetchWithRetry';
-import { server } from '@/mocks/server';
 
 const fetchMock = vi.fn();
-vi.stubGlobal('fetch', fetchMock as unknown as typeof fetch);
 
 const res = (status: number): Response => ({ ok: status >= 200 && status < 300, status } as Response);
 
 beforeAll(() => {
-  // disable msw for this suite; we stub fetch manually
-  server.close();
+  // stub fetch for this suite; MSW is left intact and the real fetch is
+  // restored in afterAll so the mock can't leak into other suites.
+  vi.stubGlobal('fetch', fetchMock as unknown as typeof fetch);
 });
 
 afterAll(() => {
-  // restart msw for other suites
-  server.listen({ onUnhandledRequest: 'error' });
+  vi.unstubAllGlobals();
 });
 
 afterEach(() => {
