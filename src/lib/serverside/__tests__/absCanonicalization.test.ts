@@ -300,7 +300,11 @@ describe('createAbsGetServerSideProps', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(result).toHaveProperty('props');
     if ('props' in result) {
-      expect(result.props).toMatchObject({ ssr: { outcome: 'error', statusCode: 404 }, initialDoc: null });
+      expect(result.props).toMatchObject({
+        ssr: { outcome: 'error', statusCode: 404 },
+        initialDoc: null,
+        isAuthenticated: true,
+      });
     }
     expect((ctx.res as unknown as { setHeader: ReturnType<typeof vi.fn> }).setHeader).toHaveBeenCalledWith(
       'Cache-Control',
@@ -331,7 +335,7 @@ describe('createAbsGetServerSideProps', () => {
 
     expect(result).toHaveProperty('props');
     if ('props' in result) {
-      expect(result.props).toMatchObject({ ssr: { outcome: 'error', statusCode: 500 } });
+      expect(result.props).toMatchObject({ ssr: { outcome: 'error', statusCode: 500 }, isAuthenticated: true });
     }
   });
 });
