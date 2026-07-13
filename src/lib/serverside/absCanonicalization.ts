@@ -34,8 +34,13 @@ const addOutcomeBreadcrumb = (data: Record<string, unknown>) => {
   Sentry.addBreadcrumb({ category: 'abs-ssr', level: 'info', message: 'abs-ssr-outcome', data });
 };
 
-const absErrorProps = (queryId: string, statusCode: number, reason: string): { props: AbsProps } => ({
-  props: { initialDoc: null, queryId, ssr: { outcome: 'error', statusCode, reason } },
+const absErrorProps = (
+  queryId: string,
+  statusCode: number,
+  reason: string,
+  isAuthenticated?: boolean,
+): { props: AbsProps } => ({
+  props: { initialDoc: null, isAuthenticated, queryId, ssr: { outcome: 'error', statusCode, reason } },
 });
 
 // composeNextGSSP sets a cache header on every response before we run; mark
@@ -176,7 +181,7 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
         });
         addOutcomeBreadcrumb({ requestedId, viewPath, outcome: 'error', stage: 'fetch', statusCode: response.status });
         setNoStore(ctx);
-        return absErrorProps(requestedId, response.status, 'fetch-not-ok');
+        return absErrorProps(requestedId, response.status, 'fetch-not-ok', isAuthenticated(bootstrapResult.token));
       }
 
       const data = (await response.json()) as IADSApiSearchResponse;
@@ -273,7 +278,7 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
       });
       addOutcomeBreadcrumb({ requestedId, viewPath, outcome: 'error', stage: 'fetch-throw', statusCode: 500 });
       setNoStore(ctx);
-      return absErrorProps(requestedId, 500, 'fetch-threw');
+      return absErrorProps(requestedId, 500, 'fetch-threw', isAuthenticated(bootstrapResult.token));
     }
   };
 };
