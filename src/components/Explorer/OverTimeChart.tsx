@@ -183,7 +183,7 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
           : refereedLegends.map((r, i) => (
               <Area key={`area-${i}`} dataKey={r.name} fill={r.color} stackId="1" stroke={r.color} type="monotone" />
             ))}
-        <Tooltip />
+        <Tooltip wrapperStyle={{ zIndex: 100 }} />
         <Legend />
       </AreaChart>
     </ResponsiveContainer>
