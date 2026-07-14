@@ -5,6 +5,9 @@ const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX ?? '1500', 10);
 const RATE_LIMIT_TTL = parseInt(process.env.RATE_LIMIT_TTL ?? '60000', 10); // 1 minute
 const RATE_LIMIT_COUNT = parseInt(process.env.RATE_LIMIT_COUNT ?? '100', 10); // Max requests allowed within the TTL
 
+// Retry-After hint (seconds) for a tripped limiter — the TTL window rounded up.
+export const RATE_LIMIT_RETRY_AFTER_SECONDS = Math.max(1, Math.ceil(RATE_LIMIT_TTL / 1000));
+
 // LRU cache to store request count per IP
 const rateLimitCache = new LRUCache<string, { count: number; lastRequest: number }>({
   max: RATE_LIMIT_MAX,

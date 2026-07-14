@@ -29,6 +29,7 @@ vi.mock('@/middlewares/legacySearchURLMiddleware', () => {
 
 vi.mock('@/rateLimit', () => ({
   rateLimit: vi.fn().mockReturnValue(true),
+  RATE_LIMIT_RETRY_AFTER_SECONDS: 60,
 }));
 
 describe('middleware route integration', () => {
@@ -317,11 +318,54 @@ describe('middleware route integration', () => {
     expect(requests[0]).toBe('https://base.example.com/link_gateway/789/abstract');
   });
 
-  test('honors rate limiting and short-circuits', async () => {
+  test('honors rate limiting with a JSON 429 for XHRs', async () => {
     rateLimitMock.mockReturnValue(false);
-    const req = makeReq('https://example.com/search');
+    const req = makeReq('https://example.com/search', { headers: { accept: 'application/json' } });
     const res = (await middleware(req)) as NextResponse;
-    expect(res.headers.get('location')).toContain('notify=rate-limit-exceeded');
+    expect(res.status).toBe(429);
+    expect(res.headers.get('Retry-After')).toBe('60');
+    await expect(res.json()).resolves.toEqual({ message: 'rate-limit-exceeded' });
+  });
+
+  test('anonymous HTML 429 includes the account CTA', async () => {
+    rateLimitMock.mockReturnValue(false);
+    getIronSessionMock.mockResolvedValue({ isAuthenticated: false });
+    const req = makeReq('https://example.com/search', {
+      headers: { accept: 'text/html,application/xhtml+xml' },
+    });
+    const res = (await middleware(req)) as NextResponse;
+    expect(res.status).toBe(429);
+    expect(res.headers.get('Retry-After')).toBe('60');
+    expect(res.headers.get('Content-Type')).toContain('text/html');
+    const body = await res.text();
+    expect(body).toContain('Rate limit reached');
+    expect(body).toContain('/user/account/register');
+  });
+
+  test('authenticated HTML 429 omits the account CTA', async () => {
+    rateLimitMock.mockReturnValue(false);
+    getIronSessionMock.mockResolvedValue({ isAuthenticated: true });
+    const req = makeReq('https://example.com/search', {
+      headers: { accept: 'text/html,application/xhtml+xml' },
+    });
+    const res = (await middleware(req)) as NextResponse;
+    expect(res.status).toBe(429);
+    const body = await res.text();
+    expect(body).toContain('Rate limit reached');
+    expect(body).not.toContain('/user/account/register');
+  });
+
+  test.each([
+    '/user/account/login',
+    '/user/account/register',
+    '/user/account/forgotpassword',
+    '/user/account/verify/reset-password',
+    '/api/user',
+  ])('exempts %s from the node limiter', async (path) => {
+    rateLimitMock.mockReturnValue(false);
+    const req = makeReq(`https://example.com${path}`, { headers: { accept: 'text/html' } });
+    const res = (await middleware(req)) as NextResponse;
+    expect(res.status).not.toBe(429);
   });
 
   test('handles requests with tracing headers', async () => {
