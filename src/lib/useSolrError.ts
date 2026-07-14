@@ -31,6 +31,7 @@ export enum SOLR_ERROR {
   SERVER_ERROR,
   SERVICE_UNAVAILABLE,
   CONFLICT,
+  TOO_MANY_REQUESTS,
 }
 
 export type ParsedSolrError = {
@@ -84,6 +85,8 @@ const mapHttpCode = (code?: number): SOLR_ERROR | undefined => {
       return SOLR_ERROR.NOT_FOUND;
     case 409:
       return SOLR_ERROR.CONFLICT;
+    case 429:
+      return SOLR_ERROR.TOO_MANY_REQUESTS;
     case 500:
       return SOLR_ERROR.SERVER_ERROR;
     case 503:

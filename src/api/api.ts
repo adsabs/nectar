@@ -1,4 +1,4 @@
-import { APP_STORAGE_KEY, updateAppUser } from '@/store';
+import { APP_STORAGE_KEY, notifyRateLimit, updateAppUser } from '@/store';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { defaultRequestConfig } from './config';
 import type { ApiRequestConfig } from './types';
@@ -11,6 +11,7 @@ import { identity } from 'ramda';
 import { IBootstrapPayload, IUserData } from '@/api/user/types';
 import { ApiTargets } from '@/api/models';
 import { handleAPIError } from '@/lib/errorHandler';
+import { isRateLimitError, RATE_LIMIT_STATUS } from '@/utils/common/parseAPIError';
 
 export const isAuthenticated = (user: IUserData) =>
   isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
@@ -126,6 +127,12 @@ class Api {
         // this is important for SSR, just fail fast
         if (!error.response || typeof window === 'undefined') {
           return Promise.reject(error);
+        }
+
+        // Toast 429s from either limiter for background requests. Foreground
+        // queries also render an inline message; the toast dedupes by id.
+        if (error.response.status === RATE_LIMIT_STATUS) {
+          notifyRateLimit();
         }
 
         // check if the incoming error is the exact same status and URL as the last request
@@ -262,6 +269,11 @@ class Api {
         return data.user;
       }
     } catch (e) {
+      // Raw axios, so no interceptor. Catch the limiter's 429 here or it
+      // collapses into a generic access error.
+      if (isRateLimitError(e)) {
+        notifyRateLimit();
+      }
       log.error({ err: e }, 'Failed to fetch API access data from session endpoint');
     }
     return null;
@@ -283,6 +295,11 @@ class Api {
         return data.user;
       }
     } catch (e) {
+      // Raw axios, so no interceptor. Catch the limiter's 429 here or it
+      // collapses into a generic access error.
+      if (isRateLimitError(e)) {
+        notifyRateLimit();
+      }
       log.error({ err: e }, 'Failed to refresh API access data from /api/user');
     }
 

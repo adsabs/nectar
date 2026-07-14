@@ -4,7 +4,7 @@ import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
 import { getIronSession } from 'iron-session/edge';
 import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
-import { rateLimit } from '@/rateLimit';
+import { rateLimit, RATE_LIMIT_RETRY_AFTER_SECONDS } from '@/rateLimit';
 import { isLegacySearchURL, legacySearchURLMiddleware } from '@/middlewares/legacySearchURLMiddleware';
 import { ErrorSource, handleError } from '@/lib/errorHandler.edge';
 import { getUserLogId, sanitizeHeaderValue } from '@/utils/logging';
@@ -46,6 +46,55 @@ const redirect = (
   );
 
   return NextResponse.redirect(url, req);
+};
+
+// Minimal self-contained 429 page for document navigations — edge responses
+// can't use the app shell. Only renders for hard loads that trip the limiter
+// (bots, refresh-under-throttle). Authenticated users skip the account nudge.
+const rateLimitHtml = (isAuthenticated: boolean) => {
+  const body = isAuthenticated
+    ? 'You&rsquo;ve made too many requests. Please try again later.'
+    : 'You&rsquo;ve made too many requests. <a href="/user/account/register">Create a free account</a> for higher limits, or try again later.';
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rate limit reached</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; display: grid;
+    place-items: center; min-height: 100vh; padding: 1.5rem; color: #1a202c; }
+  main { max-width: 32rem; text-align: center; }
+  h1 { font-size: 1.5rem; margin: 0 0 0.5rem; }
+  a { color: #3182ce; }
+</style>
+</head>
+<body>
+<main>
+<h1>Rate limit reached</h1>
+<p>${body}</p>
+</main>
+</body>
+</html>`;
+};
+
+// Real HTTP 429 for the node limiter instead of redirecting home, so it shares
+// the client 429 path with upstream API 429s. Document navigations get a
+// readable page; XHRs get JSON the client parses. Both carry the real status
+// and Retry-After.
+const tooManyRequests = async (req: NextRequest) => {
+  const headers = { 'Retry-After': String(RATE_LIMIT_RETRY_AFTER_SECONDS) };
+
+  if (req.headers.get('accept')?.includes('text/html')) {
+    // Read the session only for the page copy (rare path); XHRs skip it.
+    const session = await getIronSession(req, NextResponse.next(), sessionConfig);
+    return new NextResponse(rateLimitHtml(session.isAuthenticated), {
+      status: 429,
+      headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' },
+    });
+  }
+
+  return NextResponse.json({ message: 'rate-limit-exceeded' }, { status: 429, headers });
 };
 
 const redirectIfAuthenticated = async (req: NextRequest, res: NextResponse) => {
@@ -337,6 +386,15 @@ const setPrefsCookie = (response: NextResponse, req: NextRequest, updates: Recor
   });
 };
 
+// The whole auth/account surface is exempt from the node limiter: login,
+// register, forgotpassword, and the emailed verify/reset flows are all
+// low-volume, account-critical navigations we point rate-limited users to.
+// /api/user is the session endpoint the app needs to function at all. A DoS
+// backstop shouldn't gate its own escape hatch, and it only exempts these page
+// navigations — the /v1 API calls they fire stay limited.
+export const isRateLimitExempt = (path: string): boolean =>
+  path.startsWith('/user/account/') || path.startsWith('/api/user');
+
 export async function middleware(req: NextRequest) {
   const startTime = Date.now();
   const path = req.nextUrl.pathname;
@@ -432,12 +490,10 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
-  // Apply rate limiting
-  if (!rateLimit(ip)) {
+  // Apply rate limiting (auth/session routes exempt — see isRateLimitExempt)
+  if (!isRateLimitExempt(path) && !rateLimit(ip)) {
     log.warn({ ip, path, duration: Date.now() - startTime }, 'Rate limit exceeded');
-    const url = req.nextUrl.clone();
-    url.pathname = '/';
-    return redirect(url, req, { message: 'rate-limit-exceeded' });
+    return tooManyRequests(req);
   }
 
   log.debug({ ip, path }, 'Rate limit check passed');

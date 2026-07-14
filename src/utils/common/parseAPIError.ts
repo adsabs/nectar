@@ -12,6 +12,27 @@ type getErrorMessageOptions = {
   defaultMessage: string;
 };
 
+// HTTP 429. Both the node edge limiter and the upstream API gateway return this
+// status, so keying on it routes every rate-limit error through one path.
+export const RATE_LIMIT_STATUS = 429;
+
+// Account creation is the real remedy: signed-in accounts get higher upstream
+// limits, and the upstream quota resets slowly (daily), so "try again later" is
+// deliberately soft rather than promising a quick retry.
+export const RATE_LIMIT_REGISTER_HREF = '/user/account/register';
+export const RATE_LIMIT_ERROR_TITLE = 'Rate limit reached';
+export const RATE_LIMIT_ERROR_MESSAGE =
+  'You’ve made too many requests. Create a free account for higher limits, or try again later.';
+
+// No-CTA variant: for authenticated users (nothing to sign up for) and for
+// auth-unaware surfaces like parseAPIError, which can't tell who's asking.
+export const RATE_LIMIT_ERROR_MESSAGE_PLAIN = 'You’ve made too many requests. Please try again later.';
+
+// True for an axios HTTP 429 (rate limited) from either the node edge limiter
+// or the upstream API gateway.
+export const isRateLimitError = (error: unknown): boolean =>
+  axios.isAxiosError(error) && error.response?.status === RATE_LIMIT_STATUS;
+
 /**
  * Parses an API error and returns a human-readable error message.
  *
@@ -43,6 +64,13 @@ export const parseAPIError = (
   // return generic message if error is invalid
   if (!error || !(error instanceof Error)) {
     return options.defaultMessage;
+  }
+
+  // 429s get dedicated copy regardless of the body message the limiter returned.
+  // No account CTA here — this parser has no auth context, and the account-aware
+  // surfaces (toast, inline alert, edge page) add the nudge for anonymous users.
+  if (isRateLimitError(error)) {
+    return RATE_LIMIT_ERROR_MESSAGE_PLAIN;
   }
 
   // if error is an axios error, check for a message

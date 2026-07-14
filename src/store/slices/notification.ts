@@ -1,4 +1,5 @@
 import { StoreSlice } from '@/store';
+import { RATE_LIMIT_ERROR_MESSAGE, RATE_LIMIT_ERROR_MESSAGE_PLAIN } from '@/utils/common/parseAPIError';
 
 export type Notification = {
   id: NotificationId;
@@ -80,7 +81,12 @@ export const NOTIFICATIONS: Record<NotificationId, Notification> = {
   'rate-limit-exceeded': {
     id: 'rate-limit-exceeded',
     status: 'error',
-    message: 'You have exceeded the rate limit. Please try again later.',
+    message: RATE_LIMIT_ERROR_MESSAGE,
+  },
+  'rate-limit-exceeded-auth': {
+    id: 'rate-limit-exceeded-auth',
+    status: 'error',
+    message: RATE_LIMIT_ERROR_MESSAGE_PLAIN,
   },
   'account-login-success': {
     id: 'account-login-success',
@@ -159,6 +165,7 @@ export type NotificationId =
   | 'orcid-auth-failed'
   | 'orcid-session-expired'
   | 'rate-limit-exceeded'
+  | 'rate-limit-exceeded-auth'
   | 'verify-account-failed'
   | 'verify-account-success'
   | 'verify-account-was-valid'

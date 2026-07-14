@@ -34,6 +34,7 @@ import { GetServerSidePropsContext } from 'next';
 import { defaultRequestConfig } from '../config';
 import { APP_DEFAULTS, pickTracingHeaders } from '@/config';
 import { isString } from '@/utils/common/guards';
+import { RATE_LIMIT_STATUS } from '@/utils/common/parseAPIError';
 import { IADSApiSearchParams, IADSApiSearchResponse, IBigQueryMutationParams, IDocsEntity } from '@/api/search/types';
 import { ADSMutation, ADSQuery, InfiniteADSQuery } from '@/api/types';
 import api, { ApiRequestConfig } from '@/api/api';
@@ -121,7 +122,13 @@ export function useSearch<TData = IADSApiSearchResponse['response']>(
     queryFn: fetchSearch,
     meta: { params },
     select,
-    retry: (failCount, error) => failCount < 1 && axios.isAxiosError(error) && error.response?.status !== 400,
+    // Don't retry 429s: a retry just burns another request against the daily
+    // upstream quota and delays the inline rate-limit message.
+    retry: (failCount, error) =>
+      failCount < 1 &&
+      axios.isAxiosError(error) &&
+      error.response?.status !== 400 &&
+      error.response?.status !== RATE_LIMIT_STATUS,
     ...(options as Omit<UseQueryOptions<IADSApiSearchResponse, ErrorType, TData>, 'queryKey' | 'queryFn' | 'select'>),
   });
 }
