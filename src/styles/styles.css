@@ -177,3 +177,20 @@ pre {
   font-weight: 600;
   color: #111827;
 }
+
+.tour-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tour-badge {
+  font-size: 12px;
+  line-height: 1em;
+  padding: 6px 6px;
+  border-radius: 5px;
+  color: #E8F1FF;
+  background: #0057D9;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}

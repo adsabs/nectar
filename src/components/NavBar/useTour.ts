@@ -118,7 +118,9 @@ export const getHomeSteps = (isMobile: boolean, isAstrophysics = false) => {
     },
     {
       id: 'theme-selector',
-      title: 'Change discipline',
+      title: isAstrophysics
+        ? '<span class="tour-title">Change discipline<span class="tour-badge">New</span></span>'
+        : 'Change discipline',
       text: isAstrophysics
         ? 'SciX searches ALL disciplines not just astronomy and physics. Select a discipline to boost records from that discipline in your results when they are sorted by Relevancy. Changing this selection will also customize the SciX home page and results layout.'
         : 'Select a discipline to change the SciX home page and results layout. In addition, records from your selected discipline will be boosted when results are sorted by Relevancy.',
@@ -298,7 +300,9 @@ export const getResultsSteps = (isAstrophysics = false) => {
   return [
     {
       id: 'sort-order',
-      title: 'Sort order',
+      title: isAstrophysics
+        ? '<span class="tour-title">Sort order<span class="tour-badge">Updated</span></span>'
+        : 'Sort order',
       text: isAstrophysics
         ? 'SciX default order is Relevancy, which will prioritize results from your selected discipline. However, like in ADS, you can change the sort order to rerank results according to different metadata fields or metrics.'
         : 'Change the sort order to rerank results according to different metadata fields or metrics.',
@@ -321,7 +325,9 @@ export const getResultsSteps = (isAstrophysics = false) => {
     },
     {
       id: 'theme-selector',
-      title: 'Change discipline',
+      title: isAstrophysics
+        ? '<span class="tour-title">Quick citation copy<span class="tour-badge">New</span></span>'
+        : 'Quick citation copy',
       text: isAstrophysics
         ? 'SciX searches ALL disciplines not just astronomy and physics. Select a discipline to boost records from that discipline in your results when they are sorted by Relevancy. '
         : 'Records from your selected discipline will be boosted when results are sorted by Relevancy.',
@@ -377,7 +383,9 @@ export const getResultsSteps = (isAstrophysics = false) => {
     },
     {
       id: 'quick-icons',
-      title: 'Quick icons',
+      title: isAstrophysics
+        ? '<span class="tour-title">Quick icons<span class="tour-badge">Updated</span></span>'
+        : 'Quick icons',
       text: isAstrophysics
         ? 'Like in ADS, you can quickly view available links for each resource (fulltext sources, citations and references, or data products). Now, you can also quickly share or cite a paper.'
         : 'Quickly view available links for each resource (fulltext sources, citations and references, or data products), or share or cite a paper.',
@@ -406,7 +414,9 @@ export const getResultsSteps = (isAstrophysics = false) => {
     },
     {
       id: 'view-abstract',
-      title: 'View abstract',
+      title: isAstrophysics
+        ? '<span class="tour-title">View abstract<span class="tour-badge">Updated</span></span>'
+        : 'View abstract',
       text: isAstrophysics
         ? 'Instead of opening all abstracts, SciX keeps your results compact. Click here to view the abstracts you choose.'
         : 'Click here to view a record’s abstract.',
@@ -493,7 +503,9 @@ export const getResultsSteps = (isAstrophysics = false) => {
     },
     {
       id: 'explore',
-      title: 'Explore',
+      title: isAstrophysics
+        ? '<span class="tour-title">Explore<span class="tour-badge">Updated</span></span>'
+        : 'Explore',
       text: isAstrophysics
         ? 'Like in ADS, click here to visualize your search results and find other relevant papers. SciX has new Overview visualizations and the Citation Helper is now available here. '
         : 'Click here to visualize your search results and find other relevant papers.',
@@ -614,7 +626,9 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
     },
     {
       id: 'navigation',
-      title: 'Abstract navigation',
+      title: isAstrophysics
+        ? '<span class="tour-title">Abstract navigation<span class="tour-badge">Updated</span></span>'
+        : 'Abstract navigation',
       text: isAstrophysics
         ? 'Like on ADS find more information about record, including citations, references, or related records, view graphics and usage metrics, or export the bibliographic data in a variety of formats. SciX also goes beyond reference lists to reveal scientific contributions of data, software, and support as credits and mentions.'
         : 'Find more information about the record, including citations, references, or related records, view usage metrics, or export the bibliographic data in a variety of formats.',
@@ -643,7 +657,9 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
     },
     {
       id: 'authors-list',
-      title: 'Authors list',
+      title: isAstrophysics
+        ? '<span class="tour-title">Authors list<span class="tour-badge">Updated</span></span>'
+        : 'Authors list',
       text: isAstrophysics
         ? 'Click an author’s name or their ORCID icon to search by their name or ORCID ID. Click “show details” for a searchable panel of authors, ORCiD, and affiliations. '
         : 'Click an author’s name or their ORCID icon to search by their name or ORCID ID.',
@@ -675,7 +691,9 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
     },
     {
       id: 'document-type',
-      title: 'Document Type',
+      title: isAstrophysics
+        ? '<span class="tour-title">Document type<span class="tour-badge">New</span></span>'
+        : 'Document type',
       text: 'Type of document explicitly stated (article, dataset, catalog, software, proposal, phdthesis… ) You can also filter for these using Publication Type or search for them using "doctype:" ',
       attachTo: {
         element: '#tour_abs_doctype',
@@ -705,7 +723,9 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
     },
     {
       id: 'quick-citation-copy',
-      title: 'Quick citation copy',
+      title: isAstrophysics
+        ? '<span class="tour-title">Quick citation copy<span class="tour-badge">New</span></span>'
+        : 'Quick citation copy',
       text: isAstrophysics
         ? 'Copy the formatted citation, ready to paste into your text editor. Set your default format in your SciX account.'
         : 'Copy the formatted citation, ready to paste into your text editor.',
@@ -737,7 +757,9 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
     },
     {
       id: 'collections',
-      title: 'Collections',
+      title: isAstrophysics
+        ? '<span class="tour-title">Collections<span class="tour-badge">New</span></span>'
+        : 'Collections',
       text: 'Collections (astronomy, earthscience, physics, or general) to which record belongs explicitly stated, more than one is possible. You can filter for these using Collections filter or search for them using "collection:"',
       attachTo: {
         element: '#tour-abs-collections',
@@ -767,7 +789,9 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
     },
     {
       id: 'uat-keywords',
-      title: 'UAT keywords',
+      title: isAstrophysics
+        ? '<span class="tour-title">UAT keywords<span class="tour-badge">Beta</span></span>'
+        : 'UAT keywords',
       text: 'SciX machine learning project to assign a consistent set of keywords to all astronomy records. Your feedback would be appreciated.',
       attachTo: {
         element: '#tour-abs-uat-keywords',
