@@ -54,6 +54,12 @@ import { CustomInfoMessage } from '@/components/Feedbacks';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { SimpleLink } from '@/components/SimpleLink';
 import { getDefaultSortForQuery, makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@/utils/common/search';
+import {
+  ADS_COMPAT_URL_PARAM,
+  buildSearchOutgoing,
+  buildSortChangeOutgoing,
+  SearchMode,
+} from '@/utils/common/searchMode';
 import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
 import { SEARCH_API_KEYS, useSearch } from '@/api/search/search';
 import { sendGTMEvent } from '@next/third-parties/google';
@@ -63,6 +69,7 @@ import { solrDefaultSortDirection, SolrSort, SolrSortField } from '@/api/models'
 import { useApplyBoostTypeToParams } from '@/lib/useApplyBoostTypeToParams';
 import { SearchErrorAlert } from '@/components/SolrErrorAlert/SolrErrorAlert';
 import { useSettings } from '@/lib/useSettings';
+import { useSearchMode } from '@/lib/useSearchMode';
 import { getResultsSteps } from '@/components/NavBar';
 import { useShepherd } from 'react-shepherd';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
@@ -115,8 +122,6 @@ const selectors = {
   resetSearchFacets: (state: AppState) => state.resetSearchFacets,
 };
 
-const omitP = omit(['p']);
-
 /**
  * Error fallback component for error boundaries
  */
@@ -160,6 +165,17 @@ const SearchPage: NextPage = () => {
 
   // parse the query params from the URL, this should match what the server parsed
   const parsedParams = parseQueryFromUrl(router.asPath);
+
+  const [searchMode, setSearchMode] = useSearchMode();
+
+  // Sync searchMode from URL ads_compat param — '1' means ADS_COMPAT, absent means skip.
+  const urlAdsCompat = (parsedParams as Record<string, unknown>)[ADS_COMPAT_URL_PARAM] as string | undefined;
+  useEffect(() => {
+    if (urlAdsCompat !== undefined) {
+      setSearchMode(urlAdsCompat === '1' ? SearchMode.ADS_COMPAT : SearchMode.ALL_RELEVANT);
+    }
+  }, [urlAdsCompat, setSearchMode]);
+
   const hasSortParam = useMemo(() => {
     const queryString = router.asPath.split('?')[1];
     if (!queryString) {
@@ -183,7 +199,7 @@ const SearchPage: NextPage = () => {
     },
   });
 
-  const searchParams = omitP(params) as IADSApiSearchParams;
+  const searchParams = omit(['p', ADS_COMPAT_URL_PARAM, 'd'], params) as IADSApiSearchParams;
   const { data, isSuccess, isLoading, isFetching, error, isError, refetch } = useSearch<IADSApiSearchResponse>(
     searchParams,
     { select: (data) => data },
@@ -242,8 +258,15 @@ const SearchPage: NextPage = () => {
     const newSort =
       currentSortField === newSortField ? sort : `${newSortField} ${solrDefaultSortDirection[newSortField]}`;
 
-    // generate search string and trigger page transition, also update store
-    const search = makeSearchParams({ ...params, ...query, sort: newSort, p: 1 });
+    // Route the sort change through the search-mode path so ads_compat and the
+    // ADS filters stay consistent with the current mode; the chosen sort wins
+    // over the mode's default sort (see buildSortChangeOutgoing).
+    const base = omit([ADS_COMPAT_URL_PARAM, 'd'], {
+      ...params,
+      ...query,
+      p: 1,
+    }) as IADSApiSearchParams;
+    const search = makeSearchParams(buildSortChangeOutgoing(base, searchMode, normalizeSolrSort(newSort)));
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
@@ -263,7 +286,14 @@ const SearchPage: NextPage = () => {
 
     // generate a URL search string and trigger a page transition, and update store
     const overriddenSort = getDefaultSortForQuery(q, params.sort);
-    const search = makeSearchParams({ ...params, ...query, q, sort: overriddenSort, p: 1 });
+    const base = omit([ADS_COMPAT_URL_PARAM, 'd'], {
+      ...params,
+      ...query,
+      q,
+      sort: overriddenSort,
+      p: 1,
+    }) as IADSApiSearchParams;
+    const search = makeSearchParams(buildSearchOutgoing(base, searchMode));
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
@@ -320,8 +350,8 @@ const SearchPage: NextPage = () => {
 
   // conditions
   const loading = isLoading || isFetching;
-  const noResults = !loading && isSuccess && data?.response.numFound === 0;
-  const hasResults = !loading && isSuccess && data?.response.numFound > 0;
+  const noResults = !loading && isSuccess && data?.response?.numFound === 0;
+  const hasResults = !loading && isSuccess && data?.response?.numFound > 0;
 
   // Track the last query that fired search_no_results to prevent duplicate events
   // when noResults stays true across re-renders (e.g. unstable params.q reference).
@@ -348,7 +378,7 @@ const SearchPage: NextPage = () => {
           <form method="get" action="/search" onSubmit={handleOnSubmit}>
             <Flex direction="column" width="full">
               <SearchBar isLoading={loading} showBackLinkAs="new_search" />
-              <NumFound count={data?.response.numFound} isLoading={loading} />
+              <NumFound count={data?.response?.numFound} isLoading={loading} />
             </Flex>
             <FacetFilters mt="2" />
           </form>

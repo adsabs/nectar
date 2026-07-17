@@ -8,17 +8,16 @@ import router from 'next/router';
 import { applyFiltersToQuery } from '../SearchFacet/helpers';
 import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
 import { SolrSort } from '@/api/models';
+import { buildSearchOutgoing } from '@/utils/common/searchMode';
+import { useSearchMode } from '@/lib/useSearchMode';
 
 export const AbstractSearchForm = () => {
   const { settings } = useSettings();
   const submitQuery = useStore((state) => state.submitQuery);
   const sort = [`${settings.preferredSearchSort} desc` as SolrSort];
   const query = useStore((state) => state.query.q);
+  const [searchMode] = useSearchMode();
 
-  /**
-   * Take in a query object and apply any FQ filters
-   * These will either be any default ON filters or whatever has been set by the user in the preferences
-   */
   const applyDefaultFilters = useCallback(
     (query: IADSApiSearchParams) => {
       const defaultDatabases = getListOfAppliedDefaultDatabases(settings.defaultDatabase);
@@ -35,18 +34,12 @@ export const AbstractSearchForm = () => {
     [settings.defaultDatabase],
   );
 
-  /**
-   * Get a list of default databases that have been applied
-   * @param databases
-   */
   const getListOfAppliedDefaultDatabases = (databases: IADSApiUserDataResponse['defaultDatabase']): Array<string> => {
     const defaultDatabases = [];
     for (const db of databases) {
-      // if All is selected, exit early here and return an empty array (no filters to apply)
       if (db.name === DatabaseEnum.All && db.value) {
         return [];
       }
-
       if (db.value) {
         defaultDatabases.push(db.name);
       }
@@ -62,13 +55,14 @@ export const AbstractSearchForm = () => {
       if (query && query.trim().length > 0) {
         submitQuery();
         const defaultedQuery = applyDefaultFilters({ q: query, sort, p: 1 }) as IADSApiSearchParams;
+        const outgoing = buildSearchOutgoing(defaultedQuery, searchMode);
         void router.push({
           pathname: '/search',
-          search: makeSearchParams(defaultedQuery),
+          search: makeSearchParams(outgoing),
         });
       }
     },
-    [applyDefaultFilters, sort, submitQuery],
+    [applyDefaultFilters, searchMode, sort, submitQuery],
   );
 
   return (
