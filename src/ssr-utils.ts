@@ -8,52 +8,52 @@ import { getNotification, NotificationId } from '@/store/slices';
 import { logger } from '@/logger';
 import { AppMode } from '@/types';
 import { mapDisciplineParamToAppMode } from '@/utils/appMode';
-import { isFromLegacyApp } from '@/utils/legacyAppDetection';
-
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { isUserData } from '@/auth-utils';
+import { readPrefsCookie } from '@/utils/common/prefs-cookie';
+import { SearchMode } from '@/utils/common/searchMode';
 
 const log = logger.child({}, { msgPrefix: '[ssr-inject] ' });
+
+const VALID_APP_MODES = new Set(Object.values(AppMode));
+const VALID_SEARCH_MODES = new Set(Object.values(SearchMode));
 
 export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
   const userData = ctx.req.session.token;
   const incomingState = (prevResult?.props?.dehydratedAppState ?? {}) as AppState;
 
-  // Check referer header directly to detect legacy ADS app referrers
-  const referer = ctx.req.headers.referer;
-  const isLegacyReferrer = isFromLegacyApp(referer);
-
-  // Only apply legacy mode if there's no persisted mode preference
-  const applyLegacyMode = isLegacyReferrer && incomingState.mode === undefined;
-
   const url = new URL(ctx.resolvedUrl, 'http://localhost');
   const pathname = url.pathname;
 
-  // forceMode query param takes highest precedence (from discipline routes or legacy referrer)
+  // forceMode query param — highest precedence (discipline routes)
   const forceMode = mapDisciplineParamToAppMode(ctx.query?.forceMode);
 
   // URL discipline param (d) only applies on /search
   const urlMode = pathname === '/search' ? mapDisciplineParamToAppMode(ctx.query?.d) : null;
 
-  // Legacy referrer fallback - only applies if no explicit mode is provided
-  // and no persisted mode exists
-  const legacyMode = applyLegacyMode ? AppMode.ASTROPHYSICS : undefined;
+  // Prefs cookie — persisted user preference (written by middleware on first ADS visit)
+  const prefs = readPrefsCookie(ctx.req.headers.cookie);
+  const cookieMode = prefs.mode && VALID_APP_MODES.has(prefs.mode as AppMode) ? (prefs.mode as AppMode) : undefined;
+  // Priority: URL forceMode > URL d param > prefs cookie
+  const resolvedMode = forceMode ?? urlMode ?? cookieMode;
 
-  const resolvedMode = forceMode ?? urlMode ?? legacyMode;
+  // ADS_COMPAT is only meaningful in the ASTROPHYSICS discipline context.
+  // If the resolved mode is anything else, suppress the cookie search mode so
+  // the ADS filters are not applied on non-astrophysics pages.
+  const cookieSearchMode =
+    prefs.searchMode && VALID_SEARCH_MODES.has(prefs.searchMode as SearchMode) && resolvedMode === AppMode.ASTROPHYSICS
+      ? prefs.searchMode
+      : undefined;
 
   log.debug({
     msg: 'Injecting session data into client props',
     userData,
     isValidUserData: isUserData(userData),
-    token: isUserData(userData) ? userData.access_token : null,
-    referer,
-    isLegacyReferrer,
-    applyLegacyMode,
     resolvedMode,
+    cookieMode,
   });
 
   const qc = new QueryClient();
-  // found an incoming dehydrated state, hydrate it
   if (prevResult?.props?.dehydratedState) {
     hydrate(qc, prevResult.props.dehydratedState);
   }
@@ -64,10 +64,9 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
       dehydratedAppState: {
         ...incomingState,
         user: isUserData(userData) ? userData : {},
-        // set notification if present
         notification: getNotification(ctx.query?.notify as NotificationId),
-        // discipline via URL param (d) applies only on /search, otherwise keep legacy app mode
         ...(resolvedMode && { mode: resolvedMode }),
+        ...(cookieSearchMode && { searchMode: cookieSearchMode }),
       } as AppState,
       dehydratedState: dehydrate(qc),
     },
@@ -84,44 +83,30 @@ type IncomingGSSP = (
   },
 ) => Promise<GetServerSidePropsResult<Record<string, unknown>>>;
 
-/**
- * Composes multiple GetServerSideProps functions
- * invoking left to right
- * Props are merged, other properties will overwrite
- */
 export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
   withIronSessionSsr(
     async (ctx: GetServerSidePropsContext): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
       ctx.res.setHeader('Cache-Control', 's-max-age=60, stale-while-revalidate=300');
-
-      // only push if the list of fns does not already have the updater
       if (!fns.includes(updateUserStateSSR)) {
         fns.push(updateUserStateSSR);
       }
-
       api.setUserData(ctx.req.session.token);
       let ssrProps = { props: {} };
-
       for (const fn of fns) {
         let result;
         let props = {};
         try {
-          // Ensure that the result is awaited properly and no promises remain unhandled
-          result = await fn(ctx, ssrProps); // Await the function result
+          result = await fn(ctx, ssrProps);
         } catch (error) {
           logger.error({ error });
           props = { pageError: parseAPIError(error) };
         }
-
-        // Make sure the result is fully resolved and it's not a Promise
         if (result && 'props' in result) {
-          // Check if result.props is a promise and await it if necessary
           if (result.props instanceof Promise) {
             result.props = await result.props;
           }
-          props = { ...props, ...ssrProps.props, ...result.props }; // Spread properties safely
+          props = { ...props, ...ssrProps.props, ...result.props };
         }
-
         ssrProps = { ...ssrProps, ...result, props };
       }
       return ssrProps;

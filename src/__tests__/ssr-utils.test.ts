@@ -16,6 +16,7 @@ const getMockContext = (
   query: ParsedUrlQuery = {},
   resolvedUrl = '/search',
   referer?: string,
+  cookie?: string,
 ) =>
   ({
     req: {
@@ -24,9 +25,7 @@ const getMockContext = (
         save: vi.fn().mockResolvedValue(undefined),
         destroy: vi.fn().mockResolvedValue(undefined),
       },
-      headers: {
-        referer,
-      },
+      headers: { referer, cookie },
     },
     query,
     resolvedUrl,
@@ -34,6 +33,8 @@ const getMockContext = (
 
 describe('updateUserStateSSR', () => {
   test('should set mode for legacy referrer with no persisted state', async () => {
+    // Mode is now set by middleware writing the scix_prefs cookie before redirect.
+    // updateUserStateSSR no longer reads the referer header to infer mode.
     const context = getMockContext({}, {}, '/search', 'https://ui.adsabs.harvard.edu/search');
     const result = await updateUserStateSSR(context, { props: {} });
 
@@ -41,23 +42,15 @@ describe('updateUserStateSSR', () => {
       throw new Error('Expected props in result');
     }
     const props = result.props as SSRPropsWithState;
-    expect(props.dehydratedAppState).toEqual(
-      expect.objectContaining({
-        mode: AppMode.ASTROPHYSICS,
-      }),
-    );
+    expect(props.dehydratedAppState).not.toHaveProperty('mode');
   });
 
   test('should respect persisted state even with legacy referrer', async () => {
-    const context = getMockContext({}, {}, '/search', 'https://ui.adsabs.harvard.edu/search');
-    const inputProps = {
-      props: {
-        dehydratedAppState: {
-          mode: AppMode.GENERAL,
-        } as Partial<AppState>,
-      },
-    };
-    const result = await updateUserStateSSR(context, inputProps as never);
+    // Cookie-based mode takes precedence; referer header is ignored.
+    const prefs = { mode: 'EARTH_SCIENCE' };
+    const cookie = `scix_prefs=${encodeURIComponent(JSON.stringify(prefs))}`;
+    const context = getMockContext({}, {}, '/search', 'https://ui.adsabs.harvard.edu/search', cookie);
+    const result = await updateUserStateSSR(context, { props: {} });
 
     if (!('props' in result)) {
       throw new Error('Expected props in result');
@@ -65,7 +58,7 @@ describe('updateUserStateSSR', () => {
     const resultProps = result.props as SSRPropsWithState;
     expect(resultProps.dehydratedAppState).toEqual(
       expect.objectContaining({
-        mode: AppMode.GENERAL,
+        mode: AppMode.EARTH_SCIENCE,
       }),
     );
   });
@@ -217,5 +210,75 @@ describe('updateUserStateSSR', () => {
       const props = result.props as SSRPropsWithState;
       expect(props.dehydratedAppState).not.toHaveProperty('mode');
     });
+  });
+
+  test('seeds mode from scix_prefs cookie when no URL param', async () => {
+    const prefs = { mode: 'ASTROPHYSICS' };
+    const cookie = `scix_prefs=${encodeURIComponent(JSON.stringify(prefs))}`;
+    const context = getMockContext({}, {}, '/search', undefined, cookie);
+    const result = await updateUserStateSSR(context, { props: {} });
+    if (!('props' in result)) {
+      throw new Error('Expected props');
+    }
+    const props = result.props as SSRPropsWithState;
+    expect(props.dehydratedAppState).toEqual(expect.objectContaining({ mode: AppMode.ASTROPHYSICS }));
+  });
+
+  test('seeds searchMode from scix_prefs cookie', async () => {
+    const prefs = { searchMode: 'ADS_COMPAT', mode: 'ASTROPHYSICS' };
+    const cookie = `scix_prefs=${encodeURIComponent(JSON.stringify(prefs))}`;
+    const context = getMockContext({}, {}, '/', undefined, cookie);
+    const result = await updateUserStateSSR(context, { props: {} });
+    if (!('props' in result)) {
+      throw new Error('Expected props');
+    }
+    const props = result.props as SSRPropsWithState;
+    expect(props.dehydratedAppState).toEqual(expect.objectContaining({ searchMode: 'ADS_COMPAT' }));
+  });
+
+  test('URL forceMode takes priority over prefs cookie mode', async () => {
+    const prefs = { mode: 'ASTROPHYSICS' };
+    const cookie = `scix_prefs=${encodeURIComponent(JSON.stringify(prefs))}`;
+    const context = getMockContext({}, { forceMode: 'heliophysics' }, '/', undefined, cookie);
+    const result = await updateUserStateSSR(context, { props: {} });
+    if (!('props' in result)) {
+      throw new Error('Expected props');
+    }
+    const props = result.props as SSRPropsWithState;
+    expect(props.dehydratedAppState).toEqual(expect.objectContaining({ mode: AppMode.HELIOPHYSICS }));
+  });
+
+  test('legacy referrer no longer sets mode in GSSP (handled by middleware+cookie)', async () => {
+    const context = getMockContext({}, {}, '/search', 'https://ui.adsabs.harvard.edu/search');
+    const result = await updateUserStateSSR(context, { props: {} });
+    if (!('props' in result)) {
+      throw new Error('Expected props');
+    }
+    const props = result.props as SSRPropsWithState;
+    expect(props.dehydratedAppState).not.toHaveProperty('mode');
+  });
+
+  test('rejects invalid mode value from prefs cookie', async () => {
+    const prefs = { mode: 'GARBAGE_MODE' };
+    const cookie = `scix_prefs=${encodeURIComponent(JSON.stringify(prefs))}`;
+    const context = getMockContext({}, {}, '/search', undefined, cookie);
+    const result = await updateUserStateSSR(context, { props: {} });
+    if (!('props' in result)) {
+      throw new Error('Expected props');
+    }
+    const props = result.props as SSRPropsWithState;
+    expect(props.dehydratedAppState).not.toHaveProperty('mode');
+  });
+
+  test('rejects invalid searchMode value from prefs cookie', async () => {
+    const prefs = { searchMode: 'INVALID_SEARCH_MODE' };
+    const cookie = `scix_prefs=${encodeURIComponent(JSON.stringify(prefs))}`;
+    const context = getMockContext({}, {}, '/', undefined, cookie);
+    const result = await updateUserStateSSR(context, { props: {} });
+    if (!('props' in result)) {
+      throw new Error('Expected props');
+    }
+    const props = result.props as SSRPropsWithState;
+    expect(props.dehydratedAppState).not.toHaveProperty('searchMode');
   });
 });
