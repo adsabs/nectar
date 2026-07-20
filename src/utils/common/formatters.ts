@@ -241,7 +241,11 @@ export const stripHtml = (value: string): string => {
 export const kFormatNumber = (value: number): string | number => {
   const absV = Math.abs(value);
   const sign = Math.sign(value);
-  return absV > 999 ? `${sign * (Math.round(absV / 100) / 10)}k` : sign * absV;
+  return absV > 999 && absV < 999999
+    ? `${sign * (Math.round(absV / 100) / 10)}k`
+    : absV > 999999
+    ? `${sign * (Math.round(absV / 10000) / 100)}M`
+    : sign * absV;
 };
 
 /**
