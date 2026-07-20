@@ -113,6 +113,7 @@
     "react-hook-form": "^7.46.1",
     "react-select": "^5.7.3",
     "react-shepherd": "^6.1.9",
+    "recharts": "^3.9.0",
     "set-cookie-parser": "^2.6.0",
     "shepherd.js": "^14.5.1",
     "use-debounce": "^7.0.1",

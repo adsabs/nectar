@@ -89,7 +89,10 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
 
   const res = data?.[field];
   const rawTreeData = useMemo(() => formatTreeData(res?.buckets ?? []), [res?.buckets]);
-  const treeData = searchStatus === 'success' ? rawTreeData : ([] as FacetItem[]);
+  const treeData = useMemo(
+    () => (searchStatus === 'success' ? rawTreeData : ([] as FacetItem[])),
+    [searchStatus, rawTreeData],
+  );
 
   const identifiers = useMemo(
     () =>
@@ -208,7 +211,7 @@ const getPrefix = (key: string, searchTerm: string) => {
   return `${level + 1}${key.slice(1)}/${searchTerm}`;
 };
 
-const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number; limit?: number }) => {
+export const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number; limit?: number }) => {
   if (!props?.field) {
     return '';
   }

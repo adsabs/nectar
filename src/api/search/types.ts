@@ -99,15 +99,24 @@ export type JSONFacetCounts = {
   }
 >;
 
-export interface IBucket {
+export type IBucket = {
   val: number | string;
   count: number;
-}
+} & Partial<
+  Record<
+    string,
+    {
+      numBuckets?: number;
+      buckets: IBucket[];
+    }
+  >
+>;
 
 export type FacetField =
   | 'author_facet'
   | 'bibgroup_facet'
   | 'bibstem_facet'
+  | 'pub'
   | 'pub_abbrev'
   | 'data_facet'
   | 'keyword_facet'
