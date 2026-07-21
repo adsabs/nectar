@@ -24,6 +24,7 @@ export const searchHandlers = [
             numFound,
             docs: map(() => ({
               bibcode: api.bibcode(),
+              scix_id: api.scix_id(),
             }))(range(0, clamp(1, 100, rows))),
           },
         }),
@@ -82,6 +83,7 @@ export const searchHandlers = [
       const bibcode = ids.length > 0 ? ids.pop() : api.bibcode();
       return {
         bibcode,
+        scix_id: api.scix_id(),
         id: ids_mocks[i as number],
         author: map(api.author)(limitAuthors > 0 ? range(0, limitAuthors) : authorCount),
         author_count: authorCount.length,
@@ -123,6 +125,7 @@ export const searchHandlers = [
       .slice(1)
       .map((b) => ({
         bibcode: b,
+        scix_id: api.scix_id(),
         author: authors,
         author_count: authors.length,
         bibstem: [faker.random.alphaNumeric(5)],

@@ -19,6 +19,7 @@ import { IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@/components/N
 import { IDocsEntity } from '@/api/search/types';
 import { useGetGraphicsCount } from '@/api/graphics/graphics';
 import { useHasMetrics } from '@/api/metrics/metrics';
+import { bibcodeForApi } from '@/lib/scix-id/canonicalId';
 import { useExportFormats } from '@/lib/useExportFormats';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { ChatIcon, CheckCircleIcon } from '@chakra-ui/icons';
@@ -157,8 +158,10 @@ export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
 
 export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
   const { doc } = props;
-  const graphicsCount = useGetGraphicsCount(doc?.bibcode);
-  const hasMetrics = useHasMetrics(doc?.bibcode);
+  // First scix_id consumer wire (SCIX-904): graphics/metrics are bibcode-keyed
+  // backends, so we still send bibcode but record the forced fallback per surface.
+  const graphicsCount = useGetGraphicsCount(doc ? bibcodeForApi(doc, { surface: 'abs-graphics-count' }) : undefined);
+  const hasMetrics = useHasMetrics(doc ? bibcodeForApi(doc, { surface: 'abs-metrics-availability' }) : undefined);
   const { menuItems, activeItem } = useGetItems({ doc, graphicsCount, hasMetrics });
 
   return (

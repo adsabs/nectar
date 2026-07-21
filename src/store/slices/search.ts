@@ -11,6 +11,7 @@ export const defaultQueryParams: IADSApiSearchParams = {
   q: '',
   fl: [
     'bibcode',
+    'scix_id',
     'title',
     'author',
     '[fields author=10]',

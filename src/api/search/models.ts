@@ -1,8 +1,10 @@
 import { APP_DEFAULTS, HL_MAX_ANALYZED_CHARS, SOLR_FACET_LIMIT } from '@/config';
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
+import { isScixId } from '@/lib/scix-id/isScixId';
 
 export const defaultFields: IADSApiSearchParams['fl'] = [
   'bibcode',
+  'scix_id',
   'title',
   'author',
   `[fields author=${APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
@@ -151,7 +153,10 @@ export const getAbstractParams = (id: string): IADSApiSearchParams => ({
     'uat',
     'uat_id',
   ],
-  q: `identifier:"${id}"`,
+  // scix_id lives in its own Solr field, not the polymorphic `identifier` field,
+  // so a scix-shaped id must query `scix_id:`; bibcode/DOI/arXiv still resolve
+  // through `identifier:` (SCIX-904).
+  q: isScixId(id) ? `scix_id:"${id}"` : `identifier:"${id}"`,
 });
 
 // for getting single record in feedback form

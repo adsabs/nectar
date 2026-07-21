@@ -100,6 +100,50 @@ describe('createAbsGetServerSideProps', () => {
     }
   });
 
+  test('redirects a bibcode URL to the canonical scix_id URL when the doc has scix_id', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        response: { docs: [{ bibcode: '1996PhRvL..77.3865P', scix_id: 'scix:6NEE-CD2G-T0JE' }] },
+      }),
+    });
+
+    const ctx = buildCtx({
+      id: '1996PhRvL..77.3865P',
+      resolvedUrl: '/abs/1996PhRvL..77.3865P/abstract',
+    });
+
+    const gssp = createAbsGetServerSideProps('abstract');
+    const result = await gssp(ctx);
+
+    expect(result).toHaveProperty('redirect');
+    if ('redirect' in result) {
+      expect(result.redirect?.destination).toBe(`/abs/${encodeURIComponent('scix:6NEE-CD2G-T0JE')}/abstract`);
+      expect(result.redirect?.statusCode).toBe(302);
+    }
+  });
+
+  test('does not redirect when the requested id is already the canonical scix_id', async () => {
+    const scixId = 'scix:6NEE-CD2G-T0JE';
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        response: { docs: [{ bibcode: '1996PhRvL..77.3865P', scix_id: scixId }] },
+      }),
+    });
+
+    const ctx = buildCtx({
+      id: scixId,
+      resolvedUrl: `/abs/${encodeURIComponent(scixId)}/abstract`,
+    });
+
+    const gssp = createAbsGetServerSideProps('abstract');
+    const result = await gssp(ctx);
+
+    expect(result).not.toHaveProperty('redirect');
+    expect(result).toHaveProperty('props');
+  });
+
   test('redirects for other views', async () => {
     fetchMock.mockResolvedValue({
       ok: true,

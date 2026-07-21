@@ -7,6 +7,7 @@ import { NavBar } from '../NavBar';
 import dynamic from 'next/dynamic';
 
 import { Notification } from '@/components/Notification';
+import { ScixIdFallbackHud } from '@/components/DevTools/ScixIdFallbackHud';
 import Head from 'next/head';
 import { Favicons } from '@/components/Favicons/Favicons';
 import { LandingTabsStatic } from '@/components/LandingTabs';
@@ -42,6 +43,7 @@ export const Layout: FC = ({ children }) => {
       {isPrint ? null : <SiteAlert />}
       {isPrint ? null : <NavBar />}
       {isPrint ? null : <Notification />}
+      {isPrint ? null : <ScixIdFallbackHud />}
       <main>
         {isLandingPage && <LandingTabs />}
         <Container maxW={isLandingPage ? 'container.md' : 'container.xl'} id="main-content">

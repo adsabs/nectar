@@ -173,13 +173,19 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
           if (retryResponse.ok) {
             const retryData = (await retryResponse.json()) as IADSApiSearchResponse;
             const retryDoc = retryData?.response?.docs?.[0] ?? null;
-            if (retryDoc?.bibcode) {
+            // Prefer scix_id as the canonical URL id, falling back to bibcode
+            // when a record has no scix_id yet (SCIX-904).
+            const retryCanonical = retryDoc?.scix_id ?? retryDoc?.bibcode;
+            if (retryCanonical) {
               const requestUrl = new URL(ctx.req.url ?? ctx.resolvedUrl, 'http://adsabs.local');
-              log.info({ requestedId, retryId, bibcode: retryDoc.bibcode, viewPath }, 'Hash fallback redirect');
+              log.info(
+                { requestedId, retryId, canonicalIdentifier: retryCanonical, viewPath },
+                'Hash fallback redirect',
+              );
               return {
                 redirect: {
                   destination: buildRedirect({
-                    canonicalIdentifier: retryDoc.bibcode,
+                    canonicalIdentifier: retryCanonical,
                     viewPath,
                     search: requestUrl.search,
                   }),
@@ -193,7 +199,10 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
         }
       }
 
-      const canonicalIdentifier = initialDoc?.bibcode;
+      // Prefer scix_id as the canonical URL id, falling back to bibcode when a
+      // record has no scix_id yet. This makes every bibcode/DOI/arXiv URL 302
+      // to its scix_id URL (SCIX-904).
+      const canonicalIdentifier = initialDoc?.scix_id ?? initialDoc?.bibcode;
 
       if (canonicalIdentifier && canonicalIdentifier !== requestedId) {
         log.info({ requestedId, canonicalIdentifier, viewPath }, 'Redirecting to canonical identifier');

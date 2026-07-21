@@ -18,6 +18,7 @@ import { useRouter } from 'next/router';
 import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
 import { isBrowser } from '@/utils/common/guards';
 import { IDocsEntity } from '@/api/search/types';
+import { getEncodedCanonicalId } from '@/lib/scix-id/canonicalId';
 import { CopyMenuItem } from '@/components/CopyButton';
 import { useGetExportCitation } from '@/api/export/export';
 import { useSettings } from '@/lib/useSettings';
@@ -73,7 +74,7 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
     }
   }, [hasCopied, setValue, toast]);
 
-  const encodedCanonicalID = doc?.bibcode ? encodeURIComponent(doc.bibcode) : '';
+  const encodedCanonicalID = doc?.bibcode ? getEncodedCanonicalId(doc, { surface: 'result-dropdown' }) : '';
 
   let fullSourceItems: IItem[] = [];
 

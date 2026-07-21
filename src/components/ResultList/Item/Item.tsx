@@ -30,6 +30,7 @@ import { useColorModeColors } from '@/lib/useColorModeColors';
 
 import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
 import { IDocsEntity } from '@/api/search/types';
+import { getEncodedCanonicalId } from '@/lib/scix-id/canonicalId';
 import { keys, toPairs } from 'ramda';
 import { sendGTMEvent } from '@next/third-parties/google';
 
@@ -69,7 +70,7 @@ export const Item = (props: IItemProps): ReactElement => {
     linkNewTab = false,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
-  const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
+  const encodedCanonicalID = bibcode ? getEncodedCanonicalId(doc, { surface: 'result-item' }) : '';
   const formattedPubDate = getFormattedNumericPubdate(pubdate);
   const isClient = useIsClient();
   const maxAuthors = useAuthorsPerResult();

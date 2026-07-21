@@ -113,6 +113,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
             external
           />
           <Detail label="Bibcode" value={doc.bibcode} copiable />
+          <Detail label="SciX ID" value={doc.scix_id} copiable />
           <Collections collections={doc.database ?? []} />
           <Keywords keywords={doc.keyword} />
           <UATKeywords keywords={doc.uat} ids={doc.uat_id} feedback={handleUATFeedback} />

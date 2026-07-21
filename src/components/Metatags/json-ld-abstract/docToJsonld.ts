@@ -1,4 +1,5 @@
 import { IDocsEntity } from '@/api/search/types';
+import { getEncodedCanonicalId } from '@/lib/scix-id/canonicalId';
 import { EXTERNAL_URLS } from '@/config';
 import { ScholarlyArticle, Thing, WithContext } from 'schema-dts';
 import { collectIdentifiersFromArray } from './identifiers';
@@ -132,7 +133,9 @@ export function docToJsonld(doc: Partial<IDocsEntity>, canonicalBaseURL?: string
     const purifiedAbstract = rawAbstract ? nonEmpty(stripHtml(rawAbstract)) : undefined;
 
     // Canonical only if we have a bibcode
-    const canonical = bibcode ? `${canonicalBaseURL}/abs/${encodeURIComponent(bibcode)}/abstract` : undefined;
+    const canonical = bibcode
+      ? `${canonicalBaseURL}/abs/${getEncodedCanonicalId(doc, { surface: 'json-ld-canonical' })}/abstract`
+      : undefined;
 
     // UAT about terms (zip up to shorter length)
     const about: Thing[] = zipMin(uatKeywords, uatIds).map(([name, code]) =>

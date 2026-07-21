@@ -306,6 +306,7 @@ export interface IDocsEntity {
   recid?: number;
   reference?: string[];
   reference_count?: number;
+  scix_id?: string;
   simbad_object_facet_hier?: string;
   simbid?: string;
   simbtype?: string;
@@ -439,6 +440,7 @@ export type QueryField =
   | 'reader'
   | 'recid'
   | 'reference'
+  | 'scix_id'
   | 'series'
   | 'simbad_object_facet_hier'
   | 'simbid'
@@ -546,6 +548,7 @@ export const queryFields = [
   'reader',
   'recid',
   'reference',
+  'scix_id',
   'series',
   'simbad_object_facet_hier',
   'simbid',
