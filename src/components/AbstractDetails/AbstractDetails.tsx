@@ -123,7 +123,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
           <Detail label="E-Print Comment(s)" value={doc.pubnote} />
         </Tbody>
       </Table>
-      <AbstractCitationModal isOpen={isCitationOpen} onClose={onCitationClose} bibcode={doc?.bibcode} />
+      <AbstractCitationModal isOpen={isCitationOpen} onClose={onCitationClose} doc={doc} />
     </Box>
   );
 };

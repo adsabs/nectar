@@ -14,11 +14,14 @@ export const useTrackAbstractView = (doc: IDocsEntity | undefined | null) => {
       return;
     }
 
-    const { bibcode, title, pub: journal, doctype, keyword, database = [] } = doc;
+    const { bibcode, scix_id, title, pub: journal, doctype, keyword, database = [] } = doc;
 
     database.forEach((db) => {
       const payload = {
         item_id: bibcode,
+        // Ride-along: bibcode stays the primary key (item_id) for GA continuity;
+        // scix_id is attached so events are also searchable by scix_id (SCIX-904).
+        scix_id,
         item_name: title?.[0] ?? bibcode,
         item_brand: journal,
         item_category: db,

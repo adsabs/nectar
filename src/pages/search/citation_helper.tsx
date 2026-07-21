@@ -39,6 +39,7 @@ import { useSession } from '@/lib/useSession';
 import { AbstractPreview } from '@/components/ResultList/Item';
 import { AuthorList } from '@/components/AllAuthorsModal';
 import { getSearchParams } from '@/api/search/models';
+import { getEncodedCanonicalId } from '@/lib/scix-id/canonicalId';
 import { useVaultBigQuerySearch } from '@/api/vault/vault';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { ControlledPaginationControls } from '@/components/Pagination';
@@ -275,7 +276,13 @@ export const Item = ({
   showCheckbox: boolean;
 }) => {
   const { bibcode, title, score } = entry;
-  const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
+  // Prefer the enriched doc's canonical scix_id for the /abs link; fall back to
+  // the suggestion entry's bibcode when the doc hasn't resolved yet (SCIX-904).
+  const encodedCanonicalID = doc?.bibcode
+    ? getEncodedCanonicalId(doc, { surface: 'citation-helper-item' })
+    : bibcode
+    ? encodeURIComponent(bibcode)
+    : '';
 
   const { author_count, author = [], pubdate, pub, citation_count } = doc;
 

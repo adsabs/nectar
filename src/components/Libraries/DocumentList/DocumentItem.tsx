@@ -13,6 +13,7 @@ import {
 import { AuthorList } from '@/components/AllAuthorsModal';
 import { ItemResourceDropdowns } from '@/components/ResultList/Item';
 import { APP_DEFAULTS } from '@/config';
+import { getEncodedCanonicalId } from '@/lib/scix-id/canonicalId';
 import { useAuthorsPerResult } from '@/lib/useAuthorsPerResult';
 import { useIsClient } from '@/lib/useIsClient';
 import { MathJax } from 'better-react-mathjax';
@@ -63,7 +64,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
     defaultCitation,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
-  const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
+  const encodedCanonicalID = bibcode ? getEncodedCanonicalId(doc, { surface: 'library-document-item' }) : '';
   const formattedPubDate = getFormattedNumericPubdate(pubdate);
   const isClient = useIsClient();
   const maxAuthors = useAuthorsPerResult();

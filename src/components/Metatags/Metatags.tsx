@@ -3,6 +3,7 @@ import { getFormattedNumericPubdate, getFormattedCitationDate, stripHtml } from 
 import { Esources, IDocsEntity } from '@/api/search/types';
 import { docToJsonld } from '@/components/Metatags/json-ld-abstract/docToJsonld';
 import { showsGoogleScholarTags } from '@/components/Metatags/scholarDoctypes';
+import { getEncodedCanonicalId } from '@/lib/scix-id/canonicalId';
 
 const baseUrl = process.env.BASE_CANONICAL_URL ?? '';
 const LINKGATEWAY_BASE_URL = `${baseUrl}/link_gateway`;
@@ -30,7 +31,7 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
   const title = doc.title ? stripHtml(doc.title.join('; ')) : '';
 
-  const encodedCanonicalID = doc.bibcode ? encodeURIComponent(doc.bibcode) : '';
+  const encodedCanonicalID = doc.bibcode ? getEncodedCanonicalId(doc, { surface: 'metatags-canonical' }) : '';
   const url = `${baseUrl}/abs/${encodedCanonicalID}/abstract`;
 
   const logo = `${baseUrl}/styles/images/transparent_logo.svg`;

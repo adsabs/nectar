@@ -1,5 +1,7 @@
 import { useGetExportCitation } from '@/api/export/export';
 import { ExportApiFormatKey, MostUsedExportFormats } from '@/api/export/types';
+import { IDocsEntity } from '@/api/search/types';
+import { bibcodeForApi, getEncodedCanonicalId } from '@/lib/scix-id/canonicalId';
 import { useExportFormats } from '@/lib/useExportFormats';
 import { useSettings } from '@/lib/useSettings';
 import { parseAPIError } from '@/utils/common/parseAPIError';
@@ -27,13 +29,18 @@ import { SimpleLink } from '../SimpleLink';
 export const AbstractCitationModal = ({
   isOpen,
   onClose,
-  bibcode,
+  doc,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  bibcode: string;
+  doc: IDocsEntity;
 }) => {
   const { settings } = useSettings();
+
+  // Export endpoint still requires bibcode (class b); the /abs link is a
+  // display URL and uses the canonical scix_id when available (SCIX-904).
+  const bibcode = doc?.bibcode ? bibcodeForApi(doc, { surface: 'citation-modal-export' }) : undefined;
+  const encodedCanonicalId = doc?.bibcode ? getEncodedCanonicalId(doc, { surface: 'citation-modal-advanced' }) : '';
 
   const { formatOptions, getFormatOptionById } = useExportFormats();
 
@@ -83,7 +90,7 @@ export const AbstractCitationModal = ({
             stylesTheme="default.sm"
           />
           <Flex justifyContent="end" my={1}>
-            <SimpleLink href={`/abs/${bibcode}/exportcitation/bibtex`} fontSize="sm" fontWeight="bold">
+            <SimpleLink href={`/abs/${encodedCanonicalId}/exportcitation/bibtex`} fontSize="sm" fontWeight="bold">
               Advanced options
             </SimpleLink>
           </Flex>
