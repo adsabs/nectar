@@ -1,4 +1,5 @@
 import { useGetExportCitation } from '@/api/export/export';
+import { getBibtexExportParams } from '@/api/export/getBibtexExportParams';
 import { ExportApiFormatKey, MostUsedExportFormats } from '@/api/export/types';
 import { useExportFormats } from '@/lib/useExportFormats';
 import { useSettings } from '@/lib/useSettings';
@@ -61,6 +62,7 @@ export const AbstractCitationModal = ({
     {
       format: selectedOption.id,
       bibcode: [bibcode],
+      ...getBibtexExportParams(settings, selectedOption.id),
     },
     { enabled: !!bibcode && isOpen },
   );

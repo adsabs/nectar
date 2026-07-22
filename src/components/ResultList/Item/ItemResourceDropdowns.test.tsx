@@ -2,6 +2,8 @@ import { render, waitFor } from '@/test-utils';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
 import { IDocsEntity } from '@/api/search/types';
+import { IADSApiUserDataResponse, JournalFormatName } from '@/api/user/types';
+import { ExportApiJournalFormat } from '@/api/export/types';
 
 const mocks = vi.hoisted(() => ({
   useRouter: vi.fn(() => ({
@@ -10,7 +12,7 @@ const mocks = vi.hoisted(() => ({
     push: vi.fn(),
     events: { on: vi.fn(), off: vi.fn() },
   })),
-  useSettings: vi.fn(() => ({
+  useSettings: vi.fn((): { settings: Partial<IADSApiUserDataResponse> } => ({
     settings: { defaultCitationFormat: 'agu' },
   })),
   useGetExportCitation: vi.fn(() => ({ data: undefined as { export: string } | undefined })),
@@ -39,6 +41,7 @@ describe('ItemResourceDropdowns', () => {
   afterEach(() => {
     mocks.useGetExportCitation.mockClear();
     mocks.useGetExportCitation.mockReturnValue({ data: undefined });
+    mocks.useSettings.mockReturnValue({ settings: { defaultCitationFormat: 'agu' } });
   });
 
   test('does not fetch citation on mount', () => {
@@ -94,6 +97,51 @@ describe('ItemResourceDropdowns', () => {
     const { getByLabelText } = render(<ItemResourceDropdowns doc={makeDoc()} />);
 
     expect(getByLabelText('share options')).toBeInTheDocument();
+  });
+
+  test('includes custom bibtex keyformat when default citation format is bibtex', async () => {
+    mocks.useSettings.mockReturnValue({
+      settings: {
+        defaultCitationFormat: 'bibtex',
+        bibtexKeyFormat: '%1H+%Y',
+        bibtexABSKeyFormat: '%R',
+        bibtexJournalFormat: JournalFormatName.AASTeXMacros,
+        bibtexAuthorCutoff: '200',
+        bibtexABSAuthorCutoff: '200',
+        bibtexMaxAuthors: '10',
+        bibtexABSMaxAuthors: '10',
+      },
+    });
+
+    const { user, getByLabelText } = render(<ItemResourceDropdowns doc={makeDoc()} />);
+
+    await user.click(getByLabelText('share options'));
+
+    await waitFor(() => {
+      expect(mocks.useGetExportCitation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          format: 'bibtex',
+          keyformat: ['%1H+%Y'],
+          journalformat: [ExportApiJournalFormat.AASTeXMacros],
+          authorcutoff: [200],
+          maxauthor: [10],
+        }),
+        expect.objectContaining({ enabled: true }),
+      );
+    });
+  });
+
+  test('does not send bibtex params when default citation format is not bibtex', async () => {
+    const { user, getByLabelText } = render(<ItemResourceDropdowns doc={makeDoc()} />);
+
+    await user.click(getByLabelText('share options'));
+
+    await waitFor(() => {
+      expect(mocks.useGetExportCitation).toHaveBeenCalledWith(
+        expect.not.objectContaining({ keyformat: expect.anything() }),
+        expect.objectContaining({ enabled: true }),
+      );
+    });
   });
 
   describe('tooltip dismissal when menu opens', () => {

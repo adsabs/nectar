@@ -20,6 +20,7 @@ import { isBrowser } from '@/utils/common/guards';
 import { IDocsEntity } from '@/api/search/types';
 import { CopyMenuItem } from '@/components/CopyButton';
 import { useGetExportCitation } from '@/api/export/export';
+import { getBibtexExportParams } from '@/api/export/getBibtexExportParams';
 import { useSettings } from '@/lib/useSettings';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { closeFullTextTimingSpan } from '@/lib/performance';
@@ -52,6 +53,7 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
     {
       format: settings.defaultCitationFormat,
       bibcode: [doc.bibcode],
+      ...getBibtexExportParams(settings, settings.defaultCitationFormat),
     },
     { enabled: isShareOpen && !!doc.bibcode },
   );
