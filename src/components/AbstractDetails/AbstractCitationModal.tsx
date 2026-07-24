@@ -2,6 +2,7 @@ import { useGetExportCitation } from '@/api/export/export';
 import { getBibtexExportParams } from '@/api/export/getBibtexExportParams';
 import { ExportApiFormatKey, MostUsedExportFormats } from '@/api/export/types';
 import { useExportFormats } from '@/lib/useExportFormats';
+import { useSession } from '@/lib/useSession';
 import { useSettings } from '@/lib/useSettings';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import {
@@ -16,11 +17,18 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
+  Button,
+  Divider,
   Flex,
+  Icon,
+  Text,
   Textarea,
+  Tooltip,
 } from '@chakra-ui/react';
+import { SettingsIcon } from '@chakra-ui/icons';
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
-import { SimpleCopyButton } from '../CopyButton';
+import { LabeledCopyButton } from '../CopyButton';
 import { LoadingMessage } from '../Feedbacks';
 import { Select } from '../Select';
 import { SimpleLink } from '../SimpleLink';
@@ -35,6 +43,8 @@ export const AbstractCitationModal = ({
   bibcode: string;
 }) => {
   const { settings } = useSettings();
+
+  const { isAuthenticated } = useSession();
 
   const { formatOptions, getFormatOptionById } = useExportFormats();
 
@@ -68,28 +78,25 @@ export const AbstractCitationModal = ({
   );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Citation</ModalHeader>
+        <ModalHeader fontSize="2xl">Citation</ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
+        <ModalBody pb={6}>
+          <Text fontSize="sm" color="gray.500" mb={6}>
+            Copy and paste a citation for this record.
+          </Text>
           <Select
             name="format"
-            label="Citation Format"
-            hideLabel
+            label="Format"
             id="citation-format-selector"
             options={options}
             value={selectedOption}
             onChange={(o) => setSelectedOption(o)}
             stylesTheme="default.sm"
           />
-          <Flex justifyContent="end" my={1}>
-            <SimpleLink href={`/abs/${bibcode}/exportcitation/bibtex`} fontSize="sm" fontWeight="bold">
-              Advanced options
-            </SimpleLink>
-          </Flex>
-          <Box my={6}>
+          <Box mt={6} mb={8}>
             {isLoading ? (
               <LoadingMessage message="Loading" />
             ) : isError ? (
@@ -101,23 +108,53 @@ export const AbstractCitationModal = ({
             ) : (
               <>
                 {selectedOption.type === 'HTML' ? (
-                  <>
-                    <Box fontSize="sm" fontWeight="medium" dangerouslySetInnerHTML={{ __html: data.export }} />
-                    <Flex justifyContent="end">
-                      <SimpleCopyButton text={data.export} variant="outline" size="xs" asHtml />
-                    </Flex>
-                  </>
+                  <Box fontSize="sm" fontWeight="medium" dangerouslySetInnerHTML={{ __html: data.export }} />
                 ) : (
-                  <>
-                    <Textarea value={data.export} fontSize="sm" fontWeight="medium" mb={2} h={150} />
-                    <Flex justifyContent="end">
-                      <SimpleCopyButton text={data.export} variant="outline" size="xs" />
-                    </Flex>
-                  </>
+                  <Textarea value={data.export} fontSize="sm" fontWeight="medium" h={200} isReadOnly />
                 )}
+                <Flex justifyContent="end" mt={4}>
+                  <LabeledCopyButton
+                    label="Copy"
+                    text={data.export}
+                    asHtml={selectedOption.type === 'HTML'}
+                    colorScheme="blue"
+                    variant="solid"
+                  />
+                </Flex>
               </>
             )}
           </Box>
+          <Divider />
+          <Flex justifyContent="space-between" alignItems="flex-start" mt={6}>
+            <SimpleLink
+              href={`/abs/${bibcode}/exportcitation/bibtex`}
+              icon={<Icon as={ArrowTopRightOnSquareIcon} boxSize={4} mr={1} />}
+              display="flex"
+              alignItems="center"
+              fontSize="sm"
+              fontWeight="bold"
+            >
+              More export options
+            </SimpleLink>
+            {isAuthenticated ? (
+              <SimpleLink
+                href="/user/settings/export?tab=3"
+                icon={<SettingsIcon mr={1} />}
+                display="flex"
+                alignItems="center"
+                fontSize="sm"
+                fontWeight="bold"
+              >
+                Copy citation settings
+              </SimpleLink>
+            ) : (
+              <Tooltip label="Create an account to manage Copy Citation settings" shouldWrapChildren>
+                <Button variant="link" size="sm" leftIcon={<SettingsIcon />} isDisabled>
+                  Copy citation settings
+                </Button>
+              </Tooltip>
+            )}
+          </Flex>
         </ModalBody>
       </ModalContent>
     </Modal>
