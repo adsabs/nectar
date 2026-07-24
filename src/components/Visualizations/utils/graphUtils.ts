@@ -1,7 +1,9 @@
 import {
+  IADSApiAuthorNetworkErrorGraphNode,
   IADSApiAuthorNetworkNode,
   IADSApiAuthorNetworkResponse,
   IADSApiPaperNetworkFullGraph,
+  IADSApiPaperNetworkFullGraphNode,
   IADSApiPaperNetworkResponse,
   IADSApiPaperNetworkSummaryGraphNode,
   IADSApiWordCloudResponse,
@@ -480,6 +482,33 @@ export const getAuthorNetworkSummaryGraph = (response: IADSApiAuthorNetworkRespo
   } catch (err) {
     return { data: [], error: err instanceof Error ? err : new Error('Cannot generate network') };
   }
+};
+
+// "Not enough data" author responses only carry author name + weight in the
+// ungrouped `fullGraph`, so that is all the CSV can offer in the error state.
+export const getAuthorNetworkErrorCSV = (nodes: IADSApiAuthorNetworkErrorGraphNode[]): string => {
+  let output = 'author,weight\n';
+  nodes.forEach((node) => {
+    output += `"${node.nodeName}",${node.nodeWeight}\n`;
+  });
+
+  return output;
+};
+
+// "Not enough data" paper responses carry per-paper rows in the ungrouped
+// `fullGraph` (bibcode + metadata), which is richer than the author fallback.
+type PaperNetworkErrorNode = Pick<
+  IADSApiPaperNetworkFullGraphNode,
+  'nodeName' | 'first_author' | 'title' | 'year' | 'citation_count' | 'read_count'
+>;
+
+export const getPaperNetworkErrorCSV = (nodes: PaperNetworkErrorNode[]): string => {
+  let output = 'bibcode,first author,title,year,citations,download count\n';
+  nodes.forEach((node) => {
+    output += `"${node.nodeName}","${node.first_author}","${node.title}","${node.year}",${node.citation_count},${node.read_count}\n`;
+  });
+
+  return output;
 };
 
 export const getAuthorNetworkNodeDetails = (

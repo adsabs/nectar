@@ -14,9 +14,11 @@ import {
 } from '@/api/metrics/types';
 import type { IFacetCountsFields, IDocsEntity, IBucket } from '@/api/search/types';
 import {
+  getAuthorNetworkErrorCSV,
   getCitationTableData,
   getHIndexGraphData,
   getIndicesTableData,
+  getPaperNetworkErrorCSV,
   getPapersTableData,
   getReadsTableData,
   getResultsGraph,
@@ -516,5 +518,44 @@ describe('getResultsGraph', () => {
 
     expect(result.groups).toEqual([]);
     expect(result.data.every((item) => item.pub === 'other')).toBe(true);
+  });
+});
+
+describe('getAuthorNetworkErrorCSV', () => {
+  test('builds an author,weight CSV from the ungrouped fallback nodes', () => {
+    const csv = getAuthorNetworkErrorCSV([
+      { nodeName: 'Bieniosek, F', nodeWeight: 22.4 },
+      { nodeName: 'Lee, E', nodeWeight: 150 },
+    ]);
+
+    expect(csv).toBe('author,weight\n"Bieniosek, F",22.4\n"Lee, E",150\n');
+  });
+
+  test('returns just the header when there are no nodes', () => {
+    expect(getAuthorNetworkErrorCSV([])).toBe('author,weight\n');
+  });
+});
+
+describe('getPaperNetworkErrorCSV', () => {
+  test('builds a per-paper CSV from the ungrouped fallback nodes', () => {
+    const csv = getPaperNetworkErrorCSV([
+      {
+        nodeName: '2000PhyC..337..187S',
+        first_author: 'Sumption, M. D.',
+        title: 'Influence of filamentary and strand aspect ratios',
+        year: '2000',
+        citation_count: 9,
+        read_count: 0,
+      },
+    ]);
+
+    expect(csv).toBe(
+      'bibcode,first author,title,year,citations,download count\n' +
+        '"2000PhyC..337..187S","Sumption, M. D.","Influence of filamentary and strand aspect ratios","2000",9,0\n',
+    );
+  });
+
+  test('returns just the header when there are no nodes', () => {
+    expect(getPaperNetworkErrorCSV([])).toBe('bibcode,first author,title,year,citations,download count\n');
   });
 });

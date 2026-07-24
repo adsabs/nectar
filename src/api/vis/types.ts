@@ -12,8 +12,27 @@ export interface IADSApiWordCloudParams {
 }
 
 export interface IADSApiAuthorNetworkResponse {
-  data: { bibcode_dict: IBibcodeDict; link_data: number[][]; root: IADSApiAuthorNetworkNode };
+  data: {
+    bibcode_dict: IBibcodeDict;
+    link_data: number[][];
+    root: IADSApiAuthorNetworkNode;
+    // Present only in the "not enough data" fallback, where the service drops
+    // `root` and returns the raw ungrouped force graph instead.
+    fullGraph?: IADSApiNetworkErrorGraph<IADSApiAuthorNetworkErrorGraphNode>;
+  };
   msg: { numFound: number; start: number; rows: number };
+}
+
+// "Not enough data" responses (author and paper) share this ungrouped graph
+// shape under `data.fullGraph`; node contents differ per network.
+export interface IADSApiNetworkErrorGraph<TNode> {
+  nodes: TNode[];
+  links: { source: number; target: number; value: number; overlap?: string[] }[];
+}
+
+export interface IADSApiAuthorNetworkErrorGraphNode {
+  nodeName: string; // author name
+  nodeWeight: number;
 }
 
 export interface IBibcodeDict {
@@ -100,6 +119,10 @@ export interface IADSApiPaperNetworkFullGraphNode {
   node_name: string;
   id: number;
   nodeWeight: number;
+  // Present only in the "not enough data" fallback, where `fullGraph` nodes are
+  // individual papers keyed by bibcode rather than grouped summary nodes.
+  nodeName?: string; // bibcode
+  year?: string;
 }
 
 export interface IADSApiWordCloudResponse {
