@@ -9,13 +9,18 @@ import { sort, uniq } from 'ramda';
 import { ReactElement, Reducer, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
-import { getPaperNetworkLinkDetails, getPaperNetworkNodeDetails, getPaperNetworkSummaryGraph } from '../utils';
-import { FilterSearchBar, IFilterSearchBarProps, NotEnoughData } from '../Widgets';
+import {
+  getPaperNetworkErrorCSV,
+  getPaperNetworkLinkDetails,
+  getPaperNetworkNodeDetails,
+  getPaperNetworkSummaryGraph,
+} from '../utils';
+import { FilterSearchBar, IFilterSearchBarProps, NetworkNotEnoughData } from '../Widgets';
 import { PaperNetworkDetailsPane } from '../Panes/NetworkDetails/PaperNetworkDetailsPane';
 import { IPaperNetworkLinkDetails, IPaperNetworkNodeDetails } from '../Panes/NetworkDetails/types';
 import { PaperNetworkGraphPane } from '../GraphPanes/PaperNetworkGraphPane';
 import { ITagItem } from '@/components/Tags';
-import { CustomInfoMessage, LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
+import { LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
 import { Expandable } from '@/components/Expandable';
 import { SimpleLink } from '@/components/SimpleLink';
 import { DataDownloader } from '@/components/DataDownloader';
@@ -216,6 +221,13 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
     return output;
   }, [paperNetworkData?.data?.summaryGraph?.nodes]);
 
+  // In the "not enough data" state `summaryGraph` is absent; the service returns
+  // the raw ungrouped paper rows under `fullGraph`, which is what we export.
+  const errorNodes = paperNetworkData?.data?.fullGraph?.nodes;
+  const hasErrorData = Array.isArray(errorNodes) && errorNodes.length > 0;
+
+  const getErrorCSVDataContent = useCallback(() => getPaperNetworkErrorCSV(errorNodes ?? []), [errorNodes]);
+
   return (
     <Box as="section" aria-label="Paper network graph" my={10}>
       <StatusDisplay
@@ -224,7 +236,12 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
         paperNetworkError={paperNetworkError}
       />
       {!paperNetworkIsLoading && paperNetworkIsSuccess && !paperNetworkData.data?.summaryGraph && (
-        <CustomInfoMessage status="info" alertTitle="Could not generate" description={<NotEnoughData />} />
+        <NetworkNotEnoughData
+          paperLimit={state.rowsToFetch}
+          maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
+          onChangePaperLimit={(limit) => dispatch({ type: 'CHANGE_PAPER_LIMIT', payload: limit })}
+          csv={hasErrorData ? { getFileContent: getErrorCSVDataContent, fileName: 'paper-network.csv' } : undefined}
+        />
       )}
       {!paperNetworkIsLoading && paperNetworkIsSuccess && paperNetworkData.data?.summaryGraph && (
         <SimpleGrid columns={columns} spacing={16}>

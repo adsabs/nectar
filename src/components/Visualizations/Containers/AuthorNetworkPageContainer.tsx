@@ -9,13 +9,13 @@ import { uniq } from 'ramda';
 import { ReactElement, Reducer, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
-import { getAuthorNetworkNodeDetails, getAuthorNetworkSummaryGraph } from '../utils';
-import { FilterSearchBar, IFilterSearchBarProps, NotEnoughData } from '../Widgets';
+import { getAuthorNetworkErrorCSV, getAuthorNetworkNodeDetails, getAuthorNetworkSummaryGraph } from '../utils';
+import { FilterSearchBar, IFilterSearchBarProps, NetworkNotEnoughData } from '../Widgets';
 import { AuthorNetworkDetailsPane } from '../Panes/NetworkDetails/AuthorNetworkDetailsPane';
 import { IAuthorNetworkNodeDetails } from '../Panes/NetworkDetails/types';
 import { AuthorNetworkGraphPane } from '../GraphPanes/AuthorNetworkGraphPane';
 import { ITagItem } from '@/components/Tags';
-import { CustomInfoMessage, LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
+import { LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
 import { Expandable } from '@/components/Expandable';
 import { SimpleLink } from '@/components/SimpleLink';
 import { DataDownloader } from '@/components/DataDownloader';
@@ -185,6 +185,13 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     return output;
   }, [authorNetworkData?.data?.root?.children]);
 
+  // In the "not enough data" state `root` is absent; the service instead returns
+  // the raw ungrouped author graph under `fullGraph`, which is all we can export.
+  const errorNodes = authorNetworkData?.data?.fullGraph?.nodes;
+  const hasErrorData = Array.isArray(errorNodes) && errorNodes.length > 0;
+
+  const getErrorCSVDataContent = useCallback(() => getAuthorNetworkErrorCSV(errorNodes ?? []), [errorNodes]);
+
   return (
     <Box as="section" aria-label="Author network graph" my={10}>
       <StatusDisplay
@@ -193,7 +200,12 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
         authorNetworkError={authorNetworkError}
       />
       {!authorNetworkIsLoading && authorNetworkIsSuccess && !authorNetworkData.data?.root && (
-        <CustomInfoMessage status="info" alertTitle="Could not generate" description={<NotEnoughData />} />
+        <NetworkNotEnoughData
+          paperLimit={state.rowsToFetch}
+          maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
+          onChangePaperLimit={(limit) => dispatch({ type: 'CHANGE_PAPER_LIMIT', payload: limit })}
+          csv={hasErrorData ? { getFileContent: getErrorCSVDataContent, fileName: 'author-network.csv' } : undefined}
+        />
       )}
       {!authorNetworkIsLoading && authorNetworkIsSuccess && authorNetworkData.data?.root && (
         <SimpleGrid columns={columns} spacing={16}>
