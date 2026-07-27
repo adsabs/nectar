@@ -162,7 +162,7 @@ export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
   const { menuItems, activeItem } = useGetItems({ doc, graphicsCount, hasMetrics });
 
   return (
-    <div id="abstract-nav-menu">
+    <div data-tour="abstract-nav-menu">
       {/* Large viewports */}
       <SideNavigationMenu
         menuItems={menuItems}

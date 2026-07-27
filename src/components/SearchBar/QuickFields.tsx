@@ -48,7 +48,7 @@ export const QuickFields = (props: IQuickFieldsProps): ReactElement => {
 
   return (
     <Flex direction="row" justifyContent="start" fontSize="md" gap={5} {...elProps}>
-      <HStack spacing={5} fontSize="md" display={{ base: 'none', sm: 'inherit' }} id="quick-fields">
+      <HStack spacing={5} fontSize="md" display={{ base: 'none', sm: 'inherit' }} data-tour="quick-fields">
         <Text>QUICK FIELD: </Text>
         {!isClient
           ? null

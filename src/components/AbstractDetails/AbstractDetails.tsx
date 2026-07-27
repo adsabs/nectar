@@ -43,6 +43,7 @@ interface IDetailsProps {
 
 interface IDetailProps<T = string | Array<string>> {
   id: string;
+  tourId?: string;
   label: string | ReactNode;
   href?: string;
   external?: boolean;
@@ -94,7 +95,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
                     cursor="pointer"
                     size="xs"
                     onClick={onCitationOpen}
-                    id="tour-quick-citation-copy"
+                    data-tour="quick-citation-copy"
                   >
                     <FontAwesomeIcon icon={faQuoteLeft} size="xs" />
                   </Button>
@@ -131,7 +132,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
 
 // TODO: this should take in a list of deps or the whole doc and show/hide based on that
 const Detail = <T extends string | string[]>(props: IDetailProps<T>): ReactElement => {
-  const { id, label, href, external = false, value, copiable = false, children } = props;
+  const { id, tourId, label, href, external = false, value, copiable = false, children } = props;
 
   // show nothing if no value
   if (isNilOrEmpty(value)) {
@@ -141,7 +142,7 @@ const Detail = <T extends string | string[]>(props: IDetailProps<T>): ReactEleme
   const normalizedValue: string = Array.isArray(value) ? value.join('; ') : value;
 
   return (
-    <Tr id={id}>
+    <Tr id={id} data-tour={tourId}>
       <Td>{label}</Td>
       <Td wordBreak="break-word">
         {href && (
@@ -232,7 +233,7 @@ const UATKeywords = memo(
   ({ keywords, ids, feedback }: { keywords: Array<string>; ids: Array<number>; feedback: () => void }) => {
     const desc = `Search for papers that mention this keyword`;
     const label = (
-      <div id="tour-abs-uat-keywords">
+      <div id="abs-uat-keywords">
         {`UAT ${pluralize('Keyword', keywords?.length ?? 0)} (generated)`}
         <Badge colorScheme="blue" mx={1}>
           BETA
@@ -240,7 +241,7 @@ const UATKeywords = memo(
       </div>
     );
     return (
-      <Detail label={label} value={keywords} id="tour-abs-uat-keywords">
+      <Detail label={label} value={keywords} id="abs-uat-keywords" tourId="abs-uat-keywords">
         {(keywords) => (
           <>
             <Flex flexWrap={'wrap'}>
@@ -297,8 +298,9 @@ const Collections = memo(({ collections }: { collections: Array<string> }) => {
   const label = `Search for papers in this collection`;
   return (
     <Detail
-      id="tour-abs-collections"
-      label={<div id="tour-abs-collections">{pluralize('Collection', collections?.length ?? 0)}</div>}
+      id="abs-collections"
+      tourId="abs-collections"
+      label={<div>{pluralize('Collection', collections?.length ?? 0)}</div>}
       value={collections}
     >
       {(collections) => (

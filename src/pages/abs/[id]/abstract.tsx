@@ -98,7 +98,7 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
             <a className="skip-link" href="#abstract-section">
               Skip authors list
             </a>
-            <Flex wrap="wrap" as="section" aria-labelledby="author-list" id="tour-authors-list">
+            <Flex wrap="wrap" as="section" aria-labelledby="author-list" data-tour="authors-list">
               <VisuallyHidden as="h3" id="author-list">
                 Authors
               </VisuallyHidden>
@@ -165,7 +165,7 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
                         icon={<FolderPlusIcon width={40} height={40} />}
                         variant="ghost"
                         onClick={onOpenAddToLibrary}
-                        id="tour-add-to-library"
+                        data-tour="add-to-library"
                       />
                     </Tooltip>
                   </Flex>
@@ -206,9 +206,7 @@ const useTour = () => {
   // tour should not start until the first element is rendered
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      const element = document.getElementById(
-        isScreenLarge ? 'accordion-button-tour-full-text-sources' : 'menu-button-tour-full-text-sources',
-      );
+      const element = document.querySelector('[data-tour^="full-text-sources"]');
       if (element) {
         setIsRendered(true);
         observer.disconnect();

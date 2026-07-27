@@ -489,7 +489,7 @@ const useTour = () => {
   // tour should not start until the first element is rendered
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      const element = document.getElementById('tour-search-input');
+      const element = document.querySelector('[data-tour="search-input"]');
       if (element) {
         setIsRendered(true);
         observer.disconnect();

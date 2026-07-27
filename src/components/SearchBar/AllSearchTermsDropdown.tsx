@@ -152,7 +152,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
             })}
             onClick={toggleIsOpen}
             data-testid="allSearchTermsInput"
-            id="all-search-terms"
+            data-tour="all-search-terms"
           />
           <InputRightElement data-testid="allSearchTermsMenuToggle" {...getToggleButtonProps()}>
             <ChevronDownIcon boxSize={6} color="gray.200" />

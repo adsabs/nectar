@@ -100,7 +100,7 @@ export const getHomeSteps = (isMobile: boolean, isAstrophysics = false) => {
       title: 'Search',
       text: 'Enter your search terms; by default, returned results will match all of your terms. Some commonly searched fields will be displayed in the autocomplete. For example, type “collection:” to see available disciplinary collections. Learn more about <a href="https://scixplorer.org/adstoscix" target="_blank">SciX here</a>.',
       attachTo: {
-        element: '#tour-search-input',
+        element: '[data-tour="search-input"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -125,7 +125,7 @@ export const getHomeSteps = (isMobile: boolean, isAstrophysics = false) => {
         ? 'SciX searches ALL disciplines not just astronomy and physics. Select a discipline to boost records from that discipline in your results when they are sorted by Relevancy. Changing this selection will also customize the SciX home page and results layout.'
         : 'Select a discipline to change the SciX home page and results layout. In addition, records from your selected discipline will be boosted when results are sorted by Relevancy.',
       attachTo: {
-        element: '#tour-theme-selector',
+        element: '#theme-selector',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -152,7 +152,7 @@ export const getHomeSteps = (isMobile: boolean, isAstrophysics = false) => {
       title: 'Classic Form',
       text: 'If you are more comfortable with the Classic form, it is still here for you.',
       attachTo: {
-        element: '#tour-classic-form-tab',
+        element: '[data-tour="classic-form-tab"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -174,7 +174,7 @@ export const getHomeSteps = (isMobile: boolean, isAstrophysics = false) => {
         },
       ],
       showOn() {
-        const el = document.querySelector('#tour-classic-form-tab');
+        const el = document.querySelector('[data-tour="classic-form-tab"]');
         return isAstrophysics && !!el && window.getComputedStyle(el).display !== 'none';
       },
     },
@@ -183,7 +183,7 @@ export const getHomeSteps = (isMobile: boolean, isAstrophysics = false) => {
       title: 'Quick fields',
       text: 'For a more targeted search, select the specific field(s) that you want to search, e.g. “author”.',
       attachTo: {
-        element: '#quick-fields',
+        element: '[data-tour="quick-fields"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -205,7 +205,7 @@ export const getHomeSteps = (isMobile: boolean, isAstrophysics = false) => {
         },
       ],
       showOn() {
-        const el = document.querySelector('#quick-fields');
+        const el = document.querySelector('[data-tour="quick-fields"]');
         return !!el && window.getComputedStyle(el).display !== 'none';
       },
     },
@@ -214,7 +214,7 @@ export const getHomeSteps = (isMobile: boolean, isAstrophysics = false) => {
       title: 'All search terms',
       text: 'A list of all search fields is available for browsing.',
       attachTo: {
-        element: '#all-search-terms',
+        element: '[data-tour="all-search-terms"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -241,7 +241,7 @@ export const getHomeSteps = (isMobile: boolean, isAstrophysics = false) => {
       title: 'Account',
       text: 'Log into the SciX website using your ADS credentials. Your existing libraries, notifications, and settings will be available immediately plus you will have a few more options to customize your experience.',
       attachTo: {
-        element: isMobile ? 'button[data-id="tour-main-menu"]' : 'div[data-id="tour-account-menu"]',
+        element: isMobile ? '[data-tour="main-menu"]' : '[data-tour="account-menu"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -271,7 +271,7 @@ export const getHomeSteps = (isMobile: boolean, isAstrophysics = false) => {
       title: 'Help pages',
       text: 'Our full help pages can be found here.',
       attachTo: {
-        element: isMobile ? 'button[data-id="tour-main-menu"]' : 'button[data-id="tour-help-menu"]',
+        element: isMobile ? '[data-tour="main-menu"]' : '[data-tour="help-menu"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -307,7 +307,7 @@ export const getResultsSteps = (isAstrophysics = false) => {
         ? 'SciX default order is Relevancy, which will prioritize results from your selected discipline. However, like in ADS, you can change the sort order to rerank results according to different metadata fields or metrics.'
         : 'Change the sort order to rerank results according to different metadata fields or metrics.',
       attachTo: {
-        element: '#sort-order',
+        element: '[data-tour="sort-order"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -326,13 +326,13 @@ export const getResultsSteps = (isAstrophysics = false) => {
     {
       id: 'theme-selector',
       title: isAstrophysics
-        ? '<span class="tour-title">Quick citation copy<span class="tour-badge">New</span></span>'
-        : 'Quick citation copy',
+        ? '<span class="tour-title">Change discipline<span class="tour-badge">New</span></span>'
+        : 'Change discipline',
       text: isAstrophysics
         ? 'SciX searches ALL disciplines not just astronomy and physics. Select a discipline to boost records from that discipline in your results when they are sorted by Relevancy. '
         : 'Records from your selected discipline will be boosted when results are sorted by Relevancy.',
       attachTo: {
-        element: '#tour-theme-selector',
+        element: '#theme-selector',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -359,7 +359,7 @@ export const getResultsSteps = (isAstrophysics = false) => {
       title: 'filters',
       text: 'Filter your results using the panel: open a particular facet and select one or more options to filter the results',
       attachTo: {
-        element: '#tour-search-facets',
+        element: '[data-tour="search-facets"]',
         on: 'right',
       },
       classes: 'example-step-extra-class',
@@ -390,7 +390,7 @@ export const getResultsSteps = (isAstrophysics = false) => {
         ? 'Like in ADS, you can quickly view available links for each resource (fulltext sources, citations and references, or data products). Now, you can also quickly share or cite a paper.'
         : 'Quickly view available links for each resource (fulltext sources, citations and references, or data products), or share or cite a paper.',
       attachTo: {
-        element: '#tour-quick-icons',
+        element: '[data-tour="quick-icons"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -421,7 +421,7 @@ export const getResultsSteps = (isAstrophysics = false) => {
         ? 'Instead of opening all abstracts, SciX keeps your results compact. Click here to view the abstracts you choose.'
         : 'Click here to view a record’s abstract.',
       attachTo: {
-        element: '#tour-view-abstract',
+        element: '[data-tour="view-abstract"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -450,7 +450,7 @@ export const getResultsSteps = (isAstrophysics = false) => {
         ? 'Turn on highlights to see the context of your search terms. Note the publishers limit the length of the returned highlights.'
         : 'Turn on highlights to see the context of your search terms. Note that the length of returned highlights is limited by publishers.',
       attachTo: {
-        element: '#tour-view-highlights',
+        element: '[data-tour="view-highlights"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -479,7 +479,7 @@ export const getResultsSteps = (isAstrophysics = false) => {
         ? 'Click here to export the bibliographic information of selected records. Here is, also, where you save records to your personal library.'
         : 'Click here to export the bibliographic information of selected records. If you’re logged in, you can also save the records to a personal library and share with colleagues.',
       attachTo: {
-        element: '#menu-button-tour-bulk-actions',
+        element: '[data-tour="bulk-actions"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -510,7 +510,7 @@ export const getResultsSteps = (isAstrophysics = false) => {
         ? 'Like in ADS, click here to visualize your search results and find other relevant papers. SciX has new Overview visualizations and the Citation Helper is now available here. '
         : 'Click here to visualize your search results and find other relevant papers.',
       attachTo: {
-        element: '#menu-button-tour-explore',
+        element: '[data-tour="explore"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -537,7 +537,7 @@ export const getResultsSteps = (isAstrophysics = false) => {
       title: 'Email notification',
       text: 'Turn on email notifications for this query. This will generate daily or weekly emails which include new results',
       attachTo: {
-        element: 'button[data-id="tour-email-notification"]',
+        element: '[data-tour="email-notification"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -569,7 +569,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
       title: 'Full text sources',
       text: 'Links out to full text versions of this item, possibly including publisher records, preprints, scans of historical materials, or links via your institution’s library.',
       attachTo: {
-        element: isMobile ? '#menu-button-tour-full-text-sources' : '#accordion-button-tour-full-text-sources',
+        element: isMobile ? '[data-tour="full-text-sources-mobile"]' : '[data-tour="full-text-sources-desktop"]',
         on: isMobile ? 'bottom' : 'right',
       },
       classes: 'example-step-extra-class',
@@ -585,8 +585,9 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         },
       ],
       showOn() {
-        return !!document.querySelector(
-          isMobile ? '#menu-button-tour-full-text-sources' : '#accordion-button-tour-full-text-sources',
+        return (
+          !!document.querySelector('[data-tour="full-text-sources-mobile"]') ||
+          !!document.querySelector('[data-tour="full-text-sources-desktop"]')
         );
       },
     },
@@ -597,7 +598,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         ? 'Data Products like on ADS plus new Related Materials provide external links to data, software, and other resources either as external links or records within SciX.'
         : 'External links to related data products and software, or to related records within SciX.',
       attachTo: {
-        element: isMobile ? '#menu-button-tour-data-products' : '#accordion-button-tour-data-products',
+        element: isMobile ? '[data-tour="data-products-mobile"]' : '[data-tour="data-products-desktop"]',
         on: isMobile ? 'bottom' : 'right',
       },
       classes: 'example-step-extra-class',
@@ -620,7 +621,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
       ],
       showOn() {
         return !!document.querySelector(
-          isMobile ? '#menu-button-tour-data-products' : '#accordion-button-tour-data-products',
+          isMobile ? '[data-tour="data-products-mobile"]' : '[data-tour="data-products-desktop"]',
         );
       },
     },
@@ -633,7 +634,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         ? 'Like on ADS find more information about record, including citations, references, or related records, view graphics and usage metrics, or export the bibliographic data in a variety of formats. SciX also goes beyond reference lists to reveal scientific contributions of data, software, and support as credits and mentions.'
         : 'Find more information about the record, including citations, references, or related records, view usage metrics, or export the bibliographic data in a variety of formats.',
       attachTo: {
-        element: '#abstract-nav-menu',
+        element: '[data-tour="abstract-nav-menu"]',
         on: isMobile ? 'bottom' : 'right',
       },
       classes: 'example-step-extra-class',
@@ -664,7 +665,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         ? 'Click an author’s name or their ORCID icon to search by their name or ORCID ID. Click “show details” for a searchable panel of authors, ORCiD, and affiliations. '
         : 'Click an author’s name or their ORCID icon to search by their name or ORCID ID.',
       attachTo: {
-        element: '#tour-authors-list',
+        element: '[data-tour="authors-list"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -686,7 +687,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         },
       ],
       showOn() {
-        return !!document.querySelector('#tour-authors-list');
+        return !!document.querySelector('[data-tour="authors-list"]');
       },
     },
     {
@@ -696,7 +697,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         : 'Document type',
       text: 'Type of document explicitly stated (article, dataset, catalog, software, proposal, phdthesis… ) You can also filter for these using Publication Type or search for them using "doctype:" ',
       attachTo: {
-        element: '#tour_abs_doctype',
+        element: '[data-tour="abs_doctype"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -718,7 +719,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         },
       ],
       showOn() {
-        return isAstrophysics && !!document.querySelector('#tour_abs_doctype');
+        return isAstrophysics && !!document.querySelector('[data-tour="abs_doctype"]');
       },
     },
     {
@@ -730,7 +731,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         ? 'Copy the formatted citation, ready to paste into your text editor. Set your default format in your SciX account.'
         : 'Copy the formatted citation, ready to paste into your text editor.',
       attachTo: {
-        element: '#tour-quick-citation-copy',
+        element: '[data-tour="quick-citation-copy"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -752,7 +753,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         },
       ],
       showOn() {
-        return !!document.querySelector('#tour-quick-citation-copy');
+        return !!document.querySelector('[data-tour="quick-citation-copy"]');
       },
     },
     {
@@ -762,7 +763,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         : 'Collections',
       text: 'Collections (astronomy, earthscience, physics, or general) to which record belongs explicitly stated, more than one is possible. You can filter for these using Collections filter or search for them using "collection:"',
       attachTo: {
-        element: '#tour-abs-collections',
+        element: '[data-tour="abs-collections"]',
         on: 'top',
       },
       classes: 'example-step-extra-class',
@@ -784,7 +785,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         },
       ],
       showOn() {
-        return isAstrophysics && !!document.querySelector('#tour-abs-collections');
+        return isAstrophysics && !!document.querySelector('[data-tour="abs-collections"]');
       },
     },
     {
@@ -794,7 +795,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         : 'UAT keywords',
       text: 'SciX machine learning project to assign a consistent set of keywords to all astronomy records. Your feedback would be appreciated.',
       attachTo: {
-        element: '#tour-abs-uat-keywords',
+        element: '[data-tour="abs-uat-keywords"]',
         on: 'top',
       },
       classes: 'example-step-extra-class',
@@ -816,7 +817,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         },
       ],
       showOn() {
-        return isAstrophysics && !!document.querySelector('#tour-abs-uat-keywords');
+        return isAstrophysics && !!document.querySelector('[data-tour="abs-uat-keywords"]');
       },
     },
     {
@@ -824,7 +825,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
       title: 'Add to library',
       text: 'Add this record to one of your personal SciX libraries.',
       attachTo: {
-        element: '#tour-add-to-library',
+        element: '[data-tour="add-to-library"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -832,7 +833,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         middleware: [offset(10)],
       },
       showOn() {
-        return !!document.querySelector('#tour-add-to-library');
+        return !!document.querySelector('[data-tour="add-to-library"]');
       },
       buttons: [
         {
@@ -854,7 +855,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
       title: 'Get more by logging in',
       text: 'Set your institutional library, add records to your personal SciX libraries and share with colleagues, or set other customizations with a free SciX account.',
       attachTo: {
-        element: isMobile ? 'button[data-id="tour-main-menu"]' : '#menu-button-nav-menu-account',
+        element: isMobile ? '[data-tour="main-menu"]' : '[data-tour="account-menu"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
@@ -862,9 +863,7 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
         middleware: [offset(10)],
       },
       showOn() {
-        return !!document.querySelector(
-          isMobile ? 'button[data-id="tour-main-menu"]' : '#menu-button-nav-menu-account',
-        );
+        return !!document.querySelector(isMobile ? '[data-tour="main-menu"]' : '[data-tour="account-menu"]');
       },
       buttons: [
         {

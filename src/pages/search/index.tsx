@@ -517,7 +517,7 @@ const SearchFacetFilters = (props: {
               onClick={onOpenFacet}
               top="240px"
               left="0"
-              id="tour-search-facets"
+              data-tour="search-facets"
             >
               Show Filters
             </Button>
@@ -537,7 +537,7 @@ const SearchFacetFilters = (props: {
 
   if (showFilters) {
     return (
-      <Flex as="aside" aria-labelledby="search-facets" minWidth="250px" direction="column" id="tour-search-facets">
+      <Flex as="aside" aria-labelledby="search-facets" minWidth="250px" direction="column" data-tour="search-facets">
         <a className="skip-link" href="#results">
           Skip to search results
         </a>
@@ -623,7 +623,7 @@ const SearchFacetFilters = (props: {
           onClick={handleToggleFilters}
           top="240px"
           left="0"
-          id="tour-search-facets"
+          data-tour="search-facets"
         >
           Show Filters
         </Button>
@@ -695,7 +695,7 @@ const useTour = () => {
   // tour should not start until the first element is rendered
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      const element = document.getElementById('sort-order');
+      const element = document.querySelector('[data-tour="sort-order"]');
       if (element) {
         setIsRendered(true);
         observer.disconnect();

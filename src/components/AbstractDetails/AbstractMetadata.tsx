@@ -22,7 +22,7 @@ export const AbstractMetadata = ({ refereed, doctype, erratum }: IAbstractMetada
       )}
       {doctype && (
         <Tooltip label={`Doctype: ${doctype}`}>
-          <Tag fontWeight="bold" colorScheme="gray" variant="outline" id="tour_abs_doctype">
+          <Tag fontWeight="bold" colorScheme="gray" variant="outline" data-tour="abs_doctype">
             <Icon as={DocumentIcon} mr={1} />
             {`${capitalizeString(doctype)}`}
           </Tag>
