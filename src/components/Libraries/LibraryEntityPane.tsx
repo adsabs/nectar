@@ -413,6 +413,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                   onChange={handleChangeSort}
                   options={biblibSortOptions}
                   disableWhenNoJs
+                  theme="action"
                 />
                 <SearchQueryLink
                   params={{
