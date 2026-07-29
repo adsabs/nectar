@@ -39,10 +39,9 @@ export interface ISortProps<S extends SortType, F extends SortField> {
  * Expects to be controlled (i.e. using sort and onChange to control value/updating)
  */
 export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSortField>(
-  props: ISortProps<S, F>,
+  props: ISortProps<S, F> & { 'data-tour'?: string },
 ): ReactElement => {
   const {
-    id,
     sort,
     onChange,
     options,
@@ -54,6 +53,7 @@ export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSo
     fullWidth = false,
     innerSelectProps,
     theme = 'form',
+    'data-tour': dataTour,
   } = props;
 
   // split first sort, the rest are just along for the ride
@@ -87,7 +87,7 @@ export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSo
   const sortContainerWidth = fullWidth ? 'full' : '250px';
 
   return (
-    <HStack spacing={0} data-testid="sort" alignItems="flex-end" id={id}>
+    <HStack spacing={0} data-testid="sort" alignItems="flex-end" data-tour={dataTour}>
       <Box width={sortContainerWidth}>
         <SortSelect
           hideLabel={hideLabel}

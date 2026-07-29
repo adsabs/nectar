@@ -66,9 +66,7 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
         // include current path as next param so user returns after login
         const currentPath = router.asPath;
         const loginUrl =
-          currentPath !== '/'
-            ? `/user/account/login?next=${encodeURIComponent(currentPath)}`
-            : '/user/account/login';
+          currentPath !== '/' ? `/user/account/login?next=${encodeURIComponent(currentPath)}` : '/user/account/login';
         void router.push(loginUrl);
       } else {
         const item = itemsToShow.find((item) => item !== 'divider' && id === (item as ItemItem).id);
@@ -86,7 +84,7 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
       id="account"
       type={type}
       label={
-        <HStack spacing={1} mr={-2}>
+        <HStack spacing={1} mr={-2} data-tour="account-menu">
           <Icon as={UserIcon} color={isAuthenticated ? 'blue.400' : 'gray.50'} aria-hidden />
           <Text>Account</Text>
         </HStack>

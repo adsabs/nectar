@@ -176,7 +176,7 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
   };
 
   return (
-    <Flex direction="row" id="tour-quick-icons">
+    <Flex direction="row" data-tour="quick-icons">
       {/* orcid menu */}
       <SimpleAction doc={doc} />
       {/* full resources menu */}

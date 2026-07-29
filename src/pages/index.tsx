@@ -481,6 +481,7 @@ const FloatingIntroLink = () => {
 };
 
 const useTour = () => {
+  const appMode = useStore((state) => state.mode);
   const Shepherd = useShepherd();
   const { isScreenLarge } = useScreenSize();
   const [isRendered, setIsRendered] = useState(false);
@@ -488,7 +489,7 @@ const useTour = () => {
   // tour should not start until the first element is rendered
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      const element = document.getElementById('tour-search-input');
+      const element = document.querySelector('[data-tour="search-input"]');
       if (element) {
         setIsRendered(true);
         observer.disconnect();
@@ -528,7 +529,7 @@ const useTour = () => {
         document.removeEventListener('click', listener);
       });
 
-      tour.addSteps(getHomeSteps(!isScreenLarge));
+      tour.addSteps(getHomeSteps(!isScreenLarge, appMode === 'ASTROPHYSICS'));
       localStorage.setItem(LocalSettings.SEEN_LANDING_TOUR, 'true');
       setTimeout(() => {
         tour.start();

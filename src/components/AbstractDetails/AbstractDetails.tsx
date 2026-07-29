@@ -42,6 +42,8 @@ interface IDetailsProps {
 }
 
 interface IDetailProps<T = string | Array<string>> {
+  id: string;
+  tourId?: string;
   label: string | ReactNode;
   href?: string;
   external?: boolean;
@@ -81,7 +83,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
       </VisuallyHidden>
       <Table colorScheme="gray" size="md" role="presentation">
         <Tbody>
-          <Detail label="Publication" value={doc.pub_raw}>
+          <Detail id="publication" label="Publication" value={doc.pub_raw}>
             {(pub_raw) => (
               <>
                 <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>
@@ -93,7 +95,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
                     cursor="pointer"
                     size="xs"
                     onClick={onCitationOpen}
-                    id="tour-quick-citation-copy"
+                    data-tour="quick-citation-copy"
                   >
                     <FontAwesomeIcon icon={faQuoteLeft} size="xs" />
                   </Button>
@@ -101,25 +103,26 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
               </>
             )}
           </Detail>
-          <Detail label="Book Author(s)" value={doc.book_author} />
-          <Detail label="Publication Date" value={formattedPublicationDate} />
-          <Detail label="DOI" value={doc.doi}>
+          <Detail id="authors" label="Book Author(s)" value={doc.book_author} />
+          <Detail id="pubdate" label="Publication Date" value={formattedPublicationDate} />
+          <Detail id="doi" label="DOI" value={doc.doi}>
             {(doi) => <Doi doiIDs={doi} bibcode={doc.bibcode} />}
           </Detail>
           <Detail
+            id="arxiv"
             label="arXiv"
             value={arxiv}
             href={createUrlByType(doc?.bibcode, 'arxiv', arxiv?.split(':')[1])}
             external
           />
-          <Detail label="Bibcode" value={doc.bibcode} copiable />
+          <Detail id="bibcode" label="Bibcode" value={doc.bibcode} copiable />
           <Collections collections={doc.database ?? []} />
           <Keywords keywords={doc.keyword} />
           <UATKeywords keywords={doc.uat} ids={doc.uat_id} feedback={handleUATFeedback} />
           <Bibgroups bibgroups={doc.bibgroup ?? []} />
           <PlanetaryFeatures features={doc.planetary_feature} ids={doc.planetary_feature_id} />
-          <Detail label="Comment(s)" value={doc.comment} />
-          <Detail label="E-Print Comment(s)" value={doc.pubnote} />
+          <Detail id="comment" label="Comment(s)" value={doc.comment} />
+          <Detail id="pubnote" label="E-Print Comment(s)" value={doc.pubnote} />
         </Tbody>
       </Table>
       <AbstractCitationModal isOpen={isCitationOpen} onClose={onCitationClose} bibcode={doc?.bibcode} />
@@ -129,7 +132,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
 
 // TODO: this should take in a list of deps or the whole doc and show/hide based on that
 const Detail = <T extends string | string[]>(props: IDetailProps<T>): ReactElement => {
-  const { label, href, external = false, value, copiable = false, children } = props;
+  const { id, tourId, label, href, external = false, value, copiable = false, children } = props;
 
   // show nothing if no value
   if (isNilOrEmpty(value)) {
@@ -139,7 +142,7 @@ const Detail = <T extends string | string[]>(props: IDetailProps<T>): ReactEleme
   const normalizedValue: string = Array.isArray(value) ? value.join('; ') : value;
 
   return (
-    <Tr>
+    <Tr id={id} data-tour={tourId}>
       <Td>{label}</Td>
       <Td wordBreak="break-word">
         {href && (
@@ -194,7 +197,7 @@ Doi.displayName = 'Doi';
 const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
   const label = `Search for papers that mention this keyword`;
   return (
-    <Detail label={pluralize('Keyword', keywords?.length ?? 0)} value={keywords}>
+    <Detail id="keywords" label={pluralize('Keyword', keywords?.length ?? 0)} value={keywords}>
       {(keywords) => (
         <Flex flexWrap={'wrap'} wordBreak="break-all">
           {keywords.map((keyword) => (
@@ -230,15 +233,15 @@ const UATKeywords = memo(
   ({ keywords, ids, feedback }: { keywords: Array<string>; ids: Array<number>; feedback: () => void }) => {
     const desc = `Search for papers that mention this keyword`;
     const label = (
-      <>
+      <div id="abs-uat-keywords">
         {`UAT ${pluralize('Keyword', keywords?.length ?? 0)} (generated)`}
         <Badge colorScheme="blue" mx={1}>
           BETA
         </Badge>
-      </>
+      </div>
     );
     return (
-      <Detail label={label} value={keywords}>
+      <Detail label={label} value={keywords} id="abs-uat-keywords" tourId="abs-uat-keywords">
         {(keywords) => (
           <>
             <Flex flexWrap={'wrap'}>
@@ -294,7 +297,12 @@ UATKeywords.displayName = 'UATKeywords';
 const Collections = memo(({ collections }: { collections: Array<string> }) => {
   const label = `Search for papers in this collection`;
   return (
-    <Detail label={pluralize('Collection', collections?.length ?? 0)} value={collections}>
+    <Detail
+      id="abs-collections"
+      tourId="abs-collections"
+      label={<div>{pluralize('Collection', collections?.length ?? 0)}</div>}
+      value={collections}
+    >
       {(collections) => (
         <Flex flexWrap={'wrap'}>
           {collections.map((collection) => (
@@ -330,6 +338,7 @@ const Bibgroups = memo(({ bibgroups }: { bibgroups: Array<string> }) => {
   const label = `Search for papers in this bibgroup`;
   return (
     <Detail
+      id="bgroups"
       label={
         <>
           {pluralize('Bibgroup', bibgroups?.length ?? 0)}
@@ -386,7 +395,7 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
     return null;
   }
   return (
-    <Detail label={pluralize('Planetary Feature', features?.length ?? 0)} value={features}>
+    <Detail id="planetary-features" label={pluralize('Planetary Feature', features?.length ?? 0)} value={features}>
       {(features) => (
         <Flex flexWrap={'wrap'}>
           {features.map((feature, index) => (

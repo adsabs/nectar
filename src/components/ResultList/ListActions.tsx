@@ -219,8 +219,8 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
               )}
             </Stack>
             <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
-              <Menu id="tour-bulk-actions">
-                <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+              <Menu id="bulk-actions">
+                <MenuButton as={Button} rightIcon={<ChevronDownIcon />} data-tour="bulk-actions">
                   Bulk Actions
                 </MenuButton>
                 <Portal>
@@ -249,8 +249,13 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                   </MenuList>
                 </Portal>
               </Menu>
-              <Menu id="tour-explore">
-                <MenuButton as={Button} rightIcon={<ChevronDownIcon />} data-testid="explorer-menu-btn">
+              <Menu id="explore">
+                <MenuButton
+                  as={Button}
+                  rightIcon={<ChevronDownIcon />}
+                  data-testid="explorer-menu-btn"
+                  data-tour="explore"
+                >
                   Explore
                 </MenuButton>
                 <Portal>
@@ -319,8 +324,8 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps<SolrSort, SolrSortFiel
       sort={query.sort[0]}
       onChange={onChange}
       options={solrSortOptions}
-      id="sort-order"
       theme="action"
+      data-tour="sort-order"
     />
   );
 };
@@ -332,7 +337,7 @@ const HighlightsToggle = () => {
   return (
     <Tooltip label={`${showHighlights ? 'Hide' : 'Show'} keyword highlights in the results.`}>
       <IconButton
-        id="tour-view-highlights"
+        data-tour="view-highlights"
         icon={<FontAwesomeIcon icon={faHighlighter} />}
         aria-label={`${showHighlights ? 'Hide' : 'Show'} keyword highlights in the results.`}
         variant={showHighlights ? 'solid' : 'outline'}
@@ -356,7 +361,7 @@ function NotificationBellButton({ isAuthenticated, onOpenNotification }: Notific
           aria-label="Create email notification for this query"
           variant="outline"
           onClick={onOpenNotification}
-          data-id="tour-email-notification"
+          data-tour="email-notification"
         />
       </Tooltip>
     );
@@ -370,7 +375,7 @@ function NotificationBellButton({ isAuthenticated, onOpenNotification }: Notific
           aria-label="Create email notification for this query (login required)"
           variant="outline"
           color="gray.400"
-          data-id="tour-email-notification"
+          data-tour="email-notification"
         />
       </PopoverTrigger>
       <PopoverContent>

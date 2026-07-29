@@ -65,7 +65,7 @@ export const NavMenus = (): ReactElement => {
       router.push('/').then(() => {
         tour.start();
       });
-    } else if (tourType === 'results' && !document.querySelector('#tour-search-facets')) {
+    } else if (tourType === 'results' && !document.querySelector('[data-tour="search-facets"]')) {
       toast({
         title: 'How to use tour',
         description: 'Try a search with more than one result to start the tour.',
@@ -95,7 +95,7 @@ export const NavMenus = (): ReactElement => {
               size="lg"
               onClick={toggleMenu}
               ref={hamburgerRef}
-              data-id="tour-main-menu"
+              data-tour="main-menu"
             />
           </LightMode>
           <Drawer variant="navbar" isOpen={isOpen} placement="right" onClose={onClose} finalFocusRef={hamburgerRef}>
@@ -150,7 +150,7 @@ export const NavMenus = (): ReactElement => {
                     </AccordionPanel>
                   </AccordionItem>
                   <AccordionItem>
-                    <AccordionButton onClick={handleHelp} id="help-pages">
+                    <AccordionButton onClick={handleHelp} data-tour="help-menu">
                       <Box flex="1" textAlign="left" fontWeight="medium">
                         Help
                       </Box>
@@ -182,7 +182,7 @@ export const NavMenus = (): ReactElement => {
             <MenuButton
               onClick={handleHelp}
               onKeyDown={(e) => (e.key === 'Enter' ? handleHelp() : noop())}
-              data-id="tour-help-menu"
+              data-tour="help-menu"
             >
               Help
             </MenuButton>

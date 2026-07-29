@@ -78,9 +78,9 @@ const Tabs = ({ show }: { show: boolean }) => {
   const tab = getActiveTab();
   return (
     <HStack justifyContent="center" spacing={2} zIndex={5} fontSize={{ base: 'md', sm: 'lg' }}>
-      <Tab href="/classic-form" label="Classic Form" active={tab === 'classic-form'} />
-      <Tab href="/" label="Modern Form" active={tab === 'modern-form'} />
-      <Tab href="/paper-form" label="Paper Form" active={tab === 'paper-form'} />
+      <Tab data-tour="classic-form-tab" href="/classic-form" label="Classic Form" active={tab === 'classic-form'} />
+      <Tab data-tour="modern-form-tab" href="/" label="Modern Form" active={tab === 'modern-form'} />
+      <Tab data-tour="paper-form-tab" href="/paper-form" label="Paper Form" active={tab === 'paper-form'} />
       <input type="hidden" data-testid="active-tab" name="active-tab" value={tab} />
     </HStack>
   );
@@ -110,7 +110,7 @@ interface ITabProps {
   label: string;
   active: boolean;
 }
-const Tab = ({ href, label, active }: ITabProps) => {
+const Tab = ({ href, label, active, ...rest }: ITabProps) => {
   const { background, highlightForeground } = useColorModeColors();
   return (
     <SimpleLink
@@ -121,6 +121,7 @@ const Tab = ({ href, label, active }: ITabProps) => {
       py={2}
       borderTopRadius={3}
       fontWeight="semibold"
+      {...rest}
     >
       {label}
     </SimpleLink>
