@@ -39,7 +39,7 @@ describe('AbstractCitationModal', () => {
     });
   });
 
-  test('includes custom bibtex params for a logged-in user when the default format is bibtex', async () => {
+  test('includes custom bibtex params when the default format is bibtex', async () => {
     mocks.useSettings.mockReturnValue({
       settings: {
         defaultCitationFormat: 'bibtex',
