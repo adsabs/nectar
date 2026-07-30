@@ -318,14 +318,54 @@ test('Navigating to an item shows a preview in the input', async () => {
   expect(input).toHaveValue('sim');
 });
 
-test('AllSearchTermsDropdown inserts selected term into search input', async () => {
+test('title quickfield renders and appends to input', async () => {
   const user = createUser();
   const { getByTestId, getAllByTestId } = render(<SearchBar />);
-  const astInput = getByTestId('allSearchTermsInput');
+  const input = getByTestId('search-input') as HTMLInputElement;
+  const quickfields = getAllByTestId('quickfield');
+  // default mode order: author, first-author, abstract, year, fulltext, title
+  const title = quickfields.find((el) => el.textContent === 'title');
+  expect(title).toBeDefined();
+  await user.click(title as HTMLElement);
+  expect(input.value).toBe('title:""');
+  expect(input.selectionStart).toBe(7); // caret inside the quotes
+});
+
+test('AllSearchTermsModal opens from trigger and filters, selects, inserts', async () => {
+  const user = createUser();
+  const { getByTestId, getAllByTestId } = render(<SearchBar />);
   const searchInput = getByTestId('search-input');
-  await user.click(astInput);
-  await user.type(astInput, 'title');
+  await user.click(getByTestId('allSearchTermsTrigger'));
+  const filter = getByTestId('allSearchTermsInput');
+  await user.type(filter, 'title');
   const menuItems = getAllByTestId('allSearchTermsMenuItem');
   await user.click(menuItems[0]);
   expect(searchInput).toHaveValue('title:""');
+});
+
+test('AllSearchTermsModal detail pane shows full syntax and examples', async () => {
+  const user = createUser();
+  const { getByTestId } = render(<SearchBar />);
+  await user.click(getByTestId('allSearchTermsTrigger'));
+  await user.type(getByTestId('allSearchTermsInput'), 'year');
+  // "year" has two syntax entries and two examples — both must render.
+  const syntax = getByTestId('allSearchTermsDetailSyntax');
+  expect(syntax).toHaveTextContent('year:YYYY');
+  expect(syntax).toHaveTextContent('year:YYYY-YYYY');
+  const example = getByTestId('allSearchTermsDetailExample');
+  expect(example).toHaveTextContent('year:2000');
+  expect(example).toHaveTextContent('year:2000-2005');
+});
+
+test('AllSearchTermsModal supports arrow + Enter keyboard selection', async () => {
+  const user = createUser();
+  const { getByTestId } = render(<SearchBar />);
+  const searchInput = getByTestId('search-input');
+  await user.click(getByTestId('allSearchTermsTrigger'));
+  const filter = getByTestId('allSearchTermsInput');
+  await user.type(filter, 'last');
+  // "last" matches "last author" (pos(author:"", -1), cursorPos -6)
+  await user.keyboard('{Enter}');
+  expect(searchInput).toHaveValue('pos(author:"", -1)');
+  expect((searchInput as HTMLInputElement).selectionStart).toBe(12); // inside author quotes
 });
