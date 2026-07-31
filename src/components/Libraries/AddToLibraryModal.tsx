@@ -101,7 +101,7 @@ export const AddToLibraryModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={() => onClose(false)} size="3xl">
+    <Modal isOpen={isOpen} onClose={() => onClose(false)} size="5xl">
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
