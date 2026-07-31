@@ -61,7 +61,7 @@ const validationSchema = z
     bibcode: z.string(),
     title: z.string().min(1, 'Title is required'),
     authors: z.custom<IAuthor>().array(),
-    noAuthors: z.boolean(),
+    authorsState: z.enum(['hasAuthors', 'noAuthors']),
     publication: z.string().min(1, 'Publication is required'),
     pubDate: z.string().min(1, 'Publication date is required'),
     urls: z.custom<IResourceUrl>().array(),
@@ -71,10 +71,10 @@ const validationSchema = z
     comments: z.string(),
   })
   .superRefine((schema, context) => {
-    if (!schema.noAuthors && schema.authors.length === 0) {
+    if (schema.authorsState === 'hasAuthors' && schema.authors.length === 0) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['noAuthors'],
+        path: ['authorsState'],
         message: 'Please confirm, this abstract has no author(s)',
       });
     }
@@ -112,14 +112,14 @@ export const RecordPanel = ({
 }) => {
   const userEmail = useGetUserEmail();
 
-  const initialFormValues = {
+  const initialFormValues: FormValues = {
     name: '',
     email: userEmail ?? '',
     bibcode: bibcode ?? '',
     isNew: isNew,
     collection: [] as Database[],
     title: '',
-    noAuthors: false,
+    authorsState: 'noAuthors',
     authors: [] as IAuthor[],
     publication: '',
     pubDate: '',
@@ -329,7 +329,7 @@ export const RecordPanel = ({
       // TODO: support other types: Type is not implemented internally. Here we are saying type is always bibcode
       const references: IReference[] = reference.map((r) => ({ type: 'Bibcode', reference: r }));
 
-      const loadedFormValues = {
+      const loadedFormValues: FormValues = {
         name: getValues('name'),
         email: getValues('email'),
         bibcode: getValues('bibcode'),
@@ -338,7 +338,7 @@ export const RecordPanel = ({
         title: title?.[0] ?? ' ',
         publication: pub_raw,
         pubDate: pubdate,
-        noAuthors: !author || authors.length === 0,
+        authorsState: !author || authors.length === 0 ? 'noAuthors' : 'hasAuthors',
         authors,
         keywords: keyword.map(
           (k) =>

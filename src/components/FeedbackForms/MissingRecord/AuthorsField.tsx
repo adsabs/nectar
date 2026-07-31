@@ -1,5 +1,5 @@
-import { FormControl, FormLabel, Checkbox, FormErrorMessage } from '@chakra-ui/react';
-import { useFormContext, useFieldArray, useWatch, Controller } from 'react-hook-form';
+import { FormControl, FormLabel, RadioGroup, Stack, Radio, FormErrorMessage } from '@chakra-ui/react';
+import { useFormContext, useWatch, Controller } from 'react-hook-form';
 import { AuthorsTable } from './AuthorsTable';
 import { FormValues } from './types';
 
@@ -9,39 +9,37 @@ export const AuthorsField = () => {
     formState: { errors },
   } = useFormContext<FormValues>();
 
-  const { fields: authors } = useFieldArray<FormValues, 'authors'>({
-    name: 'authors',
-  });
-
-  const noAuthors = useWatch<FormValues, 'noAuthors'>({ name: 'noAuthors' });
+  const authorsState = useWatch<FormValues, 'authorsState'>({ name: 'authorsState' });
+  const authors = useWatch<FormValues, 'authors'>({ name: 'authors' });
 
   return (
     <>
-      <FormControl isInvalid={!!errors.authors}>
+      <FormControl isInvalid={!!errors.authorsState} isRequired>
         <FormLabel>Authors</FormLabel>
-        {!noAuthors && (
+        <Controller
+          name="authorsState"
+          control={control}
+          render={({ field: { onChange, value, ref } }) => (
+            <RadioGroup onChange={onChange} ref={ref} value={value}>
+              <Stack direction="row">
+                <Radio value="noAuthors" isDisabled={authors.length > 0}>
+                  Abstract has no authors
+                </Radio>
+                <Radio value="hasAuthors">Abstract has authors</Radio>
+              </Stack>
+            </RadioGroup>
+          )}
+        />
+        <FormErrorMessage>{errors.authorsState && errors.authorsState.message}</FormErrorMessage>
+      </FormControl>
+
+      <FormControl isInvalid={!!errors.authors}>
+        {authorsState === 'hasAuthors' && (
           <>
             <AuthorsTable editable={true} />
           </>
         )}
       </FormControl>
-
-      <>
-        {authors.length === 0 && (
-          <FormControl isInvalid={!!errors.noAuthors}>
-            <Controller
-              name="noAuthors"
-              control={control}
-              render={({ field: { onChange, value, ref } }) => (
-                <Checkbox onChange={onChange} ref={ref} isChecked={value}>
-                  Abstract has no author(s)
-                </Checkbox>
-              )}
-            />
-            <FormErrorMessage>{errors.noAuthors && errors.noAuthors.message}</FormErrorMessage>
-          </FormControl>
-        )}
-      </>
     </>
   );
 };
