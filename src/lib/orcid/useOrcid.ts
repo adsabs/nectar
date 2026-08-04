@@ -135,7 +135,7 @@ export const useOrcidExpiryWatcher = (): void => {
   const active = useStore(activeSelector);
   const lastActivityAt = useStore(lastActivityAtSelector);
   const setOrcidMode = useStore(setOrcidModeSelector);
-  const toast = useToast({ id: 'orcid' });
+  const toast = useToast({ id: 'orcid-expiry' });
 
   useEffect(() => {
     if (!active || lastActivityAt === null) {
@@ -150,7 +150,7 @@ export const useOrcidExpiryWatcher = (): void => {
 
     const timer = setTimeout(() => {
       setOrcidMode(false);
-      if (!toast.isActive('orcid')) {
+      if (!toast.isActive('orcid-expiry')) {
         toast({
           status: 'info',
           title: 'ORCiD mode turned off due to inactivity',
