@@ -9,6 +9,7 @@ import { orcidKeys, useOrcidGetProfile, useOrcidRemoveWorks } from '@/api/orcid/
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;
 const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;
+const touchOrcidActivitySelector = (state: AppState) => state.touchOrcidActivity;
 
 export const useRemoveWorks = (
   mutationOptions: OrcidMutationOptions<'removeWorks'>,
@@ -20,6 +21,7 @@ export const useRemoveWorks = (
   const qc = useQueryClient();
   const user = useStore(orcidUserSelector);
   const isAuthenticated = useStore(isAuthenticatedSelector);
+  const touchOrcidActivity = useStore(touchOrcidActivitySelector);
   const [putcodesToRemove, setPutcodesToRemove] = useState<string[]>([]);
 
   const { data: profile } = useOrcidGetProfile(
@@ -83,9 +85,10 @@ export const useRemoveWorks = (
       if (putcodes.length === 0) {
         throw new Error('Selected works were already unclaimed.');
       }
+      touchOrcidActivity();
       setPutcodesToRemove(putcodes);
     },
-    [profile],
+    [profile, touchOrcidActivity],
   );
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { AppState, useStore } from '@/store';
 import { useIsClient } from '@/lib/useIsClient';
-import { ORCID_LOGIN_URL } from '@/config';
+import { ORCID_LOGIN_URL, ORCID_MODE_TIMEOUT } from '@/config';
 import { useRouter } from 'next/router';
 import { isValidIOrcidUser } from '@/api/orcid/models';
 import { useEffect, useRef, useState } from 'react';
@@ -15,6 +15,7 @@ const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated
 const orcidUserSelector = (state: AppState) => state.orcid.user;
 const resetSelector = (state: AppState) => state.resetOrcid;
 const setNotificationSelector = (state: AppState) => state.setNotification;
+const lastActivityAtSelector = (state: AppState) => state.orcid.lastActivityAt;
 
 export const useOrcid = () => {
   const router = useRouter();
@@ -69,8 +70,7 @@ export const useOrcid = () => {
           toast({
             status: 'error',
             title: 'Problem connecting with ORCiD',
-            description:
-              'There was an error retrieving your ORCiD profile. Please try again later.',
+            description: 'There was an error retrieving your ORCiD profile. Please try again later.',
           });
 
           // toggle orcid mode off
@@ -123,4 +123,45 @@ export const useOrcid = () => {
     isLoading: nameState.isLoading || profileState.isLoading,
     error,
   };
+};
+
+/**
+ * Drives ORCiD mode's sliding-window expiry. Mount once at the app root —
+ * `useOrcid` runs in multiple components at once, so a per-hook timer here
+ * would fire duplicate toggles and toasts. Stale mode from a past session
+ * is cleared separately (and silently) on store rehydration.
+ */
+export const useOrcidExpiryWatcher = (): void => {
+  const active = useStore(activeSelector);
+  const lastActivityAt = useStore(lastActivityAtSelector);
+  const setOrcidMode = useStore(setOrcidModeSelector);
+  const toast = useToast({ id: 'orcid' });
+
+  useEffect(() => {
+    if (!active || lastActivityAt === null) {
+      return;
+    }
+
+    const remaining = ORCID_MODE_TIMEOUT - (Date.now() - lastActivityAt);
+    if (remaining <= 0) {
+      setOrcidMode(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setOrcidMode(false);
+      if (!toast.isActive('orcid')) {
+        toast({
+          status: 'info',
+          title: 'ORCiD mode turned off due to inactivity',
+        });
+      }
+    }, remaining);
+
+    return () => clearTimeout(timer);
+    // toast intentionally excluded — useToast's return value isn't
+    // referentially stable, and including it would reschedule the timer
+    // every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, lastActivityAt, setOrcidMode]);
 };
