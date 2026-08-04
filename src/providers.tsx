@@ -22,6 +22,7 @@ import {
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 import { ShepherdJourneyProvider } from 'react-shepherd';
 import type { AppPageProps } from '@/pages/_app';
+import { useOrcidExpiryWatcher } from '@/lib/orcid/useOrcid';
 
 export const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
@@ -72,6 +73,7 @@ const Telemetry: FC = () => {
   const paginationSpanRef = useRef<ReturnType<typeof Sentry.startInactiveSpan> | null>(null);
 
   useGlobalErrorHandler();
+  useOrcidExpiryWatcher();
 
   useEffect(() => {
     try {

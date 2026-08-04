@@ -1,6 +1,6 @@
 import { AppState, useStore } from '@/store';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { transformADStoOrcid } from '@/lib/orcid/workTransformer';
 import { isValidIOrcidUser } from '@/api/orcid/models';
 import { OrcidHookOptions, OrcidMutationOptions } from '@/lib/orcid/types';
@@ -10,6 +10,7 @@ import { useSearch } from '@/api/search/search';
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;
 const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;
+const touchOrcidActivitySelector = (state: AppState) => state.touchOrcidActivity;
 
 export const useAddWorks = (
   options?: OrcidHookOptions<'addWorks'>,
@@ -18,6 +19,7 @@ export const useAddWorks = (
   const qc = useQueryClient();
   const user = useStore(orcidUserSelector);
   const isAuthenticated = useStore(isAuthenticatedSelector);
+  const touchOrcidActivity = useStore(touchOrcidActivitySelector);
   const [bibcodesToAdd, setBibcodesToAdd] = useState<string[]>([]);
   const queryKey = orcidKeys.profile({ user, full: true, update: true });
 
@@ -78,8 +80,16 @@ export const useAddWorks = (
     }
   }, [searchResult]);
 
+  const addWorks = useCallback(
+    (bibcodes: string[]) => {
+      touchOrcidActivity();
+      setBibcodesToAdd(bibcodes);
+    },
+    [touchOrcidActivity],
+  );
+
   return {
-    addWorks: setBibcodesToAdd,
+    addWorks,
     isLoading: isSearchLoading && result.isLoading,
     ...result,
   };

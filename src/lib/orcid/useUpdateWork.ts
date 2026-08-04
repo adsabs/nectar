@@ -10,11 +10,13 @@ import { useSearch } from '@/api/search/search';
 import { useOrcidUpdateWork } from '@/api/orcid/orcid';
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;
+const touchOrcidActivitySelector = (state: AppState) => state.touchOrcidActivity;
 export const useUpdateWork = (
   options?: OrcidHookOptions<'updateWork'>,
   mutationOptions?: OrcidMutationOptions<'updateWork'>,
 ) => {
   const user = useStore(orcidUserSelector);
+  const touchOrcidActivity = useStore(touchOrcidActivitySelector);
   const [work, setWork] = useState<IOrcidProfileEntry | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,6 +72,7 @@ export const useUpdateWork = (
 
   const onSetWork = (work: IOrcidProfileEntry) => {
     if (isOrcidProfileEntry(work)) {
+      touchOrcidActivity();
       return setWork(work);
     }
     throw new Error('Invalid work');

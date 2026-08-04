@@ -86,6 +86,7 @@ const getStateFromPreset = (preset: IProviderOptions['storePreset']): Partial<Ap
           active: true,
           isAuthenticated: true,
           user: mockOrcidUser,
+          lastActivityAt: Date.now(),
         },
       };
   }

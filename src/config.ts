@@ -62,6 +62,8 @@ export const ORCID_LOGIN_URL = `${process.env.NEXT_PUBLIC_ORCID_API_URL}/oauth/a
 
 export const ORCID_ADS_SOURCE_NAME = 'Astrophysics Data System';
 export const ORCID_ADS_SOURCE_NAME_SHORT = 'ADS';
+// Sliding-window inactivity timeout for ORCiD mode, in ms.
+export const ORCID_MODE_TIMEOUT = 5 * 60 * 1000;
 export const BRAND_NAME_FULL = 'Science Explorer';
 export const BRAND_NAME_SHORT = 'SciX';
 export const ORCID_BULK_DELETE_CHUNK_SIZE = 4;

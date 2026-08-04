@@ -6,6 +6,7 @@ import { devtools, NamedSet, persist, subscribeWithSelector } from 'zustand/midd
 import {
   appModeSlice,
   docsSlice,
+  isOrcidActivityStale,
   notificationSlice,
   orcidSlice,
   searchSlice,
@@ -18,6 +19,28 @@ import { logger } from '@/logger';
 import { IUserData } from '@/api/user/types';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
+
+/**
+ * Merges persisted state over the fresh default state on rehydration.
+ * If ORCiD mode was left on and its timestamp is past the timeout,
+ * clear it silently here — this is stale-value cleanup, not an
+ * in-session expiry, so no toast.
+ */
+export const mergePersistedState = (persistedState: Partial<AppState>, currentState: AppState): AppState => {
+  const merged = mergeDeepLeft(persistedState, currentState) as AppState;
+  if (merged.orcid?.active) {
+    // Persisted data from before lastActivityAt existed (or otherwise
+    // malformed) has no usable timestamp — treat that as stale too, or
+    // mode gets stuck on forever since the expiry watcher won't schedule
+    // a timer for a null timestamp.
+    const lastActivityAt = merged.orcid.lastActivityAt;
+    const isStale = typeof lastActivityAt !== 'number' || isOrcidActivityStale(lastActivityAt);
+    if (isStale) {
+      merged.orcid = { ...merged.orcid, active: false, lastActivityAt: null };
+    }
+  }
+  return merged;
+};
 
 export const createStore = (preloadedState: Partial<AppState> = {}) => {
   const state = (set: NamedSet<AppState>, get: GetState<AppState>) => ({
@@ -56,7 +79,7 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
             settings: state.settings,
             orcid: state.orcid,
           }),
-          merge: mergeDeepLeft,
+          merge: mergePersistedState,
         }),
         { name: APP_STORAGE_KEY },
       ),
