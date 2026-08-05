@@ -29,7 +29,7 @@ export type FormValues = {
   bibcode: string;
   collection: Database[];
   title: string;
-  noAuthors: boolean;
+  authorsState: 'hasAuthors' | 'noAuthors';
   authors: IAuthor[];
   publication: string;
   pubDate: string;
