@@ -1,4 +1,8 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Box,
   Button,
   Checkbox,
   Flex,
@@ -16,6 +20,7 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  Text,
   Textarea,
 } from '@chakra-ui/react';
 import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
@@ -59,14 +64,18 @@ const validationSchema = z
     name: z.string(),
   })
   .superRefine((schema, context) => {
-    if (
-      (schema.action === 'union' || schema.action === 'intersection' || schema.action === 'difference') &&
-      schema.libs.length < 2
-    ) {
+    if ((schema.action === 'union' || schema.action === 'intersection') && schema.libs.length < 2) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['libs'],
         message: 'Must select at least two libraries',
+      });
+    }
+    if (schema.action === 'difference' && schema.libs.length < 1) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['libs'],
+        message: 'Must select at least one secondary library',
       });
     }
     if (
@@ -79,7 +88,10 @@ const validationSchema = z
         message: 'Name is required',
       });
     }
-    if ((schema.action === 'copy' || schema.action === 'empty') && (!schema.source || schema.source.length === 0)) {
+    if (
+      (schema.action === 'copy' || schema.action === 'difference' || schema.action === 'empty') &&
+      (!schema.source || schema.source.length === 0)
+    ) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['source'],
@@ -95,6 +107,15 @@ const validationSchema = z
     }
     return z.NEVER;
   });
+
+const OperationDescriptions: Record<LibraryOperationAction, string> = {
+  union: 'Creates a new library containing every record found in any selected library',
+  intersection: 'Creates a new library containing only records present in every selected library',
+  difference:
+    'Create a new library containing records that are in the source library but not in any of the secondary libraries',
+  copy: 'Copy the contents of the source library into the target library',
+  empty: 'Remove all items from the selected library',
+};
 
 export const OperationModal = ({
   isOpen,
@@ -148,11 +169,20 @@ export const OperationModal = ({
     switch (action) {
       case 'union':
       case 'intersection':
-      case 'difference':
         onOperate({
           action: action,
           id: libs[0].value,
           libraries: libs.slice(1).map((l) => l.value),
+          name: name,
+          description: desc,
+          public: isPublic,
+        });
+        return;
+      case 'difference':
+        onOperate({
+          action: action,
+          id: source,
+          libraries: libs.map((l) => l.value),
           name: name,
           description: desc,
           public: isPublic,
@@ -219,10 +249,45 @@ export const OperationModal = ({
                     )}
                   />
                 </FormControl>
-                {(action === 'union' || action === 'intersection' || action === 'difference') && (
+                <Text fontSize="sm" fontWeight="medium"></Text>
+                <Alert status="info" variant="subtle" borderRadius="md" alignItems="flex-start">
+                  <AlertIcon mt={0.5} />
+                  <Box>
+                    <AlertDescription fontSize="sm">{OperationDescriptions[action]}</AlertDescription>
+                  </Box>
+                </Alert>
+                {(action === 'union' || action === 'intersection') && (
                   <>
                     <FormControl isInvalid={!!errors?.libs}>
                       <FormLabel>Select Libraries:</FormLabel>
+                      <LibrarySelector isMultiple onSelect={handleAddLib} onDeselect={handleRemoveLib} />
+                      <FormErrorMessage>{errors?.libs && errors.libs.message}</FormErrorMessage>
+                    </FormControl>
+                    <FormControl isInvalid={!!errors?.name}>
+                      <FormLabel>New Library Name:</FormLabel>
+                      <Input {...register('name', { required: true })} data-testid="new-lib-name" />
+                      <FormErrorMessage>{errors?.name && errors.name.message}</FormErrorMessage>
+                    </FormControl>
+                    <FormControl>
+                      <FormLabel>Description:</FormLabel>
+                      <Textarea {...register('desc')} data-testid="new-lib-desc" />
+                    </FormControl>
+                    <Checkbox {...register('isPublic')}>Make library public</Checkbox>
+                  </>
+                )}
+                {action === 'difference' && (
+                  <>
+                    <FormControl isInvalid={!!errors?.source}>
+                      <FormLabel>Source Library:</FormLabel>
+                      <LibrarySelector
+                        isMultiple={false}
+                        onSelect={(id) => setValue('source', id)}
+                        onDeselect={() => setValue('source', null)}
+                      />
+                      <FormErrorMessage>{errors?.source && errors.source.message}</FormErrorMessage>
+                    </FormControl>
+                    <FormControl isInvalid={!!errors?.libs}>
+                      <FormLabel>Secondary Libraries:</FormLabel>
                       <LibrarySelector isMultiple onSelect={handleAddLib} onDeselect={handleRemoveLib} />
                       <FormErrorMessage>{errors?.libs && errors.libs.message}</FormErrorMessage>
                     </FormControl>
