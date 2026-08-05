@@ -260,7 +260,7 @@ export const allSearchTerms: SearchTermOption[] = [
     value: 'bibstem:',
     title: 'bib abbrev',
     description:
-      'Find records that contain a specific bibstem in their bibcode. A full list is available <a href="/journalsdb" ref="noopener" target="_blank">here</a>.',
+      'Find records that contain a specific bibstem in their bibcode. A full list is available <a href="/journalsdb" rel="noopener noreferrer" target="_blank">here</a>.',
     syntax: ['bibstem:adsbibstem'],
     example: ['bibstem:ApJ'],
   },
@@ -370,7 +370,7 @@ export const allSearchTerms: SearchTermOption[] = [
     value: 'inst:',
     title: 'institution',
     description:
-      'Search by author\'s canonical affiliation. Click <a href="https://github.com/adsabs/CanonicalAffiliations/blob/master/parent_child.tsv" ref="noopener noreferrer" target="_blank">here</a> for a full list',
+      'Search by author\'s canonical affiliation. Click <a href="https://github.com/adsabs/CanonicalAffiliations/blob/master/parent_child.tsv" rel="noopener noreferrer" target="_blank">here</a> for a full list',
     syntax: ['inst:id'],
     example: ['inst:CfA'],
   },
@@ -455,7 +455,7 @@ export const allSearchTerms: SearchTermOption[] = [
     value: 'pub:',
     title: 'publication full name',
     description:
-      'Limit search to a specific publication. A full list is available <a href="/journalsdb" ref="noopener" target="_blank">here</a>.',
+      'Limit search to a specific publication. A full list is available <a href="/journalsdb" rel="noopener noreferrer" target="_blank">here</a>.',
     syntax: ['pub:"publication"'],
     example: ['pub:"The Astrophysical Journal"'],
   },

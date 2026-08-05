@@ -369,3 +369,29 @@ test('AllSearchTermsModal supports arrow + Enter keyboard selection', async () =
   expect(searchInput).toHaveValue('pos(author:"", -1)');
   expect((searchInput as HTMLInputElement).selectionStart).toBe(12); // inside author quotes
 });
+
+test('AllSearchTermsModal exposes listbox/option semantics and active-descendant', async () => {
+  const user = createUser();
+  const { getByTestId, getByRole, getAllByRole } = render(<SearchBar />);
+  await user.click(getByTestId('allSearchTermsTrigger'));
+  const filter = getByTestId('allSearchTermsInput');
+  await user.type(filter, 'title');
+  const listbox = getByRole('listbox');
+  expect(filter).toHaveAttribute('aria-controls', listbox.id);
+  const options = getAllByRole('option');
+  // first filtered row is active and the input's active-descendant points at it
+  expect(options[0]).toHaveAttribute('aria-selected', 'true');
+  expect(filter).toHaveAttribute('aria-activedescendant', options[0].id);
+});
+
+test('AllSearchTermsModal renders description links as safe new-tab anchors', async () => {
+  const user = createUser();
+  const { getByTestId } = render(<SearchBar />);
+  await user.click(getByTestId('allSearchTermsTrigger'));
+  // "bib abbrev" (bibstem) description contains a journalsdb link
+  await user.type(getByTestId('allSearchTermsInput'), 'bib abbrev');
+  const link = getByTestId('allSearchTermsDetail').querySelector('a');
+  expect(link).not.toBeNull();
+  expect(link).toHaveAttribute('target', '_blank');
+  expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+});
