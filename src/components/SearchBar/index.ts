@@ -1,4 +1,4 @@
-export * from './AllSearchTermsDropdown';
+export * from './AllSearchTermsModal';
 export * from './SearchBar';
 export * from './QuickFields';
 export * from './SearchInput';

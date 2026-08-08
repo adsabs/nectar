@@ -260,7 +260,7 @@ export const allSearchTerms: SearchTermOption[] = [
     value: 'bibstem:',
     title: 'bib abbrev',
     description:
-      'Find records that contain a specific bibstem in their bibcode. A full list is available <a href="/journalsdb" ref="noopener" target="_blank">here</a>.',
+      'Find records that contain a specific bibstem in their bibcode. A full list is available <a href="/journalsdb" rel="noopener noreferrer" target="_blank">here</a>.',
     syntax: ['bibstem:adsbibstem'],
     example: ['bibstem:ApJ'],
   },
@@ -370,7 +370,7 @@ export const allSearchTerms: SearchTermOption[] = [
     value: 'inst:',
     title: 'institution',
     description:
-      'Search by author\'s canonical affiliation. Click <a href="https://github.com/adsabs/CanonicalAffiliations/blob/master/parent_child.tsv" ref="noopener noreferrer" target="_blank">here</a> for a full list',
+      'Search by author\'s canonical affiliation. Click <a href="https://github.com/adsabs/CanonicalAffiliations/blob/master/parent_child.tsv" rel="noopener noreferrer" target="_blank">here</a> for a full list',
     syntax: ['inst:id'],
     example: ['inst:CfA'],
   },
@@ -455,7 +455,7 @@ export const allSearchTerms: SearchTermOption[] = [
     value: 'pub:',
     title: 'publication full name',
     description:
-      'Limit search to a specific publication. A full list is available <a href="/journalsdb" ref="noopener" target="_blank">here</a>.',
+      'Limit search to a specific publication. A full list is available <a href="/journalsdb" rel="noopener noreferrer" target="_blank">here</a>.',
     syntax: ['pub:"publication"'],
     example: ['pub:"The Astrophysical Journal"'],
   },
@@ -621,100 +621,22 @@ export const allSearchTerms: SearchTermOption[] = [
   },
 ];
 
-export const quickfields: { [key in AppMode | 'default']: SearchTermItem[] } = {
-  default: [
-    {
-      type: 'item',
-      id: 'author',
-      value: 'author:""',
-      title: 'author',
-      description: 'Author name may include just lastname and initial, or stricter author search (recommended)',
-      syntax: ['author:"Last, F"', 'author:"Last, First M"'],
-      example: ['author:"huchra, john p"'],
-    },
-    {
-      type: 'item',
-      id: 'first-author',
-      value: 'first_author:""',
-      title: 'first author',
-      description: 'Search by first author of the paper',
-      syntax: ['first_author:"Last, F"'],
-      example: ['first_author:"huchra, j"'],
-    },
-    {
-      type: 'item',
-      id: 'abs',
-      value: 'abs:""',
-      title: 'abstract',
-      description: 'Search for word or phrase in abstract, title and keywords',
-      syntax: ['abs:"phrase"'],
-      example: ['abs:"dark energy"'],
-    },
-    {
-      type: 'item',
-      id: 'year',
-      value: 'year:',
-      title: 'year',
-      description: 'Year of publication',
-      syntax: ['year:YYYY', 'year:YYYY-YYYY'],
-      example: ['year:2000', 'year:2000-2005'],
-    },
-    {
-      type: 'item',
-      id: 'full',
-      value: 'full:""',
-      title: 'fulltext',
-      description: 'Search for word or phrase in fulltext, acknowledgements, abstract, title and keywords',
-      syntax: ['full:"phrase"'],
-      example: ['full:"gravitational waves"'],
-    },
-  ],
-  BIO_PHYSICAL_SCIENCE: [
-    {
-      type: 'item',
-      id: 'author',
-      value: 'author:""',
-      title: 'author',
-      description: 'Author name may include just lastname and initial, or stricter author search (recommended)',
-      syntax: ['author:"Last, F"', 'author:"Last, First M"'],
-      example: ['author:"huchra, john p"'],
-    },
-    {
-      type: 'item',
-      id: 'last_author',
-      value: 'pos(author:"", -1)',
-      title: 'last author',
-      description: 'Search by last author of the paper',
-      syntax: ['pos(author:"", -1)'],
-      example: ['pos(author:"huchra, j", -1)'],
-      cursorPos: -6,
-    },
-    {
-      type: 'item',
-      id: 'abs',
-      value: 'abs:""',
-      title: 'abstract',
-      description: 'Search for word or phrase in abstract, title and keywords',
-      syntax: ['abs:"phrase"'],
-      example: ['abs:"dark energy"'],
-    },
-    {
-      type: 'item',
-      id: 'year',
-      value: 'year:',
-      title: 'year',
-      description: 'Year of publication',
-      syntax: ['year:YYYY', 'year:YYYY-YYYY'],
-      example: ['year:2000', 'year:2000-2005'],
-    },
-    {
-      type: 'item',
-      id: 'full',
-      value: 'full:""',
-      title: 'fulltext',
-      description: 'Search for word or phrase in fulltext, acknowledgements, abstract, title and keywords',
-      syntax: ['full:"phrase"'],
-      example: ['full:"gravitational waves"'],
-    },
-  ],
+// Quickfields are a curated subset of `allSearchTerms`, derived by id so the
+// field metadata (title, value, cursorPos) has a single source of truth. Order
+// here is the display order; trailing fields hide first under overflow.
+const quickfieldById = (id: string): SearchTermItem => {
+  const found = allSearchTerms.find((term): term is SearchTermItem => term.type === 'item' && term.id === id);
+  if (!found) {
+    throw new Error(`quickfield id not found in allSearchTerms: ${id}`);
+  }
+  return found;
+};
+
+const deriveQuickfields = (ids: string[]): SearchTermItem[] => ids.map(quickfieldById);
+
+// `default` is always present; per-mode overrides are optional and fall back to
+// `default` at the call site (see QuickFields).
+export const quickfields: Partial<Record<AppMode, SearchTermItem[]>> & { default: SearchTermItem[] } = {
+  default: deriveQuickfields(['author', 'first-author', 'abs', 'year', 'full', 'title']),
+  BIO_PHYSICAL_SCIENCE: deriveQuickfields(['author', 'last_author', 'abs', 'year', 'full', 'title']),
 };
