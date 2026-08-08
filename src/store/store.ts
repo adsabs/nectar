@@ -17,6 +17,7 @@ import { AppSerializableState, AppState } from './types';
 import { isPlainObject, isPrimitive } from 'ramda-adjunct';
 import { logger } from '@/logger';
 import { IUserData } from '@/api/user/types';
+import { isAuthenticated } from '@/auth-utils';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
 
@@ -151,6 +152,19 @@ export const useStoreApi = appContext.useStoreApi;
 // handler to be used outside react (non-hook)
 export const updateAppUser = (user: IUserData): void => {
   store?.setState({ user });
+};
+
+// Fire a global notification (toast) from outside React, e.g. the axios
+// interceptor surfacing a background 429. No-op server-side (store is unset).
+export const notify = (id: Parameters<AppState['setNotification']>[0]): void => {
+  store?.getState().setNotification(id);
+};
+
+// Rate-limit toast, keyed off the same store user useSession reads so the toast
+// and inline alert agree. Anonymous users get the account nudge.
+export const notifyRateLimit = (): void => {
+  const authed = !!store && isAuthenticated(store.getState().user);
+  notify(authed ? 'rate-limit-exceeded-auth' : 'rate-limit-exceeded');
 };
 
 export const getSerializableDefaultStore = () => {

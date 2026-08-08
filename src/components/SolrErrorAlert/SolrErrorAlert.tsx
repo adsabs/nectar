@@ -17,6 +17,10 @@ import { ChevronDownIcon, ChevronRightIcon, CopyIcon } from '@chakra-ui/icons';
 import { AxiosError } from 'axios';
 import { IADSApiSearchResponse } from '@/api/search/types';
 import { ParsedSolrError, SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
+import { SimpleLink } from '@/components/SimpleLink';
+import { RATE_LIMIT_ERROR_TITLE, RATE_LIMIT_REGISTER_HREF } from '@/utils/common/parseAPIError';
+import { useColorModeColors } from '@/lib/useColorModeColors';
+import { useSession } from '@/lib/useSession';
 
 interface ISolrErrorAlertProps {
   error: AxiosError<IADSApiSearchResponse> | Error;
@@ -31,7 +35,11 @@ export const SearchErrorAlert = ({ error, onRetry, isRetrying = false }: ISolrEr
   const { onCopy, hasCopied } = useClipboard(
     typeof data?.originalMsg === 'string' ? data.originalMsg : String(data?.originalMsg ?? ''),
   );
-  const { title, message } = solrErrorToCopy(data, { includeFieldName: !!data.field });
+  const { isAuthenticated } = useSession();
+  const { title, message } = solrErrorToCopy(data, { includeFieldName: !!data.field, isAuthenticated });
+  const isRateLimited = data.error === SOLR_ERROR.TOO_MANY_REQUESTS;
+  const showAccountCta = isRateLimited && !isAuthenticated;
+  const colors = useColorModeColors();
 
   return (
     <Box w="full">
@@ -41,7 +49,18 @@ export const SearchErrorAlert = ({ error, onRetry, isRetrying = false }: ISolrEr
             <AlertIcon />
             <VStack align="start" spacing={1} flex="1">
               <AlertTitle>{title}</AlertTitle>
-              <AlertDescription>{message}</AlertDescription>
+              <AlertDescription>
+                {message}
+                {showAccountCta && (
+                  <>
+                    {' '}
+                    <SimpleLink href={RATE_LIMIT_REGISTER_HREF} display="inline" color={colors.link}>
+                      Create a free account
+                    </SimpleLink>{' '}
+                    for higher limits, or try again later.
+                  </>
+                )}
+              </AlertDescription>
             </VStack>
 
             <HStack>
@@ -81,7 +100,7 @@ export const SearchErrorAlert = ({ error, onRetry, isRetrying = false }: ISolrEr
 };
 
 type Copy = { title: string; message: string };
-type CopyOptions = { includeFieldName?: boolean };
+type CopyOptions = { includeFieldName?: boolean; isAuthenticated?: boolean };
 
 export const solrErrorToCopy = (e: ParsedSolrError, opts: CopyOptions = {}): Copy => {
   const includeField = opts.includeFieldName && 'field' in e && e.field;
@@ -150,6 +169,16 @@ export const solrErrorToCopy = (e: ParsedSolrError, opts: CopyOptions = {}): Cop
 
   // HTTP / infra / concurrency
   switch (e.error) {
+    case SOLR_ERROR.TOO_MANY_REQUESTS:
+      return {
+        title: RATE_LIMIT_ERROR_TITLE,
+        // Anonymous copy is the bare lead; the component appends the account
+        // link + "for higher limits, or try again later" so it matches the
+        // toast and full-page wording exactly.
+        message: opts.isAuthenticated
+          ? 'You’ve made too many requests. Please try again later.'
+          : 'You’ve made too many requests.',
+      };
     case SOLR_ERROR.VERSION_CONFLICT:
       return {
         title: 'Item changed',
