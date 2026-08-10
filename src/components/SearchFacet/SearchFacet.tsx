@@ -75,6 +75,7 @@ export interface ISearchFacetProps extends AccordionItemProps {
   filter?: string[];
   onQueryUpdate: (queryUpdates: Partial<IADSApiSearchParams>) => void;
   isLowerCase: boolean;
+  isBinary?: boolean;
 }
 
 export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
@@ -82,7 +83,16 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const setFacetState = useStore((state) => state.setSearchFacetState);
   const hideFacet = useStore((state) => state.hideSearchFacet);
   const showFacet = useStore((state) => state.showSearchFacet);
-  const { label, field, storeId, onQueryUpdate, noLoadMore, defaultIsHidden, onVisibilityChange } = props;
+  const {
+    label,
+    field,
+    storeId,
+    onQueryUpdate,
+    noLoadMore,
+    defaultIsHidden,
+    onVisibilityChange,
+    isBinary = false,
+  } = props;
   const { listeners, attributes, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: storeId,
     strategy: verticalListSortingStrategy,
@@ -119,6 +129,16 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
       event: 'facet_applied',
       facet_field: filterArgs.field,
       facet_logic: filterArgs.logic,
+    });
+  };
+
+  const handleOnBinaryFilter = ({ field, value }: { field: FacetField; value: string }) => {
+    const query = store.getState().latestQuery;
+    onQueryUpdate(applyFiltersToQuery({ logic: 'limit to', field, values: [value], query }));
+    sendGTMEvent({
+      event: 'facet_applied',
+      facet_field: field,
+      facet_logic: 'limit to',
     });
   };
 
@@ -230,7 +250,17 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
           borderBottomRadius="md"
           mt="0"
         >
-          <FacetList noLoadMore={noLoadMore} onFilter={handleOnFilter} onError={handleOnError} label={label} />
+          {isBinary ? (
+            <FacetList
+              noLoadMore={noLoadMore}
+              onFilter={handleOnFilter}
+              onError={handleOnError}
+              label={label}
+              onSelectNode={(value: string) => handleOnBinaryFilter({ field, value })}
+            />
+          ) : (
+            <FacetList noLoadMore={noLoadMore} onFilter={handleOnFilter} onError={handleOnError} label={label} />
+          )}
         </Box>
       )}
     </ListItem>
