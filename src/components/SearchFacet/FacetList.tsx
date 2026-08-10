@@ -68,10 +68,11 @@ export interface IFacetListProps extends ListProps {
   onFilter?: (args: OnFilterArgs) => void;
   onError?: () => void;
   label?: string;
+  onSelectNode?: (value: string) => void; // if provided, the checkbox will not trigger logic selector, but will run onSelectNode callback instead
 }
 
 export const FacetList = (props: IFacetListProps) => {
-  const { noLoadMore, onFilter, onError, label } = props;
+  const { noLoadMore, onFilter, onError, label, onSelectNode } = props;
 
   const focused = useFacetStore(selectors.focused);
 
@@ -98,7 +99,15 @@ export const FacetList = (props: IFacetListProps) => {
         }
       </SearchFacetModal>
       <LogicSelect mt="2" onFilter={onFilter} onClose={handleOnClose} label={label}>
-        <NodeList level="root" prefix="" onError={onError} noLoadMore={noLoadMore} searchTerm="" parentIndex={[]} />
+        <NodeList
+          level="root"
+          prefix=""
+          onError={onError}
+          noLoadMore={noLoadMore}
+          searchTerm=""
+          parentIndex={[]}
+          onSelectNode={onSelectNode}
+        />
       </LogicSelect>
     </>
   );
@@ -111,11 +120,12 @@ export interface INodeListProps extends Pick<IUseGetFacetDataProps, 'prefix' | '
   onError: () => void;
   searchTerm: string;
   onKeyboardFocusNext?: (index: number[]) => void;
+  onSelectNode?: (value: string) => void; // if provided, the checkbox will not trigger logic selector, but will run onSelectNode callback instead
 }
 
 export const NodeList = memo(
   forwardRef((props: INodeListProps, ref: ForwardedRef<HTMLDivElement>) => {
-    const { parentIndex, prefix, level, onError, onLoadMore, onKeyboardFocusNext = noop } = props;
+    const { parentIndex, prefix, level, onError, onLoadMore, onKeyboardFocusNext = noop, onSelectNode } = props;
 
     const params = useFacetStore(selectors.params);
     const updateModal = useFacetStore(selectors.updateModal);
@@ -254,12 +264,13 @@ export const NodeList = memo(
               index={[...parentIndex, index]}
               onKeyboardFocusNext={handleKeyboardFocusNext}
               onKeyboardFocusPrev={handleKeyboardFocusPrev}
+              onSelectNode={onSelectNode}
             />
           ))}
         </List>
         <LoadMoreBtn
           mt={level === 'root' ? 2 : 0}
-          show
+          show={!props.noLoadMore}
           onClick={handleLoadMore}
           pullRight
           onArrowUp={handleArrowUpFromLoadMore}
@@ -387,6 +398,7 @@ interface IItemProps {
   index: number[]; // index position in the tree
   onKeyboardFocusNext?: (index: number[]) => void;
   onKeyboardFocusPrev?: (index: number[]) => void;
+  onSelectNode?: (value: string) => void; // if provided, the checkbox will not trigger logic selector, but will run onSelectNode callback instead
 }
 
 const indexEqual = (a: number[], b: number[]) => {
@@ -403,7 +415,16 @@ const indexEqual = (a: number[], b: number[]) => {
 };
 
 export const Item = (props: IItemProps) => {
-  const { node, variant = 'basic', expandable, onError, index, onKeyboardFocusNext, onKeyboardFocusPrev } = props;
+  const {
+    node,
+    variant = 'basic',
+    expandable,
+    onError,
+    index,
+    onKeyboardFocusNext,
+    onKeyboardFocusPrev,
+    onSelectNode,
+  } = props;
   const setFocused = useFacetStore(selectors.setFocused);
 
   const keyboardFocus = useFacetStore(selectors.keyboardFocus);
@@ -503,7 +524,7 @@ export const Item = (props: IItemProps) => {
         onKeyDown={handleKeyDown}
       >
         <Text {...textProps}>
-          <NodeCheckbox node={node} variant={variant} ref={checkboxRef} />
+          <NodeCheckbox node={node} variant={variant} ref={checkboxRef} onSelectNode={onSelectNode} />
           {expandable ? <ExpandButton isExpanded={isExpanded} onExpand={handleExpand} /> : null}
         </Text>
       </ListItem>
@@ -516,6 +537,7 @@ export const Item = (props: IItemProps) => {
           searchTerm=""
           parentIndex={index}
           onKeyboardFocusNext={onKeyboardFocusNext}
+          onSelectNode={onSelectNode}
         />
       ) : null}
     </>
@@ -559,10 +581,11 @@ export const ExpandButton = (props: { isExpanded: boolean; onExpand: () => void 
 interface INodeCheckboxProps extends CheckboxProps {
   node: FacetItem;
   variant?: 'basic' | 'modal';
+  onSelectNode?: (value: string) => void; // if provided, the checkbox will not trigger logic selector, but will run onSelectNode callback instead
 }
 
 export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((props, ref) => {
-  const { node, variant, ...checkboxProps } = props;
+  const { node, variant, onSelectNode, ...checkboxProps } = props;
   const isRoot = isRootNode(node.val);
   const label = isRoot ? parseRootFromKey(node.val) : parseTitleFromKey(node.val);
   const isSelected = useFacetStore(useCallback((state) => state.selection?.[node.id]?.selected ?? false, [node.id]));
@@ -570,8 +593,18 @@ export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((pr
     useCallback((state) => state.selection?.[node.id]?.partSelected ?? false, [node.id]),
   );
   const select = useFacetStore(selectors.select);
+  const reset = useFacetStore((state) => state.reset);
 
   const colors = useColorModeColors();
+
+  const handleSelect = () => {
+    if (onSelectNode && typeof onSelectNode === 'function') {
+      reset();
+      onSelectNode(node.val);
+    } else {
+      select(node);
+    }
+  };
 
   return (
     <Checkbox
@@ -585,7 +618,7 @@ export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((pr
       w="full"
       isChecked={isSelected}
       isIndeterminate={isPartSelected}
-      onChange={() => select(node)}
+      onChange={() => handleSelect()}
       value={node.id}
       data-testid={`search-facet-${isRoot ? 'root' : 'child'}-checkbox`}
       my={0.5}

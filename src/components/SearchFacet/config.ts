@@ -39,6 +39,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     storeId: 'refereed',
     noLoadMore: true,
     isLowerCase: false,
+    isBinary: true,
   },
   institutions: {
     label: 'Institutions',
@@ -135,7 +136,6 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     hasChildren: false,
     logic: defaultLogic,
     storeId: 'uat',
-    noLoadMore: true,
     isLowerCase: false,
   },
 };
