@@ -6,7 +6,7 @@ const settingsPath = '/user/settings';
 const useGetMenuItems = () => {
   const router = useRouter();
   const menuItems = {
-    'USER PREFERENCES': [
+    SETTINGS: [
       {
         id: 'application',
         href: `${settingsPath}/application`,
@@ -27,17 +27,13 @@ const useGetMenuItems = () => {
         href: `${settingsPath}/librarylink`,
         label: 'Library Link Server',
       },
-      {
-        id: 'orcid',
-        href: `${settingsPath}/orcid`,
-        label: 'ORCiD',
-      },
     ],
-    'ACCOUNT SETTINGS': [
+    'CONNECTED ACCOUNTS': [{ id: 'orcid', href: `${settingsPath}/orcid`, label: 'ORCiD' }],
+    ACCOUNT: [
       {
         id: 'email',
         href: `${settingsPath}/email`,
-        label: 'Change Email',
+        label: 'Update Email',
       },
       {
         id: 'password',
