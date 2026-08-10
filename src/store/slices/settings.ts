@@ -203,8 +203,8 @@ const getIgnoredSearchFacets = (mode: AppMode): SearchFacetID[] => {
   switch (mode) {
     case AppMode.EARTH_SCIENCE:
       return ['simbad', 'ned', 'vizier', 'planetary', 'uat'];
+    case AppMode.HELIOPHYSICS:
     case AppMode.PLANET_SCIENCE:
-      return ['uat'];
     case AppMode.ASTROPHYSICS:
       return ['planetary'];
     default:
