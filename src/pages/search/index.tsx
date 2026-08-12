@@ -47,7 +47,7 @@ import { SearchBar } from '@/components/SearchBar';
 import { NumFound } from '@/components/NumFound';
 import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
 import { ItemsSkeleton, ListActions, Pagination, SimpleResultList } from '@/components/ResultList';
-import { AddToLibraryModal } from '@/components/Libraries';
+import { AddToRemoveFromLibraryModal } from '@/components/Libraries';
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { CustomInfoMessage } from '@/components/Feedbacks';
@@ -238,10 +238,22 @@ const SearchPage: NextPage = () => {
   // Capture this tab's results URL so other pages can offer a reliable "back to results" link
   useCaptureSearchReturnUrl();
 
-  const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
+  const { isOpen: isEditLibraryOpen, onClose: onCloseEditLibrary, onOpen: onOpenEditLibrary } = useDisclosure();
+
+  const [editLibraryAction, setEditLibraryAction] = useState<'add' | 'remove' | null>(null);
 
   // start tour on the first time
   useTour();
+
+  const handleOpenAddToLibrary = () => {
+    setEditLibraryAction('add');
+    onOpenEditLibrary();
+  };
+
+  const handleOpenRemoveFromLibrary = () => {
+    setEditLibraryAction('remove');
+    onOpenEditLibrary();
+  };
 
   // on Sort change handler
   const handleSortChange = (sort: SolrSort) => {
@@ -418,7 +430,8 @@ const SearchPage: NextPage = () => {
                   >
                     <ListActions
                       onSortChange={handleSortChange}
-                      onOpenAddToLibrary={onOpenAddToLibrary}
+                      onOpenAddToLibrary={handleOpenAddToLibrary}
+                      onOpenRemoveFromLibrary={handleOpenRemoveFromLibrary}
                       isLoading={isLoading}
                     />
                   </ErrorBoundary>
@@ -484,7 +497,7 @@ const SearchPage: NextPage = () => {
           </Box>
         </Flex>
       </Stack>
-      <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} />
+      <AddToRemoveFromLibraryModal action={editLibraryAction} isOpen={isEditLibraryOpen} onClose={onCloseEditLibrary} />
     </Box>
   );
 };

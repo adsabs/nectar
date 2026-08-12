@@ -43,11 +43,13 @@ import { TableSkeleton } from './TableSkeleton';
 
 export type SelectionType = 'all' | 'selected';
 
-export const AddToLibraryModal = ({
+export const AddToRemoveFromLibraryModal = ({
+  action,
   bibcodes,
   isOpen,
   onClose,
 }: {
+  action: 'add' | 'remove';
   bibcodes?: string[];
   isOpen: boolean;
   onClose: (added?: boolean) => void;
@@ -64,21 +66,21 @@ export const AddToLibraryModal = ({
 
   const toast = useToast();
 
-  const handleAddToLibrary = (ids: LibraryIdentifier[]) => {
+  const handleEditorLibraryDocs = (action: 'add' | 'remove', ids: LibraryIdentifier[]) => {
     const promises =
       bibcodes?.length > 0 || selectedDocs?.length > 0
         ? ids.map((id) =>
             editDocs({
               id,
               bibcode: bibcodes ?? selectedDocs,
-              action: 'add',
+              action,
             }),
           )
         : ids.map((id) =>
             addDocsByQuery({
               id,
               params: { q: query.q },
-              action: 'add',
+              action,
             }),
           );
 
@@ -86,7 +88,7 @@ export const AddToLibraryModal = ({
       () => {
         toast({
           status: 'success',
-          title: `Paper(s) added to ${ids.length > 1 ? 'libraries' : 'library'} `,
+          title: `Paper(s) ${action === 'add' ? 'added' : 'removed'} from ${ids.length > 1 ? 'libraries' : 'library'} `,
         });
         clearSelections();
         onClose(true);
@@ -105,44 +107,52 @@ export const AddToLibraryModal = ({
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          Add{' '}
+          {action === 'add' ? 'Add' : 'Remove'}{' '}
           <Text color="green.500" display="inline" fontWeight="bold">
             {bibcodes ? bibcodes.length : selectedDocs && selectedDocs.length !== 0 ? selectedDocs.length : 'all'}{' '}
             paper(s)
           </Text>{' '}
-          to:
+          {action === 'add' ? 'to' : 'from'}{' '}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Tabs variant="soft-rounded">
-            <TabList>
-              <Tab>Existing Libraries</Tab>
-              <Tab>New Library</Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel>
-                <AddToExistingLibraryPane
-                  onClose={onClose}
-                  onSubmit={handleAddToLibrary}
-                  isLoading={isEditingDocs || isAddingDocs}
-                />
-              </TabPanel>
-              <TabPanel>
-                <AddToNewLibraryPane
-                  onClose={onClose}
-                  onSubmit={handleAddToLibrary}
-                  isLoading={isEditingDocs || isAddingDocs}
-                />
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
+          {action === 'add' ? (
+            <Tabs variant="soft-rounded">
+              <TabList>
+                <Tab>Existing Libraries</Tab>
+                <Tab>New Library</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  <LibrariesSelectorPane
+                    onClose={onClose}
+                    onSubmit={(ids) => handleEditorLibraryDocs('add', ids)}
+                    isLoading={isEditingDocs || isAddingDocs}
+                  />
+                </TabPanel>
+                <TabPanel>
+                  <AddToNewLibraryPane
+                    onClose={onClose}
+                    onSubmit={(ids) => handleEditorLibraryDocs('add', ids)}
+                    isLoading={isEditingDocs || isAddingDocs}
+                  />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          ) : (
+            <LibrariesSelectorPane
+              onClose={onClose}
+              onSubmit={(ids) => handleEditorLibraryDocs('remove', ids)}
+              isLoading={isEditingDocs || isAddingDocs}
+            />
+          )}
         </ModalBody>
       </ModalContent>
     </Modal>
   );
 };
 
-const AddToExistingLibraryPane = ({
+const LibrariesSelectorPane = ({
   onClose,
   onSubmit,
   isLoading,

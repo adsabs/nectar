@@ -1,6 +1,6 @@
 import { render, waitFor } from '@/test-utils';
 import { describe, expect, test, vi } from 'vitest';
-import { AddToLibraryModal } from '../AddToLibraryModal';
+import { AddToRemoveFromLibraryModal } from '../AddToRemoveFromLibraryModal';
 
 const mocks = vi.hoisted(() => ({
   useRouter: vi.fn(() => ({
@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
 
-describe('AddToLibraryModal', () => {
+describe('AddToRemoveFromLibraryModal', () => {
   const defaultProps = {
     bibcodes: ['2021ApJ...000A...1X'],
     isOpen: true,
@@ -21,7 +21,7 @@ describe('AddToLibraryModal', () => {
   };
 
   test('read-only library cannot be selected', async () => {
-    const { user, findByRole, findByText } = render(<AddToLibraryModal {...defaultProps} />);
+    const { user, findByRole, findByText } = render(<AddToRemoveFromLibraryModal {...defaultProps} action="add" />);
 
     // Wait for libraries to load — the table should appear
     await findByRole('table');
@@ -36,7 +36,7 @@ describe('AddToLibraryModal', () => {
   });
 
   test('read-only library row is visually marked as disabled', async () => {
-    const { findByRole, findAllByRole } = render(<AddToLibraryModal {...defaultProps} />);
+    const { findByRole, findAllByRole } = render(<AddToRemoveFromLibraryModal action="add" {...defaultProps} />);
 
     await findByRole('table');
 
@@ -49,7 +49,7 @@ describe('AddToLibraryModal', () => {
   });
 
   test('writable library can be selected and enables submit', async () => {
-    const { user, findByRole, findByText } = render(<AddToLibraryModal {...defaultProps} />);
+    const { user, findByRole, findByText } = render(<AddToRemoveFromLibraryModal action="add" {...defaultProps} />);
 
     await findByRole('table');
 
@@ -77,7 +77,7 @@ describe('AddToLibraryModal', () => {
     );
 
     const { user, findByRole, findByText, queryByText } = render(
-      <AddToLibraryModal bibcodes={['2021ApJ...000A...1X']} isOpen={true} onClose={onClose} />,
+      <AddToRemoveFromLibraryModal action="add" bibcodes={['2021ApJ...000A...1X']} isOpen={true} onClose={onClose} />,
     );
 
     await findByRole('table');
