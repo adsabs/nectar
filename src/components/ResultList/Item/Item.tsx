@@ -81,6 +81,8 @@ export const Item = (props: IItemProps): ReactElement => {
 
   const colors = useColorModeColors();
 
+  const isMobile = useBreakpointValue({ base: true, md: false });
+
   // Scroll restoration - save position when navigating to abstract
   const { saveScrollPosition } = useScrollRestoration();
 
@@ -148,7 +150,11 @@ export const Item = (props: IItemProps): ReactElement => {
         {hideCheckbox ? null : <ItemCheckbox index={index} bibcode={bibcode} label={title} isChecked={isChecked} />}
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
-        <Flex justifyContent="space-between" minH="40px">
+        <Flex
+          direction={isMobile ? 'column' : 'row'}
+          justifyContent={isMobile ? 'flex-start' : 'space-between'}
+          minH="40px"
+        >
           <SimpleLink
             href={`/abs/${encodedCanonicalID}/abstract`}
             fontWeight="semibold"
@@ -157,7 +163,7 @@ export const Item = (props: IItemProps): ReactElement => {
           >
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
-          <Flex alignItems="start" ml={1}>
+          <Flex alignItems="start" ml={isMobile ? 0 : 1} order={isMobile ? -1 : 0} my={isMobile ? 2 : 0}>
             {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} rank={index} />}
           </Flex>
         </Flex>
