@@ -9,7 +9,7 @@ const OrcidPage = () => {
 
   if (!isAuthenticated) {
     return (
-      <SettingsLayout title="ORCiD Settings">
+      <SettingsLayout title="ORCiD Account">
         <Button mb={2} size="md" onClick={login}>
           Authenticate ORCiD
         </Button>
@@ -23,7 +23,7 @@ const OrcidPage = () => {
 
   // If logged into ORCiD
   return (
-    <SettingsLayout title="ORCiD Settings">
+    <SettingsLayout title="ORCiD Account">
       <UserSettings />
     </SettingsLayout>
   );
