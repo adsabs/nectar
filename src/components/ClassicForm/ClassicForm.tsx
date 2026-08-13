@@ -23,7 +23,7 @@ import {
   Tooltip,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { CalendarIcon, ExternalLinkIcon, InfoIcon } from '@chakra-ui/icons';
+import { CalendarIcon, ExternalLinkIcon, InfoOutlineIcon } from '@chakra-ui/icons';
 
 import { useErrorMessage } from '@/lib/useErrorMessage';
 import { useIsClient } from '@/lib/useIsClient';
@@ -138,7 +138,28 @@ export const ClassicForm = (props: IClassicFormProps) => {
           {/* Author text area */}
           <FormControl>
             <Flex direction="row" justifyContent="space-between">
-              <FormLabel htmlFor={'author'}>Author</FormLabel>
+              <HStack alignItems="top">
+                <FormLabel htmlFor={'author'}>
+                  Author{' '}
+                  <Tooltip label="Author names, enter (Last, First M) one per line.">
+                    <InfoOutlineIcon ml={1} />
+                  </Tooltip>
+                </FormLabel>
+
+                <SimpleLink href="scixhelp/search-scix/search-syntax#author" newTab mt={0.5}>
+                  <Tooltip
+                    label={
+                      <>
+                        Learn more about author search syntax <ExternalLinkIcon aria-label="opens new tab" />
+                      </>
+                    }
+                  >
+                    <Text fontSize="xs" fontWeight="normal">
+                      learn more
+                    </Text>
+                  </Tooltip>
+                </SimpleLink>
+              </HStack>
               <LogicRadios variant="andor" radioProps={register('logic_author')} />
             </Flex>
             <Textarea
@@ -148,28 +169,19 @@ export const ClassicForm = (props: IClassicFormProps) => {
               rows={3}
               placeholder={`Smith, John A\nSmith, Jane B`}
             />
-            <FormHelperText lineHeight="5">
-              <Text>
-                Author names, enter (Last, First M) one per line.
-                <SimpleLink ml={1} href="scixhelp/search-scix/search-syntax#author" newTab>
-                  <Tooltip
-                    label={
-                      <>
-                        Learn more about author search syntax <ExternalLinkIcon aria-label="opens new tab" />
-                      </>
-                    }
-                  >
-                    <InfoIcon aria-label="Learn more about author search syntax" />
-                  </Tooltip>
-                </SimpleLink>
-              </Text>
-            </FormHelperText>
           </FormControl>
 
           {/* Object text area */}
           <FormControl>
             <Flex direction="row" justifyContent="space-between">
-              <FormLabel htmlFor="object">Object</FormLabel>
+              <HStack alignItems="top">
+                <FormLabel htmlFor="object">
+                  Object{' '}
+                  <Tooltip label="SIMBAD object search, one per line.">
+                    <InfoOutlineIcon ml={1} />
+                  </Tooltip>
+                </FormLabel>
+              </HStack>
               <LogicRadios variant="andor" radioProps={register('logic_object')} />
             </Flex>
             <Textarea
@@ -179,7 +191,6 @@ export const ClassicForm = (props: IClassicFormProps) => {
               rows={3}
               placeholder={`M 31\nHD 187642\nSgr A*`}
             />
-            <FormHelperText>SIMBAD object search, one per line.</FormHelperText>
           </FormControl>
         </Stack>
 
