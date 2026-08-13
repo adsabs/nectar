@@ -1,4 +1,18 @@
-import { Button, Flex, FormControl, FormLabel, NumberInput, NumberInputField } from '@chakra-ui/react';
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  NumberInput,
+  NumberInputField,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+  VisuallyHidden,
+} from '@chakra-ui/react';
 
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
@@ -80,17 +94,62 @@ export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps)
     }
   }, [baseGraph, debouncedRange]);
 
+  const tableData = useMemo(() => {
+    if (transformedGraph) {
+      const refereed = transformedGraph.data.reduce((acc, { refereed }) => acc + refereed, 0);
+      const notRefereed = transformedGraph.data.reduce((acc, { notrefereed }) => acc + notrefereed, 0);
+      const total = refereed + notRefereed;
+      return {
+        refereed,
+        notRefereed,
+        total,
+      };
+    }
+  }, [transformedGraph]);
+
   const getCSVDataContent = () =>
     baseGraph.data.reduce(
       (content, { year, refereed, notrefereed }) => content + `\n${year},${refereed + notrefereed},${refereed}`,
       'Year, Article Count, Ref Count',
     );
 
+  const dataTable = useMemo(() => {
+    if (tableData) {
+      return (
+        <Table width="fit-content" aria-label="data table">
+          <Thead>
+            <Tr>
+              <Th>
+                <VisuallyHidden>no value</VisuallyHidden>
+              </Th>
+              <Th>Count</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            <Tr>
+              <Td>Refereed</Td>
+              <Td>{tableData.refereed}</Td>
+            </Tr>
+            <Tr>
+              <Td>Non-Refereed</Td>
+              <Td>{tableData.notRefereed}</Td>
+            </Tr>
+            <Tr>
+              <Td>Total</Td>
+              <Td>{tableData.total}</Td>
+            </Tr>
+          </Tbody>
+        </Table>
+      );
+    }
+  }, [tableData]);
+
   return (
     <>
       {transformedGraph && (
         <Flex direction="column">
           <DataDownloader label="Download CSV Data" getFileContent={getCSVDataContent} fileName="years.csv" my={5} />
+          {dataTable}
           <BarGraph
             data={transformedGraph.data}
             indexBy={transformedGraph.indexBy}
