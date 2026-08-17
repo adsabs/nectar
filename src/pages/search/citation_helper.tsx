@@ -34,7 +34,7 @@ import { HideOnPrint } from '@/components/HideOnPrint';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { MathJax } from 'better-react-mathjax';
 import { useEffect, useMemo, useState } from 'react';
-import { AddToLibraryModal } from '@/components/Libraries';
+import { AddToRemoveFromLibraryModal } from '@/components/Libraries';
 import { useSession } from '@/lib/useSession';
 import { AbstractPreview } from '@/components/ResultList/Item';
 import { AuthorList } from '@/components/AllAuthorsModal';
@@ -256,7 +256,12 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
           )}
         </Box>
       </Flex>
-      <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={handleCloseLibraryModal} bibcodes={selectedBibcodes} />
+      <AddToRemoveFromLibraryModal
+        action="add"
+        isOpen={isAddToLibraryOpen}
+        onClose={handleCloseLibraryModal}
+        bibcodes={selectedBibcodes}
+      />
     </>
   );
 };

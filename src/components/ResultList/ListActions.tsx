@@ -62,13 +62,14 @@ import { faHighlighter } from '@fortawesome/free-solid-svg-icons';
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];
   onOpenAddToLibrary: () => void;
+  onOpenRemoveFromLibrary: () => void;
   isLoading: boolean;
 }
 
 type Operator = 'trending' | 'reviews' | 'useful' | 'similar';
 
 export const ListActions = (props: IListActionsProps): ReactElement => {
-  const { onSortChange = noop, onOpenAddToLibrary, isLoading } = props;
+  const { onSortChange = noop, onOpenAddToLibrary, onOpenRemoveFromLibrary, isLoading } = props;
   const selected = useStore((state) => state.docs.selected ?? []);
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();
@@ -241,6 +242,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                     {isAuthenticated && (
                       <>
                         <MenuItem onClick={onOpenAddToLibrary}>Add to Library</MenuItem>
+                        <MenuItem onClick={onOpenRemoveFromLibrary}>Remove from Library</MenuItem>
                         <MenuDivider />
                       </>
                     )}

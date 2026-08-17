@@ -16,7 +16,7 @@ import { AbsRecordBoundary } from '@/components/AbsRecordBoundary';
 import { feedbackItems, getAbstractSteps } from '@/components/NavBar';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { AbstractSources } from '@/components/AbstractSources';
-import { AddToLibraryModal } from '@/components/Libraries';
+import { AddToRemoveFromLibraryModal } from '@/components/Libraries';
 import { AbstractDetails, AbstractMetadata, IAbstractMetadata } from '@/components/AbstractDetails';
 import { APP_DEFAULTS } from '@/config';
 import { useTrackAbstractView } from '@/lib/useTrackAbstractView';
@@ -104,7 +104,6 @@ const AbstractPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc, isAuth
                     return (
                       <Flex key={`${author}-${index}`} mr={1} align="center">
                         <Tooltip label="View all records by this author" shouldWrapChildren>
-
                           <SearchQueryLink
                             params={createQuery('author', author)}
                             px={1}
@@ -184,7 +183,12 @@ const AbstractPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc, isAuth
                 </Stack>
               </Stack>
             </Box>
-            <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} bibcodes={[doc.bibcode]} />
+            <AddToRemoveFromLibraryModal
+              action="add"
+              isOpen={isAddToLibraryOpen}
+              onClose={onCloseAddToLibrary}
+              bibcodes={[doc.bibcode]}
+            />
           </>
         );
       }}
