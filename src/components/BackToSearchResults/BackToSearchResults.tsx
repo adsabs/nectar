@@ -2,10 +2,9 @@ import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Button, ButtonProps } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 import { SimpleLink } from '@/components/SimpleLink';
-import { useSearchReturnTo, UseSearchReturnToOptions } from '@/lib/useSearchReturnTo';
+import { isLibraryReturnTarget, useSearchReturnTo, UseSearchReturnToOptions } from '@/lib/useSearchReturnTo';
 
 export interface IBackToSearchResultsProps extends UseSearchReturnToOptions {
-  /** Visible label; defaults to the canonical "Back to results". */
   label?: string;
   /** Forwarded styling overrides (margins, alignment) for the host layout. */
   buttonProps?: ButtonProps;
@@ -17,7 +16,7 @@ export interface IBackToSearchResultsProps extends UseSearchReturnToOptions {
  * straight into an abstract), so callers never show a dead button.
  */
 export const BackToSearchResults = ({
-  label = 'Back to results',
+  label,
   buttonProps,
   ...options
 }: IBackToSearchResultsProps): ReactElement | null => {
@@ -26,6 +25,8 @@ export const BackToSearchResults = ({
   if (!returnTo) {
     return null;
   }
+
+  const resolvedLabel = label ?? (isLibraryReturnTarget(returnTo) ? 'Back to library' : 'Back to results');
 
   return (
     <Button
@@ -38,7 +39,7 @@ export const BackToSearchResults = ({
       data-testid="back-to-results"
       {...buttonProps}
     >
-      {label}
+      {resolvedLabel}
     </Button>
   );
 };

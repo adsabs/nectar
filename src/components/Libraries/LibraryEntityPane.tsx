@@ -246,6 +246,8 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
     );
   };
 
+  const libraryReferrer = `${publicView ? '/public-libraries' : '/user/libraries'}/${id}`;
+
   const { hasCopied, onCopy, setValue, value } = useClipboard('');
 
   useEffect(() => {
@@ -447,6 +449,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                 <>
                   <DocumentList
                     library={id}
+                    referrer={libraryReferrer}
                     docs={docs}
                     notes={!publicView ? library.library_notes?.notes : undefined}
                     showNotes={!publicView}
