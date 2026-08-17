@@ -96,13 +96,17 @@ export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps)
 
   const tableData = useMemo(() => {
     if (transformedGraph) {
-      const refereed = transformedGraph.data.reduce((acc, { refereed }) => acc + refereed, 0);
-      const notRefereed = transformedGraph.data.reduce((acc, { notrefereed }) => acc + notrefereed, 0);
-      const total = refereed + notRefereed;
+      const refereedData = transformedGraph.data.reduce(
+        (acc, { refereed, notrefereed }) => ({
+          refereed: acc.refereed + refereed,
+          notrefereed: acc.notrefereed + notrefereed,
+        }),
+        { refereed: 0, notrefereed: 0 },
+      );
       return {
-        refereed,
-        notRefereed,
-        total,
+        refereed: refereedData.refereed,
+        notRefereed: refereedData.notrefereed,
+        total: refereedData.refereed + refereedData.notrefereed,
       };
     }
   }, [transformedGraph]);
