@@ -4,6 +4,7 @@ import { getSessionItem, SessionStorageKey, setSessionItem } from '@/lib/session
 import {
   captureSearchReturnUrl,
   clearSearchReturnUrl,
+  isLibraryReturnTarget,
   useCaptureSearchReturnUrl,
   useSearchReturnTo,
 } from './useSearchReturnTo';
@@ -39,9 +40,27 @@ describe('useSearchReturnTo precedence', () => {
   test('referrer wins over everything', async () => {
     setSessionItem(KEY, '/search?q=session');
     const { result } = renderHook(() =>
-      useSearchReturnTo({ referrer: '/library/123', reconstructed: '/search?q=recon' }),
+      useSearchReturnTo({ referrer: '/user/libraries/123', reconstructed: '/search?q=recon' }),
     );
-    await waitFor(() => expect(result.current.returnTo).toBe('/library/123'));
+    await waitFor(() => expect(result.current.returnTo).toBe('/user/libraries/123'));
+  });
+
+  test('drops an external referrer and falls through to the session URL', async () => {
+    setSessionItem(KEY, '/search?q=session');
+    const { result } = renderHook(() => useSearchReturnTo({ referrer: 'https://evil.example.com' }));
+    await waitFor(() => expect(result.current.returnTo).toBe('/search?q=session'));
+  });
+
+  test('drops a protocol-relative referrer and falls through to the session URL', async () => {
+    setSessionItem(KEY, '/search?q=session');
+    const { result } = renderHook(() => useSearchReturnTo({ referrer: '//evil.example.com/user/libraries/x' }));
+    await waitFor(() => expect(result.current.returnTo).toBe('/search?q=session'));
+  });
+
+  test('drops a dot-dot-traversal referrer and falls through to the session URL', async () => {
+    setSessionItem(KEY, '/search?q=session');
+    const { result } = renderHook(() => useSearchReturnTo({ referrer: '/user/libraries/../../search?q=star' }));
+    await waitFor(() => expect(result.current.returnTo).toBe('/search?q=session'));
   });
 
   test('captured session URL wins over reconstructed by default', async () => {
@@ -98,6 +117,84 @@ describe('useSearchReturnTo precedence', () => {
     setSessionItem(KEY, '/search?q=session');
     const { result } = renderHook(() => useSearchReturnTo({ reconstructed: null, preferReconstructed: true }));
     await waitFor(() => expect(result.current.returnTo).toBe('/search?q=session'));
+  });
+});
+
+describe('isLibraryReturnTarget', () => {
+  test('true for a private library path', () => {
+    expect(isLibraryReturnTarget('/user/libraries/abc')).toBe(true);
+  });
+
+  test('true for a public library path', () => {
+    expect(isLibraryReturnTarget('/public-libraries/abc')).toBe(true);
+  });
+
+  test('false for a search path', () => {
+    expect(isLibraryReturnTarget('/search?q=star')).toBe(false);
+  });
+
+  test('false for an abstract path', () => {
+    expect(isLibraryReturnTarget('/abs/2020ApJ...123..456A/abstract')).toBe(false);
+  });
+
+  test('false for an absolute/external URL', () => {
+    expect(isLibraryReturnTarget('https://evil.example.com/user/libraries/abc')).toBe(false);
+  });
+
+  test('false for a protocol-relative URL', () => {
+    expect(isLibraryReturnTarget('//evil.example.com/user/libraries/abc')).toBe(false);
+  });
+
+  test('false for a dot-dot traversal escaping the library route', () => {
+    expect(isLibraryReturnTarget('/user/libraries/../../search?q=star')).toBe(false);
+  });
+
+  test('false for a multi-segment dot-dot traversal escaping the library route', () => {
+    expect(isLibraryReturnTarget('/user/libraries/x/../../../search')).toBe(false);
+  });
+
+  test('false for a bare dot-dot segment', () => {
+    expect(isLibraryReturnTarget('/user/libraries/..')).toBe(false);
+  });
+
+  test('false for a single-dot segment', () => {
+    expect(isLibraryReturnTarget('/user/libraries/./x')).toBe(false);
+  });
+
+  test('false for a single-encoded dot-dot segment', () => {
+    expect(isLibraryReturnTarget('/user/libraries/%2e%2e/search?q=star')).toBe(false);
+  });
+
+  test('false for a double-encoded dot-dot segment (pre-router-decode form)', () => {
+    expect(isLibraryReturnTarget('/user/libraries/%252e%252e/search?q=star')).toBe(false);
+  });
+
+  test('false for a double-encoded dot-dot segment (post-router-decode form)', () => {
+    expect(isLibraryReturnTarget('/user/libraries/%2e%2e/search')).toBe(false);
+  });
+
+  test('false for a mixed-case encoded dot-dot segment', () => {
+    expect(isLibraryReturnTarget('/user/libraries/%2E%2E/search')).toBe(false);
+  });
+
+  test('false for a backslash protocol-relative host trick', () => {
+    expect(isLibraryReturnTarget('/\\evil.example.com/user/libraries/x')).toBe(false);
+  });
+
+  test('true for a normal library path (no over-rejection)', () => {
+    expect(isLibraryReturnTarget('/user/libraries/123')).toBe(true);
+  });
+
+  test('true for a normal public library path (no over-rejection)', () => {
+    expect(isLibraryReturnTarget('/public-libraries/abc')).toBe(true);
+  });
+
+  test('false for null', () => {
+    expect(isLibraryReturnTarget(null)).toBe(false);
+  });
+
+  test('false for an empty string', () => {
+    expect(isLibraryReturnTarget('')).toBe(false);
   });
 });
 

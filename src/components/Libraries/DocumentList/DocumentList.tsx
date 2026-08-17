@@ -20,6 +20,7 @@ export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   hideCheckbox: boolean;
   hideResources?: boolean;
   useNormCite?: boolean;
+  referrer?: string;
 }
 
 export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
@@ -36,6 +37,7 @@ export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
     onSet = noop,
     hideResources = false,
     useNormCite = false,
+    referrer,
     ...divProps
   } = props;
 
@@ -94,6 +96,7 @@ export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
           showNote={showNotes}
           useNormCite={useNormCite}
           defaultCitation={defaultCitations?.get(doc.bibcode)}
+          referrer={referrer}
         />
       ))}
     </Flex>

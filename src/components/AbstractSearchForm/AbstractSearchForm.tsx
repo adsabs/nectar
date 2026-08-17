@@ -4,7 +4,7 @@ import { ChangeEventHandler, useCallback } from 'react';
 import { makeSearchParams } from '@/utils/common/search';
 import { useSettings } from '@/lib/useSettings';
 import { IADSApiSearchParams } from '@/api/search/types';
-import router from 'next/router';
+import router, { useRouter } from 'next/router';
 import { applyFiltersToQuery } from '../SearchFacet/helpers';
 import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
 import { SolrSort } from '@/api/models';
@@ -17,6 +17,10 @@ export const AbstractSearchForm = () => {
   const sort = [`${settings.preferredSearchSort} desc` as SolrSort];
   const query = useStore((state) => state.query.q);
   const [searchMode] = useSearchMode();
+  const { query: routeQuery } = useRouter();
+  const referrerParam = routeQuery.referrer;
+  // Untrusted query param; useSearchReturnTo validates before use.
+  const referrer = Array.isArray(referrerParam) ? referrerParam[0] : referrerParam ?? null;
 
   const applyDefaultFilters = useCallback(
     (query: IADSApiSearchParams) => {
@@ -67,7 +71,7 @@ export const AbstractSearchForm = () => {
 
   return (
     <form method="get" action="/search" onSubmit={handleOnSubmit}>
-      <SearchBar query={query} showBackLinkAs="results" />
+      <SearchBar query={query} showBackLinkAs="results" backToResultsProps={{ referrer }} />
     </form>
   );
 };

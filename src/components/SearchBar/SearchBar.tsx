@@ -6,7 +6,7 @@ import { ISearchInputProps, SearchInput } from '@/components/SearchBar/SearchInp
 import { initialState, reducer } from '@/components/SearchBar/searchInputReducer';
 import { QuickFields } from '@/components/SearchBar/QuickFields';
 import { SimpleLink } from '@/components/SimpleLink';
-import { BackToSearchResults } from '@/components/BackToSearchResults';
+import { BackToSearchResults, IBackToSearchResultsProps } from '@/components/BackToSearchResults';
 import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
 
 interface SearchBarProps extends Omit<ISearchInputProps, 'dispatch' | 'state'> {
@@ -14,10 +14,11 @@ interface SearchBarProps extends Omit<ISearchInputProps, 'dispatch' | 'state'> {
   isLoading?: boolean;
   queryAddition?: string;
   showBackLinkAs?: 'new_search' | 'results' | 'none';
+  backToResultsProps?: IBackToSearchResultsProps;
 }
 
 export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((props, ref) => {
-  const { query, queryAddition, isLoading, showBackLinkAs = 'none', ...rest } = props;
+  const { query, queryAddition, isLoading, showBackLinkAs = 'none', backToResultsProps, ...rest } = props;
   const [state, dispatch] = useReducer(reducer, initialState);
   const inputRef = useRef<HTMLInputElement>(null);
   const refs = useMergeRefs(inputRef, ref);
@@ -50,7 +51,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((props, re
           Start new search
         </Button>
       ) : showBackLinkAs === 'results' ? (
-        <BackToSearchResults />
+        <BackToSearchResults {...backToResultsProps} />
       ) : null}
       <QuickFields isLoading={isLoading} dispatch={dispatch} />
       <SearchInput ref={refs} dispatch={dispatch} state={state} isLoading={isLoading} {...rest} />

@@ -44,6 +44,7 @@ export interface IItemProps {
   linkNewTab?: boolean;
   hideResources?: boolean;
   defaultCitation: string;
+  referrer?: string;
 }
 
 export const DocumentItem = (props: IItemProps): ReactElement => {
@@ -61,6 +62,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
     useNormCite,
     hideResources = true,
     defaultCitation,
+    referrer,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
   const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
@@ -118,7 +120,13 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
-          <SimpleLink href={`/abs/${encodedCanonicalID}/abstract`} fontWeight="semibold">
+          <SimpleLink
+            href={{
+              pathname: `/abs/${encodedCanonicalID}/abstract`,
+              query: referrer ? { referrer } : undefined,
+            }}
+            fontWeight="semibold"
+          >
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
           {!isClient || hideResources ? null : (

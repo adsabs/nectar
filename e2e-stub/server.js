@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- plain CommonJS stub, not part of the app build
 const express = require('express');
 
 const app = express();
@@ -229,7 +230,7 @@ app.use('/link_gateway', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`[STUB] E2E stub backend listening on http://127.0.0.1:${PORT}`);
   console.log('[STUB] Endpoints:');
   console.log('  - GET  /accounts/bootstrap');
@@ -239,3 +240,7 @@ app.listen(PORT, () => {
   console.log('  - GET  /__test__/calls');
   console.log('  - POST /__test__/reset');
 });
+
+// Avoid premature keep-alive socket close causing "socket hang up" between tests.
+server.keepAliveTimeout = 65000;
+server.headersTimeout = 66000;
