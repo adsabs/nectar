@@ -1,13 +1,31 @@
-import { Button, Flex, FlexProps, HStack, Text } from '@chakra-ui/react';
+import { Button, Flex, FlexProps, HStack, ResponsiveValue, Text } from '@chakra-ui/react';
 import { Dispatch, MouseEvent, ReactElement, useCallback } from 'react';
 
 import { quickfields } from './models';
-import { AllSearchTermsDropdown } from '@/components/SearchBar/AllSearchTermsDropdown';
+import { AllSearchTermsModal } from '@/components/SearchBar/AllSearchTermsModal';
 import { SearchInputAction } from '@/components/SearchBar/searchInputReducer';
 import { useStore } from '@/store';
 import { AppMode } from '@/types';
 import { isNil } from 'ramda';
 import { useIsClient } from '@/lib/useIsClient';
+
+// Reveal fields as the viewport widens: the first two always show, later ones
+// appear at progressively wider breakpoints so trailing fields drop first on
+// small screens (the all-terms modal covers anything hidden).
+const DISPLAY_FROM: Record<'sm' | 'md' | 'lg' | 'xl', ResponsiveValue<'none' | 'inline-flex'>> = {
+  sm: { base: 'none', sm: 'inline-flex' },
+  md: { base: 'none', md: 'inline-flex' },
+  lg: { base: 'none', lg: 'inline-flex' },
+  xl: { base: 'none', xl: 'inline-flex' },
+};
+
+const quickfieldDisplay = (index: number): ResponsiveValue<'none' | 'inline-flex'> | undefined => {
+  if (index <= 1) {
+    return undefined; // always visible
+  }
+  const order = ['sm', 'md', 'lg', 'xl'] as const;
+  return DISPLAY_FROM[order[index - 2] ?? 'xl'];
+};
 
 export interface IQuickFieldsProps extends FlexProps {
   isLoading?: boolean;
@@ -19,6 +37,7 @@ export const QuickFields = (props: IQuickFieldsProps): ReactElement => {
 
   const mode: AppMode = useStore((state) => state.mode);
   const isClient = useIsClient();
+  const items = quickfields[mode] ?? quickfields.default;
 
   const handleQFSelect = useCallback(
     (e: MouseEvent<HTMLElement>) => {
@@ -47,12 +66,12 @@ export const QuickFields = (props: IQuickFieldsProps): ReactElement => {
   );
 
   return (
-    <Flex direction="row" justifyContent="start" fontSize="md" gap={5} {...elProps}>
-      <HStack spacing={5} fontSize="md" display={{ base: 'none', sm: 'inherit' }} data-tour="quick-fields">
-        <Text>QUICK FIELD: </Text>
+    <Flex direction="row" justifyContent="start" align="center" fontSize="md" gap={5} {...elProps}>
+      <HStack spacing={5} fontSize="md" data-tour="quick-fields">
+        <Text whiteSpace="nowrap">QUICK FIELD: </Text>
         {!isClient
           ? null
-          : (quickfields[mode] ?? quickfields.default).map((term) => (
+          : items.map((term, index) => (
               <Button
                 key={term.id}
                 onClick={handleQFSelect}
@@ -61,13 +80,15 @@ export const QuickFields = (props: IQuickFieldsProps): ReactElement => {
                 data-value={term.value}
                 data-cursor={term.cursorPos}
                 size="md"
+                whiteSpace="nowrap"
+                display={quickfieldDisplay(index)}
                 data-testid="quickfield"
               >
                 {term.title}
               </Button>
             ))}
       </HStack>
-      <AllSearchTermsDropdown onSelect={handleASTSelect} />
+      <AllSearchTermsModal onSelect={handleASTSelect} />
     </Flex>
   );
 };
