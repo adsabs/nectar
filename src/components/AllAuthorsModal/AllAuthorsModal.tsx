@@ -332,7 +332,7 @@ const AuthorsTable = forwardRef<
                   <Th display={{ base: 'none', sm: 'table-cell' }} aria-label="position"></Th>
                   <Th w="25%">Name</Th>
                   <Th>ORCiD</Th>
-                  <Th w="55%">Affliation</Th>
+                  <Th w="55%">Affiliation</Th>
                 </Tr>
               </Thead>
               <Tbody>{renderRows()}</Tbody>
