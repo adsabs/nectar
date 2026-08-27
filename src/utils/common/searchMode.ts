@@ -2,29 +2,24 @@ import type { IADSApiSearchParams } from '@/api/search/types';
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
 import { omit } from 'ramda';
 import type { SolrSort } from '@/api/models';
+import {
+  ADS_COMPAT_FQ_DATABASE,
+  ADS_COMPAT_FQ_ENTRY,
+  ADS_COMPAT_SORT,
+  ADS_COMPAT_URL_PARAM,
+  SearchMode,
+} from '@/utils/common/search-mode-constants';
 
-export enum SearchMode {
-  ALL_RELEVANT = 'ALL_RELEVANT',
-  ADS_COMPAT = 'ADS_COMPAT',
-}
-
-export const SEARCH_MODE_OPTIONS = [
-  {
-    mode: SearchMode.ALL_RELEVANT,
-    label: 'All relevant content',
-    helperText: 'Standard SciX search across all content.',
-  },
-  {
-    mode: SearchMode.ADS_COMPAT,
-    label: 'ADS Compatibility mode',
-    helperText: 'Search ADS-style astronomy and physics content, sorted by date.',
-  },
-] as const;
-
-export const ADS_COMPAT_SORT: SolrSort[] = ['date desc'];
-export const ADS_COMPAT_FQ_ENTRY = '{!type=aqp v=$fq_database}';
-export const ADS_COMPAT_FQ_DATABASE = '(database:"astronomy" OR database:"physics")';
-export const ADS_COMPAT_URL_PARAM = 'ads_compat';
+// Here for existing call sites. Import from search-mode-constants directly
+// if that's all you need — this file also pulls in the lucene parser.
+export {
+  SearchMode,
+  SEARCH_MODE_OPTIONS,
+  ADS_COMPAT_SORT,
+  ADS_COMPAT_FQ_ENTRY,
+  ADS_COMPAT_FQ_DATABASE,
+  ADS_COMPAT_URL_PARAM,
+} from '@/utils/common/search-mode-constants';
 
 export const buildSearchOutgoing = (query: IADSApiSearchParams, mode: string): IADSApiSearchParams => {
   const withDefaults = applySearchModeDefaults(query, mode);

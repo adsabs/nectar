@@ -2,7 +2,7 @@
 import { StoreSlice } from '@/store';
 import { AppMode } from '@/types';
 import { writePrefsCookie } from '@/utils/common/prefs-cookie';
-import { SearchMode } from '@/utils/common/searchMode';
+import { SearchMode } from '@/utils/common/search-mode-constants';
 
 export interface IAppModeState {
   mode: AppMode;
