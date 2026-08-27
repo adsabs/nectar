@@ -1,0 +1,49 @@
+name: Bundle Size Comment
+
+# Runs in the base repo, so it has the write access that a fork's pull_request
+# token does not. It only reads artifacts — never checks out or runs PR code.
+on:
+  workflow_run:
+    workflows: ['Bundle Size']
+    types:
+      - completed
+
+permissions:
+  actions: read
+  pull-requests: write
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.event == 'pull_request'
+    steps:
+      - name: Download report
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          run_id: ${{ github.event.workflow_run.id }}
+          name: bundle-report
+          path: report
+          if_no_artifact_found: ignore
+
+      - name: Download PR number
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          run_id: ${{ github.event.workflow_run.id }}
+          name: bundle-report-pr
+          path: pr
+          if_no_artifact_found: ignore
+
+      - name: Read PR number
+        id: pr
+        run: |
+          if [ -f pr/pr-number.txt ] && [ -f report/bundle-report.md ]; then
+            echo "number=$(cat pr/pr-number.txt)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comment on PR
+        if: steps.pr.outputs.number != ''
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: bundle-size
+          number: ${{ steps.pr.outputs.number }}
+          path: report/bundle-report.md

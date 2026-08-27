@@ -1,0 +1,91 @@
+name: Bundle Size
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: bundle-size-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Read-only: this job builds PR code. Commenting happens in
+# bundle-size-comment.yml.
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install Deps
+        run: SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
+
+      - name: Build
+        run: pnpm build:local
+
+      - name: Measure bundle
+        run: node scripts/bundle-sizes.mjs dist bundle-sizes.json
+
+      - name: Publish baseline
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-sizes-baseline
+          path: bundle-sizes.json
+          retention-days: 90
+
+      # Latest master, not the merge-base — keeps a PR to a single build.
+      - name: Download baseline from master
+        if: github.event_name == 'pull_request'
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: bundle-size.yml
+          branch: ${{ github.event.pull_request.base.ref }}
+          name: bundle-sizes-baseline
+          path: baseline
+          if_no_artifact_found: warn
+
+      - name: Compare
+        if: github.event_name == 'pull_request'
+        run: node scripts/compare-bundle-sizes.mjs baseline/bundle-sizes.json bundle-sizes.json bundle-report.md
+
+      - name: Job summary
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        run: cat bundle-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-report
+          path: bundle-report.md
+          retention-days: 7
+
+      - name: Save PR number
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        run: echo "${{ github.event.pull_request.number }}" > pr-number.txt
+
+      - name: Upload PR number
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-report-pr
+          path: pr-number.txt
+          retention-days: 7
