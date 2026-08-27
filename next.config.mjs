@@ -201,7 +201,8 @@ const sentryConfig = {
   reactComponentAnnotation: { enabled: true },
 };
 
-const config = process.env.ANALYZE === 'true' ? withBundleAnalyzer(nextConfig) : nextConfig;
+// Factory — passing the config straight in reads it as options and no-ops.
+const config = withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })(nextConfig);
 const nextConfigWithSentry = withSentryConfig(config, sentrySettings, sentryConfig);
 
 // don't include sentry config in testing or CI environments
