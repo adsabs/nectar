@@ -17,7 +17,9 @@ import { logger } from '@/logger';
 import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
 import Head from 'next/head';
 import { BRAND_NAME_FULL } from '@/config';
-import { Layout } from '@/components/Layout';
+// Not the barrel: it re-exports VizPageLayout, which drags the charts
+// (@nivo/*, CJS, so nothing shakes out) into every page.
+import { Layout } from '@/components/Layout/Layout';
 import { useIsClient } from '@/lib/useIsClient';
 import api from '@/api/api';
 import { userKeys } from '@/api/user/user';
