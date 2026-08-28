@@ -54,6 +54,9 @@ export interface IItemProps {
   highlights?: Record<string, string[]>;
   extraInfo?: string;
   linkNewTab?: boolean;
+  abstract?: string;
+  isFetchingAbstract?: boolean;
+  allowAbstracts?: boolean;
 }
 
 export const Item = (props: IItemProps): ReactElement => {
@@ -67,6 +70,9 @@ export const Item = (props: IItemProps): ReactElement => {
     isFetchingHighlights,
     highlights,
     linkNewTab = false,
+    abstract,
+    isFetchingAbstract,
+    allowAbstracts = true,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
   const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
@@ -203,7 +209,12 @@ export const Item = (props: IItemProps): ReactElement => {
             {doc.page && <Text>Page/ID: {doc.page}</Text>}
           </Stack>
           {showHighlights && <Highlights highlights={highlights} isFetchingHighlights={isFetchingHighlights} />}
-          <AbstractPreview bibcode={bibcode} />
+          <AbstractPreview
+            bibcode={bibcode}
+            abstract={abstract}
+            isFetchingAbstract={isFetchingAbstract}
+            allowAbstracts={allowAbstracts}
+          />
         </Flex>
       </Stack>
     </Flex>

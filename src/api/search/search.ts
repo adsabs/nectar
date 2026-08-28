@@ -13,6 +13,7 @@ import {
 import {
   defaultParams,
   getAbstractParams,
+  getAbstractsParams,
   getAffiliationParams,
   getBigQueryParams,
   getCitationsParams,
@@ -72,12 +73,14 @@ export enum SEARCH_API_KEYS {
   preview = 'search/preview',
   infinite = 'search/infinite',
   highlight = 'search/highlight',
+  abstracts = 'search/abstracts',
   bigquery = 'search/bigquery',
 }
 
 export const searchKeys = {
   primary: (params: IADSApiSearchParams) => [SEARCH_API_KEYS.primary, params] as const,
   highlight: (params: IADSApiSearchParams) => [SEARCH_API_KEYS.highlight, params] as const,
+  abstracts: (params: IADSApiSearchParams) => [SEARCH_API_KEYS.abstracts, params] as const,
   preview: (bibcode: IDocsEntity['bibcode']) => ['search/preview', { bibcode }] as const,
   abstract: (id: string) => ['search/abstract', { id }] as const,
   affiliations: ({ bibcode }: SearchKeyProps) => ['search/affiliations', { bibcode }] as const,
@@ -152,6 +155,23 @@ export const useGetHighlights: SearchADSQuery<
     queryFn: fetchSearch,
     meta: { params: highlightParams },
     select: highlightingSelector,
+    ...options,
+  });
+};
+
+/**
+ * Bulk-fetch abstracts for all results in a search query
+ */
+export const useGetAbstracts: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse['response']> = (
+  params,
+  options,
+) => {
+  const abstractsParams = getAbstractsParams(params);
+  return useQuery({
+    queryKey: searchKeys.abstracts(omitParams(abstractsParams)),
+    queryFn: fetchSearch,
+    meta: { params: abstractsParams },
+    select: responseSelector,
     ...options,
   });
 };

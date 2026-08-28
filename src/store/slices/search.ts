@@ -38,6 +38,8 @@ export interface ISearchState {
   prevQuery: IADSApiSearchParams;
   numPerPage: NumPerPageType;
   showHighlights: boolean;
+  showAbstracts: boolean;
+  previewToggleQuery: string | null;
   queryAddition: string;
   clearQueryFlag: boolean;
   searchStatus: SearchStatus;
@@ -51,6 +53,8 @@ export interface ISearchAction {
   resetQuery: () => void;
   setNumPerPage: (numPerPage: NumPerPageType) => void;
   toggleShowHighlights: () => void;
+  toggleShowAbstracts: () => void;
+  resetPreviewTogglesForQuery: (q: string) => void;
   setQueryAddition: (queryAddition: string) => void;
   setClearQueryFlag: (clearQueryFlag: boolean) => void;
   setSearchStatus: (status: SearchStatus) => void;
@@ -65,6 +69,8 @@ export const searchSlice: StoreSlice<ISearchState & ISearchAction> = (set) => ({
   prevQuery: defaultQueryParams,
   numPerPage: APP_DEFAULTS.RESULT_PER_PAGE,
   showHighlights: false,
+  showAbstracts: false,
+  previewToggleQuery: null,
   queryAddition: null,
   clearQueryFlag: false,
   searchStatus: 'idle' as SearchStatus,
@@ -89,6 +95,22 @@ export const searchSlice: StoreSlice<ISearchState & ISearchAction> = (set) => ({
   resetQuery: () => set({ query: defaultQueryParams, latestQuery: defaultQueryParams }, false, 'search/resetQuery'),
   toggleShowHighlights: () =>
     set(({ showHighlights }) => ({ showHighlights: !showHighlights }), false, 'search/toggleShowHighlights'),
+  toggleShowAbstracts: () =>
+    set(({ showAbstracts }) => ({ showAbstracts: !showAbstracts }), false, 'search/toggleShowAbstracts'),
+  // A changed q is a new search: reset both toggles. The same q (refinement, sort, pagination) preserves them.
+  resetPreviewTogglesForQuery: (q: string) =>
+    set(
+      (state) => {
+        const isNewSearch = state.previewToggleQuery !== q;
+        return {
+          previewToggleQuery: q,
+          showAbstracts: isNewSearch ? false : state.showAbstracts,
+          showHighlights: isNewSearch ? false : state.showHighlights,
+        };
+      },
+      false,
+      'search/resetPreviewTogglesForQuery',
+    ),
   setQueryAddition: (queryAddition: string) => set(() => ({ queryAddition }), false, 'search/setQueryAddition'),
   setClearQueryFlag: (clearQueryFlag: boolean) => set(() => ({ clearQueryFlag }), false, 'search/setClearQueryFlag'),
   setSearchStatus: (searchStatus: SearchStatus) => set(() => ({ searchStatus }), false, 'search/setSearchStatus'),

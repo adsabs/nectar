@@ -1,5 +1,5 @@
 import { render } from '@/test-utils';
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ListActions } from '../ListActions';
 
 const mocks = vi.hoisted(() => ({
@@ -57,5 +57,33 @@ describe('ListActions notification bell button', () => {
       expect(bellButton).toBeInTheDocument();
       expect(queryByText('Login Required')).not.toBeInTheDocument();
     });
+  });
+});
+
+describe('ListActions abstracts toggle', () => {
+  const defaultProps = {
+    onSortChange: vi.fn(),
+    onOpenAddToLibrary: vi.fn(),
+    isLoading: false,
+  };
+
+  beforeEach(() => {
+    mocks.useSession.mockReturnValue({ isAuthenticated: false, logout: vi.fn() });
+  });
+
+  test('renders an abstracts toggle button that starts in the show state', () => {
+    const { getByLabelText } = render(<ListActions {...defaultProps} />);
+
+    const toggle = getByLabelText('Show abstract previews for all results.');
+    expect(toggle).toBeInTheDocument();
+    expect(toggle).toHaveAttribute('data-tour', 'view-all-abstracts');
+  });
+
+  test('flips accessible name to the hide state when clicked', async () => {
+    const { user, getByLabelText } = render(<ListActions {...defaultProps} />);
+
+    await user.click(getByLabelText('Show abstract previews for all results.'));
+
+    expect(getByLabelText('Hide abstract previews for all results.')).toBeInTheDocument();
   });
 });

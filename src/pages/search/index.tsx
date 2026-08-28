@@ -64,7 +64,7 @@ import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
 import { SEARCH_API_KEYS, useSearch } from '@/api/search/search';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { getQueryType } from '@/lib/performance';
-import { defaultParams } from '@/api/search/models';
+import { defaultParams, withAbstractField } from '@/api/search/models';
 import { solrDefaultSortDirection, SolrSort, SolrSortField } from '@/api/models';
 import { useApplyBoostTypeToParams } from '@/lib/useApplyBoostTypeToParams';
 import { SearchErrorAlert } from '@/components/SolrErrorAlert/SolrErrorAlert';
@@ -200,10 +200,20 @@ const SearchPage: NextPage = () => {
   });
 
   const searchParams = omit(['p', ADS_COMPAT_URL_PARAM, 'd'], params) as IADSApiSearchParams;
+  const showAbstracts = useStore((state) => state.showAbstracts);
   const { data, isSuccess, isLoading, isFetching, error, isError, refetch } = useSearch<IADSApiSearchResponse>(
-    searchParams,
+    withAbstractField(searchParams, showAbstracts),
     { select: (data) => data },
   );
+
+  const resetPreviewTogglesForQuery = useStore((state) => state.resetPreviewTogglesForQuery);
+  // Resets preview toggles on a new query; see resetPreviewTogglesForQuery.
+  useEffect(() => {
+    if (typeof searchParams.q === 'string') {
+      resetPreviewTogglesForQuery(searchParams.q);
+    }
+  }, [searchParams.q, resetPreviewTogglesForQuery]);
+
   const histogramContainerRef = useRef<HTMLDivElement>(null);
   const isClient = useIsClient();
 

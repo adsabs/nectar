@@ -5,6 +5,7 @@ import { HTMLAttributes, ReactElement } from 'react';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { Item, IItemProps } from './Item';
 import { useHighlights } from './useHighlights';
+import { useAbstracts } from './useAbstracts';
 import { IDocsEntity } from '@/api/search/types';
 import { handleBoundaryError } from '@/lib/errorHandler';
 import { useResultsRenderSpan } from '@/lib/useRenderSpan';
@@ -16,6 +17,7 @@ export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   showOrcidAction?: boolean;
   hideActions?: boolean;
   allowHighlight?: boolean;
+  allowAbstracts?: boolean;
   useNormCite?: boolean;
   // Opt-in: this list is also used off the search page (abstract refs, library
   // lists), which must not emit search.*.render spans.
@@ -63,6 +65,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
     indexStart = 0,
     hideActions = false,
     allowHighlight = true,
+    allowAbstracts = true,
     useNormCite = false,
     measureRenderSpan = false,
     ...divProps
@@ -74,6 +77,8 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   useResultsRenderSpan(docs, measureRenderSpan);
 
   const { highlights, showHighlights, isFetchingHighlights } = useHighlights();
+  const resultsHaveAbstracts = docs.some((doc) => typeof doc.abstract === 'string');
+  const { abstracts, isFetchingAbstracts } = useAbstracts({ enabled: allowAbstracts && !resultsHaveAbstracts });
 
   return (
     <Flex
@@ -98,6 +103,9 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
           highlights={highlights?.[index] ?? {}}
           isFetchingHighlights={allowHighlight && isFetchingHighlights}
           useNormCite={useNormCite}
+          abstract={doc.abstract ?? abstracts[doc.bibcode]}
+          isFetchingAbstract={isFetchingAbstracts}
+          allowAbstracts={allowAbstracts}
         />
       ))}
     </Flex>

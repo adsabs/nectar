@@ -57,7 +57,7 @@ import { Bibcode } from '@/api/search/types';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { useExportFormats } from '@/lib/useExportFormats';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHighlighter } from '@fortawesome/free-solid-svg-icons';
+import { faAlignLeft, faHighlighter } from '@fortawesome/free-solid-svg-icons';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];
@@ -188,6 +188,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
             <Flex gap={1}>
               <NotificationBellButton isAuthenticated={isAuthenticated} onOpenNotification={onCreateNotificationOpen} />
               <HighlightsToggle />
+              <AbstractsToggle />
             </Flex>
           )}
         </Flex>
@@ -340,8 +341,27 @@ const HighlightsToggle = () => {
         data-tour="view-highlights"
         icon={<FontAwesomeIcon icon={faHighlighter} />}
         aria-label={`${showHighlights ? 'Hide' : 'Show'} keyword highlights in the results.`}
+        aria-pressed={showHighlights}
         variant={showHighlights ? 'solid' : 'outline'}
         onClick={toggleShowHighlights}
+      />
+    </Tooltip>
+  );
+};
+
+const AbstractsToggle = () => {
+  const showAbstracts = useStore((state) => state.showAbstracts);
+  const toggleShowAbstracts = useStore((state) => state.toggleShowAbstracts);
+
+  return (
+    <Tooltip label={`${showAbstracts ? 'Hide' : 'Show'} abstract previews for all results.`}>
+      <IconButton
+        data-tour="view-all-abstracts"
+        icon={<FontAwesomeIcon icon={faAlignLeft} />}
+        aria-label={`${showAbstracts ? 'Hide' : 'Show'} abstract previews for all results.`}
+        aria-pressed={showAbstracts}
+        variant={showAbstracts ? 'solid' : 'outline'}
+        onClick={toggleShowAbstracts}
       />
     </Tooltip>
   );

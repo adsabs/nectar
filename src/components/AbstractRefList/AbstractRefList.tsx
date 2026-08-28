@@ -46,7 +46,13 @@ export const AbstractRefList = (props: IAbstractRefListProps): ReactElement => {
       <SearchQueryLink params={params}>
         <>View as search results</>
       </SearchQueryLink>
-      <SimpleResultList docs={docs} hideCheckboxes={true} indexStart={params.start} allowHighlight={false} />
+      <SimpleResultList
+        docs={docs}
+        hideCheckboxes={true}
+        indexStart={params.start}
+        allowHighlight={false}
+        allowAbstracts={false}
+      />
       <Pagination
         totalResults={totalResults}
         page={page}

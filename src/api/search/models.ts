@@ -38,6 +38,17 @@ export const getSearchParams = (params: IADSApiSearchParams): IADSApiSearchParam
   ...params,
 });
 
+export const withAbstractField = (params: IADSApiSearchParams, showAbstracts: boolean): IADSApiSearchParams => {
+  if (!showAbstracts) {
+    return params;
+  }
+  const fl = params.fl ?? [];
+  if (fl.includes('abstract')) {
+    return params;
+  }
+  return { ...params, fl: [...fl, 'abstract'] };
+};
+
 export const getCitationsParams = (
   bibcode: IDocsEntity['bibcode'],
   start: number,
@@ -230,6 +241,11 @@ export const getHighlightParams = (params: IADSApiSearchParams): IADSApiSearchPa
   'hl.maxAnalyzedChars': HL_MAX_ANALYZED_CHARS,
   'hl.requireFieldMatch': true,
   'hl.usePhraseHighlighter': true,
+});
+
+export const getAbstractsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
+  ...params,
+  fl: ['id', 'bibcode', 'abstract'],
 });
 
 export const getBigQueryParams = (): IADSApiSearchParams => ({
