@@ -294,6 +294,8 @@ test('Enter with menu open but no focused item closes menu without inserting', a
   expect(input).toHaveValue('sim');
 });
 
+// Types the longest query in this file one keystroke at a time; uses ~4.8s of
+// the default 5s budget on an idle machine, so it fails under full-suite load.
 test('Typeahead operates on the final term in a multi-word query', async () => {
   const user = createUser();
   const { getByTestId, getAllByTestId } = render(<SearchBar />);
@@ -303,7 +305,7 @@ test('Typeahead operates on the final term in a multi-word query', async () => {
   await user.keyboard('{ArrowDown}');
   await user.keyboard('{Enter}');
   expect(input).toHaveValue('author:"smith" similar()');
-});
+}, 15000);
 
 test('Navigating to an item shows a preview in the input', async () => {
   const user = createUser();
