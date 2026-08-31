@@ -20,6 +20,10 @@ const text = {
   noAbstract: 'No Abstract' as const,
 };
 
+// Results render server-side, where useLayoutEffect warns. Same shape as
+// useRenderSpan.ts and pages/search/index.tsx.
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
 export const AbstractPreview = ({
   bibcode,
   abstract,
@@ -62,7 +66,7 @@ export const AbstractPreview = ({
 
   // Overflow is layout-dependent and must be measured; only then do we clamp
   // and show the "view full" link.
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const el = clampRef.current;
     if (!el || !show) {
       return;
@@ -99,7 +103,7 @@ export const AbstractPreview = ({
                 />
               )}
             </Box>
-            {isOverflowing && (
+            {isOverflowing && bibcode && (
               <SimpleLink href={`/abs/${encodeURIComponent(bibcode)}/abstract`} fontSize="sm">
                 View full abstract
               </SimpleLink>
