@@ -138,7 +138,7 @@ export const AbstractCitationModal = ({
             </SimpleLink>
             {isAuthenticated ? (
               <SimpleLink
-                href="/user/settings/export?tab=3"
+                href="/user/settings/export"
                 icon={<SettingsIcon mr={1} />}
                 display="flex"
                 alignItems="center"

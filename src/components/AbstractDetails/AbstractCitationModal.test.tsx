@@ -141,9 +141,6 @@ describe('AbstractCitationModal', () => {
 
     const { getByRole } = render(<AbstractCitationModal isOpen onClose={vi.fn()} bibcode="2020ApJ...123..456A" />);
 
-    expect(getByRole('link', { name: /copy citation settings/i })).toHaveAttribute(
-      'href',
-      '/user/settings/export?tab=3',
-    );
+    expect(getByRole('link', { name: /copy citation settings/i })).toHaveAttribute('href', '/user/settings/export');
   });
 });
