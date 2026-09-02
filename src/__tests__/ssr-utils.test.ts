@@ -1,4 +1,5 @@
-import { describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import * as Sentry from '@sentry/nextjs';
 import { GetServerSidePropsContext } from 'next';
 import { IronSession } from 'iron-session';
 import { ParsedUrlQuery } from 'querystring';
@@ -6,6 +7,11 @@ import { ParsedUrlQuery } from 'querystring';
 import { AppMode } from '@/types';
 import { updateUserStateSSR } from '@/ssr-utils';
 import { AppState } from '@/store/types';
+
+vi.mock('@sentry/nextjs', async (orig) => {
+  const actual = await orig<typeof import('@sentry/nextjs')>();
+  return { ...actual, getIsolationScope: vi.fn() };
+});
 
 type SSRPropsWithState = {
   dehydratedAppState?: Partial<AppState>;
@@ -32,6 +38,14 @@ const getMockContext = (
   } as unknown as GetServerSidePropsContext);
 
 describe('updateUserStateSSR', () => {
+  beforeEach(() => {
+    vi.mocked(Sentry.getIsolationScope).mockReturnValue({ setTag: vi.fn() } as unknown as Sentry.Scope);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   test('should set mode for legacy referrer with no persisted state', async () => {
     // Mode is now set by middleware writing the scix_prefs cookie before redirect.
     // updateUserStateSSR no longer reads the referer header to infer mode.
@@ -280,5 +294,22 @@ describe('updateUserStateSSR', () => {
     }
     const props = result.props as SSRPropsWithState;
     expect(props.dehydratedAppState).not.toHaveProperty('searchMode');
+  });
+
+  // Every SSR page funnels through here: composeNextGSSP force-pushes it and
+  // injectSessionGSSP calls it directly, so it is the one server-side place
+  // that sees the session on every page render.
+  describe('sentry auth segmentation', () => {
+    test.each([
+      [true, 'authed'],
+      [false, 'anon'],
+    ])('tags the request scope for isAuthenticated=%o as %o', async (isAuthenticated, expected) => {
+      const setTag = vi.fn();
+      vi.mocked(Sentry.getIsolationScope).mockReturnValue({ setTag } as unknown as Sentry.Scope);
+
+      await updateUserStateSSR(getMockContext({ isAuthenticated }), { props: {} });
+
+      expect(setTag).toHaveBeenCalledWith('auth', expected);
+    });
   });
 });

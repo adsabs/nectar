@@ -4,6 +4,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { middleware } from '@/middleware';
 import { server } from '@/mocks/server';
 import { getIronSession } from 'iron-session/edge';
+import { getIsolationScope, Scope } from '@sentry/nextjs';
+
+vi.mock('@sentry/nextjs', async (orig) => {
+  const actual = await orig<typeof import('@sentry/nextjs')>();
+  return { ...actual, getIsolationScope: vi.fn() };
+});
 
 // Mock dependencies used inside middleware.ts
 vi.mock('iron-session/edge', async (orig) => {
@@ -58,6 +64,7 @@ describe('middleware route integration', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getIsolationScope).mockReturnValue({ setTag: vi.fn() } as unknown as Scope);
     process.env = { ...baseEnv, ADS_SESSION_COOKIE_NAME: 'ads_session' };
     getIronSessionMock.mockResolvedValue({
       token: { access_token: 'token' },
@@ -144,6 +151,55 @@ describe('middleware route integration', () => {
     expect(getIronSessionMock).not.toHaveBeenCalled();
     expect(initSessionMock).not.toHaveBeenCalled();
     expect(rateLimitMock).not.toHaveBeenCalled();
+  });
+
+  // The scix_auth cookie is what lets sentry.client.config.ts tag the pageload
+  // span at SDK init, before app bootstrap knows who the user is.
+  test.each([
+    ['https://example.com/', true, 'authed'],
+    ['https://example.com/', false, 'anon'],
+    ['https://example.com/search', true, 'authed'],
+    ['https://example.com/search', false, 'anon'],
+  ])('publishes the auth state of %s to the browser as %o', async (url, isAuthenticated, expected) => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const res = (await middleware(makeReq(url))) as NextResponse;
+
+    expect(res.cookies.get('scix_auth')?.value).toBe(expected);
+  });
+
+  test.each([
+    [true, 'authed'],
+    [false, 'anon'],
+  ])('segments its own edge spans for isAuthenticated=%o as %o', async (isAuthenticated, expected) => {
+    const setTag = vi.fn();
+    vi.mocked(getIsolationScope).mockReturnValue({ setTag } as unknown as Scope);
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+
+    await middleware(makeReq('https://example.com/search'));
+
+    expect(setTag).toHaveBeenCalledWith('auth', expected);
+  });
+
+  test('keeps the auth cookie readable by the browser', async () => {
+    const res = (await middleware(makeReq('https://example.com/search'))) as NextResponse;
+
+    const cookie = res.cookies.get('scix_auth');
+
+    expect(cookie).toBeDefined();
+    expect(cookie?.httpOnly).toBeFalsy();
+    expect(cookie?.path).toBe('/');
   });
 
   test('redirects to / when session token is missing after initSession', async () => {

@@ -9,6 +9,9 @@ import { beforeSendApiSpan } from '@/lib/normalizeApiSpan';
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
+  // Node runtime only — client and edge inline process.env at build time.
+  environment: process.env.SENTRY_ENVIRONMENT ?? 'production',
+
   // Add app tag for dashboard filtering
   initialScope: {
     tags: {

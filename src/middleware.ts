@@ -12,6 +12,8 @@ import { mapDisciplineParamToAppMode, mapPathToDisciplineParam } from '@/utils/a
 import { AppMode } from '@/types';
 import { isFromLegacyApp } from '@/utils/legacyAppDetection';
 import { pickTracingHeadersEdge } from '@/utils/tracing.edge';
+import { authTagForSession, SENTRY_AUTH_COOKIE_NAME } from '@/lib/sentryAuthTag';
+import * as Sentry from '@sentry/nextjs';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
@@ -386,6 +388,19 @@ const setPrefsCookie = (response: NextResponse, req: NextRequest, updates: Recor
   });
 };
 
+// Read by sentry.client.config.ts at init, so it must not be httpOnly.
+const setAuthCookie = (response: NextResponse, isAuthenticated: boolean): void => {
+  response.cookies.set(SENTRY_AUTH_COOKIE_NAME, authTagForSession(isAuthenticated), {
+    path: '/',
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  });
+};
+
+const setAuthTag = (isAuthenticated: boolean): void => {
+  Sentry.getIsolationScope().setTag('auth', authTagForSession(isAuthenticated));
+};
+
 // The whole auth/account surface is exempt from the node limiter: login,
 // register, forgotpassword, and the emailed verify/reset flows are all
 // low-volume, account-critical navigations we point rate-limited users to.
@@ -477,6 +492,8 @@ export async function middleware(req: NextRequest) {
   if (path === '/') {
     const session = await getIronSession(req, res, sessionConfig);
     await initSession(req, res, session);
+    setAuthCookie(res, session.isAuthenticated);
+    setAuthTag(session.isAuthenticated);
     log.info(
       {
         path,
@@ -500,6 +517,8 @@ export async function middleware(req: NextRequest) {
 
   const session = await getIronSession(req, res, sessionConfig);
   await initSession(req, res, session);
+  setAuthCookie(res, session.isAuthenticated);
+  setAuthTag(session.isAuthenticated);
 
   log.info(
     {

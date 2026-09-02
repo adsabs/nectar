@@ -23,6 +23,7 @@ import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 import { ShepherdJourneyProvider } from 'react-shepherd';
 import type { AppPageProps } from '@/pages/_app';
 import { useOrcidExpiryWatcher } from '@/lib/orcid/useOrcid';
+import { authTagForUser } from '@/lib/sentryAuthTag';
 
 export const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
@@ -77,15 +78,11 @@ const Telemetry: FC = () => {
 
   useEffect(() => {
     try {
-      if (!user) {
-        // Clear any prior user context so post-logout events are not misclassified.
-        Sentry.setUser(null);
-        return;
-      }
-      // Never send credentials or PII — anonymous flag is enough to segment error rates.
-      Sentry.setUser({ anonymous: user.anonymous });
+      // Corrects the tag after a client-side login/logout, which the cookie
+      // set at init cannot catch.
+      Sentry.setTag('auth', authTagForUser(user));
     } catch (err) {
-      logger.error({ err }, 'Telemetry: setUser error');
+      logger.error({ err }, 'Telemetry: setTag error');
     }
   }, [user]);
 

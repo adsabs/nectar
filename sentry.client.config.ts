@@ -5,6 +5,7 @@
 import * as Sentry from '@sentry/nextjs';
 
 import { beforeSendApiSpan } from '@/lib/normalizeApiSpan';
+import { readAuthTag } from '@/lib/sentryAuthTag';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -20,6 +21,7 @@ Sentry.init({
   initialScope: {
     tags: {
       app: 'nectar',
+      auth: readAuthTag(),
     },
   },
 
