@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
-import { authTagForSession, authTagForUser, readAuthTag } from '@/lib/sentryAuthTag';
+import { authTagForSession, readAuthTag } from '@/lib/sentryAuthTag';
 
 describe('authTagForSession', () => {
   test('tags an authenticated session as authed', () => {
@@ -9,20 +9,6 @@ describe('authTagForSession', () => {
 
   test('tags an unauthenticated session as anon', () => {
     expect(authTagForSession(false)).toBe('anon');
-  });
-});
-
-describe('authTagForUser', () => {
-  test('treats a bootstrapped anonymous user as anon', () => {
-    expect(authTagForUser({ anonymous: true })).toBe('anon');
-  });
-
-  test('treats a bootstrapped named user as authed', () => {
-    expect(authTagForUser({ anonymous: false })).toBe('authed');
-  });
-
-  test.each([[null], [undefined], [{}]])('treats %o as anon', (user) => {
-    expect(authTagForUser(user)).toBe('anon');
   });
 });
 

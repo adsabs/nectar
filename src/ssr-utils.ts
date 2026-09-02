@@ -13,7 +13,7 @@ import { isUserData } from '@/auth-utils';
 import { readPrefsCookie } from '@/utils/common/prefs-cookie';
 import { SearchMode } from '@/utils/common/searchMode';
 import { getIsolationScope } from '@sentry/nextjs';
-import { authTagForSession } from '@/lib/sentryAuthTag';
+import { authTagForSession, SENTRY_AUTH_TAG_NAME } from '@/lib/sentryAuthTag';
 
 const log = logger.child({}, { msgPrefix: '[ssr-inject] ' });
 
@@ -23,7 +23,7 @@ const VALID_SEARCH_MODES = new Set(Object.values(SearchMode));
 // Every SSR page funnels through here, so it is the one server-side choke
 // point that sees the session on every render.
 export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
-  getIsolationScope().setTag('auth', authTagForSession(ctx.req.session.isAuthenticated));
+  getIsolationScope().setTag(SENTRY_AUTH_TAG_NAME, authTagForSession(ctx.req.session.isAuthenticated));
 
   const userData = ctx.req.session.token;
   const incomingState = (prevResult?.props?.dehydratedAppState ?? {}) as AppState;

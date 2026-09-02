@@ -174,9 +174,13 @@ describe('middleware route integration', () => {
   });
 
   test.each([
-    [true, 'authed'],
-    [false, 'anon'],
-  ])('segments its own edge spans for isAuthenticated=%o as %o', async (isAuthenticated, expected) => {
+    ['https://example.com/search', true, 'authed'],
+    ['https://example.com/search', false, 'anon'],
+    // The home page takes an early-return branch that hydrates the session
+    // separately — it has its own call site that is easy to miss.
+    ['https://example.com/', true, 'authed'],
+    ['https://example.com/', false, 'anon'],
+  ])('segments its own edge spans for %o isAuthenticated=%o as %o', async (url, isAuthenticated, expected) => {
     const setTag = vi.fn();
     vi.mocked(getIsolationScope).mockReturnValue({ setTag } as unknown as Scope);
     getIronSessionMock.mockResolvedValue({
@@ -187,7 +191,7 @@ describe('middleware route integration', () => {
       updateConfig: vi.fn(),
     });
 
-    await middleware(makeReq('https://example.com/search'));
+    await middleware(makeReq(url));
 
     expect(setTag).toHaveBeenCalledWith('auth', expected);
   });

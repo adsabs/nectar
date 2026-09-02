@@ -12,7 +12,7 @@ import { mapDisciplineParamToAppMode, mapPathToDisciplineParam } from '@/utils/a
 import { AppMode } from '@/types';
 import { isFromLegacyApp } from '@/utils/legacyAppDetection';
 import { pickTracingHeadersEdge } from '@/utils/tracing.edge';
-import { authTagForSession, SENTRY_AUTH_COOKIE_NAME } from '@/lib/sentryAuthTag';
+import { authTagForSession, SENTRY_AUTH_COOKIE_NAME, SENTRY_AUTH_TAG_NAME } from '@/lib/sentryAuthTag';
 import * as Sentry from '@sentry/nextjs';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
@@ -392,13 +392,13 @@ const setPrefsCookie = (response: NextResponse, req: NextRequest, updates: Recor
 const setAuthCookie = (response: NextResponse, isAuthenticated: boolean): void => {
   response.cookies.set(SENTRY_AUTH_COOKIE_NAME, authTagForSession(isAuthenticated), {
     path: '/',
-    sameSite: 'lax',
+    sameSite: 'strict',
     secure: process.env.NODE_ENV === 'production',
   });
 };
 
 const setAuthTag = (isAuthenticated: boolean): void => {
-  Sentry.getIsolationScope().setTag('auth', authTagForSession(isAuthenticated));
+  Sentry.getIsolationScope().setTag(SENTRY_AUTH_TAG_NAME, authTagForSession(isAuthenticated));
 };
 
 // The whole auth/account surface is exempt from the node limiter: login,
