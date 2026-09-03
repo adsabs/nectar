@@ -82,7 +82,7 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
   let dataProductItems: IItem[] = [];
 
   // full text resources and data products
-  const sources = processLinkData(doc, null);
+  const sources = processLinkData(doc, settings.link_server);
   if (sources) {
     const fullTextSources = sources.fullTextSources;
     const dataProducts = sources.dataProducts;
