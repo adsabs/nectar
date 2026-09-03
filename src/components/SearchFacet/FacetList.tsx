@@ -68,7 +68,11 @@ export interface IFacetListProps extends ListProps {
   onFilter?: (args: OnFilterArgs) => void;
   onError?: () => void;
   label?: string;
-  onSelectNode?: (value: string) => void; // if provided, the checkbox will not trigger logic selector, but will run onSelectNode callback instead
+  /**
+   * Callback function to handle node selection.
+   * If provided, the checkbox will not trigger logic selector, but will run onSelectNode callback instead.
+   */
+  onSelectNode?: (value: string) => void;
 }
 
 export const FacetList = (props: IFacetListProps) => {
