@@ -12,6 +12,7 @@ export const defaultFields: IADSApiSearchParams['fl'] = [
   'citation_count',
   'citation_count_norm',
   'credit',
+  'doi',
   'esources',
   'page',
   'property',
