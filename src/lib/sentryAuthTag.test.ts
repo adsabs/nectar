@@ -10,6 +10,10 @@ describe('authTagForSession', () => {
   test('tags an unauthenticated session as anon', () => {
     expect(authTagForSession(false)).toBe('anon');
   });
+
+  test('tags an uninitialized session as anon', () => {
+    expect(authTagForSession(undefined)).toBe('anon');
+  });
 });
 
 describe('readAuthTag', () => {

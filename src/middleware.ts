@@ -389,12 +389,16 @@ const setPrefsCookie = (response: NextResponse, req: NextRequest, updates: Recor
 };
 
 // Read by sentry.client.config.ts at init, so it must not be httpOnly.
+//
+// Appends directly instead of response.cookies.set(): that API rewrites
+// set-cookie from a snapshot taken at response construction, which erases
+// iron-session's cookie (appended straight to headers).
 const setAuthCookie = (response: NextResponse, isAuthenticated: boolean): void => {
-  response.cookies.set(SENTRY_AUTH_COOKIE_NAME, authTagForSession(isAuthenticated), {
-    path: '/',
-    sameSite: 'strict',
-    secure: process.env.NODE_ENV === 'production',
-  });
+  const attributes = [`${SENTRY_AUTH_COOKIE_NAME}=${authTagForSession(isAuthenticated)}`, 'Path=/', 'SameSite=Strict'];
+  if (process.env.NODE_ENV === 'production') {
+    attributes.push('Secure');
+  }
+  response.headers.append('set-cookie', attributes.join('; '));
 };
 
 const setAuthTag = (isAuthenticated: boolean): void => {

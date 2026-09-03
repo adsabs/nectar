@@ -11,9 +11,9 @@ vi.mock('@sentry/nextjs', () => ({
 // Sentry.init's options are a union across browser/node/edge SDKs, so read the
 // captured call as a plain record rather than narrowing per runtime.
 const loadInitOptions = async (configPath: string): Promise<Record<string, unknown>> => {
+  vi.resetModules();
   const Sentry = await import('@sentry/nextjs');
   vi.mocked(Sentry.init).mockClear();
-  vi.resetModules();
   await import(configPath);
 
   const [options] = vi.mocked(Sentry.init).mock.calls[0];

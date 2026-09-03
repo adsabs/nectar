@@ -296,9 +296,8 @@ describe('updateUserStateSSR', () => {
     expect(props.dehydratedAppState).not.toHaveProperty('searchMode');
   });
 
-  // Every SSR page funnels through here: composeNextGSSP force-pushes it and
-  // injectSessionGSSP calls it directly, so it is the one server-side place
-  // that sees the session on every page render.
+  // composeNextGSSP and injectSessionGSSP both call this, so one test here
+  // covers auth tagging for every SSR page.
   describe('sentry auth segmentation', () => {
     test.each([
       [true, 'authed'],

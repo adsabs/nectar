@@ -79,14 +79,13 @@ const Telemetry: FC = () => {
 
   useEffect(() => {
     try {
-      // Before the store hydrates, anonymous is undefined — that is "unknown",
-      // not "anonymous". Overwriting here would clobber the cookie value that
-      // middleware derived from the real session.
+      // Unhydrated store means "unknown", not "anonymous" — bail so we don't
+      // clobber the cookie value middleware set from the real session.
       if (user?.anonymous === undefined) {
         return;
       }
-      // Corrects the tag after a client-side login/logout, which the cookie
-      // set at init cannot catch.
+      // Corrects the tag after a client-side login, which the init cookie
+      // can't catch. Logout reloads the page, so middleware handles it.
       Sentry.setTag(SENTRY_AUTH_TAG_NAME, authTagForSession(isAuthenticated(user)));
     } catch (err) {
       logger.error({ err }, 'Telemetry: setTag error');

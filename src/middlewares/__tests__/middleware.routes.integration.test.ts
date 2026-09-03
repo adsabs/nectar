@@ -84,6 +84,16 @@ describe('middleware route integration', () => {
 
   const makeReq = (url: string, init?: RequestInit) => new NextRequest(url, init);
 
+  // res.cookies only reflects the ResponseCookies API, not the raw header.
+  const readSetCookie = (res: NextResponse, name: string): { value: string; attributes: string[] } | undefined => {
+    const raw = res.headers.getSetCookie().find((header) => header.startsWith(`${name}=`));
+    if (!raw) {
+      return undefined;
+    }
+    const [pair, ...attributes] = raw.split('; ');
+    return { value: pair.slice(name.length + 1), attributes: attributes.map((a) => a.toLowerCase()) };
+  };
+
   test('hydrates root path without redirect', async () => {
     const session = { save: vi.fn(), destroy: vi.fn(), updateConfig: vi.fn() };
     getIronSessionMock.mockResolvedValue(session);
@@ -153,8 +163,8 @@ describe('middleware route integration', () => {
     expect(rateLimitMock).not.toHaveBeenCalled();
   });
 
-  // The scix_auth cookie is what lets sentry.client.config.ts tag the pageload
-  // span at SDK init, before app bootstrap knows who the user is.
+  // Lets sentry.client.config.ts tag the pageload span at SDK init, before
+  // app bootstrap knows who the user is.
   test.each([
     ['https://example.com/', true, 'authed'],
     ['https://example.com/', false, 'anon'],
@@ -170,14 +180,13 @@ describe('middleware route integration', () => {
     });
     const res = (await middleware(makeReq(url))) as NextResponse;
 
-    expect(res.cookies.get('scix_auth')?.value).toBe(expected);
+    expect(readSetCookie(res, 'scix_auth')?.value).toBe(expected);
   });
 
   test.each([
     ['https://example.com/search', true, 'authed'],
     ['https://example.com/search', false, 'anon'],
-    // The home page takes an early-return branch that hydrates the session
-    // separately — it has its own call site that is easy to miss.
+    // '/' has its own early-return branch with a separate call site.
     ['https://example.com/', true, 'authed'],
     ['https://example.com/', false, 'anon'],
   ])('segments its own edge spans for %o isAuthenticated=%o as %o', async (url, isAuthenticated, expected) => {
@@ -199,11 +208,32 @@ describe('middleware route integration', () => {
   test('keeps the auth cookie readable by the browser', async () => {
     const res = (await middleware(makeReq('https://example.com/search'))) as NextResponse;
 
-    const cookie = res.cookies.get('scix_auth');
+    const cookie = readSetCookie(res, 'scix_auth');
 
     expect(cookie).toBeDefined();
-    expect(cookie?.httpOnly).toBeFalsy();
-    expect(cookie?.path).toBe('/');
+    expect(cookie?.attributes).not.toContain('httponly');
+    expect(cookie?.attributes).toContain('path=/');
+  });
+
+  // Regression: setAuthCookie via response.cookies.set() erased the session
+  // cookie iron-session appends directly to headers.
+  test('does not clobber a session cookie appended by iron-session', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: true,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    initSessionMock.mockImplementation((_req: NextRequest, res: NextResponse) => {
+      res.headers.append('set-cookie', 'scix_session=abc123; Path=/; HttpOnly');
+      return Promise.resolve(res);
+    });
+
+    const res = (await middleware(makeReq('https://example.com/search'))) as NextResponse;
+
+    expect(readSetCookie(res, 'scix_session')?.value).toBe('abc123');
+    expect(readSetCookie(res, 'scix_auth')?.value).toBe('authed');
   });
 
   test('redirects to / when session token is missing after initSession', async () => {
