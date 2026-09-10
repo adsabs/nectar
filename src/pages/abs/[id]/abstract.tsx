@@ -238,12 +238,15 @@ const useTour = () => {
         }
       };
       tour.on('start', () => {
+        tour.options.keyboardNavigation = true;
         document.addEventListener('click', listener);
       });
       tour.on('cancel', () => {
+        tour.options.keyboardNavigation = false;
         document.removeEventListener('click', listener);
       });
       tour.on('complete', () => {
+        tour.options.keyboardNavigation = false;
         document.removeEventListener('click', listener);
       });
 

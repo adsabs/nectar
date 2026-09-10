@@ -521,12 +521,15 @@ const useTour = () => {
       };
       tour.on('start', () => {
         document.addEventListener('click', listener);
+        tour.options.keyboardNavigation = true;
       });
       tour.on('cancel', () => {
         document.removeEventListener('click', listener);
+        tour.options.keyboardNavigation = false;
       });
       tour.on('complete', () => {
         document.removeEventListener('click', listener);
+        tour.options.keyboardNavigation = false;
       });
 
       tour.addSteps(getHomeSteps(!isScreenLarge, appMode === 'ASTROPHYSICS'));
