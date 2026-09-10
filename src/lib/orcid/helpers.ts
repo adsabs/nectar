@@ -92,7 +92,7 @@ export const convertDocType = (docType: string) => {
     case 'newsletter':
       return 'NEWSLETTER_ARTICLE';
     case 'catalog':
-      return 'DATA-SET';
+      return 'DATA_SET';
     case 'intechreport':
       return 'RESEARCH_TECHNIQUE';
     case 'mastersthesis':
@@ -102,11 +102,11 @@ export const convertDocType = (docType: string) => {
     case 'talk':
       return 'LECTURE_SPEECH';
     case 'dataset':
-      return 'DATA-SET';
+      return 'DATA_SET';
     case 'instrument':
       return 'PHYSICAL-OBJECT';
     case 'service':
-      return 'DATA-SET';
+      return 'DATA_SET';
     case 'obituary':
     case 'pressrelease':
     case 'proposal':
