@@ -238,13 +238,18 @@ const useTour = () => {
         }
       };
       tour.on('start', () => {
+        tour.options.keyboardNavigation = true;
         document.addEventListener('click', listener);
       });
       tour.on('cancel', () => {
+        tour.options.keyboardNavigation = false;
         document.removeEventListener('click', listener);
+        document.body.focus();
       });
       tour.on('complete', () => {
+        tour.options.keyboardNavigation = false;
         document.removeEventListener('click', listener);
+        document.body.focus();
       });
 
       tour.addSteps(getAbstractSteps(!isScreenLarge, appMode === 'ASTROPHYSICS'));
