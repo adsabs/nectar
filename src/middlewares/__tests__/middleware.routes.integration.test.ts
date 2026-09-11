@@ -4,6 +4,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { middleware } from '@/middleware';
 import { server } from '@/mocks/server';
 import { getIronSession } from 'iron-session/edge';
+import { getIsolationScope, Scope } from '@sentry/nextjs';
+
+vi.mock('@sentry/nextjs', async (orig) => {
+  const actual = await orig<typeof import('@sentry/nextjs')>();
+  return { ...actual, getIsolationScope: vi.fn() };
+});
 
 // Mock dependencies used inside middleware.ts
 vi.mock('iron-session/edge', async (orig) => {
@@ -58,6 +64,7 @@ describe('middleware route integration', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getIsolationScope).mockReturnValue({ setTag: vi.fn() } as unknown as Scope);
     process.env = { ...baseEnv, ADS_SESSION_COOKIE_NAME: 'ads_session' };
     getIronSessionMock.mockResolvedValue({
       token: { access_token: 'token' },
@@ -76,6 +83,16 @@ describe('middleware route integration', () => {
   });
 
   const makeReq = (url: string, init?: RequestInit) => new NextRequest(url, init);
+
+  // res.cookies only reflects the ResponseCookies API, not the raw header.
+  const readSetCookie = (res: NextResponse, name: string): { value: string; attributes: string[] } | undefined => {
+    const raw = res.headers.getSetCookie().find((header) => header.startsWith(`${name}=`));
+    if (!raw) {
+      return undefined;
+    }
+    const [pair, ...attributes] = raw.split('; ');
+    return { value: pair.slice(name.length + 1), attributes: attributes.map((a) => a.toLowerCase()) };
+  };
 
   test('hydrates root path without redirect', async () => {
     const session = { save: vi.fn(), destroy: vi.fn(), updateConfig: vi.fn() };
@@ -144,6 +161,79 @@ describe('middleware route integration', () => {
     expect(getIronSessionMock).not.toHaveBeenCalled();
     expect(initSessionMock).not.toHaveBeenCalled();
     expect(rateLimitMock).not.toHaveBeenCalled();
+  });
+
+  // Lets sentry.client.config.ts tag the pageload span at SDK init, before
+  // app bootstrap knows who the user is.
+  test.each([
+    ['https://example.com/', true, 'authed'],
+    ['https://example.com/', false, 'anon'],
+    ['https://example.com/search', true, 'authed'],
+    ['https://example.com/search', false, 'anon'],
+  ])('publishes the auth state of %s to the browser as %o', async (url, isAuthenticated, expected) => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const res = (await middleware(makeReq(url))) as NextResponse;
+
+    expect(readSetCookie(res, 'scix_auth')?.value).toBe(expected);
+  });
+
+  test.each([
+    ['https://example.com/search', true, 'authed'],
+    ['https://example.com/search', false, 'anon'],
+    // '/' has its own early-return branch with a separate call site.
+    ['https://example.com/', true, 'authed'],
+    ['https://example.com/', false, 'anon'],
+  ])('segments its own edge spans for %o isAuthenticated=%o as %o', async (url, isAuthenticated, expected) => {
+    const setTag = vi.fn();
+    vi.mocked(getIsolationScope).mockReturnValue({ setTag } as unknown as Scope);
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+
+    await middleware(makeReq(url));
+
+    expect(setTag).toHaveBeenCalledWith('auth', expected);
+  });
+
+  test('keeps the auth cookie readable by the browser', async () => {
+    const res = (await middleware(makeReq('https://example.com/search'))) as NextResponse;
+
+    const cookie = readSetCookie(res, 'scix_auth');
+
+    expect(cookie).toBeDefined();
+    expect(cookie?.attributes).not.toContain('httponly');
+    expect(cookie?.attributes).toContain('path=/');
+  });
+
+  // Regression: setAuthCookie via response.cookies.set() erased the session
+  // cookie iron-session appends directly to headers.
+  test('does not clobber a session cookie appended by iron-session', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: true,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    initSessionMock.mockImplementation((_req: NextRequest, res: NextResponse) => {
+      res.headers.append('set-cookie', 'scix_session=abc123; Path=/; HttpOnly');
+      return Promise.resolve(res);
+    });
+
+    const res = (await middleware(makeReq('https://example.com/search'))) as NextResponse;
+
+    expect(readSetCookie(res, 'scix_session')?.value).toBe('abc123');
+    expect(readSetCookie(res, 'scix_auth')?.value).toBe('authed');
   });
 
   test('redirects to / when session token is missing after initSession', async () => {
