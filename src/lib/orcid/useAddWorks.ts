@@ -6,7 +6,7 @@ import { isValidIOrcidUser } from '@/api/orcid/models';
 import { OrcidHookOptions, OrcidMutationOptions } from '@/lib/orcid/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { orcidKeys, useOrcidAddWorks } from '@/api/orcid/orcid';
-import { useSearch } from '@/api/search/search';
+import { SEARCH_NAMESPACES, useSearch } from '@/api/search/search';
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;
 const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;
@@ -66,6 +66,7 @@ export const useAddWorks = (
       rows: bibcodesToAdd.length,
     },
     {
+      namespace: SEARCH_NAMESPACES.orcidAddWorks,
       enabled: isAuthenticated && isValidIOrcidUser(user) && bibcodesToAdd?.length > 0,
     },
   );

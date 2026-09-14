@@ -1,12 +1,13 @@
 /** ---------- Hooks ---------- */
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
-import { useSearch } from '@/api/search/search';
+import { SEARCH_NAMESPACES, useSearch } from '@/api/search/search';
 import { isIADSSearchParams } from '@/utils/common/guards';
 import { isNil, pathOr, pluck } from 'ramda';
 import { isNotNilOrEmpty } from 'ramda-adjunct';
 
 export const useBibcodesFromQuery = (query: IADSApiSearchParams) => {
   return useSearch(query, {
+    namespace: SEARCH_NAMESPACES.authorAffiliationsBibcodes,
     enabled: isIADSSearchParams(query),
     useErrorBoundary: true,
     select: (data) => {

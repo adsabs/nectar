@@ -23,7 +23,7 @@ import Head from 'next/head';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { BackToSearchResults } from '@/components/BackToSearchResults';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
-import { fetchSearch, searchKeys, useSearch } from '@/api/search/search';
+import { fetchSearch, SEARCH_NAMESPACES, searchKeys, useSearch } from '@/api/search/search';
 import { citationHelperKeys, fetchCitationHelper, useCitationHelper } from '@/api/citation_helper/citation_helper';
 import { ICitationHelperParams, ISuggestionEntry } from '@/api/citation_helper/types';
 import { logger } from '@/logger';
@@ -120,6 +120,7 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
       rows: bigQueryData?.numfound ?? 100,
     }),
     {
+      namespace: SEARCH_NAMESPACES.citationHelperDocs,
       enabled: !!bigQueryData?.qid,
     },
   );
@@ -393,7 +394,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   try {
     // primary search, this is based on query params
     const data = await queryClient.fetchQuery({
-      queryKey: searchKeys.primary(params),
+      queryKey: searchKeys.primary(params, SEARCH_NAMESPACES.citationHelperDocs),
       queryFn: fetchSearch,
       meta: { params },
     });

@@ -3,7 +3,7 @@ import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import * as Sentry from '@sentry/nextjs';
 
 import { ApiTargets } from '@/api/models';
-import { searchKeys } from '@/api/search/search';
+import { SEARCH_API_KEYS, searchKeys } from '@/api/search/search';
 import { getAbstractParams } from '@/api/search/models';
 import { IADSApiSearchResponse, IDocsEntity } from '@/api/search/types';
 import { stringifySearchParams } from '@/utils/common/search';
@@ -130,7 +130,7 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
       return absErrorProps(requestedId, 500, 'bootstrap-failed');
     }
 
-    const params = getAbstractParams(requestedId);
+    const params = { ...getAbstractParams(requestedId), ui_tag: SEARCH_API_KEYS.abstract };
     const url = new URL(`${process.env.API_HOST_SERVER}${ApiTargets.SEARCH}`);
     url.search = stringifySearchParams(params);
 
@@ -199,7 +199,7 @@ const absCanonicalize = (viewPathResolver: ViewPathResolver): IncomingGSSP => {
         try {
           const retryId = requestedId + '#';
           const retryUrl = new URL(`${process.env.API_HOST_SERVER}${ApiTargets.SEARCH}`);
-          retryUrl.search = stringifySearchParams(getAbstractParams(retryId));
+          retryUrl.search = stringifySearchParams({ ...getAbstractParams(retryId), ui_tag: SEARCH_API_KEYS.abstract });
           const retryResponse = await fetch(retryUrl, {
             headers: {
               Authorization: `Bearer ${bootstrapResult.token.access_token}`,

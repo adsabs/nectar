@@ -4,7 +4,7 @@ import api from '@/api/api';
 import { ApiTargets } from '@/api/models';
 import { resolveObjectQuery } from '@/api/objects/objects';
 import { IADSApiSearchParams } from '@/api/search/types';
-import { fetchAuthorNetwork, fetchPaperNetwork, fetchResultsGraph, fetchWordCloud } from '@/api/vis/vis';
+import { fetchAuthorNetwork, fetchPaperNetwork, fetchResultsGraph, fetchWordCloud, visKeys } from '@/api/vis/vis';
 
 vi.mock('@/api/api', () => ({
   default: { request: vi.fn().mockResolvedValue({ data: {} }) },
@@ -62,5 +62,16 @@ describe('fetchResultsGraph', () => {
 
     expect(resolve).not.toHaveBeenCalled();
     expect((request.mock.calls[0][0].params as IADSApiSearchParams).q).toEqual('star');
+  });
+
+  test('tags the request with its query key namespace', async () => {
+    const params = { q: 'star' };
+    await fetchResultsGraph({
+      meta: { params },
+      queryKey: visKeys.resultsGraph(params),
+      signal: new AbortController().signal,
+    } as unknown as QueryFunctionContext);
+
+    expect((request.mock.calls[0][0].params as IADSApiSearchParams).ui_tag).toEqual('vis/results-graph');
   });
 });

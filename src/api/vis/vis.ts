@@ -14,6 +14,7 @@ import api, { ApiRequestConfig } from '@/api/api';
 import { resolveObjectQuery } from '@/api/objects/objects';
 import { hasObjectTerm } from '@/api/objects/helpers';
 import { isString } from '@/utils/common/guards';
+import { resolveUiTag, UI_TAGS } from '@/api/search/ui-tags';
 
 const MAX_RETRIES = 3;
 
@@ -28,10 +29,10 @@ const resolveObjectTerms = async (params: IADSApiSearchParams): Promise<IADSApiS
 };
 
 export const visKeys = {
-  authorNetwork: (params: IADSApiVisParams) => ['vis/authorNetwork', { ...params }] as const,
-  paperNetwork: (params: IADSApiVisParams) => ['vis/paperNetwork', { ...params }] as const,
-  wordCloud: (params: IADSApiWordCloudParams) => ['vis/wordCloud', { ...params }] as const,
-  resultsGraph: (params: IADSApiSearchParams) => ['vis/resultsGraph', params] as const,
+  authorNetwork: (params: IADSApiVisParams) => ['vis/author-network', { ...params }] as const,
+  paperNetwork: (params: IADSApiVisParams) => ['vis/paper-network', { ...params }] as const,
+  wordCloud: (params: IADSApiWordCloudParams) => ['vis/word-cloud', { ...params }] as const,
+  resultsGraph: (params: IADSApiSearchParams) => [UI_TAGS.visResultsGraph, params] as const,
 };
 
 const retryFn = (count: number) => {
@@ -124,18 +125,26 @@ export const useGetResultsGraph: ADSQuery<IADSApiSearchParams, IADSApiSearchResp
     queryKey: visKeys.resultsGraph(resultsGraphParams),
     queryFn: fetchResultsGraph,
     retry: retryFn,
-    meta: { params },
     ...options,
+    meta: { ...options?.meta, params },
   });
 };
 
-export const fetchResultsGraph: QueryFunction<IADSApiSearchResponse> = async ({ meta }) => {
+export const fetchResultsGraph: QueryFunction<IADSApiSearchResponse> = async ({ queryKey, meta }) => {
   const { params } = meta as { params: IADSApiSearchParams };
+  const uiTag = resolveUiTag(queryKey);
+
+  const resolvedParams = { ...getResultsGraphParams(await resolveObjectTerms(params)) };
+  // Untrusted: drop any ui_tag already in the params.
+  delete resolvedParams.ui_tag;
+  if (uiTag) {
+    resolvedParams.ui_tag = uiTag;
+  }
 
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.SEARCH,
-    params: getResultsGraphParams(await resolveObjectTerms(params)),
+    params: resolvedParams,
   };
 
   const { data } = await api.request<IADSApiSearchResponse>(config);
