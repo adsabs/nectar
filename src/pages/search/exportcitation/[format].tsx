@@ -19,7 +19,7 @@ import { unwrapStringValue } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { IADSApiSearchParams } from '@/api/search/types';
-import { fetchSearchInfinite, searchKeys, useSearchInfinite } from '@/api/search/search';
+import { fetchSearchInfinite, SEARCH_NAMESPACES, searchKeys, useSearchInfinite } from '@/api/search/search';
 import { exportCitationKeys, fetchExportCitation, fetchExportFormats } from '@/api/export/export';
 
 interface IExportCitationPageProps {
@@ -56,7 +56,9 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
           maxauthor: parseInt(settings.bibtexMaxAuthors),
         };
 
-  const { data, fetchNextPage, hasNextPage, error } = useSearchInfinite(query);
+  const { data, fetchNextPage, hasNextPage, error } = useSearchInfinite(query, {
+    namespace: SEARCH_NAMESPACES.exportCitation,
+  });
 
   // TODO: add more error handling here
   if (!data) {
@@ -151,7 +153,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   try {
     // primary search, this is based on query params
     const data = await queryClient.fetchInfiniteQuery({
-      queryKey: searchKeys.infinite(params),
+      queryKey: searchKeys.infinite(params, SEARCH_NAMESPACES.exportCitation),
       queryFn: fetchSearchInfinite,
       meta: { params },
     });

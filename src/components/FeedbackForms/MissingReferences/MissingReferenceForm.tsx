@@ -21,7 +21,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
 import { IFeedbackParams } from '@/api/feedback/types';
-import { useSearch } from '@/api/search/search';
+import { SEARCH_NAMESPACES, useSearch } from '@/api/search/search';
 import { useGetExportCitation } from '@/api/export/export';
 import { ExportApiFormatKey } from '@/api/export/types';
 
@@ -89,7 +89,7 @@ export const MissingReferenceForm = ({
       q: `identifier:(${allBibcodes?.join(' OR ')})`,
       rows: allBibcodes?.length,
     },
-    { enabled: false },
+    { namespace: SEARCH_NAMESPACES.feedbackMissingReferences, enabled: false },
   );
 
   const {

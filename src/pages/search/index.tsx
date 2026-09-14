@@ -203,7 +203,7 @@ const SearchPage: NextPage = () => {
   const showAbstracts = useStore((state) => state.showAbstracts);
   const { data, isSuccess, isLoading, isFetching, error, isError, refetch } = useSearch<IADSApiSearchResponse>(
     withAbstractField(searchParams, showAbstracts),
-    { select: (data) => data },
+    { namespace: SEARCH_API_KEYS.primary, select: (data) => data },
   );
 
   const resetPreviewTogglesForQuery = useStore((state) => state.resetPreviewTogglesForQuery);

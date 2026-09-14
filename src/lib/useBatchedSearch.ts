@@ -3,7 +3,7 @@ import { chain } from 'ramda';
 import { useEffect, useState } from 'react';
 import { InfiniteData, UseInfiniteQueryOptions, useQueryClient } from '@tanstack/react-query';
 import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@/api/search/types';
-import { searchKeys, useSearchInfinite } from '@/api/search/search';
+import { SEARCH_NAMESPACES, searchKeys, useSearchInfinite } from '@/api/search/search';
 
 const DELAY_BETWEEN_REQUESTS = 500;
 
@@ -37,7 +37,7 @@ export const useBatchedSearch = <T = unknown>(
           pageParam: string;
         }
       >
-    >(searchKeys.infinite(params));
+    >(searchKeys.infinite(params, SEARCH_NAMESPACES.metricsBatched));
 
     // if found then set our count with the updated value,
     // otherwise the page will continue from where it left off
@@ -50,6 +50,7 @@ export const useBatchedSearch = <T = unknown>(
 
   const { data, isFetchingNextPage, fetchNextPage, hasNextPage, status, ...rest } = useSearchInfinite(params, {
     ...options,
+    namespace: SEARCH_NAMESPACES.metricsBatched,
     keepPreviousData: true,
     enabled: count > 0,
   });
