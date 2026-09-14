@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { IOrcidProfile } from '@/api/orcid/types';
 import { isValidIOrcidUser } from '@/api/orcid/models';
 import { mergeOrcidMissingRecords } from '@/lib/orcid/helpers';
-import { useSearch } from '@/api/search/search';
+import { SEARCH_NAMESPACES, useSearch } from '@/api/search/search';
 import { useOrcidGetProfile } from '@/api/orcid/orcid';
 import { getSearchParams } from '@/api/search/models';
 
@@ -18,7 +18,8 @@ interface IUseOrcidProfileProps {
 export const useOrcidProfile = (
   props?: IUseOrcidProfileProps,
   options?: {
-    searchOptions: Parameters<typeof useSearch>[1];
+    // This hook owns its namespace; callers can't override it.
+    searchOptions: Omit<Parameters<typeof useSearch>[1], 'namespace'>;
     profileOptions: Parameters<typeof useOrcidGetProfile>[1];
   },
 ) => {
@@ -45,6 +46,7 @@ export const useOrcidProfile = (
     rows: 99999,
   });
   const searchResponse = useSearch(searchParams, {
+    namespace: SEARCH_NAMESPACES.orcidProfileRecords,
     enabled: !profileOnly && isAuthenticated && isValidIOrcidUser(user),
     ...options?.searchOptions,
   });

@@ -23,7 +23,7 @@ import { omit } from 'ramda';
 import { PreviewModal } from '../PreviewModal';
 import { Select, SelectOption } from '@/components/Select';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
-import { useSearch } from '@/api/search/search';
+import { SEARCH_NAMESPACES, useSearch } from '@/api/search/search';
 import { AssociatedBibcode, IFeedbackParams, Relationship } from '@/api/feedback/types';
 
 type FormValues = {
@@ -111,7 +111,7 @@ export const AssociatedArticlesForm = ({
       q: `identifier:(${allBibcodes?.join(' OR ')})`,
       rows: allBibcodes?.length,
     },
-    { enabled: false },
+    { namespace: SEARCH_NAMESPACES.feedbackAssociatedArticles, enabled: false },
   );
 
   useEffect(() => {
