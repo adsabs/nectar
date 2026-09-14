@@ -512,6 +512,7 @@ const useTour = () => {
           },
         },
         exitOnEsc: true,
+        keyboardNavigation: false,
       });
 
       const listener = (e: MouseEvent) => {
@@ -521,12 +522,17 @@ const useTour = () => {
       };
       tour.on('start', () => {
         document.addEventListener('click', listener);
+        // tour.options.keyboardNavigation = true;
       });
       tour.on('cancel', () => {
+        document.body.focus();
         document.removeEventListener('click', listener);
+        // tour.options.keyboardNavigation = false;
       });
       tour.on('complete', () => {
+        document.body.focus();
         document.removeEventListener('click', listener);
+        // tour.options.keyboardNavigation = false;
       });
 
       tour.addSteps(getHomeSteps(!isScreenLarge, appMode === 'ASTROPHYSICS'));
