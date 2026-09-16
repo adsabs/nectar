@@ -20,6 +20,7 @@ import {
   sendQueryAsTags,
 } from '@/lib/performance';
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
+import { useTrackUserId } from './lib/useTrackUserId';
 import { ShepherdJourneyProvider } from 'react-shepherd';
 import type { AppPageProps } from '@/pages/_app';
 import { useOrcidExpiryWatcher } from '@/lib/orcid/useOrcid';
@@ -76,6 +77,7 @@ const Telemetry: FC = () => {
 
   useGlobalErrorHandler();
   useOrcidExpiryWatcher();
+  useTrackUserId();
 
   useEffect(() => {
     try {
