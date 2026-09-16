@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { sendGTMEvent } from '@next/third-parties/google';
-import { isValidToken } from '@/auth-utils';
+import { isTrackableSession } from '@/utils/session-identity';
 import { logger } from '@/logger';
 import { useStore } from '@/store';
 
-// SHA-256 hex digest, matching Bumblebee's GA User-ID hash for the same account.
+// Matches Bumblebee's GA User-ID hash so both frontends map the same account
+// to the same id.
 const hashUsername = async (username: string): Promise<string> => {
   const buffer = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(username));
   return Array.from(new Uint8Array(buffer))
@@ -18,9 +19,8 @@ export const useTrackUserId = () => {
   const lastSentRef = useRef<string | null>(null);
 
   useEffect(() => {
-    // Persisted `user` rehydrates over SSR state even when expired, so gate
-    // on token validity, not just shape.
-    const username = isValidToken(user) && !user.anonymous ? user.username : null;
+    // The store rehydrates a persisted `user` over SSR state even when expired.
+    const username = isTrackableSession(user) ? user.username : null;
 
     if (!username) {
       if (lastSentRef.current !== null) {
@@ -33,7 +33,7 @@ export const useTrackUserId = () => {
     let cancelled = false;
     hashUsername(username)
       .then((userId) => {
-        // Dedup: the 5-minute token refresh rewrites `user` without changing identity.
+        // The 5-minute token refresh rewrites `user` with the same identity.
         if (cancelled || lastSentRef.current === userId) {
           return;
         }
@@ -41,6 +41,8 @@ export const useTrackUserId = () => {
         sendGTMEvent({ event: 'user_update', user_id: userId });
       })
       .catch((err: unknown) => {
+        // Reset, or GA keeps attributing hits to whoever was last hashed.
+        lastSentRef.current = null;
         logger.error({ err }, 'useTrackUserId: hash error');
       });
 

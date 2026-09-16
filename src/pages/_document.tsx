@@ -10,8 +10,8 @@ const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
 
 class MyDocument extends Document {
   render(): ReactElement {
-    // Seeding the id here rather than from the client hook is what lets the
-    // Google tag read it on its first fire, so page_view carries the User-ID.
+    // Seeded here, not from the client hook, so the Google tag has it on its
+    // first fire and page_view carries the User-ID.
     const user = this.props.__NEXT_DATA__?.props?.pageProps?.dehydratedAppState?.user as IUserData | undefined;
 
     return (

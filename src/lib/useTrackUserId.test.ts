@@ -20,8 +20,7 @@ const authed = (username: string): User => ({
   expires_at: '9999999999',
 });
 
-// SHA-256 of 'user@example.com'
-const HASH = 'b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514';
+const HASH = 'b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514'; // sha256('user@example.com')
 
 beforeEach(() => {
   user = undefined;
@@ -44,6 +43,37 @@ describe('useTrackUserId', () => {
     renderHook(() => useTrackUserId());
 
     await waitFor(() => expect(sendGTMEvent).not.toHaveBeenCalled());
+  });
+
+  test('sends nothing for a non-anonymous session whose token has expired', async () => {
+    user = { ...authed('user@example.com'), expires_at: String(Math.floor(Date.now() / 1000) - 60) };
+    renderHook(() => useTrackUserId());
+
+    await waitFor(() => expect(sendGTMEvent).not.toHaveBeenCalled());
+  });
+
+  test('sends nothing when expires_at is not a usable timestamp', async () => {
+    user = { ...authed('user@example.com'), expires_at: 'not-a-timestamp' };
+    renderHook(() => useTrackUserId());
+
+    await waitFor(() => expect(sendGTMEvent).not.toHaveBeenCalled());
+  });
+
+  test('clears the tracked id when hashing fails, so a later attempt retries', async () => {
+    user = authed('user@example.com');
+    const { rerender } = renderHook(() => useTrackUserId());
+    await waitFor(() => expect(sendGTMEvent).toHaveBeenCalledTimes(1));
+
+    const digest = vi.spyOn(globalThis.crypto.subtle, 'digest').mockRejectedValue(new Error('no subtle'));
+    user = { ...authed('user@example.com'), access_token: 'refreshed' };
+    rerender();
+    await waitFor(() => expect(digest).toHaveBeenCalled());
+    digest.mockRestore();
+
+    user = { ...authed('user@example.com'), access_token: 'again' };
+    rerender();
+
+    await waitFor(() => expect(sendGTMEvent).toHaveBeenCalledTimes(2));
   });
 
   test('does not re-send when the same user object is replaced by a token refresh', async () => {
