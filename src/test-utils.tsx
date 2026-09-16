@@ -11,7 +11,6 @@ import mockOrcidUser from '@/mocks/responses/orcid/exchangeOAuthCode.json';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MathJaxProvider } from '@/mathjax';
-import { GoogleTagManager } from '@next/third-parties/google';
 import { theme } from '@/theme';
 
 /**
@@ -67,10 +66,7 @@ export const DefaultProviders = ({
       <MathJaxProvider>
         <QueryClientProvider client={queryClient}>
           <StoreProvider createStore={() => createStore(store)}>
-            <Container maxW="container.lg">
-              {children}
-              <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
-            </Container>
+            <Container maxW="container.lg">{children}</Container>
           </StoreProvider>
         </QueryClientProvider>
       </MathJaxProvider>
