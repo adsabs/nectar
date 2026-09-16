@@ -104,7 +104,7 @@ export const NOTIFICATIONS: Record<NotificationId, Notification> = {
     message: 'Your session has expired, please login again',
   },
   'account-logout-failed': {
-    id: 'account-logout-success',
+    id: 'account-logout-failed',
     status: 'error',
     message: 'There was an issue logging out. Please try again.',
   },
