@@ -13,8 +13,7 @@ const user = (overrides: Partial<IUserData> = {}): IUserData => ({
   ...overrides,
 });
 
-// SHA-256 of 'user@example.com' — must match useTrackUserId and Bumblebee.
-const HASH = 'b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514';
+const HASH = 'b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514'; // sha256('user@example.com')
 
 describe('getGtmUserId', () => {
   test('hashes the username of a live authenticated session', () => {
