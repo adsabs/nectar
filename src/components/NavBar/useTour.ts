@@ -70,6 +70,17 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
       Sentry.addBreadcrumb({ category: 'tour', message: 'tour_start', level: 'info', data: { tourType, isMobile } });
     });
 
+    tour.on('show', () => {
+      const stepId = tour.currentStep?.id;
+
+      if (!stepId) {
+        return;
+      }
+
+      sendGTMEvent({ event: 'tour_step', tour_type: tourType, step_id: stepId });
+      Sentry.addBreadcrumb({ category: 'tour', message: 'tour_step', level: 'info', data: { tourType, stepId } });
+    });
+
     tour.on('complete', () => {
       tour.options.keyboardNavigation = false;
       document.removeEventListener('click', listener);
