@@ -757,11 +757,21 @@ const useTour = () => {
       tour.on('cancel', () => {
         tour.options.keyboardNavigation = false;
         document.removeEventListener('click', listener);
+
+        // give focus back to search input after shepherd cleaned up
+        setTimeout(() => {
+          document.getElementById('search-input')?.focus();
+        }, 0);
       });
 
       tour.on('complete', () => {
         tour.options.keyboardNavigation = false;
         document.removeEventListener('click', listener);
+
+        // give focus back to search input after shepherd cleaned up
+        setTimeout(() => {
+          document.getElementById('search-input')?.focus();
+        }, 0);
       });
 
       setTimeout(() => {

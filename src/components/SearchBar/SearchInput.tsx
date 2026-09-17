@@ -139,6 +139,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
           <VisuallyHidden id="search-box-label">Search Database</VisuallyHidden>
           <InputGroup>
             <Input
+              id="search-input"
               aria-labelledby="search-box-label"
               ref={refs}
               type="search"

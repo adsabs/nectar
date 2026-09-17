@@ -75,6 +75,11 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
       document.removeEventListener('click', listener);
       sendGTMEvent({ event: 'tour_complete', tour_type: tourType });
       Sentry.addBreadcrumb({ category: 'tour', message: 'tour_complete', level: 'info', data: { tourType } });
+
+      // give focus back to search input after shepherd cleaned up
+      setTimeout(() => {
+        document.getElementById('search-input')?.focus();
+      }, 0);
     });
 
     tour.on('cancel', () => {
@@ -83,6 +88,11 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
       const stepId = tour.currentStep?.id;
       sendGTMEvent({ event: 'tour_cancel', tour_type: tourType, step_id: stepId });
       Sentry.addBreadcrumb({ category: 'tour', message: 'tour_cancel', level: 'info', data: { tourType, stepId } });
+
+      // give focus back to search input after shepherd cleaned up
+      setTimeout(() => {
+        document.getElementById('search-input')?.focus();
+      }, 0);
     });
     return { tourType, tour };
   }, [Shepherd.Tour, tourType, isMobile, appMode]);
