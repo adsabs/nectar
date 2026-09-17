@@ -521,12 +521,25 @@ const useTour = () => {
       };
       tour.on('start', () => {
         document.addEventListener('click', listener);
+        tour.options.keyboardNavigation = true;
       });
       tour.on('cancel', () => {
         document.removeEventListener('click', listener);
+        tour.options.keyboardNavigation = false;
+
+        // give focus back to search input after shepherd cleaned up
+        setTimeout(() => {
+          document.getElementById('search-input')?.focus();
+        }, 0);
       });
       tour.on('complete', () => {
         document.removeEventListener('click', listener);
+        tour.options.keyboardNavigation = false;
+
+        // give focus back to search input after shepherd cleaned up
+        setTimeout(() => {
+          document.getElementById('search-input')?.focus();
+        }, 0);
       });
 
       tour.addSteps(getHomeSteps(!isScreenLarge, appMode === 'ASTROPHYSICS'));

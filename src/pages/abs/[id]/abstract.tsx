@@ -238,13 +238,26 @@ const useTour = () => {
         }
       };
       tour.on('start', () => {
+        tour.options.keyboardNavigation = true;
         document.addEventListener('click', listener);
       });
       tour.on('cancel', () => {
+        tour.options.keyboardNavigation = false;
         document.removeEventListener('click', listener);
+
+        // give focus back to search input after shepherd cleaned up
+        setTimeout(() => {
+          document.getElementById('search-input')?.focus();
+        }, 0);
       });
       tour.on('complete', () => {
+        tour.options.keyboardNavigation = false;
         document.removeEventListener('click', listener);
+
+        // give focus back to search input after shepherd cleaned up
+        setTimeout(() => {
+          document.getElementById('search-input')?.focus();
+        }, 0);
       });
 
       tour.addSteps(getAbstractSteps(!isScreenLarge, appMode === 'ASTROPHYSICS'));
@@ -253,7 +266,7 @@ const useTour = () => {
         tour.start();
       }, 1000);
     }
-  }, [isRendered, isScreenLarge]);
+  }, [Shepherd.Tour, appMode, isRendered, isScreenLarge]);
 };
 
 export const getServerSideProps = createAbsGetServerSideProps('abstract');

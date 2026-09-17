@@ -1,5 +1,5 @@
 import { useShepherd } from 'react-shepherd';
-import { Step, StepOptions } from 'shepherd.js';
+import type { Step, StepOptions } from 'shepherd.js';
 import { offset } from '@floating-ui/react-dom';
 import { useRouter } from 'next/router';
 import { useBreakpointValue } from '@chakra-ui/react';
@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/nextjs';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { LocalSettings } from '@/types';
 import { useStore } from '@/store';
+import { useMemo } from 'react';
 
 export const useTour = (type?: 'home' | 'results' | 'abstract') => {
   const router = useRouter();
@@ -16,17 +17,6 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
   const landingPage = /^(|\/|\/classic-form|\/paper-form)$/;
   const resultsPage = '/search';
   const absPage = /\/abs\//;
-
-  const tour = new Shepherd.Tour({
-    useModalOverlay: true,
-    defaultStepOptions: {
-      scrollTo: false,
-      cancelIcon: {
-        enabled: true,
-      },
-    },
-    exitOnEsc: true,
-  });
 
   const tourType = type
     ? type
@@ -38,59 +28,87 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
     ? 'abstract'
     : 'none';
 
-  if (tourType === 'home') {
-    tour.addSteps(getHomeSteps(isMobile, appMode === 'ASTROPHYSICS'));
-  } else if (tourType === 'results') {
-    tour.addSteps(getResultsSteps(appMode === 'ASTROPHYSICS'));
-  } else if (tourType == 'abstract') {
-    tour.addSteps(getAbstractSteps(isMobile, appMode === 'ASTROPHYSICS'));
-  }
+  const tourObject = useMemo(() => {
+    const tour = new Shepherd.Tour({
+      useModalOverlay: true,
+      defaultStepOptions: {
+        scrollTo: false,
+        cancelIcon: {
+          enabled: true,
+        },
+      },
+      exitOnEsc: true,
+    });
 
-  const listener = (e: MouseEvent) => {
-    if ((e.target as HTMLElement).closest('.shepherd-modal-overlay-container')) {
-      tour.cancel();
-    }
-  };
-
-  tour.on('start', () => {
     if (tourType === 'home') {
-      localStorage.setItem(LocalSettings.SEEN_LANDING_TOUR, 'true');
+      tour.addSteps(getHomeSteps(isMobile, appMode === 'ASTROPHYSICS'));
     } else if (tourType === 'results') {
-      localStorage.setItem(LocalSettings.SEEN_RESULTS_TOUR, 'true');
-    } else if (tourType === 'abstract') {
-      localStorage.setItem(LocalSettings.SEEN_ABSTRACT_TOUR, 'true');
+      tour.addSteps(getResultsSteps(appMode === 'ASTROPHYSICS'));
+    } else if (tourType == 'abstract') {
+      tour.addSteps(getAbstractSteps(isMobile, appMode === 'ASTROPHYSICS'));
     }
 
-    document.addEventListener('click', listener);
+    const listener = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).closest('.shepherd-modal-overlay-container')) {
+        tour.cancel();
+      }
+    };
 
-    sendGTMEvent({ event: 'tour_start', tour_type: tourType, is_mobile: !!isMobile });
-    Sentry.addBreadcrumb({ category: 'tour', message: 'tour_start', level: 'info', data: { tourType, isMobile } });
-  });
+    tour.on('start', () => {
+      tour.options.keyboardNavigation = true;
+      if (tourType === 'home') {
+        localStorage.setItem(LocalSettings.SEEN_LANDING_TOUR, 'true');
+      } else if (tourType === 'results') {
+        localStorage.setItem(LocalSettings.SEEN_RESULTS_TOUR, 'true');
+      } else if (tourType === 'abstract') {
+        localStorage.setItem(LocalSettings.SEEN_ABSTRACT_TOUR, 'true');
+      }
 
-  tour.on('show', () => {
-    const stepId = tour.currentStep?.id;
+      document.addEventListener('click', listener);
 
-    if (!stepId) {
-      return;
-    }
+      sendGTMEvent({ event: 'tour_start', tour_type: tourType, is_mobile: !!isMobile });
+      Sentry.addBreadcrumb({ category: 'tour', message: 'tour_start', level: 'info', data: { tourType, isMobile } });
+    });
 
-    sendGTMEvent({ event: 'tour_step', tour_type: tourType, step_id: stepId });
-    Sentry.addBreadcrumb({ category: 'tour', message: 'tour_step', level: 'info', data: { tourType, stepId } });
-  });
+    tour.on('show', () => {
+      const stepId = tour.currentStep?.id;
 
-  tour.on('complete', () => {
-    document.removeEventListener('click', listener);
-    sendGTMEvent({ event: 'tour_complete', tour_type: tourType });
-    Sentry.addBreadcrumb({ category: 'tour', message: 'tour_complete', level: 'info', data: { tourType } });
-  });
+      if (!stepId) {
+        return;
+      }
 
-  tour.on('cancel', () => {
-    document.removeEventListener('click', listener);
-    const stepId = tour.currentStep?.id;
-    sendGTMEvent({ event: 'tour_cancel', tour_type: tourType, step_id: stepId });
-    Sentry.addBreadcrumb({ category: 'tour', message: 'tour_cancel', level: 'info', data: { tourType, stepId } });
-  });
-  return { tourType, tour };
+      sendGTMEvent({ event: 'tour_step', tour_type: tourType, step_id: stepId });
+      Sentry.addBreadcrumb({ category: 'tour', message: 'tour_step', level: 'info', data: { tourType, stepId } });
+    });
+
+    tour.on('complete', () => {
+      tour.options.keyboardNavigation = false;
+      document.removeEventListener('click', listener);
+      sendGTMEvent({ event: 'tour_complete', tour_type: tourType });
+      Sentry.addBreadcrumb({ category: 'tour', message: 'tour_complete', level: 'info', data: { tourType } });
+
+      // give focus back to search input after shepherd cleaned up
+      setTimeout(() => {
+        document.getElementById('search-input')?.focus();
+      }, 0);
+    });
+
+    tour.on('cancel', () => {
+      tour.options.keyboardNavigation = false;
+      document.removeEventListener('click', listener);
+      const stepId = tour.currentStep?.id;
+      sendGTMEvent({ event: 'tour_cancel', tour_type: tourType, step_id: stepId });
+      Sentry.addBreadcrumb({ category: 'tour', message: 'tour_cancel', level: 'info', data: { tourType, stepId } });
+
+      // give focus back to search input after shepherd cleaned up
+      setTimeout(() => {
+        document.getElementById('search-input')?.focus();
+      }, 0);
+    });
+    return { tourType, tour };
+  }, [Shepherd.Tour, tourType, isMobile, appMode]);
+
+  return tourObject;
 };
 
 export const getHomeSteps = (isMobile: boolean, isAstrophysics = false) => {
