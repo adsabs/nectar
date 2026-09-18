@@ -14,7 +14,7 @@ import '../styles/styles.css';
 import '../styles/page-loader.css';
 import 'shepherd.js/dist/css/shepherd.css';
 import { logger } from '@/logger';
-import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
+import { sendGTMEvent } from '@next/third-parties/google';
 import Head from 'next/head';
 import { BRAND_NAME_FULL } from '@/config';
 // Not the barrel: it re-exports VizPageLayout, which drags the charts
@@ -76,7 +76,6 @@ function NectarApp({ Component, pageProps }: AppProps): ReactElement {
         <UserSync />
         <Layout>
           <Component {...pageProps} />
-          <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
         </Layout>
       </Providers>
     </>

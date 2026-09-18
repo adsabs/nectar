@@ -1,0 +1,26 @@
+import { createHash } from 'node:crypto';
+import { isTrackableSession } from '@/utils/session-identity';
+import { IUserData } from '@/api/user/types';
+
+// Matches Bumblebee's GA User-ID hash so both frontends map the same account
+// to the same id.
+const hashUsername = (username: string): string => createHash('sha256').update(username, 'utf-8').digest('hex');
+
+/** Hashed id for a logged-in session, or null. Server-only. */
+export const getGtmUserId = (user?: IUserData): string | null =>
+  isTrackableSession(user) ? hashUsername(user.username) : null;
+
+// next/script only server-renders at strategy="beforeInteractive" in the
+// pages router; any other strategy loads after hydration, which GTM flags as
+// "tag not placed correctly". Inlined directly in _document's <Head> instead.
+export const getGtmSnippet = (gtmId: string, userId: string | null = null): string => `
+  (function(w,d,s,l,i,u){
+    w[l]=w[l]||[];
+    if(u){w[l].push({user_id:u});}
+    w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+    var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
+    j.async=true;
+    j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+    f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer',${JSON.stringify(gtmId)},${JSON.stringify(userId)});
+`;
