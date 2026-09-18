@@ -258,10 +258,11 @@ const SearchPage: NextPage = () => {
     const newSort =
       currentSortField === newSortField ? sort : `${newSortField} ${solrDefaultSortDirection[newSortField]}`;
 
-    // Route the sort change through the search-mode path so ads_compat and the
-    // ADS filters stay consistent with the current mode; the chosen sort wins
-    // over the mode's default sort (see buildSortChangeOutgoing).
-    const base = omit([ADS_COMPAT_URL_PARAM, 'd'], {
+    // Route through the search-mode path so ads_compat and the ADS filters
+    // stay consistent with the current mode; the chosen sort wins over the
+    // mode's default (see buildSortChangeOutgoing). ads_compat is kept
+    // (not omitted) so the builder can detect a mode transition.
+    const base = omit(['d'], {
       ...params,
       ...query,
       p: 1,
@@ -284,9 +285,10 @@ const SearchPage: NextPage = () => {
     // clear current docs since we are entering new search
     clearSelectedDocs();
 
-    // generate a URL search string and trigger a page transition, and update store
+    // ads_compat is kept (not omitted) so buildSearchOutgoing can detect a
+    // mode transition, same as in handleSortChange.
     const overriddenSort = getDefaultSortForQuery(q, params.sort);
-    const base = omit([ADS_COMPAT_URL_PARAM, 'd'], {
+    const base = omit(['d'], {
       ...params,
       ...query,
       q,
