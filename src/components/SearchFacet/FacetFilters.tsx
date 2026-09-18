@@ -1,14 +1,15 @@
-import { Box, BoxProps, Button, Flex, Tag, TagCloseButton, TagLabel, Tooltip } from '@chakra-ui/react';
-import { clearFQs, removeFQClause } from '@/query-utils';
+import { Box, BoxProps, Button, Flex, Tag, TagCloseButton, TagLabel, Text, Tooltip } from '@chakra-ui/react';
+import { clearFQs, removeFQClause, removeFQTerm } from '@/query-utils';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
-import { ReactElement, useCallback, useEffect, useState } from 'react';
+import { Fragment, ReactElement, useCallback, useEffect, useState } from 'react';
 import { FilterTuple, getFilters, getObjectName } from './helpers';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { isIADSSearchParams } from '@/utils/common/guards';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { useObjects } from '@/api/objects/objects';
+import { ADS_COMPAT_URL_PARAM } from '@/utils/common/searchMode';
 
 export const FacetFilters = (props: BoxProps): ReactElement => {
   const router = useRouter();
@@ -46,14 +47,15 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
   };
 
   useEffect(() => {
-    // Get the current query from the router
     const parsedQuery = parseQueryFromUrl(router.asPath);
 
-    // parse and generate the filters from the query, and set our sections
-    const filters = getFilters(parsedQuery).map((tuple) => {
-      const [label, cleanClauses, rawClauses, alias] = tuple;
+    // Read from the URL, not the store, so pills are correct on first paint.
+    const isAdsCompat = parsedQuery[ADS_COMPAT_URL_PARAM] === '1';
+
+    const filters = getFilters(parsedQuery, { isAdsCompat }).map((tuple) => {
+      const [label, cleanClauses, rawClauses, alias, operators, isTermLevel] = tuple;
       if (label === 'simbad') {
-        return [label, translateObjectClauses(cleanClauses), rawClauses, alias] as FilterTuple;
+        return [label, translateObjectClauses(cleanClauses), rawClauses, alias, operators, isTermLevel] as FilterTuple;
       } else {
         return tuple;
       }
@@ -62,13 +64,13 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
   }, [router.query, objects]);
 
   const handleRemoveFilterClick = useCallback(
-    curryN(3, (clause: string, key: string) => {
+    curryN(4, (clause: string, key: string, isTermLevel: boolean) => {
       if (typeof key === 'string') {
-        // Remove the clause from the current query
+        // A split collection pill is one term within a group, not a
+        // standalone clause — it needs term-level removal.
         const query = parseQueryFromUrl(router.asPath);
-        const params = removeFQClause(key, clause, query);
+        const params = isTermLevel ? removeFQTerm(key, clause, query) : removeFQClause(key, clause, query);
 
-        // Update the router with the new query
         if (isIADSSearchParams(params)) {
           const search = makeSearchParams(params);
           void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
@@ -97,21 +99,28 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
   return (
     <Box {...props} my="3">
       <Flex {...props} mb="1" wrap="wrap">
-        {filterSections.map(([label, cleanClauses, rawClauses, alias]) => (
+        {filterSections.map(([label, cleanClauses, rawClauses, alias, operators, isTermLevel]) => (
           <span key={label}>
             {cleanClauses.map((clause, index) => (
-              <Tag key={clause} size="sm" my="0.5" fontSize="sm" maxWidth="200" mr={2}>
-                <TagLabel isTruncated noOfLines={1}>
-                  <Tooltip label={`${alias ? alias : label}: ${clause}`}>{`${
-                    alias ? alias : label
-                  }: ${clause}`}</Tooltip>
-                </TagLabel>
-                <TagCloseButton
-                  data-value={clause}
-                  data-section={label}
-                  onClick={handleRemoveFilterClick(rawClauses[index], label)}
-                />
-              </Tag>
+              <Fragment key={clause}>
+                <Tag size="sm" my="0.5" fontSize="sm" maxWidth="400" mr={2}>
+                  <TagLabel isTruncated noOfLines={1}>
+                    <Tooltip label={`${alias ? alias : label}: ${clause}`}>{`${
+                      alias ? alias : label
+                    }: ${clause}`}</Tooltip>
+                  </TagLabel>
+                  <TagCloseButton
+                    data-value={clause}
+                    data-section={label}
+                    onClick={handleRemoveFilterClick(rawClauses[index], label, isTermLevel[index])}
+                  />
+                </Tag>
+                {operators?.[index] && (
+                  <Text as="span" fontSize="xs" color="gray.500" mr={2}>
+                    {operators[index]}
+                  </Text>
+                )}
+              </Fragment>
             ))}
           </span>
         ))}

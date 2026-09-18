@@ -1,5 +1,7 @@
 import type { IADSApiSearchParams } from '@/api/search/types';
-import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
+import { safeGetArray } from '@/components/SearchFacet/helpers';
+import { setFQ } from '@/query-utils';
+import { getTerms } from '@/query';
 import { omit } from 'ramda';
 import type { SolrSort } from '@/api/models';
 import {
@@ -21,11 +23,24 @@ export {
   ADS_COMPAT_URL_PARAM,
 } from '@/utils/common/search-mode-constants';
 
+// ClassicForm emits unquoted terms; strip quotes before comparing.
+const stripQuotes = (term: string): string => term.replace(/"/g, '');
+const ADS_COMPAT_DATABASE_TERMS = new Set(getTerms(ADS_COMPAT_FQ_DATABASE).map(stripQuotes));
+
+// Matches the full compat default or any subset left after a pill removal.
+const isCompatDatabaseFilter = (value: string | undefined): boolean => {
+  if (typeof value !== 'string' || value === '') {
+    return false;
+  }
+  const terms = getTerms(value).map(stripQuotes);
+  return terms.length > 0 && terms.every((term) => ADS_COMPAT_DATABASE_TERMS.has(term));
+};
+
 export const buildSearchOutgoing = (query: IADSApiSearchParams, mode: string): IADSApiSearchParams => {
   const withDefaults = applySearchModeDefaults(query, mode);
   return mode === SearchMode.ADS_COMPAT
     ? ({ ...withDefaults, [ADS_COMPAT_URL_PARAM]: '1' } as IADSApiSearchParams)
-    : withDefaults;
+    : (omit([ADS_COMPAT_URL_PARAM], withDefaults) as IADSApiSearchParams);
 };
 
 // Sort-change variant of buildSearchOutgoing: keeps ads_compat/fq handling in
@@ -39,20 +54,35 @@ export const buildSortChangeOutgoing = (
 
 export const applySearchModeDefaults = (query: IADSApiSearchParams, mode: string | undefined): IADSApiSearchParams => {
   if (mode === SearchMode.ADS_COMPAT) {
-    const withCollections = applyFiltersToQuery({
-      query,
-      values: ['astronomy', 'physics'],
-      field: 'database',
-      logic: 'or',
+    const alreadyInCompat = query[ADS_COMPAT_URL_PARAM] === '1';
+
+    if (alreadyInCompat) {
+      // Never re-add the compat defaults once inside compat mode; an absent
+      // or empty fq_database means the user cleared every collection pill.
+      const hasFqDatabase = typeof query.fq_database === 'string' && query.fq_database !== '';
+      const withCollections = hasFqDatabase
+        ? (setFQ('database', query.fq_database as string, query, { asIs: true }) as IADSApiSearchParams)
+        : query;
+      return { ...withCollections, sort: ADS_COMPAT_SORT };
+    }
+
+    // Entering compat mode fresh: replace any existing fq_database (e.g. a
+    // saved defaultDatabase) instead of AND-joining, which would return
+    // almost nothing (`earthscience AND (astronomy OR physics)`).
+    const withCollections = setFQ('database', ADS_COMPAT_FQ_DATABASE, query, {
+      asIs: true,
     }) as IADSApiSearchParams;
     return { ...withCollections, sort: ADS_COMPAT_SORT };
   }
 
-  // Strip ADS-implied filters/sort if present and exactly matching ADS defaults.
-  // Only strip the exact values we would have set — leave user-configured values alone.
-  if (query.fq_database === ADS_COMPAT_FQ_DATABASE) {
-    const fqWithout = (query.fq as string[] | undefined)?.filter((f) => f !== ADS_COMPAT_FQ_ENTRY) ?? [];
-    const withoutDb = omit(['fq_database'], query) as IADSApiSearchParams;
+  // /search has no in-page mode toggle, so ads_compat=1 is the only signal
+  // we're leaving compat mode rather than reading a normal user's own
+  // Collections pick (astronomy/physics are valid choices there too).
+  const cameFromCompat = query[ADS_COMPAT_URL_PARAM] === '1';
+  if (cameFromCompat && isCompatDatabaseFilter(query.fq_database as string | undefined)) {
+    // A single fq param parses as a bare string, not an array.
+    const fqWithout = safeGetArray(query.fq as string | string[]).filter((f) => f !== ADS_COMPAT_FQ_ENTRY);
+    const withoutDb = omit(['fq_database', ADS_COMPAT_URL_PARAM], query) as IADSApiSearchParams;
     const withoutFq =
       fqWithout.length > 0 ? { ...withoutDb, fq: fqWithout } : (omit(['fq'], withoutDb) as IADSApiSearchParams);
     // Also revert sort if it exactly matches the ADS default.
