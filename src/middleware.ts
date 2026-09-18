@@ -12,6 +12,8 @@ import { mapDisciplineParamToAppMode, mapPathToDisciplineParam } from '@/utils/a
 import { AppMode } from '@/types';
 import { isFromLegacyApp } from '@/utils/legacyAppDetection';
 import { pickTracingHeadersEdge } from '@/utils/tracing.edge';
+import { authTagForSession, SENTRY_AUTH_COOKIE_NAME, SENTRY_AUTH_TAG_NAME } from '@/lib/sentryAuthTag';
+import * as Sentry from '@sentry/nextjs';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
@@ -386,6 +388,23 @@ const setPrefsCookie = (response: NextResponse, req: NextRequest, updates: Recor
   });
 };
 
+// Read by sentry.client.config.ts at init, so it must not be httpOnly.
+//
+// Appends directly instead of response.cookies.set(): that API rewrites
+// set-cookie from a snapshot taken at response construction, which erases
+// iron-session's cookie (appended straight to headers).
+const setAuthCookie = (response: NextResponse, isAuthenticated: boolean): void => {
+  const attributes = [`${SENTRY_AUTH_COOKIE_NAME}=${authTagForSession(isAuthenticated)}`, 'Path=/', 'SameSite=Strict'];
+  if (process.env.NODE_ENV === 'production') {
+    attributes.push('Secure');
+  }
+  response.headers.append('set-cookie', attributes.join('; '));
+};
+
+const setAuthTag = (isAuthenticated: boolean): void => {
+  Sentry.getIsolationScope().setTag(SENTRY_AUTH_TAG_NAME, authTagForSession(isAuthenticated));
+};
+
 // The whole auth/account surface is exempt from the node limiter: login,
 // register, forgotpassword, and the emailed verify/reset flows are all
 // low-volume, account-critical navigations we point rate-limited users to.
@@ -477,6 +496,8 @@ export async function middleware(req: NextRequest) {
   if (path === '/') {
     const session = await getIronSession(req, res, sessionConfig);
     await initSession(req, res, session);
+    setAuthCookie(res, session.isAuthenticated);
+    setAuthTag(session.isAuthenticated);
     log.info(
       {
         path,
@@ -500,6 +521,8 @@ export async function middleware(req: NextRequest) {
 
   const session = await getIronSession(req, res, sessionConfig);
   await initSession(req, res, session);
+  setAuthCookie(res, session.isAuthenticated);
+  setAuthTag(session.isAuthenticated);
 
   log.info(
     {
