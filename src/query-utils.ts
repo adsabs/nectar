@@ -1,5 +1,14 @@
-import { joinQueries, removeClauseAndStringify, splitQuery } from '@/query';
-import { defaultQueryParams } from '@/store/slices';
+import {
+  getOperator,
+  getTerms,
+  joinConditions,
+  joinQueries,
+  Operator,
+  removeClauseAndStringify,
+  splitQuery,
+} from '@/query';
+import { defaultQueryParams } from '@/store/slices/search';
+import { safeGetArray } from '@/components/SearchFacet/helpers';
 import {
   append,
   assoc,
@@ -47,16 +56,17 @@ const applyFQPrefix = (v: string) => `${FQPrefix}${v}`;
 const makeFQHeader = (name: string) => `{!type=aqp v=$${applyFQPrefix(name)}}`;
 const fQHeaderLens = lensProp<Query>('fq') as Lens<Query, string[]>;
 const fQPrefixedLens = (key: string) => lensProp<Query>(applyFQPrefix(key)) as Lens<Query, string>;
+// A lone fq round-trips through the URL as a string, not an array; ramda's
+// array ops would otherwise spread it into one element per character.
 const setFQHeader = curry((name: string, query: Query) =>
-  over(fQHeaderLens, pipe(append(makeFQHeader(name)), uniq), query),
+  over(fQHeaderLens, pipe(safeGetArray, append(makeFQHeader(name)), uniq), query),
 );
 
 const removeFQHeader = curry((key: string, query: Query): Query => {
   logger.debug({ msg: 'Removing FQ header from query', key, query });
   try {
     return pipe<[Query], Query, Query>(
-      // remove the header
-      over(fQHeaderLens, without([makeFQHeader(key)])),
+      over(fQHeaderLens, pipe(safeGetArray, without([makeFQHeader(key)]))),
 
       // if fq is now empty, remove the whole prop from the query
       when(propSatisfies(isEmptyArray, 'fq'), dissoc('fq')),
@@ -176,6 +186,50 @@ export const removeFQClause = (name: string, clause: string, query: Query) => {
   // return the query with the new FQ value applied
   return assoc(applyFQPrefix(name), newFQValue, query) as Query;
 };
+
+/**
+ * Removes a single term from within its AND-group in an FQ, keeping the
+ * group's own operator between the surviving terms. Used when a facet value
+ * split out into its own pill (e.g. one collection in an OR-joined
+ * `fq_database`) needs to be removed independently of its siblings.
+ */
+export const removeFQTerm = curry((name: string, term: string, query: Query): Query => {
+  const rawFQValue = getFQValue(name, query);
+
+  if (rawFQValue === '') {
+    return (removeFQHeader as (name: string, q: Query) => Query)(name, query);
+  }
+
+  const fieldMatch = /^([a-z_0-9]+):/i.exec(term);
+  const field = fieldMatch ? fieldMatch[1] : '';
+  const bareTerm = fieldMatch ? term.slice(fieldMatch[0].length) : term;
+
+  // Every rebuilt group must stay parenthesized: getClauses only recognizes
+  // a parenthesized group, so an unwrapped one parses back to zero pills
+  // while the filter itself stays applied.
+  const survivingGroups = splitQuery(rawFQValue, { stripField: false })
+    .map((clause) => ({
+      operator: getOperator(clause) as Operator,
+      terms: getTerms(clause).filter((t) => t !== bareTerm),
+    }))
+    .filter((group) => group.terms.length > 0);
+
+  const newFQValue = survivingGroups
+    .map(({ operator, terms }) => {
+      const joined = joinConditions(
+        operator,
+        terms.map((t) => `${field}:${t}`),
+      );
+      return `(${joined})`;
+    })
+    .join(' AND ');
+
+  if (newFQValue === '') {
+    return removeFQ(name, query);
+  }
+
+  return assoc(applyFQPrefix(name), newFQValue, query) as Query;
+});
 
 const QuerySchema = z
   .object({

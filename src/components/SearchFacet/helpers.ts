@@ -45,7 +45,10 @@ const DEFAULT_DELIMETER = '/';
 // helpers
 const isNotOperator = (op: Operator) => always(op === 'NOT');
 const nonEmptyString = both(is(String), complement(isEmpty));
-const safeGetArray = (val: string | string[]) => (Array.isArray(val) ? val : typeof val === 'string' ? of(val) : []);
+// A single fq/fq_* URL param parses as a bare string rather than an array;
+// normalize before treating a value as a list.
+export const safeGetArray = (val: string | string[]) =>
+  Array.isArray(val) ? val : typeof val === 'string' ? of(val) : [];
 const parseIntOrZero = pipe<[string], number, number>(partialRight(parseInt, [10]), defaultTo(0));
 export const isRootNode = (node: string) => /^(?![1-9]\/)/.test(node);
 
@@ -196,7 +199,11 @@ export const applyFiltersToQuery = (
   )(query);
 };
 
-export type FilterTuple = [string, string[], string[], string | undefined];
+/**
+ * [label, clean clauses, raw clauses, key alias, per-pill operator,
+ * per-pill isTermLevel]. All six entries are index-aligned by pill.
+ */
+export type FilterTuple = [string, string[], string[], string | undefined, Array<string | undefined>, boolean[]];
 
 const pickByFqs = (query: IADSApiSearchParams): Partial<IADSApiSearchParams> =>
   pickBy((_, k) => String(k).startsWith('fq_'), query);
@@ -227,26 +234,70 @@ const getKeyAlias = (key: string): string | undefined => {
   switch (key) {
     case 'fq_aff':
       return 'inst';
+    case 'fq_database':
+      return 'collection';
     default:
       return undefined;
   }
 };
 
-/**
- * Extracts the filter values from the query string.
- *
- * Returns a 3-tuple of values that can be used to generate the facet filters components
- */
-export const getFilters = (query: IADSApiSearchParams): FilterTuple[] =>
+// Splits an OR-joined fq_database clause into one pill per collection term.
+const splitDatabaseFilterTuple = (
+  key: string,
+  cleanClauses: string[],
+  rawClauses: string[],
+  isAdsCompat: boolean,
+): [string[], string[], Array<string | undefined>, boolean[]] => {
+  if (key !== 'fq_database' || !isAdsCompat) {
+    const noOperators: Array<string | undefined> = cleanClauses.map((): undefined => undefined);
+    const noSplit: boolean[] = cleanClauses.map((): boolean => false);
+    return [cleanClauses, rawClauses, noOperators, noSplit];
+  }
+
+  const field = transformFqKey(key);
+  const splitClean: string[] = [];
+  const splitRaw: string[] = [];
+  const splitOperators: Array<string | undefined> = [];
+  const splitIsTerm: boolean[] = [];
+
+  rawClauses.forEach((rawClause, index) => {
+    const terms = getTerms(rawClause);
+    const operator = getOperator(rawClause);
+    if (terms.length <= 1 || operator !== 'OR') {
+      splitClean.push(cleanClauses[index]);
+      splitRaw.push(rawClause);
+      splitOperators.push(undefined);
+      splitIsTerm.push(false);
+      return;
+    }
+
+    terms.forEach((term, termIndex) => {
+      splitClean.push(replace(/["\\]/g, '', term));
+      splitRaw.push(`${field}:${term}`);
+      splitOperators.push(termIndex < terms.length - 1 ? operator : undefined);
+      splitIsTerm.push(true);
+    });
+  });
+
+  return [splitClean, splitRaw, splitOperators, splitIsTerm];
+};
+
+export const getFilters = (query: IADSApiSearchParams, opts: { isAdsCompat?: boolean } = {}): FilterTuple[] =>
   pipe<[IADSApiSearchParams], Partial<IADSApiSearchParams>, [string, string][], FilterTuple[]>(
     pickByFqs,
     toPairs,
-    map<[string, string], FilterTuple>(([k, v]) => [
-      transformFqKey(k),
-      pipe<[string], string[], string[]>(splitQuery, map(cleanClause(k)))(v),
-      splitQuery(v, { stripField: false }),
-      getKeyAlias(k),
-    ]),
+    map<[string, string], FilterTuple>(([k, v]) => {
+      const cleanClauses = pipe<[string], string[], string[]>(splitQuery, map(cleanClause(k)))(v);
+      const rawClauses = splitQuery(v, { stripField: false });
+      const [splitClean, splitRaw, operators, isTermLevel] = splitDatabaseFilterTuple(
+        k,
+        cleanClauses,
+        rawClauses,
+        opts.isAdsCompat ?? false,
+      );
+
+      return [transformFqKey(k), splitClean, splitRaw, getKeyAlias(k), operators, isTermLevel];
+    }),
   )(query);
 
 /**
