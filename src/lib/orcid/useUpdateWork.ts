@@ -6,7 +6,7 @@ import { OrcidHookOptions, OrcidMutationOptions } from '@/lib/orcid/types';
 import { IOrcidProfileEntry } from '@/api/orcid/types/orcid-profile';
 import { isOrcidProfileEntry } from '@/api/orcid/models';
 import { parseAPIError } from '@/utils/common/parseAPIError';
-import { useSearch } from '@/api/search/search';
+import { SEARCH_NAMESPACES, useSearch } from '@/api/search/search';
 import { useOrcidUpdateWork } from '@/api/orcid/orcid';
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;
@@ -41,6 +41,7 @@ export const useUpdateWork = (
       rows: 1,
     },
     {
+      namespace: SEARCH_NAMESPACES.orcidUpdateWork,
       enabled: isOrcidProfileEntry(work),
     },
   );

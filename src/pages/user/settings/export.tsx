@@ -23,7 +23,7 @@ import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IADSApiUserDataResponse, UserDataKeys } from '@/api/user/types';
 import { UserDataSetterEvent } from '@/components/Settings/Export/types';
 import { getSearchParams } from '@/api/search/models';
-import { fetchSearch, searchKeys, useSearch } from '@/api/search/search';
+import { fetchSearch, SEARCH_NAMESPACES, searchKeys, useSearch } from '@/api/search/search';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { fetchUserSettings, userKeys } from '@/api/user/user';
 import { useExportFormats } from '@/lib/useExportFormats';
@@ -181,7 +181,10 @@ const ExportSettings = ({ onTabChange }: { onTabChange: (index: number) => void 
 
   // fetch the sample bibcode
   const sampleBibParams = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });
-  const { data } = useSearch(sampleBibParams, { suspense: true });
+  const { data } = useSearch(sampleBibParams, {
+    namespace: SEARCH_NAMESPACES.settingsExportSample,
+    suspense: true,
+  });
   const sampleBib = pathOr<string>(null, ['docs', '0', 'bibcode'], data);
 
   return (
@@ -217,8 +220,10 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async () =
     const params = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });
     const queryClient = new QueryClient();
     await queryClient.prefetchQuery({
-      queryKey: searchKeys.primary(params),
-      queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams)),
+      queryKey: searchKeys.primary(params, SEARCH_NAMESPACES.settingsExportSample),
+      queryHash: JSON.stringify(
+        searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams, SEARCH_NAMESPACES.settingsExportSample),
+      ),
       queryFn: fetchSearch,
       meta: { params },
     });

@@ -21,7 +21,7 @@ import { useColorModeColors } from '@/lib/useColorModeColors';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { LibraryIdentifier } from '@/api/biblib/types';
 import { useAddAnnotation, useDeleteAnnotation, useUpdateAnnotation } from '@/api/biblib/libraries';
-import { useGetAbstractPreview } from '@/api/search/search';
+import { SEARCH_NAMESPACES, useGetAbstractPreview } from '@/api/search/search';
 
 export const ItemAnnotation = ({
   library,
@@ -260,7 +260,10 @@ const Annotation = ({
 };
 
 const Abstract = ({ bibcode }: { bibcode: string }) => {
-  const { data, isFetching, error } = useGetAbstractPreview({ bibcode });
+  const { data, isFetching, error } = useGetAbstractPreview(
+    { bibcode },
+    { namespace: SEARCH_NAMESPACES.librariesItemPreview },
+  );
 
   return (
     <>

@@ -182,6 +182,53 @@ describe('createAbsGetServerSideProps', () => {
     );
   });
 
+  test('tags the canonical lookup with the abs route for the view being rendered', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ response: { docs: [{ bibcode: 'BIB' }] } }),
+    });
+
+    const ctx = buildCtx({ id: 'BIB', resolvedUrl: '/abs/BIB/citations' });
+    await createAbsGetServerSideProps('citations')(ctx);
+
+    const tag = new URL(String(fetchMock.mock.calls[0][0])).searchParams.get('ui_tag');
+    expect(tag).toEqual('search/abstract');
+  });
+
+  test('tags the DOI hash-fallback retry as well as the first lookup', async () => {
+    fetchMock
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ response: { docs: [] as Array<{ bibcode: string }> } }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ response: { docs: [{ bibcode: 'BIB' }] } }) });
+
+    const id = '10.1002/1521-3994(199908)320:4/5<163::AID-ASNA163>3.0.CO;2-';
+    await createAbsGetServerSideProps('abstract')(buildCtx({ id, resolvedUrl: `/abs/${id}/abstract` }));
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const tags = fetchMock.mock.calls.map((call) => new URL(String(call[0])).searchParams.get('ui_tag'));
+    expect(tags).toEqual(['search/abstract', 'search/abstract']);
+  });
+
+  test('tags a dynamic view with the same literal as a static one', async () => {
+    // ctx.params.format is a raw URL segment and must never reach the tag.
+    const resolver = (ctx: GetServerSidePropsContext) =>
+      `exportcitation/${encodeURIComponent(String(ctx.params?.format))}`;
+
+    const tagFor = async (format: string) => {
+      fetchMock.mockReset();
+      fetchMock.mockResolvedValue({
+        ok: true,
+        json: async () => ({ response: { docs: [{ bibcode: 'BIB' }] } }),
+      });
+      const ctx = buildCtx({ id: 'BIB', resolvedUrl: `/abs/BIB/exportcitation/${format}` });
+      (ctx.params as Record<string, string>).format = format;
+      await createAbsGetServerSideProps(resolver)(ctx);
+      return new URL(String(fetchMock.mock.calls[0][0])).searchParams.get('ui_tag');
+    };
+
+    expect(await tagFor('bibtex')).toEqual('search/abstract');
+    expect(await tagFor('%3Cgarbage%3E')).toEqual('search/abstract');
+  });
+
   test('does not redirect when no docs are returned', async () => {
     fetchMock.mockResolvedValue({
       ok: true,

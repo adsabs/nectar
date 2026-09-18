@@ -20,6 +20,7 @@ import {
   IADSVaultExecuteQueryParams,
 } from './types';
 import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@/api/search/types';
+import { UI_TAGS } from '@/api/search/ui-tags';
 import { ADSMutation, ADSQuery } from '@/api/types';
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
@@ -110,6 +111,8 @@ export const fetchVaultExecuteQuery: QueryFunction<IADSApiSearchResponse['respon
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.MYADS_STORAGE}/execute_query/${params.qid}`,
+    // qid hashes on q/fq only, so adding ui_tag here is safe.
+    params: { ui_tag: UI_TAGS.vaultExecuteQuery },
   };
 
   const { data } = await api.request<IADSApiSearchResponse['response']>(config);
