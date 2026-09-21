@@ -15,12 +15,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: 'lcov',
-      // Vitest 3's v8 defaults changed the measurement basis vs 0.34. Restore the
-      // prior basis so reported numbers stay comparable across the upgrade:
-      //   all:false            -> only test-touched files (v3 default is the whole repo)
-      //   ignoreEmptyLines:false -> count blank/comment lines (v3 default drops them)
+      // Report only test-touched files; the default is the whole repo.
       all: false,
-      ignoreEmptyLines: false,
     },
   },
 });
