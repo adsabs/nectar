@@ -1,0 +1,31 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+
+    # Version updates stay off. This block exists so the security-update groups
+    # below have somewhere to live; security PRs are exempt from this limit.
+    open-pull-requests-limit: 0
+
+    commit-message:
+      prefix: chore(deps)
+      prefix-development: chore(deps-dev)
+      include: scope
+
+    # Ungrouped security PRs each rewrite pnpm-lock.yaml, so any two of them
+    # conflict and have to be rebased one at a time. Runtime stays separate
+    # from development so a production fix is never queued behind test tooling.
+    groups:
+      production-security:
+        applies-to: security-updates
+        dependency-type: production
+        patterns:
+          - '*'
+      development-security:
+        applies-to: security-updates
+        dependency-type: development
+        patterns:
+          - '*'
