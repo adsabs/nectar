@@ -1,7 +1,7 @@
 import { rest } from 'msw';
 
 import qs from 'qs';
-import faker from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { generateFacetResponse } from '@/mocks/generators/facets';
 import { clamp, map, range } from 'ramda';
 import { api, apiHandlerRoute, highlights_mocks, ids_mocks, ranRange } from '@/mocks/mockHelpers';
@@ -15,11 +15,11 @@ export const searchHandlers = [
 
     if (typeof params.cursorMark === 'string') {
       const rows = parseInt(params.rows as string, 10) ?? 10;
-      const numFound = faker.datatype.number({ min: 1, max: 10000 });
+      const numFound = faker.number.int({ min: 1, max: 10000 });
       return res(
         ctx.status(200),
         ctx.json<IADSApiSearchResponse>({
-          nextCursorMark: faker.random.alphaNumeric(18),
+          nextCursorMark: faker.string.alphanumeric(18),
           response: {
             numFound,
             docs: map(() => ({
@@ -68,7 +68,7 @@ export const searchHandlers = [
     }
 
     const rows = parseInt(params.rows as string, 10) ?? 10;
-    const numFound = faker.datatype.number({ min: 1, max: 10000 });
+    const numFound = faker.number.int({ min: 1, max: 10000 });
 
     const match = (params.q as string).includes('identifier:(')
       ? /identifier:\((.*?)\)/g.exec(params.q as string)
@@ -77,8 +77,8 @@ export const searchHandlers = [
 
     const docs = map((i) => {
       const authorCount = ranRange(limitAuthors > 0 ? limitAuthors + 1 : 0, 1000);
-      const citationCount = faker.datatype.number({ min: 0, max: 10000 });
-      const referenceCount = faker.datatype.number({ min: 0, max: 10000 });
+      const citationCount = faker.number.int({ min: 0, max: 10000 });
+      const referenceCount = faker.number.int({ min: 0, max: 10000 });
       const bibcode = ids.length > 0 ? ids.pop() : api.bibcode();
       return {
         bibcode,
@@ -117,7 +117,7 @@ export const searchHandlers = [
   rest.post<string>(apiHandlerRoute(ApiTargets.BIGQUERY), async (req, res, ctx) => {
     const bibcodes = req.body;
     const rows = Number(new URL(req.url).searchParams.get('rows'));
-    const authors = range(0, 5).map(() => `${faker.name.lastName()}, ${faker.random.alpha(1)}.`);
+    const authors = range(0, 5).map(() => `${faker.person.lastName()}, ${faker.string.alpha(1)}.`);
     const results = bibcodes
       .split('\n')
       .slice(1)
@@ -125,19 +125,19 @@ export const searchHandlers = [
         bibcode: b,
         author: authors,
         author_count: authors.length,
-        bibstem: [faker.random.alphaNumeric(5)],
-        id: faker.random.alphaNumeric(5),
-        identifier: [faker.random.alphaNumeric(10)],
+        bibstem: [faker.string.alphanumeric(5)],
+        id: faker.string.alphanumeric(5),
+        identifier: [faker.string.alphanumeric(10)],
         pub: faker.lorem.words(3),
         pubdate: '2019-03-00',
         title: [faker.lorem.sentence(5)],
         esources: ['PUB_PDF'],
         property: ['ESOURCE', 'NONARTICLE', 'NOT REFEREED', 'OPENACCESS', 'PUB_OPENACCESS', 'TOC'],
-        citation_count: faker.datatype.number(100),
+        citation_count: faker.number.int(100),
         citation_count_norm: 0.0,
         '[citations]': {
-          num_references: faker.datatype.number(100),
-          num_citations: faker.datatype.number(100),
+          num_references: faker.number.int(100),
+          num_citations: faker.number.int(100),
         },
       }));
 

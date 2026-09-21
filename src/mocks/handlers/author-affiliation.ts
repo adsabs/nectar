@@ -3,7 +3,7 @@ import { rest } from 'msw';
 import { IAuthorAffiliationExportPayload, IAuthorAffiliationResponse } from '@/api/author-affiliation/types';
 import { flatten, range } from 'ramda';
 import { apiHandlerRoute, authorAffData } from '@/mocks/mockHelpers';
-import faker from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { ApiTargets } from '@/api/models';
 
 export const authorAffiliationHandlers = [
@@ -11,7 +11,7 @@ export const authorAffiliationHandlers = [
     return res(
       ctx.status(200),
       ctx.json<IAuthorAffiliationResponse>({
-        data: [...flatten(range(0, 10).map(() => authorAffData(faker.datatype.number({ min: 1, max: 3 }))))],
+        data: [...flatten(range(0, 10).map(() => authorAffData(faker.number.int({ min: 1, max: 3 }))))],
       }),
     );
   }),

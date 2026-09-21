@@ -8,33 +8,33 @@ faker.seed(Date.now());
 
 // fake api data generators
 export const api = {
-  bibcode: () => faker.random.alphaNumeric(18),
-  author: () => `${faker.name.lastName()}, ${faker.name.lastName()}`,
-  bibstem: () => faker.random.alphaNumeric(6),
+  bibcode: () => faker.string.alphanumeric(18),
+  author: () => `${faker.person.lastName()}, ${faker.person.lastName()}`,
+  bibstem: () => faker.string.alphanumeric(6),
   pubdate: () => {
-    const date = faker.date.between('2000', '2020');
+    const date = faker.date.between({ from: '2000-01-01T00:00:00.000Z', to: '2020-01-01T00:00:00.000Z' });
     return `${date.getFullYear()}-${date.getMonth()}-00`;
   },
-  title: () => faker.lorem.sentence(10, 40),
+  title: () => faker.lorem.sentence({ min: 10, max: 40 }),
   esources: (): Esources[] => {
     const keys = Object.keys(Esources);
-    const max = faker.datatype.number(keys.length);
-    return slice(faker.datatype.number({ min: 0, max }), max, keys as Esources[]);
+    const max = faker.number.int(keys.length);
+    return slice(faker.number.int({ min: 0, max }), max, keys as Esources[]);
   },
   property: () => ['ARTICLE', 'ESOURCE', 'REFEREED'],
   orcidPub: () => (faker.datatype.boolean() ? `0000-0000-0000-0000` : '-'),
   aff: () =>
-    `${faker.company.companyName()}, ${faker.address.zipCode()}, ${faker.address.city()}, ${faker.address.country()}`,
-  abstract: () => faker.lorem.paragraphs(faker.datatype.number({ min: 1, max: 5 })),
-  putcode: () => faker.datatype.number({ min: 100000, max: 999999 }),
+    `${faker.company.name()}, ${faker.location.zipCode()}, ${faker.location.city()}, ${faker.location.country()}`,
+  abstract: () => faker.lorem.paragraphs(faker.number.int({ min: 1, max: 5 })),
+  putcode: () => faker.number.int({ min: 100000, max: 999999 }),
 };
 
 // create random sized array of number
 export const ranRange = (min: number, max: number) => {
-  return range(min, faker.datatype.number({ min, max }));
+  return range(min, faker.number.int({ min, max }));
 };
 
-export const ids_mocks = range(0, 10).map(() => faker.random.alphaNumeric(8));
+export const ids_mocks = range(0, 10).map(() => faker.string.alphanumeric(8));
 
 export const highlights_mocks: IADSApiSearchResponse['highlighting'] = {
   [ids_mocks[0]]: {
@@ -74,9 +74,11 @@ export const authorAffData = (count = 1) => {
       ({
         authorName,
         affiliations: {
-          name: faker.helpers.randomize([api.aff(), '-']),
+          name: faker.helpers.arrayElement([api.aff(), '-']),
           years: [
-            ...range(0, faker.datatype.number({ min: 0, max: 10 })).map(() => `${faker.date.past(20).getFullYear()}`),
+            ...range(0, faker.number.int({ min: 0, max: 10 })).map(
+              () => `${faker.date.past({ years: 20 }).getFullYear()}`,
+            ),
           ],
           lastActiveDate: api.pubdate(),
         },
