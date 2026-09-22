@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { renderHook } from '@/test-utils';
 import { AppState, useStore } from '@/store';
 import { useOrcid, useOrcidExpiryWatcher } from './useOrcid';
-import { orcidKeys } from '@/api/orcid/orcid';
 import { ORCID_MODE_TIMEOUT } from '@/config';
 
 const mocks = vi.hoisted(() => ({
@@ -219,7 +218,7 @@ describe('useOrcid — profile error toasts', () => {
     expect(mocks.toast).toHaveBeenCalledTimes(1);
   });
 
-  test('drops the cached profile error once the query is disabled', () => {
+  test('does not evict the shared profile query when mode is turned off', () => {
     const removeQueries = vi.spyOn(QueryClient.prototype, 'removeQueries');
     profileResult.current = {
       data: null,
@@ -230,9 +229,7 @@ describe('useOrcid — profile error toasts', () => {
 
     renderOrcid(false);
 
-    expect(removeQueries).toHaveBeenCalledWith({
-      queryKey: orcidKeys.profile({ user: VALID_ORCID_USER, full: true, update: true }),
-    });
+    expect(removeQueries).not.toHaveBeenCalled();
     removeQueries.mockRestore();
   });
 
