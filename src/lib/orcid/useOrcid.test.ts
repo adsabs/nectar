@@ -1,8 +1,10 @@
 import { act } from '@testing-library/react';
+import { QueryClient } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { renderHook } from '@/test-utils';
 import { AppState, useStore } from '@/store';
 import { useOrcid, useOrcidExpiryWatcher } from './useOrcid';
+import { orcidKeys } from '@/api/orcid/orcid';
 import { ORCID_MODE_TIMEOUT } from '@/config';
 
 const mocks = vi.hoisted(() => ({
@@ -24,6 +26,39 @@ vi.mock('@chakra-ui/react', async () => {
   return {
     ...actual,
     useToast: () => mocks.toast,
+  };
+});
+
+type MockQueryResult = {
+  data: unknown;
+  error: unknown;
+  isFetchedAfterMount: boolean;
+  isLoading: boolean;
+};
+
+const IDLE_RESULT: MockQueryResult = {
+  data: null,
+  error: null,
+  isFetchedAfterMount: false,
+  isLoading: false,
+};
+
+const profileResult = { current: IDLE_RESULT };
+const nameCalls: Array<{ enabled: boolean }> = [];
+const profileCalls: Array<{ enabled: boolean }> = [];
+
+vi.mock('@/api/orcid/orcid', async () => {
+  const actual = await vi.importActual<typeof import('@/api/orcid/orcid')>('@/api/orcid/orcid');
+  return {
+    ...actual,
+    useOrcidGetName: (_params: unknown, options: { enabled: boolean }) => {
+      nameCalls.push(options);
+      return IDLE_RESULT;
+    },
+    useOrcidGetProfile: (_params: unknown, options: { enabled: boolean }) => {
+      profileCalls.push(options);
+      return profileResult.current;
+    },
   };
 });
 
@@ -126,5 +161,85 @@ describe('useOrcidExpiryWatcher', () => {
 
     expect(result.current.active).toBe(false);
     expect(mocks.toast).not.toHaveBeenCalled();
+  });
+});
+
+const VALID_ORCID_USER = {
+  access_token: 'token',
+  expires_in: 3600,
+  name: 'Smith, J',
+  orcid: '0000-0001-2345-6789',
+  refresh_token: 'refresh',
+  scope: '/read-limited',
+  token_type: 'bearer',
+};
+
+const serverError = { isAxiosError: true, response: { status: 500 } };
+
+const renderOrcid = (active = true) =>
+  renderHook(() => useOrcid(), {
+    initialStore: {
+      orcid: { active, isAuthenticated: true, user: VALID_ORCID_USER, lastActivityAt: Date.now() },
+    },
+  });
+
+describe('useOrcid — profile error toasts', () => {
+  beforeEach(() => {
+    mocks.toast.mockClear();
+    mocks.toast.isActive.mockClear();
+    nameCalls.length = 0;
+    profileCalls.length = 0;
+    profileResult.current = IDLE_RESULT;
+  });
+
+  test('does not toast a cached profile error that predates this mount', () => {
+    profileResult.current = {
+      data: null,
+      error: serverError,
+      isFetchedAfterMount: false,
+      isLoading: false,
+    };
+
+    renderOrcid();
+
+    expect(mocks.toast).not.toHaveBeenCalled();
+  });
+
+  test('toasts a profile error that happens while mounted', () => {
+    const { rerender } = renderOrcid();
+
+    profileResult.current = {
+      data: null,
+      error: serverError,
+      isFetchedAfterMount: true,
+      isLoading: false,
+    };
+    rerender();
+
+    expect(mocks.toast).toHaveBeenCalledTimes(1);
+  });
+
+  test('drops the cached profile error once the query is disabled', () => {
+    const removeQueries = vi.spyOn(QueryClient.prototype, 'removeQueries');
+    profileResult.current = {
+      data: null,
+      error: serverError,
+      isFetchedAfterMount: true,
+      isLoading: false,
+    };
+
+    renderOrcid(false);
+
+    expect(removeQueries).toHaveBeenCalledWith({
+      queryKey: orcidKeys.profile({ user: VALID_ORCID_USER, full: true, update: true }),
+    });
+    removeQueries.mockRestore();
+  });
+
+  test('does not query the ORCiD profile while ORCiD mode is off', () => {
+    renderOrcid(false);
+
+    expect(profileCalls.every((call) => call.enabled === false)).toBe(true);
+    expect(nameCalls.every((call) => call.enabled === false)).toBe(true);
   });
 });
