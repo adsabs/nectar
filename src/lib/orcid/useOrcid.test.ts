@@ -218,6 +218,23 @@ describe('useOrcid — profile error toasts', () => {
     expect(mocks.toast).toHaveBeenCalledTimes(1);
   });
 
+  // useWork shares the profile key and stays enabled while mode is off, so its
+  // fetches flip isFetchedAfterMount on this hook's disabled observer too.
+  test('does not toast a fresh profile error while ORCiD mode is off', () => {
+    profileResult.current = {
+      data: null,
+      error: serverError,
+      isFetchedAfterMount: true,
+      isLoading: false,
+    };
+
+    renderOrcid(false);
+
+    expect(mocks.toast).not.toHaveBeenCalled();
+  });
+
+  // Guards against re-introducing the eviction approach, which looped: the key
+  // is shared, so removing it made the still-enabled observers refetch.
   test('does not evict the shared profile query when mode is turned off', () => {
     const removeQueries = vi.spyOn(QueryClient.prototype, 'removeQueries');
     profileResult.current = {
