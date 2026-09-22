@@ -3,11 +3,12 @@ import { useIsClient } from '@/lib/useIsClient';
 import { ORCID_LOGIN_URL, ORCID_MODE_TIMEOUT } from '@/config';
 import { useRouter } from 'next/router';
 import { isValidIOrcidUser } from '@/api/orcid/models';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { useToast } from '@chakra-ui/react';
 import { parseAPIError } from '@/utils/common/parseAPIError';
-import { useOrcidGetName, useOrcidGetProfile } from '@/api/orcid/orcid';
+import { orcidKeys, useOrcidGetName, useOrcidGetProfile } from '@/api/orcid/orcid';
+import { useQueryClient } from '@tanstack/react-query';
 
 const setOrcidModeSelector = (state: AppState) => state.setOrcidMode;
 const activeSelector = (state: AppState) => state.orcid.active;
@@ -30,19 +31,29 @@ export const useOrcid = () => {
   const toast = useToast({ id: 'orcid' });
   const hasShownSessionExpired = useRef(false);
 
+  const queryClient = useQueryClient();
+
+  const isOrcidQueryEnabled = active && isAuthenticated && isValidIOrcidUser(user);
+  const profileParams = useMemo(() => ({ user, full: true, update: true }), [user]);
+
   const { data: name, ...nameState } = useOrcidGetName(
     { user },
     {
-      enabled: isAuthenticated && isValidIOrcidUser(user),
+      enabled: isOrcidQueryEnabled,
     },
   );
 
-  const { data: profile, ...profileState } = useOrcidGetProfile(
-    { user, full: true, update: true },
-    {
-      enabled: isAuthenticated && isValidIOrcidUser(user),
-    },
-  );
+  const { data: profile, ...profileState } = useOrcidGetProfile(profileParams, {
+    enabled: isOrcidQueryEnabled,
+  });
+
+  // staleTime: Infinity keeps a failed profile cached forever; evict only
+  // once disabled, or eviction while enabled just refires the request.
+  useEffect(() => {
+    if (!isOrcidQueryEnabled && profileState.error) {
+      queryClient.removeQueries({ queryKey: orcidKeys.profile(profileParams) });
+    }
+  }, [isOrcidQueryEnabled, profileState.error, profileParams, queryClient]);
 
   useEffect(() => {
     if (nameState.error) {
@@ -51,19 +62,16 @@ export const useOrcid = () => {
     if (profileState.error) {
       setError(parseAPIError(profileState.error));
 
-      // handle ORCiD session expired or ORCiD error
-      if (axios.isAxiosError(profileState.error)) {
+      // Cached errors replay on every mount; react only to this mount's fetch.
+      if (profileState.isFetchedAfterMount && axios.isAxiosError(profileState.error)) {
         if (profileState.error.response?.status === 401) {
-          // Show session expired warning only once
           if (!hasShownSessionExpired.current) {
             setNotification('orcid-session-expired');
             hasShownSessionExpired.current = true;
           }
           logout();
         }
-        // TODO: figure out why this runs even when orcid mode is off
         if (profileState.error.response?.status >= 500) {
-          // prevent duplicate toasts
           if (toast.isActive('orcid')) {
             return;
           }
@@ -73,7 +81,6 @@ export const useOrcid = () => {
             description: 'There was an error retrieving your ORCiD profile. Please try again later.',
           });
 
-          // toggle orcid mode off
           toggleOrcidMode(false);
         }
       }
@@ -81,9 +88,8 @@ export const useOrcid = () => {
     if (!nameState.error && !profileState.error) {
       setError(null);
     }
-  }, [nameState.error, profileState.error]);
+  }, [nameState.error, profileState.error, profileState.isFetchedAfterMount]);
 
-  // Reset the session expired flag when user authenticates again
   useEffect(() => {
     if (isAuthenticated) {
       hasShownSessionExpired.current = false;
