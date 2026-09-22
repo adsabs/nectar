@@ -46,10 +46,12 @@ export const useOrcid = () => {
     },
   );
 
-  // The profile key is shared with useWork/useOrcidProfile, which stay enabled
-  // while mode is off — evicting it here would just make them refetch. Ignoring
-  // the cached error is enough; re-enabling mode serves it without a request,
-  // so isFetchedAfterMount stays false and nothing re-toasts.
+  // The profile key is shared with useWork/useOrcidProfile, so evicting a
+  // failed query here would just make them refetch it. Ignore the cached error
+  // instead: an errored query with retryOnMount: false never fetches on mount,
+  // so isFetchedAfterMount stays false and a remount is silent. Re-enabling
+  // mode does retry — an error-only cache has no dataUpdatedAt, which makes it
+  // stale regardless of staleTime.
   const nameError = nameState.isFetchedAfterMount ? nameState.error : null;
   const profileError = profileState.isFetchedAfterMount ? profileState.error : null;
 
@@ -60,7 +62,9 @@ export const useOrcid = () => {
     if (profileError) {
       setError(parseAPIError(profileError));
 
-      if (axios.isAxiosError(profileError)) {
+      // isFetchedAfterMount counts any fetch on the shared profile key, so a
+      // useWork observer can surface a fresh error here while mode is off.
+      if (active && axios.isAxiosError(profileError)) {
         if (profileError.response?.status === 401) {
           if (!hasShownSessionExpired.current) {
             setNotification('orcid-session-expired');
@@ -85,7 +89,7 @@ export const useOrcid = () => {
     if (!nameError && !profileError) {
       setError(null);
     }
-  }, [nameError, profileError]);
+  }, [active, nameError, profileError]);
 
   useEffect(() => {
     if (isAuthenticated) {
