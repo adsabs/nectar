@@ -1,5 +1,6 @@
 import { IADSApiSearchParams } from '@/api/search/types';
 import * as query from '@/query-utils';
+import { getFilters } from '@/components/SearchFacet/helpers';
 import { defaultQueryParams } from '@/store/slices';
 import { describe, expect, test } from 'vitest';
 
@@ -114,5 +115,104 @@ describe('removeFQ', () => {
       fq_foo: '(A)',
     });
     expect(query.removeFQ('foo', q)).toEqual({ q: '' });
+  });
+});
+
+describe('removeFQTerm()', () => {
+  const dbQuery = (value: string): IADSApiSearchParams => ({
+    ...defaultQueryParams,
+    q: 'star',
+    fq: ['{!type=aqp v=$fq_database}'],
+    fq_database: value,
+  });
+
+  test('removes a single term and keeps the surviving terms OR-joined', () => {
+    const result = query.removeFQTerm(
+      'database',
+      'database:"physics"',
+      dbQuery('(database:"astronomy" OR database:"physics" OR database:"earthscience")'),
+    );
+    expect(query.getFQValue('database', result)).toBe('(database:"astronomy" OR database:"earthscience")');
+  });
+
+  test('drops the fq key and its header when the last term is removed', () => {
+    const result = query.removeFQTerm('database', 'database:"astronomy"', dbQuery('(database:"astronomy")'));
+    expect(result).not.toHaveProperty('fq_database');
+    expect(result).not.toHaveProperty('fq');
+  });
+
+  test('leaves other fq keys untouched', () => {
+    const withAuthor: IADSApiSearchParams = {
+      ...dbQuery('(database:"astronomy" OR database:"physics")'),
+      fq: ['{!type=aqp v=$fq_database}', '{!type=aqp v=$fq_author}'],
+      fq_author: '(author:"Smith")',
+    };
+    const result = query.removeFQTerm('database', 'database:"astronomy"', withAuthor);
+    expect(query.getFQValue('author', result)).toBe('(author:"Smith")');
+    expect(result.fq).toContain('{!type=aqp v=$fq_author}');
+  });
+
+  test('wraps a surviving OR group in parens when AND-joined with another group', () => {
+    const multiGroup = dbQuery(
+      '(database:"astronomy" OR database:"physics" OR database:"general") AND (database:"refereed")',
+    );
+    const result = query.removeFQTerm('database', 'database:"general"', multiGroup);
+    expect(query.getFQValue('database', result)).toBe(
+      '(database:"astronomy" OR database:"physics") AND (database:"refereed")',
+    );
+  });
+});
+
+describe('fq arriving as a single string', () => {
+  const singleStringFq = {
+    ...defaultQueryParams,
+    q: 'star',
+    fq: '{!type=aqp v=$fq_database}',
+    fq_database: '(database:"astronomy")',
+  } as unknown as IADSApiSearchParams;
+
+  test('removeFQTerm drops fq entirely when the last term goes', () => {
+    const result = query.removeFQTerm('database', 'database:"astronomy"', singleStringFq);
+    expect(result).not.toHaveProperty('fq_database');
+    expect(result).not.toHaveProperty('fq');
+  });
+
+  test('removeFQ drops fq entirely rather than shredding it into characters', () => {
+    const result = query.removeFQ('database', singleStringFq);
+    expect(result).not.toHaveProperty('fq_database');
+    expect(result).not.toHaveProperty('fq');
+  });
+});
+
+// removeFQTerm's output is fed straight back into the pill pipeline on the next
+// render, so the value it writes has to survive getFilters' parser.
+describe('removeFQTerm output round-trips through getFilters', () => {
+  const pillLabels = (fqDatabase: string) =>
+    getFilters({ fq_database: fqDatabase } as IADSApiSearchParams, { isAdsCompat: true })[0][1];
+
+  test('surviving collections still render as pills after a removal', () => {
+    const threeCollections = {
+      ...defaultQueryParams,
+      q: 'star',
+      fq: ['{!type=aqp v=$fq_database}'],
+      fq_database: '(database:"astronomy" OR database:"physics" OR database:"earthscience")',
+    } as IADSApiSearchParams;
+
+    const result = query.removeFQTerm('database', 'database:"earthscience"', threeCollections);
+
+    expect(pillLabels(query.getFQValue('database', result))).toEqual(['astronomy', 'physics']);
+  });
+
+  test('surviving groups still render as pills when one group empties', () => {
+    const twoGroups = {
+      ...defaultQueryParams,
+      q: 'star',
+      fq: ['{!type=aqp v=$fq_database}'],
+      fq_database: '(database:"astronomy" OR database:"physics") AND (database:"general")',
+    } as IADSApiSearchParams;
+
+    const result = query.removeFQTerm('database', 'database:"astronomy"', twoGroups);
+
+    expect(pillLabels(query.getFQValue('database', result))).toEqual(['physics', 'general']);
   });
 });
