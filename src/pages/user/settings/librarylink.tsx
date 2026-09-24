@@ -121,17 +121,16 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async () =
   const queryClient = new QueryClient();
 
   try {
-    // prefetch link servers
-    await queryClient.prefetchQuery({
-      queryKey: vaultKeys.libraryLinkServers(),
-      queryFn: fetchLibraryLinkServers,
-    });
-
-    // prefetch the user settings
-    await queryClient.prefetchQuery({
-      queryKey: userKeys.getUserSettings(),
-      queryFn: fetchUserSettings,
-    });
+    await Promise.all([
+      queryClient.prefetchQuery({
+        queryKey: vaultKeys.libraryLinkServers(),
+        queryFn: fetchLibraryLinkServers,
+      }),
+      queryClient.prefetchQuery({
+        queryKey: userKeys.getUserSettings(),
+        queryFn: fetchUserSettings,
+      }),
+    ]);
 
     return {
       props: {

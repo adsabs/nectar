@@ -92,7 +92,8 @@ type IncomingGSSP = (
 export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
   withIronSessionSsr(
     async (ctx: GetServerSidePropsContext): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
-      ctx.res.setHeader('Cache-Control', 's-max-age=60, stale-while-revalidate=300');
+      // dehydratedState carries the session token, so never shared-cache this
+      ctx.res.setHeader('Cache-Control', 'private, no-store');
       if (!fns.includes(updateUserStateSSR)) {
         fns.push(updateUserStateSSR);
       }
