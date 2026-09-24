@@ -41,6 +41,7 @@ const createProdQueryClient = () =>
         refetchOnMount: false,
         refetchOnReconnect: false,
         staleTime: Infinity,
+        cacheTime: 30 * 60 * 1000,
         retry: false,
         retryOnMount: false,
       },

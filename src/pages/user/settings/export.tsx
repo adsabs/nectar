@@ -216,22 +216,22 @@ const ExportSettings = ({ onTabChange }: { onTabChange: (index: number) => void 
 export default Page;
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async () => {
   try {
-    // get a sample doc
     const params = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery({
-      queryKey: searchKeys.primary(params, SEARCH_NAMESPACES.settingsExportSample),
-      queryHash: JSON.stringify(
-        searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams, SEARCH_NAMESPACES.settingsExportSample),
-      ),
-      queryFn: fetchSearch,
-      meta: { params },
-    });
-
-    await queryClient.prefetchQuery({
-      queryKey: userKeys.getUserSettings(),
-      queryFn: fetchUserSettings,
-    });
+    await Promise.all([
+      queryClient.prefetchQuery({
+        queryKey: searchKeys.primary(params, SEARCH_NAMESPACES.settingsExportSample),
+        queryHash: JSON.stringify(
+          searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams, SEARCH_NAMESPACES.settingsExportSample),
+        ),
+        queryFn: fetchSearch,
+        meta: { params },
+      }),
+      queryClient.prefetchQuery({
+        queryKey: userKeys.getUserSettings(),
+        queryFn: fetchUserSettings,
+      }),
+    ]);
 
     return {
       props: {

@@ -39,13 +39,17 @@ export const LibrariesLandingPane = () => {
     isLoading,
     refetch,
     remove,
-  } = useGetLibraries({
-    start: pageIndex * pageSize,
-    rows: pageSize,
-    sort: sort.col,
-    order: sort.dir,
-    access_type: libraryType,
-  });
+  } = useGetLibraries(
+    {
+      start: pageIndex * pageSize,
+      rows: pageSize,
+      sort: sort.col,
+      order: sort.dir,
+      access_type: libraryType,
+    },
+    // global default is refetchOnMount: false, which would skip this refetch
+    { staleTime: 0, refetchOnMount: true },
+  );
 
   const libraries = librariesData?.libraries ?? [];
 

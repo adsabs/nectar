@@ -1,7 +1,8 @@
 /* overwrite nprogress.css */
 
+/* NavBar (z-index 1300) hides the spinner at nprogress's default top:15px */
 #nprogress .spinner {
-  display: none;
+  top: 70px;
 }
 
 #nprogress .bar {
