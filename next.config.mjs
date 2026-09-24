@@ -25,6 +25,7 @@ const CSP = `
  * @type {import('next').NextConfig}
  **/
 const nextConfig = {
+  agentRules: false,
   distDir: process.env.DIST_DIR || 'dist',
   generateBuildId: async () => nextBuildId({ dir: process.env.__dirname, describe: true }),
   generateEtags: true,
