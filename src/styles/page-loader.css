@@ -1,10 +1,12 @@
 /* overwrite nprogress.css */
 
-/* NavBar (z-index 1300) hides the spinner at nprogress's default top:15px */
 #nprogress .spinner {
-  top: 70px;
+  display: none;
 }
 
+/* Above Chakra's toast manager (5500), the app's highest layer — the NavBar,
+   modals and toasts all cover the bar at nprogress's default 1031 */
 #nprogress .bar {
   height: 5px;
+  z-index: 5600;
 }
