@@ -1,16 +1,7 @@
-import { DatasetIcon } from '@/components/icons/browser/DatasetIcon';
-import { JournalArticleIcon } from '@/components/icons/browser/JournalArticleIcon';
-import { OpenAccessIcon } from '@/components/icons/browser/OpenAccessIcon';
-import { SoftwareIcon } from '@/components/icons/browser/SoftwareIcon';
-import { USGSIcon } from '@/components/icons/browser/USGSIcon';
-import { JWSTIcon } from '@/components/icons/browser/JWSTIcon';
-import { NASAIcon } from '@/components/icons/browser/NASAIcon';
-import { SETIIcon } from '@/components/icons/browser/SETIIcon';
-import { MASTIcon } from '@/components/icons/browser/MASTIcon';
-import { HEASARCIcon } from '@/components/icons/browser/HEASARCIcon';
-import { NOAAIcon } from '@/components/icons/browser/NOAAIcon';
 import { IExplorerFacet, IExplorerCollection } from './types';
-import { SIMBADIcon } from '../icons/browser/SIMBADIcon';
+import { DatasetIcon, EPrintIcon, JournalArticleIcon, SoftwareIcon } from '../icons/browser/doctype';
+import { AstroDataIcon, ClimateIcon } from '../icons/browser/data';
+import { JwstIcon, NasaIcon, SetiIcon, UsgsIcon } from '../icons/browser/bibgroup';
 
 const selectDataFacetKeys = [
   'SIMBAD',
@@ -400,7 +391,7 @@ export const explorerFacets: Record<IExplorerCollection['id'], IExplorerFacet[]>
   doctype: [
     {
       label: 'e-print',
-      icon: OpenAccessIcon,
+      icon: EPrintIcon,
       id: 'e-print',
       facetKey: '1/Article/e-print',
       searchQueryValue: 'eprint',
@@ -428,46 +419,21 @@ export const explorerFacets: Record<IExplorerCollection['id'], IExplorerFacet[]>
     },
   ],
   bibgroup: [
-    { label: 'USGS', icon: USGSIcon, id: 'USGS', facetKey: 'USGS', searchQueryValue: 'USGS' },
-    { label: 'JWST', icon: JWSTIcon, id: 'JWST', facetKey: 'JWST', searchQueryValue: 'JWST' },
+    { label: 'USGS', icon: UsgsIcon, id: 'USGS', facetKey: 'USGS', searchQueryValue: 'USGS' },
+    { label: 'JWST', icon: JwstIcon, id: 'JWST', facetKey: 'JWST', searchQueryValue: 'JWST' },
     {
       label: 'NASA PubSpace',
-      icon: NASAIcon,
+      icon: NasaIcon,
       id: 'NASA PubSpace',
       facetKey: 'NASA PubSpace',
       searchQueryValue: 'NASA PubSpace',
     },
-    { label: 'SETI', icon: SETIIcon, id: 'SETI', facetKey: 'SETI', searchQueryValue: 'SETI' },
+    { label: 'SETI', icon: SetiIcon, id: 'SETI', facetKey: 'SETI', searchQueryValue: 'SETI' },
   ],
   data: [
-    { label: 'SIMBAD', icon: SIMBADIcon, id: 'SIMBAD', facetKey: 'SIMBAD', searchQueryValue: 'SIMBAD' },
-    { label: 'MAST', icon: MASTIcon, id: 'MAST', facetKey: 'MAST', searchQueryValue: 'MAST' },
-    { label: 'HEASARC', icon: HEASARCIcon, id: 'HEASARC', facetKey: 'HEASARC', searchQueryValue: 'HEASARC' },
-    { label: 'NOAA', icon: NOAAIcon, id: 'NOAA', facetKey: 'NOAA', searchQueryValue: 'NOAA' },
+    { label: 'SIMBAD', icon: AstroDataIcon, id: 'SIMBAD', facetKey: 'SIMBAD', searchQueryValue: 'SIMBAD' },
+    { label: 'MAST', icon: AstroDataIcon, id: 'MAST', facetKey: 'MAST', searchQueryValue: 'MAST' },
+    { label: 'HEASARC', icon: AstroDataIcon, id: 'HEASARC', facetKey: 'HEASARC', searchQueryValue: 'HEASARC' },
+    { label: 'NOAA', icon: ClimateIcon, id: 'NOAA', facetKey: 'NOAA', searchQueryValue: 'NOAA' },
   ],
-};
-
-export const doctypeMap: Record<string, string[]> = {
-  '1/Article/Journal Article': ['article'],
-  '1/Article/Proceedings Article': ['inproceedings'],
-  '1/Article/e-print': ['eprint'],
-  '1/Article/Book Chapter': ['inbook'],
-  '1/Non-Article/Abstract': ['abstract'],
-  '1/Non-Article/Proposal': ['proposal'],
-  '1/Non-Article/Tech Report': ['techreport'],
-  '1/Non-Article/PhD Thesis': ['phdthesis'],
-  '1/Non-Article/Other': ['misc', 'obituary', 'erratum', 'bookreview'],
-  '1/Non-Article/Circular': ['circular'],
-  '1/Non-Article/Proceedings': ['proceedings'],
-  '1/Non-Article/Dataset': ['dataset'],
-  '1/Non-Article/Book': ['book'],
-  '1/Non-Article/Editorial': ['editorial'],
-  '1/Non-Article/Software': ['software'],
-  '1/Non-Article/Newsletter': ['newsletter'],
-  '1/Non-Article/Masters Thesis': ['mastersthesis'],
-  '1/Non-Article/Press Release': ['pressrelease'],
-  '1/Non-Article/Catalog': ['catalog'],
-  '1/Non-Article/Talk': ['talk'],
-  '1/Non-Article/Service': ['service'],
-  '1/Non-Article/Instrument': ['instrument'],
 };

@@ -1,7 +1,6 @@
 import { SimpleLink } from '@/components/SimpleLink';
-import { ArrowBackIcon } from '@chakra-ui/icons';
-import { Box, Flex, Heading, Text } from '@chakra-ui/react';
-import { databases, doctypeMap, explorerCollections } from './data';
+import { Box, Flex, Heading, HStack, Text } from '@chakra-ui/react';
+import { databases, explorerCollections } from './data';
 import { useGetSearchFacetJSON } from '@/api/search/search';
 import { getSearchFacetParams } from '../SearchFacet/useGetFacetData';
 import { allRecordsQuery, makeDataGroupSearchLink, makeJournalSearchLink, searchFacetDefaultParams } from './helpers';
@@ -14,6 +13,7 @@ import { applyFiltersToQuery, parseTitleFromKey } from '../SearchFacet/helpers';
 import { SubFacetCard } from './SubFacetCard';
 import { IExplorerCollection } from './types';
 import { OverTimeChart } from './OverTimeChart';
+import { doctypeSearchParamsMap } from './doctype_data';
 
 const databaseFacetIds = ['astrophysics', 'heliophysics', 'planetary', 'earthscience'];
 
@@ -58,7 +58,7 @@ export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; f
   const searchQueryParams: IADSApiSearchParams = useMemo(() => {
     const q =
       collection.id === 'doctype'
-        ? doctypeMap[facetKey].map((dt) => `${collection.searchQueryField}:"${dt}"`).join(' OR ')
+        ? doctypeSearchParamsMap[facetKey].map((dt) => `${collection.searchQueryField}:"${dt}"`).join(' OR ')
         : `${collection.searchQueryField}:"${facetKey}"`;
 
     //  Optional database filter
@@ -85,10 +85,11 @@ export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; f
   if (facet) {
     return (
       <Flex direction="column" gap={6}>
-        <SimpleLink href="/browse">
-          <ArrowBackIcon boxSize={5} mr={2} />
-          Back to Explore
-        </SimpleLink>
+        <HStack>
+          <SimpleLink href="/browse">Explore</SimpleLink>
+          <>{' > '}</>
+          <SimpleLink href={`/browse/${collection.id}`}>{collection.label}</SimpleLink>
+        </HStack>
         <Flex
           direction="column"
           bgImage={`url('${collection.image}')`}

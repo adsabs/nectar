@@ -14,13 +14,13 @@ const icon = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
     <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
     <g id="SVGRepo_iconCarrier">
       <path
-        d="M20 7C20 9.20914 16.4183 11 12 11C7.58172 11 4 9.20914 4 7C4 4.79086 7.58172 3 12 3C16.4183 3 20 4.79086 20 7Z"
-        stroke="#14B8A6"
+        d="M 12 2.25 c 2.85 2.85 4.5 5.85 4.5 9 l -4.5 4.5 l -4.5 -4.5 c 0 -3.15 1.65 -6.15 4.5 -9 z"
+        stroke="#EC4899"
         strokeWidth={1.2}
       />
-      <path d="M20 12C20 14.2091 16.4183 16 12 16C7.58172 16 4 14.2091 4 12" stroke="#14B8A6" strokeWidth={1.2} />
-      <path d="M4 7V17C4 19.2091 7.58172 21 12 21C16.4183 21 20 19.2091 20 17V7" stroke="#14B8A6" strokeWidth={1.2} />
+      <path d="M 12 9.38 V 13.5" stroke="#EC4899" strokeWidth={1.2} />
+      <circle cx="12" cy="7.5" r="0.98" stroke="#EC4899" strokeWidth={1.2} />
     </g>
   </svg>
 );
-export const DatasetIcon = forwardRef(icon);
+export const EditorialIcon = forwardRef(icon);

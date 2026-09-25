@@ -23,7 +23,7 @@ export const DatabaseItem = ({ facetValue }: { facetValue: IExplorerFacet['searc
 
   const subFacets = facet.subset?.map((f) => databases[f]);
 
-  const [subCollection, setSubCollection] = useState<IExplorerFacet>(null); // optional, i.e astrophysics
+  const [subFacetDatabase, setSubFacetDatabase] = useState<IExplorerFacet>(null); // optional, i.e astrophysics
 
   const [subFacetDoctype, setSubFacetDoctype] = useState<IExplorerFacet>(null);
 
@@ -46,17 +46,17 @@ export const DatabaseItem = ({ facetValue }: { facetValue: IExplorerFacet['searc
   // apply sub-facet
   useEffect(() => {
     const newQuery = `${collection.searchQueryField}:"${
-      subCollection ? subCollection.searchQueryValue : facet.searchQueryValue
+      subFacetDatabase ? subFacetDatabase.searchQueryValue : facet.searchQueryValue
     }"`;
 
     setQuery(`${newQuery}${subFacetDoctype ? ` doctype:"${subFacetDoctype.searchQueryValue}"` : ''}`);
-  }, [subCollection, subFacetDoctype]);
+  }, [subFacetDatabase, subFacetDoctype]);
 
   const handleSelectSubset = (selected: IExplorerFacet['id']) => {
-    if (subCollection?.id === selected) {
-      setSubCollection(null);
+    if (subFacetDatabase?.id === selected) {
+      setSubFacetDatabase(null);
     } else {
-      setSubCollection(subFacets.find((d) => d.id === selected));
+      setSubFacetDatabase(subFacets.find((d) => d.id === selected));
     }
   };
 
@@ -117,7 +117,7 @@ export const DatabaseItem = ({ facetValue }: { facetValue: IExplorerFacet['searc
                   recordCount={
                     countData?.[collection.facetField].buckets.find((db) => db.val === d.facetKey)?.count || 0
                   }
-                  selected={d.id === subCollection?.id}
+                  selected={d.id === subFacetDatabase?.id}
                   onSelect={handleSelectSubset}
                 />
               ))}

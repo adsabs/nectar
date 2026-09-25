@@ -28,3 +28,9 @@ export interface IExplorerFacet {
   image?: string;
   subset?: IExplorerFacet['id'][];
 }
+
+export interface IFacetDescription {
+  facetKey: string;
+  desc: string;
+  icon?: React.FC;
+}
