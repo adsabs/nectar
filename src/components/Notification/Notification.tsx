@@ -2,6 +2,7 @@ import { ToastId, useToast } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useStore } from '@/store';
 import { useRouter } from 'next/router';
+import { stripNotifyParam } from './stripNotifyParam';
 
 const TIMEOUT = 10000;
 
@@ -39,6 +40,18 @@ export const Notification = () => {
       timeoutId.current = setTimeout(reset, TIMEOUT);
     };
   }, [notification, resetNotification, toast, toastId.current, reset]);
+
+  // replaceState: a route change would fire the reset below and close the toast.
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const { pathname, search, hash } = window.location;
+    const stripped = stripNotifyParam(`${pathname}${search}${hash}`);
+    if (stripped !== `${pathname}${search}${hash}`) {
+      window.history.replaceState(window.history.state, '', stripped);
+    }
+  }, [notification]);
 
   // Reset notification on route change
   useEffect(() => {
