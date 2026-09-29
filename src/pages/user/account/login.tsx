@@ -25,6 +25,7 @@ import { BRAND_NAME_FULL } from '@/config';
 import { PasswordTextInput } from '@/components/TextInput';
 import { SimpleLink } from '@/components/SimpleLink';
 import { StandardAlertMessage } from '@/components/Feedbacks';
+import { stripNotifyParam } from '@/components/Notification/stripNotifyParam';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IUserCredentials } from '@/api/user/types';
 import { NotificationId } from '@/store/slices';
@@ -68,7 +69,7 @@ const Login: NextPage = () => {
             const decodedNext = decodeURIComponent(next);
             // security: only allow relative paths (starts with / but not //)
             if (decodedNext.startsWith('/') && !decodedNext.startsWith('//')) {
-              await router.push(decodedNext);
+              await router.push(stripNotifyParam(decodedNext));
               return undefined;
             }
           } catch {

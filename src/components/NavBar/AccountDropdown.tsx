@@ -7,6 +7,7 @@ import { Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { UserIcon } from '@heroicons/react/24/solid';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
 import { isBrowser } from '@/utils/common/guards';
+import { stripNotifyParam } from '@/components/Notification/stripNotifyParam';
 
 export const items: ItemType[] = [
   {
@@ -64,7 +65,7 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
         logout();
       } else if (id === 'login') {
         // include current path as next param so user returns after login
-        const currentPath = router.asPath;
+        const currentPath = stripNotifyParam(router.asPath);
         const loginUrl =
           currentPath !== '/' ? `/user/account/login?next=${encodeURIComponent(currentPath)}` : '/user/account/login';
         void router.push(loginUrl);
