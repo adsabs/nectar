@@ -16,11 +16,6 @@ vi.mock('@/lib/useUser', () => ({
   useUser: () => ({ user: {}, reset }),
 }));
 
-const router = { reload: vi.fn() };
-vi.mock('next/router', () => ({
-  useRouter: () => router,
-}));
-
 const wrapper = ({ children }: { children: ReactNode }) => {
   const queryClient = new QueryClient();
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
@@ -30,7 +25,7 @@ describe('useSession logout', () => {
   const setUrl = (href: string) => {
     Object.defineProperty(window, 'location', {
       configurable: true,
-      value: { ...window.location, href, assign: vi.fn() },
+      value: { ...window.location, href, replace: vi.fn() },
     });
   };
 
@@ -48,9 +43,9 @@ describe('useSession logout', () => {
     result.current.logout();
 
     await waitFor(() => expect(reset).toHaveBeenCalled());
-    await waitFor(() => expect(window.location.assign).toHaveBeenCalled());
+    await waitFor(() => expect(window.location.replace).toHaveBeenCalled());
 
-    const [target] = vi.mocked(window.location.assign).mock.calls[0];
+    const [target] = vi.mocked(window.location.replace).mock.calls[0];
     const url = new URL(target as string, 'http://localhost');
     expect(url.searchParams.get('notify')).toBe('account-logout-success');
   });
@@ -61,19 +56,23 @@ describe('useSession logout', () => {
     const { result } = renderHook(() => useSession(), { wrapper });
     result.current.logout();
 
-    await waitFor(() => expect(window.location.assign).toHaveBeenCalled());
+    await waitFor(() => expect(window.location.replace).toHaveBeenCalled());
 
-    const [target] = vi.mocked(window.location.assign).mock.calls[0];
+    const [target] = vi.mocked(window.location.replace).mock.calls[0];
     const url = new URL(target as string, 'http://localhost');
     expect(url.searchParams.getAll('notify')).toEqual(['account-logout-success']);
   });
 
-  test('does not reload via window.location on a failed logout', async () => {
+  test('reloads with the logout-failure notification when logout fails', async () => {
+    setUrl('http://localhost/search?q=star&notify=account-login-success');
     vi.mocked(axios.post).mockRejectedValue(new Error('logout failed'));
     const { result } = renderHook(() => useSession(), { wrapper });
     result.current.logout();
 
-    await waitFor(() => expect(router.reload).toHaveBeenCalled());
-    expect(window.location.assign).not.toHaveBeenCalled();
+    await waitFor(() => expect(window.location.replace).toHaveBeenCalled());
+
+    const [target] = vi.mocked(window.location.replace).mock.calls[0];
+    const url = new URL(target as string, 'http://localhost');
+    expect(url.searchParams.getAll('notify')).toEqual(['account-logout-failed']);
   });
 });
