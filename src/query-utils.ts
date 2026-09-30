@@ -8,7 +8,7 @@ import {
   splitQuery,
 } from '@/query';
 import { defaultQueryParams } from '@/store/slices/search';
-import { safeGetArray } from '@/components/SearchFacet/helpers';
+import { safeGetArray } from '@/utils/common/to-array';
 import {
   append,
   assoc,

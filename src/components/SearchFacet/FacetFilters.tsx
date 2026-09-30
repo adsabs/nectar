@@ -9,7 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { isIADSSearchParams } from '@/utils/common/guards';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { useObjects } from '@/api/objects/objects';
-import { ADS_COMPAT_URL_PARAM } from '@/utils/common/searchMode';
+import { ADS_COMPAT_URL_PARAM } from '@/utils/common/search-mode-constants';
 
 export const FacetFilters = (props: BoxProps): ReactElement => {
   const router = useRouter();
