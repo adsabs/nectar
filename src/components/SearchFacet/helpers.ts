@@ -20,7 +20,6 @@ import {
   lensProp,
   map,
   nth,
-  of,
   over,
   partialRight,
   pickBy,
@@ -36,6 +35,7 @@ import {
 import { isNonEmptyString } from 'ramda-adjunct';
 import { FacetItem, FacetLogic, OnFilterArgs } from './types';
 import { isString } from '@/utils/common/guards';
+import { safeGetArray } from '@/utils/common/to-array';
 import { FacetField, IADSApiSearchParams } from '@/api/search/types';
 import { OBJECTS_API_KEYS } from '@/api/objects/objects';
 import { IObjectsApiParams, IObjectsApiResponse } from '@/api/objects/types';
@@ -45,10 +45,6 @@ const DEFAULT_DELIMETER = '/';
 // helpers
 const isNotOperator = (op: Operator) => always(op === 'NOT');
 const nonEmptyString = both(is(String), complement(isEmpty));
-// A single fq/fq_* URL param parses as a bare string rather than an array;
-// normalize before treating a value as a list.
-export const safeGetArray = (val: string | string[]) =>
-  Array.isArray(val) ? val : typeof val === 'string' ? of(val) : [];
 const parseIntOrZero = pipe<[string], number, number>(partialRight(parseInt, [10]), defaultTo(0));
 export const isRootNode = (node: string) => /^(?![1-9]\/)/.test(node);
 

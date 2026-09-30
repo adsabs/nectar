@@ -1,8 +1,7 @@
 import type { IADSApiSearchParams } from '@/api/search/types';
-import { safeGetArray } from '@/components/SearchFacet/helpers';
-import { setFQ } from '@/query-utils';
+import { safeGetArray } from '@/utils/common/to-array';
 import { getTerms } from '@/query';
-import { omit } from 'ramda';
+import { omit, uniq } from 'ramda';
 import type { SolrSort } from '@/api/models';
 import {
   ADS_COMPAT_FQ_DATABASE,
@@ -36,6 +35,16 @@ const isCompatDatabaseFilter = (value: string | undefined): boolean => {
   return terms.length > 0 && terms.every((term) => ADS_COMPAT_DATABASE_TERMS.has(term));
 };
 
+// Equivalent to setFQ('database', value, query, { asIs: true }), inlined to
+// keep query-utils — and the zod/store/api graph behind it — out of the
+// landing page and ClassicForm bundles.
+const setDatabaseFQ = (query: IADSApiSearchParams, value: string): IADSApiSearchParams =>
+  ({
+    ...query,
+    fq: uniq([...safeGetArray(query.fq as string | string[]), ADS_COMPAT_FQ_ENTRY]),
+    fq_database: value,
+  } as IADSApiSearchParams);
+
 export const buildSearchOutgoing = (query: IADSApiSearchParams, mode: string): IADSApiSearchParams => {
   const withDefaults = applySearchModeDefaults(query, mode);
   return mode === SearchMode.ADS_COMPAT
@@ -60,18 +69,14 @@ export const applySearchModeDefaults = (query: IADSApiSearchParams, mode: string
       // Never re-add the compat defaults once inside compat mode; an absent
       // or empty fq_database means the user cleared every collection pill.
       const hasFqDatabase = typeof query.fq_database === 'string' && query.fq_database !== '';
-      const withCollections = hasFqDatabase
-        ? (setFQ('database', query.fq_database as string, query, { asIs: true }) as IADSApiSearchParams)
-        : query;
+      const withCollections = hasFqDatabase ? setDatabaseFQ(query, query.fq_database as string) : query;
       return { ...withCollections, sort: ADS_COMPAT_SORT };
     }
 
     // Entering compat mode fresh: replace any existing fq_database (e.g. a
     // saved defaultDatabase) instead of AND-joining, which would return
     // almost nothing (`earthscience AND (astronomy OR physics)`).
-    const withCollections = setFQ('database', ADS_COMPAT_FQ_DATABASE, query, {
-      asIs: true,
-    }) as IADSApiSearchParams;
+    const withCollections = setDatabaseFQ(query, ADS_COMPAT_FQ_DATABASE);
     return { ...withCollections, sort: ADS_COMPAT_SORT };
   }
 
