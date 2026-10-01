@@ -30,8 +30,8 @@ export const UserSync = (): ReactElement => {
   });
 
   useEffect(() => {
-    if (data && isValidToken(data) && notEqual(data, user)) {
-      logger.debug({ msg: 'User Synced', user: data });
+    if (user !== null && data && isValidToken(data) && notEqual(data, user)) {
+      logger.debug({ msg: 'User Synced', username: data.username, anonymous: data.anonymous });
 
       store.setState({ user: data });
 
