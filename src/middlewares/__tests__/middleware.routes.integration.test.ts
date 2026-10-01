@@ -509,13 +509,29 @@ describe('middleware route integration', () => {
       expect(prefs!.searchMode).toBeUndefined();
     });
 
-    test('legacy ADS referrer redirects to /?fromADS=true and seeds ADS_COMPAT cookie', async () => {
+    test('legacy ADS referrer redirects to /?fromADS=true and seeds ASTROPHYSICS only', async () => {
       const req = makeReq('https://example.com/', {
         headers: { referer: 'https://ui.adsabs.harvard.edu/search' },
       });
       const res = (await middleware(req)) as NextResponse;
       expect(res.status).toBe(307);
       expect(res.headers.get('location')).toContain('fromADS=true');
+      const prefs = getPrefsCookie(res);
+      expect(prefs).not.toBeNull();
+      expect(prefs!.mode).toBe('ASTROPHYSICS');
+      expect(prefs!.searchMode).toBeUndefined();
+    });
+
+    test('legacy ADS referrer preserves a user-chosen ADS_COMPAT prefs cookie', async () => {
+      const existingCookie = JSON.stringify({ mode: 'GENERAL', searchMode: 'ADS_COMPAT' });
+      const req = makeReq('https://example.com/', {
+        headers: {
+          referer: 'https://ui.adsabs.harvard.edu/search',
+          cookie: `scix_prefs=${existingCookie}`,
+        },
+      });
+      const res = (await middleware(req)) as NextResponse;
+      expect(res.status).toBe(307);
       const prefs = getPrefsCookie(res);
       expect(prefs).not.toBeNull();
       expect(prefs!.mode).toBe('ASTROPHYSICS');
@@ -528,6 +544,48 @@ describe('middleware route integration', () => {
       });
       const res = await middleware(req);
       expect(res.headers.get('location')).toBeNull();
+    });
+
+    test('fromADS param seeds ASTROPHYSICS without a legacy referrer (shared link)', async () => {
+      const req = makeReq('https://example.com/?fromADS=true');
+      const res = (await middleware(req)) as NextResponse;
+      expect(res.headers.get('location')).toBeNull();
+      const prefs = getPrefsCookie(res);
+      expect(prefs).not.toBeNull();
+      expect(prefs!.mode).toBe('ASTROPHYSICS');
+      expect(prefs!.searchMode).toBeUndefined();
+    });
+
+    test('fromADS param overrides a different persisted discipline', async () => {
+      const existingCookie = JSON.stringify({ mode: 'HELIOPHYSICS' });
+      const req = makeReq('https://example.com/?fromADS=true', {
+        headers: { cookie: `scix_prefs=${existingCookie}` },
+      });
+      const res = (await middleware(req)) as NextResponse;
+      const prefs = getPrefsCookie(res);
+      expect(prefs).not.toBeNull();
+      expect(prefs!.mode).toBe('ASTROPHYSICS');
+    });
+
+    test('a valid forceMode suppresses the fromADS cookie stamp', async () => {
+      const req = makeReq('https://example.com/?fromADS=true&forceMode=heliophysics');
+      const res = (await middleware(req)) as NextResponse;
+      expect(res.headers.get('location')).toBeNull();
+      expect(getPrefsCookie(res)).toBeNull();
+    });
+
+    test('an unmappable forceMode leaves the fromADS cookie stamp in place', async () => {
+      const req = makeReq('https://example.com/?fromADS=true&forceMode=banana');
+      const res = (await middleware(req)) as NextResponse;
+      const prefs = getPrefsCookie(res);
+      expect(prefs).not.toBeNull();
+      expect(prefs!.mode).toBe('ASTROPHYSICS');
+    });
+
+    test('fromADS param does not stamp a cookie when the value is not true', async () => {
+      const req = makeReq('https://example.com/?fromADS=false');
+      const res = (await middleware(req)) as NextResponse;
+      expect(getPrefsCookie(res)).toBeNull();
     });
 
     test('does not redirect when forceMode param already present on root', async () => {
