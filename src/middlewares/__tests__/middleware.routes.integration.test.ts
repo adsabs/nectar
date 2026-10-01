@@ -412,6 +412,33 @@ describe('middleware route integration', () => {
       expect(res.headers.get('location')).toBeNull();
     });
 
+    test('fromADS param seeds ASTROPHYSICS without a legacy referrer (shared link)', async () => {
+      const req = makeReq('https://example.com/?fromADS=true');
+      const res = (await middleware(req)) as NextResponse;
+      expect(res.headers.get('location')).toBeNull();
+      const prefs = getPrefsCookie(res);
+      expect(prefs).not.toBeNull();
+      expect(prefs!.mode).toBe('ASTROPHYSICS');
+      expect(prefs!.searchMode).toBeUndefined();
+    });
+
+    test('fromADS param overrides a different persisted discipline', async () => {
+      const existingCookie = JSON.stringify({ mode: 'HELIOPHYSICS' });
+      const req = makeReq('https://example.com/?fromADS=true', {
+        headers: { cookie: `scix_prefs=${existingCookie}` },
+      });
+      const res = (await middleware(req)) as NextResponse;
+      const prefs = getPrefsCookie(res);
+      expect(prefs).not.toBeNull();
+      expect(prefs!.mode).toBe('ASTROPHYSICS');
+    });
+
+    test('fromADS param does not stamp a cookie when the value is not true', async () => {
+      const req = makeReq('https://example.com/?fromADS=false');
+      const res = (await middleware(req)) as NextResponse;
+      expect(getPrefsCookie(res)).toBeNull();
+    });
+
     test('does not redirect when forceMode param already present on root', async () => {
       const req = makeReq('https://example.com/?forceMode=astrophysics', {
         headers: { referer: 'https://ui.adsabs.harvard.edu/search' },
