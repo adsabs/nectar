@@ -296,6 +296,72 @@ describe('updateUserStateSSR', () => {
     expect(props.dehydratedAppState).not.toHaveProperty('searchMode');
   });
 
+  describe('fromADS param handling', () => {
+    test('seeds ASTROPHYSICS from fromADS=true with no cookie', async () => {
+      const context = getMockContext({}, { fromADS: 'true' }, '/');
+      const result = await updateUserStateSSR(context, { props: {} });
+      if (!('props' in result)) {
+        throw new Error('Expected props');
+      }
+      const props = result.props as SSRPropsWithState;
+      expect(props.dehydratedAppState).toEqual(expect.objectContaining({ mode: AppMode.ASTROPHYSICS }));
+    });
+
+    test('fromADS=true takes priority over a different prefs cookie mode', async () => {
+      const prefs = { mode: 'HELIOPHYSICS' };
+      const cookie = `scix_prefs=${encodeURIComponent(JSON.stringify(prefs))}`;
+      const context = getMockContext({}, { fromADS: 'true' }, '/', undefined, cookie);
+      const result = await updateUserStateSSR(context, { props: {} });
+      if (!('props' in result)) {
+        throw new Error('Expected props');
+      }
+      const props = result.props as SSRPropsWithState;
+      expect(props.dehydratedAppState).toEqual(expect.objectContaining({ mode: AppMode.ASTROPHYSICS }));
+    });
+
+    test('forceMode still takes priority over fromADS', async () => {
+      const context = getMockContext({}, { forceMode: 'heliophysics', fromADS: 'true' }, '/');
+      const result = await updateUserStateSSR(context, { props: {} });
+      if (!('props' in result)) {
+        throw new Error('Expected props');
+      }
+      const props = result.props as SSRPropsWithState;
+      expect(props.dehydratedAppState).toEqual(expect.objectContaining({ mode: AppMode.HELIOPHYSICS }));
+    });
+
+    test('fromADS=true does not enable ADS compatibility search mode', async () => {
+      const context = getMockContext({}, { fromADS: 'true' }, '/');
+      const result = await updateUserStateSSR(context, { props: {} });
+      if (!('props' in result)) {
+        throw new Error('Expected props');
+      }
+      const props = result.props as SSRPropsWithState;
+      expect(props.dehydratedAppState).not.toHaveProperty('searchMode');
+    });
+
+    test('ignores fromADS outside the home page, keeping the persisted discipline', async () => {
+      const prefs = { mode: 'HELIOPHYSICS' };
+      const cookie = `scix_prefs=${encodeURIComponent(JSON.stringify(prefs))}`;
+      const context = getMockContext({}, { fromADS: 'true' }, '/search', undefined, cookie);
+      const result = await updateUserStateSSR(context, { props: {} });
+      if (!('props' in result)) {
+        throw new Error('Expected props');
+      }
+      const props = result.props as SSRPropsWithState;
+      expect(props.dehydratedAppState).toEqual(expect.objectContaining({ mode: AppMode.HELIOPHYSICS }));
+    });
+
+    test('ignores a fromADS value that is not exactly true', async () => {
+      const context = getMockContext({}, { fromADS: 'false' }, '/');
+      const result = await updateUserStateSSR(context, { props: {} });
+      if (!('props' in result)) {
+        throw new Error('Expected props');
+      }
+      const props = result.props as SSRPropsWithState;
+      expect(props.dehydratedAppState).not.toHaveProperty('mode');
+    });
+  });
+
   // composeNextGSSP and injectSessionGSSP both call this, so one test here
   // covers auth tagging for every SSR page.
   describe('sentry auth segmentation', () => {
