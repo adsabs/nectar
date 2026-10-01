@@ -13,7 +13,9 @@ import { applyFiltersToQuery, parseTitleFromKey } from '../SearchFacet/helpers';
 import { SubFacetCard } from './SubFacetCard';
 import { IExplorerCollection } from './types';
 import { OverTimeChart } from './OverTimeChart';
-import { doctypeSearchParamsMap } from './doctype_data';
+import { doctypeDetails, doctypeSearchParamsMap } from './doctype_data';
+import { dataDetails } from './data_data';
+import { bibgroupDetails } from './bibgroup_data';
 
 const databaseFacetIds = ['astrophysics', 'heliophysics', 'planetary', 'earthscience'];
 
@@ -27,6 +29,16 @@ export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; f
   const databaseFacets = databaseFacetIds.map((id) => databases[id]);
 
   const [database, setDatabase] = useState<(typeof databaseFacetIds)[number] | null>(null);
+
+  const facetDetails = useMemo(() => {
+    return collection.id === 'doctype'
+      ? doctypeDetails
+      : collection.id === 'bibgroup'
+      ? bibgroupDetails
+      : collection.id === 'data'
+      ? dataDetails
+      : {};
+  }, [collection]);
 
   // Use facet search to get record counts
   const { data: countData } = useGetSearchFacetJSON({
@@ -104,13 +116,14 @@ export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; f
         >
           <Box my={5}>
             <h2>
-              <Text fontSize="sm" p={0}>
-                {collection.label}
-              </Text>
               <Text fontSize="2xl" fontWeight="bold" p={0} m={0}>
                 {facet}
               </Text>
             </h2>
+            <Text fontWeight="semibold">{facetDetails[facetKey]?.title}</Text>
+            <Text fontSize="sm" width="30%" my={2}>
+              {facetDetails[facetKey]?.desc}
+            </Text>
           </Box>
           <Text fontSize="sm" fontWeight="normal">
             {kFormatNumber(

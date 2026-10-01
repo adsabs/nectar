@@ -29,8 +29,9 @@ export interface IExplorerFacet {
   subset?: IExplorerFacet['id'][];
 }
 
-export interface IFacetDescription {
+export interface IFacetDetail {
   facetKey: string;
-  desc: string;
+  title: string;
   icon?: React.FC;
+  desc?: string;
 }
