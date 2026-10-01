@@ -329,6 +329,16 @@ describe('updateUserStateSSR', () => {
       expect(props.dehydratedAppState).toEqual(expect.objectContaining({ mode: AppMode.HELIOPHYSICS }));
     });
 
+    test('an unmappable forceMode leaves fromADS in charge', async () => {
+      const context = getMockContext({}, { forceMode: 'banana', fromADS: 'true' }, '/');
+      const result = await updateUserStateSSR(context, { props: {} });
+      if (!('props' in result)) {
+        throw new Error('Expected props');
+      }
+      const props = result.props as SSRPropsWithState;
+      expect(props.dehydratedAppState).toEqual(expect.objectContaining({ mode: AppMode.ASTROPHYSICS }));
+    });
+
     test('fromADS=true does not enable ADS compatibility search mode', async () => {
       const context = getMockContext({}, { fromADS: 'true' }, '/');
       const result = await updateUserStateSSR(context, { props: {} });

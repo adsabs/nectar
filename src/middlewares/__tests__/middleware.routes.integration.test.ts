@@ -567,6 +567,21 @@ describe('middleware route integration', () => {
       expect(prefs!.mode).toBe('ASTROPHYSICS');
     });
 
+    test('a valid forceMode suppresses the fromADS cookie stamp', async () => {
+      const req = makeReq('https://example.com/?fromADS=true&forceMode=heliophysics');
+      const res = (await middleware(req)) as NextResponse;
+      expect(res.headers.get('location')).toBeNull();
+      expect(getPrefsCookie(res)).toBeNull();
+    });
+
+    test('an unmappable forceMode leaves the fromADS cookie stamp in place', async () => {
+      const req = makeReq('https://example.com/?fromADS=true&forceMode=banana');
+      const res = (await middleware(req)) as NextResponse;
+      const prefs = getPrefsCookie(res);
+      expect(prefs).not.toBeNull();
+      expect(prefs!.mode).toBe('ASTROPHYSICS');
+    });
+
     test('fromADS param does not stamp a cookie when the value is not true', async () => {
       const req = makeReq('https://example.com/?fromADS=false');
       const res = (await middleware(req)) as NextResponse;
