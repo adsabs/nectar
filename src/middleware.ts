@@ -485,7 +485,11 @@ export async function middleware(req: NextRequest) {
 
   // Handles /?fromADS=true reached directly (shared link, no legacy
   // referer) — the redirect block above skips once fromADS is present.
-  if (path === '/' && req.nextUrl.searchParams.get('fromADS') === 'true') {
+  if (
+    path === '/' &&
+    req.nextUrl.searchParams.get('fromADS') === 'true' &&
+    !mapDisciplineParamToAppMode(req.nextUrl.searchParams.get('forceMode') ?? undefined)
+  ) {
     setPrefsCookie(res, req, { mode: 'ASTROPHYSICS' });
   }
 
