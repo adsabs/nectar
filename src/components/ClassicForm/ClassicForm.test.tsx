@@ -31,4 +31,16 @@ describe('ClassicForm', () => {
     expect(arg.search).toContain('d=astrophysics');
     expect(arg.search).not.toContain('general');
   });
+
+  test('does not force ADS Compatibility mode on submit', async () => {
+    const { getByText, user } = render(<ClassicForm ssrError="" />, {
+      initialStore: { mode: AppMode.ASTROPHYSICS },
+    });
+
+    await user.click(getByText('Search'));
+
+    await waitFor(() => expect(router.push).toHaveBeenCalledTimes(1));
+    const arg = router.push.mock.calls[0][0] as { pathname: string; search: string };
+    expect(arg.search).not.toContain('ads_compat');
+  });
 });

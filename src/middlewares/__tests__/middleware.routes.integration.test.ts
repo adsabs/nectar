@@ -509,13 +509,29 @@ describe('middleware route integration', () => {
       expect(prefs!.searchMode).toBeUndefined();
     });
 
-    test('legacy ADS referrer redirects to /?fromADS=true and seeds ADS_COMPAT cookie', async () => {
+    test('legacy ADS referrer redirects to /?fromADS=true and seeds ASTROPHYSICS only', async () => {
       const req = makeReq('https://example.com/', {
         headers: { referer: 'https://ui.adsabs.harvard.edu/search' },
       });
       const res = (await middleware(req)) as NextResponse;
       expect(res.status).toBe(307);
       expect(res.headers.get('location')).toContain('fromADS=true');
+      const prefs = getPrefsCookie(res);
+      expect(prefs).not.toBeNull();
+      expect(prefs!.mode).toBe('ASTROPHYSICS');
+      expect(prefs!.searchMode).toBeUndefined();
+    });
+
+    test('legacy ADS referrer preserves a user-chosen ADS_COMPAT prefs cookie', async () => {
+      const existingCookie = JSON.stringify({ mode: 'GENERAL', searchMode: 'ADS_COMPAT' });
+      const req = makeReq('https://example.com/', {
+        headers: {
+          referer: 'https://ui.adsabs.harvard.edu/search',
+          cookie: `scix_prefs=${existingCookie}`,
+        },
+      });
+      const res = (await middleware(req)) as NextResponse;
+      expect(res.status).toBe(307);
       const prefs = getPrefsCookie(res);
       expect(prefs).not.toBeNull();
       expect(prefs!.mode).toBe('ASTROPHYSICS');
