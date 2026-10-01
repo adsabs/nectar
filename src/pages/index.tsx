@@ -14,7 +14,6 @@ import {
   StatLabel,
   StatNumber,
   Text,
-  useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
 
@@ -73,23 +72,6 @@ const HomePage: NextPage = () => {
   const isClient = useIsClient();
   const { persistCurrentForm } = useLandingFormPreference();
   const [searchMode, setSearchMode] = useSearchMode();
-  const toast = useToast();
-
-  // Show toast when middleware has auto-set ADS_COMPAT (cookie/GSSP path)
-  useEffect(() => {
-    if (router.query.fromADS !== 'true') {
-      return;
-    }
-    toast({
-      status: 'info',
-      duration: 10000,
-      isClosable: true,
-      position: 'top',
-      title: 'ADS Compatibility mode enabled',
-      description:
-        "Looks like you came from ADS — we've switched to ADS Compatibility mode automatically. You can change this using the Search mode menu.",
-    });
-  }, [router.query.fromADS, toast]);
 
   // start tour if first time
   useTour();

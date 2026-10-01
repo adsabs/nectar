@@ -389,17 +389,17 @@ export async function middleware(req: NextRequest) {
     return response;
   }
 
-  // Legacy ADS app referrer handling - redirect to /?fromADS=true and set scix_prefs cookie
-  // so updateUserStateSSR seeds mode/searchMode without URL pollution.
-  // Guard includes fromADS to prevent a redirect loop: some browsers preserve the Referer
-  // header across same-origin redirects, which would re-trigger this block on the follow-up GET.
+  // scix_prefs cookie (not a URL param) lets updateUserStateSSR seed mode
+  // without URL pollution.
+  // The fromADS param guards a redirect loop: some browsers replay Referer
+  // across same-origin redirects, re-triggering this block on the follow-up GET.
   if (path === '/' && !req.nextUrl.searchParams.has('forceMode') && !req.nextUrl.searchParams.has('fromADS')) {
     if (isFromLegacyApp(referer)) {
       const url = new URL('/', req.url);
       url.searchParams.set('fromADS', 'true');
       log.info({ referer, duration: Date.now() - startTime }, 'Legacy ADS referrer redirect');
       const response = NextResponse.redirect(url);
-      setPrefsCookie(response, req, { mode: 'ASTROPHYSICS', searchMode: 'ADS_COMPAT' });
+      setPrefsCookie(response, req, { mode: 'ASTROPHYSICS' });
       return response;
     }
   }
