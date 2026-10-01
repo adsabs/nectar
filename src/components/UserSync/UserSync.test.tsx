@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { ReactNode } from 'react';
 import { expect, test, TestContext, vi } from 'vitest';
@@ -98,4 +98,28 @@ test('leaves the store alone when the fetched token is expired', async ({ server
 
   await waitFor(() => expect(queryClient.getQueryData(['user'])).toBeDefined());
   expect(store.getState().user.access_token).toBeUndefined();
+});
+
+test('does not re-apply a cached token after the api rejects the identity', async () => {
+  const store = createStore({ user: mockUserData });
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, refetchOnMount: false, staleTime: Infinity, cacheTime: 5 * 60 * 1000 },
+    },
+  });
+  queryClient.setQueryData(['user'], mockUserData);
+
+  renderUserSync({ store, queryClient });
+
+  await waitFor(() => expect(store.getState().user).toEqual(mockUserData));
+
+  // Api.invalidateUserData() clears the store user to null on a 401 but leaves
+  // the ['user'] cache entry in place.
+  act(() => {
+    store.setState({ user: null });
+  });
+
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  expect(store.getState().user).toBeNull();
 });
