@@ -7,6 +7,7 @@ import { createServerListenerMocks } from '@/test-utils';
 import { createStore, Store, StoreProvider } from '@/store';
 import { userKeys } from '@/api/user/user';
 import { IUserData } from '@/api/user/types';
+import api from '@/api/api';
 import { UserSync } from './UserSync';
 
 const mockUserData: IUserData = {
@@ -122,4 +123,41 @@ test('does not re-apply a cached token after the api rejects the identity', asyn
   await new Promise((resolve) => setTimeout(resolve, 50));
 
   expect(store.getState().user).toBeNull();
+});
+
+test('leaves an expired session for the next api request to recover', async ({ server }: TestContext) => {
+  localStorage.clear();
+  api.reset();
+
+  const { onRequest } = createServerListenerMocks(server);
+  server.use(
+    rest.get('*test', (_req, res, ctx) => res(ctx.status(200), ctx.json({ ok: true }))),
+    rest.get('*/api/user', (req, res, ctx) => {
+      const isForced = req.headers.get('x-refresh-token') === '1';
+      return res(
+        ctx.status(200),
+        ctx.json({
+          isAuthenticated: isForced,
+          user: isForced ? { ...mockUserData, access_token: 'refreshed' } : { ...mockUserData, expires_at: '1' },
+        }),
+      );
+    }),
+  );
+
+  const { store } = renderUserSync();
+
+  await waitFor(() => expect(userRequests(onRequest)).toHaveLength(1));
+  expect(userRequests(onRequest)[0].headers.get('x-refresh-token')).toBeNull();
+  expect(store.getState().user.access_token).toBeUndefined();
+
+  const response = await api.request({ method: 'GET', url: '/test' });
+
+  expect(response.status).toEqual(200);
+  expect(userRequests(onRequest).filter((req) => req.headers.get('x-refresh-token') === '1')).toHaveLength(1);
+
+  const testRequests = onRequest.mock.calls.map(([req]) => req).filter((req) => req.url.pathname === '/test');
+  expect(testRequests).toHaveLength(1);
+  expect(testRequests[0].headers.get('authorization')).toEqual('Bearer refreshed');
+
+  expect(store.getState().user.access_token).toBeUndefined();
 });
