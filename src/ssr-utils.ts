@@ -37,11 +37,14 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
   // URL discipline param (d) only applies on /search
   const urlMode = pathname === '/search' ? mapDisciplineParamToAppMode(ctx.query?.d) : null;
 
+  const fromADSParam = ctx.query?.fromADS;
+  const fromADS = pathname === '/' && (Array.isArray(fromADSParam) ? fromADSParam[0] : fromADSParam) === 'true';
+
   // Prefs cookie — persisted user preference (written by middleware on first ADS visit)
   const prefs = readPrefsCookie(ctx.req.headers.cookie);
   const cookieMode = prefs.mode && VALID_APP_MODES.has(prefs.mode as AppMode) ? (prefs.mode as AppMode) : undefined;
-  // Priority: URL forceMode > URL d param > prefs cookie
-  const resolvedMode = forceMode ?? urlMode ?? cookieMode;
+  // Priority: URL forceMode > URL d param > fromADS (home page only) > prefs cookie
+  const resolvedMode = forceMode ?? urlMode ?? (fromADS ? AppMode.ASTROPHYSICS : undefined) ?? cookieMode;
 
   // ADS_COMPAT is only meaningful in the ASTROPHYSICS discipline context.
   // If the resolved mode is anything else, suppress the cookie search mode so
