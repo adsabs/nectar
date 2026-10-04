@@ -98,7 +98,7 @@
     "lucene": "^2.1.1",
     "match-sorter": "^6.3.1",
     "memoize-one": "^6.0.0",
-    "next": "16.3.3",
+    "next": "16.3.6",
     "next-build-id": "^3.0.0",
     "nprogress": "^0.2.0",
     "pino": "^8.16.2",
@@ -119,7 +119,7 @@
     "set-cookie-parser": "^2.6.0",
     "shepherd.js": "^14.5.1",
     "use-debounce": "^7.0.1",
-    "uuid": "^14.0.0",
+    "uuid": "^14.0.2",
     "zod": "^3.22.3",
     "zustand": "^3.7.1"
   },
