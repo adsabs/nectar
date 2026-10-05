@@ -21,7 +21,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
-import { ReactElement, useRef } from 'react';
+import { ReactElement, useCallback, useEffect, useRef } from 'react';
 import { AboutDropdown } from './AboutDropdown';
 import { AccountDropdown } from './AccountDropdown';
 import { FeedbackDropdown } from './FeedbackDropdown';
@@ -31,14 +31,43 @@ import { ColorModeMenu } from './ColorModeMenu';
 import { isBrowser } from '@/utils/common/guards';
 import { noop } from '@/utils/common/noop';
 import { useTour } from './useTour';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { useScreenSize } from '@/lib/useScreenSize';
 
+const HOME_TOUR_ANCHOR_TIMEOUT = 10000;
+
 export const NavMenus = (): ReactElement => {
-  const { tourType, tour } = useTour();
-  const router = useRouter();
+  const { tourType, startTour } = useTour();
+  const router = useRouterCompat();
   const toast = useToast();
   const { isScreenLarge } = useScreenSize();
+  const homeTourObserverRef = useRef<MutationObserver | null>(null);
+  const homeTourTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearHomeTourWait = useCallback(() => {
+    homeTourObserverRef.current?.disconnect();
+    homeTourObserverRef.current = null;
+    if (homeTourTimeoutRef.current) {
+      clearTimeout(homeTourTimeoutRef.current);
+      homeTourTimeoutRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => clearHomeTourWait, [clearHomeTourWait]);
+
+  const waitForHomeTourAnchor = () => {
+    clearHomeTourWait();
+
+    const observer = new MutationObserver(() => {
+      if (document.querySelector('[data-tour="search-input"]')) {
+        clearHomeTourWait();
+        void startTour();
+      }
+    });
+    homeTourObserverRef.current = observer;
+    observer.observe(document.body, { childList: true, subtree: true });
+    homeTourTimeoutRef.current = setTimeout(clearHomeTourWait, HOME_TOUR_ANCHOR_TIMEOUT);
+  };
 
   const toggleMenu = () => {
     if (isOpen) {
@@ -62,9 +91,8 @@ export const NavMenus = (): ReactElement => {
       onClose();
     }
     if (tourType === 'home' && router.pathname !== '/') {
-      router.push('/').then(() => {
-        tour.start();
-      });
+      waitForHomeTourAnchor();
+      router.push('/');
     } else if (tourType === 'results' && !document.querySelector('[data-tour="search-facets"]')) {
       toast({
         title: 'How to use tour',
@@ -72,7 +100,7 @@ export const NavMenus = (): ReactElement => {
         status: 'warning',
       });
     } else if (tourType !== 'none') {
-      tour.start();
+      void startTour();
     } else {
       toast({
         title: 'How to use tour',

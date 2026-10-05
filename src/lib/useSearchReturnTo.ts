@@ -1,5 +1,6 @@
-import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import { useIsClient } from '@/lib/useIsClient';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { removeSessionItem, setSessionItem, SessionStorageKey } from '@/lib/session/sessionStore';
 import { useSessionValue } from '@/lib/session/useSessionValue';
 
@@ -78,13 +79,14 @@ const hasQuery = (q: string | string[] | undefined): boolean =>
  * param-less, or non-results URLs are never stored.
  */
 export const useCaptureSearchReturnUrl = (): void => {
-  const router = useRouter();
+  const router = useRouterCompat();
+  const isClient = useIsClient();
 
   // Capture after the route settles so we never store a transient/SSR-default URL.
   useEffect(() => {
-    if (!router.isReady || router.pathname !== RESULTS_PATHNAME || !hasQuery(router.query.q)) {
+    if (!isClient || router.pathname !== RESULTS_PATHNAME || !hasQuery(router.query.q)) {
       return;
     }
     captureSearchReturnUrl(router.asPath);
-  }, [router.isReady, router.pathname, router.asPath, router.query.q]);
+  }, [isClient, router.pathname, router.asPath, router.query.q]);
 };

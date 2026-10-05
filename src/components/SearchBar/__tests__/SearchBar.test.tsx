@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
+vi.mock('@/lib/useRouterCompat', () => ({ useRouterCompat: mocks.useRouter }));
 vi.mock('@/lib/useLandingFormPreference', () => ({
   useLandingFormPreference: mocks.useLandingFormPreference,
 }));

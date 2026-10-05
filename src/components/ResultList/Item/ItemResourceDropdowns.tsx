@@ -14,9 +14,9 @@ import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { processLinkData } from '@/components/AbstractSources/linkGenerator';
 import { SimpleAction } from '@/components/Orcid/SimpleAction';
 import { Bars4Icon, CircleStackIcon, DocumentTextIcon, ShareIcon } from '@heroicons/react/24/outline';
-import { useRouter } from 'next/router';
 import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
 import { isBrowser } from '@/utils/common/guards';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { IDocsEntity } from '@/api/search/types';
 import { CopyMenuItem } from '@/components/CopyButton';
 import { useGetExportCitation } from '@/api/export/export';
@@ -41,7 +41,7 @@ export interface IItem {
 }
 
 export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps): ReactElement => {
-  const router = useRouter();
+  const router = useRouterCompat();
   const toast = useToast();
   const { isOpen: isShareOpen, onOpen: onShareOpen, onClose: onShareClose } = useDisclosure();
   const [isFullTextOpen, setIsFullTextOpen] = useState(false);

@@ -4,7 +4,7 @@ import { ItemType } from '@/components/Dropdown/types';
 import { ISelectProps, Select } from '@/components/Select';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@/lib/useIsClient';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
 import { SimpleLinkDropdown } from '@/components/Dropdown';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
@@ -171,7 +171,7 @@ const SortSelect = <S extends SortType, F extends SortField>({
 
 // non-native type, used in search results
 const NoJsSort = <F extends SortField>({ sortOptions }: { sortOptions: SortOptionType<F>[] }): ReactElement => {
-  const router = useRouter();
+  const router = useRouterCompat();
   const query = parseQueryFromUrl(router.asPath);
   const [sortby, dir] = query.sort[0].split(' ') as [SolrSortField, SortDirection];
 

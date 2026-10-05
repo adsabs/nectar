@@ -1,6 +1,6 @@
-import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
 import { logger } from '@/logger';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 
 const SCROLL_POSITION_KEY = 'search-scroll-position';
 
@@ -8,7 +8,7 @@ const SCROLL_POSITION_KEY = 'search-scroll-position';
  * Hook to manage scroll position restoration when navigating between search results and abstract pages
  */
 export const useScrollRestoration = () => {
-  const router = useRouter();
+  const router = useRouterCompat();
   const shouldRestoreRef = useRef(false);
 
   useEffect(() => {
