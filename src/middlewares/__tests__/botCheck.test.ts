@@ -1,58 +1,46 @@
 import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { botCheck } from '@/middlewares/botCheck';
-import { getIronSession } from 'iron-session/edge';
+import { CRAWLER_RESULT } from '@/middlewares/crawlers';
 
-vi.mock('iron-session/edge', async (orig) => {
-  const actual = await orig<typeof import('iron-session/edge')>();
-  return { ...actual, getIronSession: vi.fn() };
-});
+const GOOGLEBOT = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
+const GPTBOT = 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.1; +https://openai.com/gptbot)';
+const SLACKBOT = 'Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)';
+const CLAUDEBOT = 'ClaudeBot/1.0 (+claudebot@anthropic.com)';
+const CHROME =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+const GPTBOT_IP = '20.171.206.7';
 
 describe('botCheck', () => {
-  type IronSessionMock = {
-    token?: {
-      access_token: string;
-      expires_at: string;
-      username: string;
-      anonymous: boolean;
-    } | null;
-    apiCookieHash?: string;
-    isAuthenticated?: boolean;
-    bot?: boolean;
-    save: ReturnType<typeof vi.fn>;
-    destroy: ReturnType<typeof vi.fn>;
-    updateConfig: ReturnType<typeof vi.fn>;
-  };
-
-  const getIronSessionMock = getIronSession as unknown as ReturnType<typeof vi.fn<() => Promise<IronSessionMock>>>;
   const baseEnv = { ...process.env };
 
   beforeEach(() => {
     process.env.VERIFIED_BOTS_ACCESS_TOKEN = 'bot-token';
     process.env.UNVERIFIABLE_BOTS_ACCESS_TOKEN = 'unverifiable-token';
     process.env.MALICIOUS_BOTS_ACCESS_TOKEN = 'malicious-token';
-    vi.clearAllMocks();
-    getIronSessionMock.mockResolvedValue({
-      save: vi.fn(),
-      destroy: vi.fn(),
-      updateConfig: vi.fn(),
-    });
+    delete process.env.TRUSTED_CLIENT_IP_HEADER;
+    vi.restoreAllMocks();
   });
 
   afterEach(() => {
     process.env = { ...baseEnv };
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
-  const makeReq = (ipHeader?: string, ua?: string) =>
+  const untrustedReq = (ua: string, ip = '1.1.1.1') =>
     new NextRequest('https://example.com/search', {
-      headers: {
-        ...(ipHeader ? { 'x-forwarded-for': ipHeader } : {}),
-        ...(ua ? { 'user-agent': ua } : {}),
-      },
+      headers: { 'user-agent': ua, 'x-forwarded-for': ip },
     });
 
-  const mockCrawlerResponse = (result: number) =>
+  const trustedReq = (ua: string, ip = '1.1.1.1') => {
+    process.env.TRUSTED_CLIENT_IP_HEADER = 'x-ingress-client-ip';
+    return new NextRequest('https://example.com/search', {
+      headers: { 'user-agent': ua, 'x-ingress-client-ip': ip },
+    });
+  };
+
+  const mockCrawlerResponse = (result: CRAWLER_RESULT) =>
     vi.spyOn(global, 'fetch').mockResolvedValue(
       new Response(JSON.stringify(result), {
         status: 200,
@@ -60,53 +48,104 @@ describe('botCheck', () => {
       }) as unknown as Response,
     );
 
-  test('marks verified bot with bot token and clears apiCookieHash', async () => {
-    mockCrawlerResponse(0); // BOT
-    const session = await getIronSessionMock();
-    const req = makeReq('1.1.1.1', 'TestUA');
-    await botCheck(req, NextResponse.next());
+  describe('with no trusted IP source', () => {
+    test('will not grant the verified tier to a range-listed crawler', async () => {
+      const fetchSpy = vi.spyOn(global, 'fetch');
 
-    expect(session.token?.access_token).toBe('bot-token');
-    expect(session.bot).toBe(true);
-    expect(session.apiCookieHash).toBe('');
-    expect(session.isAuthenticated).toBe(false);
-    expect(session.save).toHaveBeenCalled();
+      await expect(botCheck(untrustedReq(GPTBOT, GPTBOT_IP))).resolves.toMatchObject({
+        access_token: 'unverifiable-token',
+      });
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    test('will not defer a DNS crawler for verification', async () => {
+      const fetchSpy = vi.spyOn(global, 'fetch');
+
+      await expect(botCheck(untrustedReq(GOOGLEBOT, '66.249.66.1'))).resolves.toMatchObject({
+        access_token: 'unverifiable-token',
+      });
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
   });
 
-  test('marks unverifiable bot with dedicated token', async () => {
-    mockCrawlerResponse(3); // UNVERIFIABLE
-    const session = await getIronSessionMock();
-    await botCheck(makeReq(), NextResponse.next());
+  describe('with a trusted IP source', () => {
+    test('verifies a range-listed crawler without any hop', async () => {
+      const fetchSpy = vi.spyOn(global, 'fetch');
+      const req = trustedReq(GPTBOT, GPTBOT_IP);
 
-    expect(session.token?.access_token).toBe('unverifiable-token');
-    expect(session.bot).toBe(true);
+      await expect(botCheck(req)).resolves.toMatchObject({ access_token: 'bot-token' });
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    test('flags a range-listed crawler from an outside IP without any hop', async () => {
+      const fetchSpy = vi.spyOn(global, 'fetch');
+      const req = trustedReq(GPTBOT, '9.9.9.9');
+
+      await expect(botCheck(req)).resolves.toMatchObject({ access_token: 'malicious-token' });
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    test('defers a DNS crawler and honours the verdict', async () => {
+      const req = trustedReq(GOOGLEBOT, '66.249.66.1');
+      mockCrawlerResponse(CRAWLER_RESULT.BOT);
+
+      await expect(botCheck(req)).resolves.toMatchObject({ access_token: 'bot-token' });
+    });
+
+    test('treats a failed hop as human so real users are never restricted', async () => {
+      const req = trustedReq(GOOGLEBOT, '66.249.66.1');
+      vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network down'));
+
+      await expect(botCheck(req)).resolves.toBeNull();
+    });
   });
 
-  test('marks malicious bot with dedicated token', async () => {
-    mockCrawlerResponse(2); // POTENTIAL_MALICIOUS_BOT
-    const session = await getIronSessionMock();
-    await botCheck(makeReq(), NextResponse.next());
+  describe('classifications that need no IP at all', () => {
+    test('flags an unverifiable crawler without any hop', async () => {
+      const fetchSpy = vi.spyOn(global, 'fetch');
 
-    expect(session.token?.access_token).toBe('malicious-token');
-    expect(session.bot).toBe(true);
+      await expect(botCheck(untrustedReq(SLACKBOT))).resolves.toMatchObject({
+        access_token: 'unverifiable-token',
+      });
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    test('flags an AI scraper the curated list omits, without any hop', async () => {
+      const fetchSpy = vi.spyOn(global, 'fetch');
+
+      await expect(botCheck(untrustedReq(CLAUDEBOT))).resolves.toMatchObject({
+        access_token: 'unverifiable-token',
+      });
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    test('returns null for a browser, without any hop', async () => {
+      const fetchSpy = vi.spyOn(global, 'fetch');
+
+      await expect(botCheck(untrustedReq(CHROME))).resolves.toBeNull();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
   });
 
-  test('does nothing for human responses', async () => {
-    mockCrawlerResponse(1); // HUMAN
-    const session = await getIronSessionMock();
-    await botCheck(makeReq(), NextResponse.next());
+  describe('token configuration', () => {
+    test('treats a bot as human when its tier token is unset', async () => {
+      delete process.env.UNVERIFIABLE_BOTS_ACCESS_TOKEN;
 
-    expect(session.token).toBeUndefined();
-    expect(session.bot).toBeUndefined();
-    expect(session.save).not.toHaveBeenCalled();
-  });
+      await expect(botCheck(untrustedReq(SLACKBOT))).resolves.toBeNull();
+    });
 
-  test('treats fetch failure as human to avoid blocking users', async () => {
-    vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network down'));
-    const session = await getIronSessionMock();
-    await botCheck(makeReq(), NextResponse.next());
+    test('treats a bot as human when its tier token is empty', async () => {
+      process.env.UNVERIFIABLE_BOTS_ACCESS_TOKEN = '';
 
-    expect(session.token).toBeUndefined();
-    expect(session.save).not.toHaveBeenCalled();
+      await expect(botCheck(untrustedReq(SLACKBOT))).resolves.toBeNull();
+    });
+
+    test('issues a token that actually expires', async () => {
+      const token = await botCheck(untrustedReq(SLACKBOT));
+      const expiresAt = Number(token?.expires_at);
+
+      expect(expiresAt).toBeGreaterThan(Math.floor(Date.now() / 1000));
+      expect(expiresAt).toBeLessThan(Math.floor(Date.now() / 1000) + 24 * 60 * 60);
+    });
   });
 });

@@ -107,6 +107,31 @@ describe('initSession integration', () => {
     expect(session.apiCookieHash).toBe(cookieHash);
   });
 
+  test('adopts the bot token on the outer session and skips bootstrap', async () => {
+    const botToken = {
+      access_token: 'verified-bot-token',
+      expires_at: '99999999999999',
+      username: 'anonymous',
+      anonymous: true,
+    };
+    botCheckMock.mockResolvedValueOnce(botToken);
+
+    const session = createSession({ apiCookieHash: 'stale' });
+    const req = new NextRequest('https://example.com/search', {
+      headers: { cookie: `${cookieName}=abc123`, 'user-agent': 'Googlebot/2.1' },
+    });
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(makeBootstrapResponse('rotated'));
+
+    await initSession(req, NextResponse.next(), session as never);
+
+    expect(session.bot).toBe(true);
+    expect(session.token).toEqual(botToken);
+    expect(session.isAuthenticated).toBe(false);
+    expect(session.apiCookieHash).toBe('');
+    expect(session.save).toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   test('hydrates session on slow path and rewrites session cookie', async () => {
     process.env.NEXT_PUBLIC_API_MOCKING = 'enabled';
     const session = createSession({

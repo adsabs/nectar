@@ -206,7 +206,16 @@ export const initSession = async (req: NextRequest, res: NextResponse, session: 
   log.debug('Session is invalid, or expired, creating new one...');
 
   // check if the user is a bot
-  await botCheck(req, res);
+  const botToken = await botCheck(req);
+
+  if (botToken) {
+    session.token = botToken;
+    session.isAuthenticated = false;
+    session.apiCookieHash = '';
+    session.bot = true;
+    await session.save();
+    return res;
+  }
 
   const testScenario = req.headers.get('x-test-scenario');
   const testHeaders = testScenario ? { 'x-test-scenario': testScenario } : undefined;
