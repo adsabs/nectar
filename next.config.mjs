@@ -31,7 +31,7 @@ const nextConfig = {
   generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
-  transpilePackages: ['@nivo/core', '@nivo/line', '@nivo/bar', 'react-shepherd'],
+  transpilePackages: ['@nivo/core', '@nivo/line', '@nivo/bar'],
   experimental: {
     webVitalsAttribution: ['CLS', 'LCP'],
     optimizePackageImports: ['@api', '@components', '@chakra-ui/react', 'ramda'],
