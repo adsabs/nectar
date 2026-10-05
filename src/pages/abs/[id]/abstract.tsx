@@ -6,7 +6,6 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { isNil } from 'ramda';
-import { useShepherd } from 'react-shepherd';
 import { SafeAbstract } from '@/components/SafeAbstract';
 
 import { IAllAuthorsModalProps } from '@/components/AllAuthorsModal';
@@ -200,7 +199,6 @@ export default AbstractPage;
 
 const useTour = () => {
   const appMode = useStore((state) => state.mode);
-  const Shepherd = useShepherd();
   const { isScreenLarge } = useScreenSize();
   const [isRendered, setIsRendered] = useState(false);
 
@@ -220,7 +218,17 @@ const useTour = () => {
   }, []);
 
   useEffect(() => {
-    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_ABSTRACT_TOUR)) {
+    if (!isRendered || localStorage.getItem(LocalSettings.SEEN_ABSTRACT_TOUR)) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void import('shepherd.js').then(({ default: Shepherd }) => {
+      if (cancelled) {
+        return;
+      }
+
       const tour = new Shepherd.Tour({
         useModalOverlay: true,
         defaultStepOptions: {
@@ -265,8 +273,12 @@ const useTour = () => {
       setTimeout(() => {
         tour.start();
       }, 1000);
-    }
-  }, [Shepherd.Tour, appMode, isRendered, isScreenLarge]);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [appMode, isRendered, isScreenLarge]);
 };
 
 export const getServerSideProps = createAbsGetServerSideProps('abstract');
