@@ -9,6 +9,8 @@ import { IExplorerCollection } from './types';
 import { useRouter } from 'next/router';
 import { allRecordsQuery, searchFacetDefaultParams } from './helpers';
 import { CompassIcon } from '../icons/browser/CompassIcon';
+import { dataDetails } from './data_data';
+import { bibgroupDetails } from './bibgroup_data';
 
 export const ExplorerLanding = () => {
   const router = useRouter();
@@ -290,6 +292,11 @@ export const ExplorerLanding = () => {
                       <Text fontSize="lg" fontWeight="bold">
                         {bg.label}
                       </Text>
+                      {bibgroupDetails[bg.facetKey as string]?.title && (
+                        <Text fontSize="sm" color={colors.lightText}>
+                          {bibgroupDetails[bg.facetKey as string].title}
+                        </Text>
+                      )}
                       {!isBibgroupLoading && !isBibgroupError && (
                         <Text fontSize="sm">
                           {kFormatNumber(
@@ -367,6 +374,11 @@ export const ExplorerLanding = () => {
                       <Text fontSize="lg" fontWeight="bold">
                         {dc.label}
                       </Text>
+                      {dataDetails[dc.facetKey as string]?.title && (
+                        <Text fontSize="sm" color={colors.lightText}>
+                          {dataDetails[dc.facetKey as string].title}
+                        </Text>
+                      )}
                       {!isDataLoading && !isDataError && (
                         <Text fontSize="sm">
                           {kFormatNumber(
