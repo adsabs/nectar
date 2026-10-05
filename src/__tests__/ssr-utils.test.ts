@@ -163,6 +163,36 @@ describe('updateUserStateSSR', () => {
     expect(props.dehydratedAppState).not.toHaveProperty('mode');
   });
 
+  describe('bot sessions', () => {
+    const BOT_TOKEN = {
+      access_token: 'shared-elevated-bot-token',
+      expires_at: `${Math.floor(Date.now() / 1000) + 3600}`,
+      username: 'anonymous',
+      anonymous: true,
+    };
+
+    const propsFor = async (sessionData: Record<string, unknown>) => {
+      const result = await updateUserStateSSR(getMockContext(sessionData as never), { props: {} });
+      if (!('props' in result)) {
+        throw new Error('Expected props in result');
+      }
+      return result.props as SSRPropsWithState;
+    };
+
+    test('does not serialize a bot token into the document', async () => {
+      const props = await propsFor({ token: BOT_TOKEN, bot: true, isAuthenticated: false });
+
+      expect(JSON.stringify(props)).not.toContain('shared-elevated-bot-token');
+      expect(props.dehydratedAppState?.user).toEqual({});
+    });
+
+    test('still serializes a normal anonymous token', async () => {
+      const props = await propsFor({ token: BOT_TOKEN, bot: false, isAuthenticated: false });
+
+      expect(JSON.stringify(props)).toContain('shared-elevated-bot-token');
+    });
+  });
+
   describe('forceMode handling', () => {
     test('should apply forceMode on home page', async () => {
       const context = getMockContext({}, { forceMode: 'planetary' }, '/');

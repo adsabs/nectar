@@ -91,6 +91,7 @@ export const handleAuthentication = async (
           session.token = pickUserData(userData);
           session.isAuthenticated = true;
           session.apiCookieHash = await hash(apiSessionCookie?.value);
+          session.bot = false;
           await session.save();
           log.info('session updated, success');
           return res.status(200).json({ success: true });

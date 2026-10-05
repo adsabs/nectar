@@ -13,7 +13,7 @@ const user = async (req: NextApiRequest, res: NextApiResponse) => {
 
   return res.json({
     isAuthenticated: session.isAuthenticated,
-    user: session.token,
+    user: session.bot ? undefined : session.token,
   });
 };
 
