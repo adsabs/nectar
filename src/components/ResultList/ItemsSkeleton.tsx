@@ -12,7 +12,15 @@ export const ItemsSkeleton = (props: ISkeletonProps): ReactElement => {
   return (
     <>
       {range(0, count).map((i) => (
-        <Box border="1px" borderColor="gray.50" margin={2} borderRadius="md" padding={2} key={i.toString()}>
+        <Box
+          data-testid="item-skeleton"
+          border="1px"
+          borderColor="gray.50"
+          margin={2}
+          borderRadius="md"
+          padding={2}
+          key={i.toString()}
+        >
           <Stack direction="column" width="full">
             <Skeleton height={3} width="100%" />
             <Skeleton height={3} width="50%" />
