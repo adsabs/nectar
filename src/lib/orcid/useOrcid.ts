@@ -1,7 +1,7 @@
 import { AppState, useStore } from '@/store';
 import { useIsClient } from '@/lib/useIsClient';
 import { ORCID_LOGIN_URL, ORCID_MODE_TIMEOUT } from '@/config';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { isValidIOrcidUser } from '@/api/orcid/models';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
@@ -18,7 +18,7 @@ const setNotificationSelector = (state: AppState) => state.setNotification;
 const lastActivityAtSelector = (state: AppState) => state.orcid.lastActivityAt;
 
 export const useOrcid = () => {
-  const router = useRouter();
+  const router = useRouterCompat();
   const setOrcidMode = useStore(setOrcidModeSelector);
   const isClient = useIsClient();
   const active = useStore(activeSelector);
@@ -106,9 +106,15 @@ export const useOrcid = () => {
   const logout = () => {
     // if we're on the orcid page, we need to redirect to the home page
     if (router.pathname === '/user/orcid' || router.pathname === '/user/orcid/OAuth') {
-      router.replace('/').finally(() => {
+      const settle = () => {
+        unsubscribeComplete();
+        unsubscribeError?.();
         reset();
-      });
+      };
+
+      const unsubscribeComplete = router.onNavigateComplete(settle);
+      const unsubscribeError = router.onNavigateError?.(settle);
+      router.replace('/');
     } else {
       reset();
     }

@@ -2,8 +2,7 @@ import { Dispatch, useEffect, useRef } from 'react';
 import { SearchInputAction } from '@/components/SearchBar/searchInputReducer';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { useDebouncedCallback } from 'use-debounce';
-import { useRouter } from 'next/router';
-import { parseQueryFromUrl } from '@/utils/common/search';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 
 /**
  * Synchronizes the search term with the global query from the intermediate query state.
@@ -20,26 +19,10 @@ export const useSyncWithGlobal = (
     updateWait: number;
   },
 ) => {
-  const { updateQuery, clearQuery } = useIntermediateQuery();
-  const { query: urlQuery, events } = useRouter();
+  const { updateQuery } = useIntermediateQuery();
+  const { query: urlQuery } = useRouterCompat();
   const { searchTerm, dispatch } = props;
   const debouncedUpdateQuery = useDebouncedCallback((q: string) => updateQuery(q), options?.updateWait ?? 500);
-
-  useEffect(() => {
-    const handler = (url: string) => {
-      if (url.startsWith('/search')) {
-        const { q } = parseQueryFromUrl(url) as { q: string | undefined };
-        dispatch({
-          type: 'SET_SEARCH_TERM',
-          payload: { query: q, cursorPosition: q ? q.length : 0 },
-        });
-      }
-    };
-    events.on('routeChangeStart', handler);
-    return () => {
-      events.off('routeChangeStart', handler);
-    };
-  }, [clearQuery, dispatch, events]);
 
   useEffect(() => {
     if (urlQuery?.q) {

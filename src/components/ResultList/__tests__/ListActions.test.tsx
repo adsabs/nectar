@@ -13,9 +13,20 @@ const mocks = vi.hoisted(() => ({
     isAuthenticated: false,
     logout: vi.fn(),
   })),
+  routerCompat: {
+    pathname: '/search',
+    searchParams: new URLSearchParams('?q=test%20query'),
+    query: { q: 'test query' },
+    asPath: '/search?q=test%20query',
+    push: vi.fn(),
+    replace: vi.fn(),
+    onNavigateStart: (): (() => void) => () => undefined,
+    onNavigateComplete: (): (() => void) => () => undefined,
+  },
 }));
 
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
+vi.mock('@/lib/useRouterCompat', () => ({ useRouterCompat: () => mocks.routerCompat }));
 vi.mock('@/lib/useSession', () => ({ useSession: mocks.useSession }));
 
 describe('ListActions notification bell button', () => {

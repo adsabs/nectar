@@ -7,13 +7,13 @@ import shallow from 'zustand/shallow';
 import { modes } from './models';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { Select, SelectOption } from '@/components/Select';
-import { appModeToDisciplineParam, syncUrlDisciplineParam } from '@/utils/appMode';
-import { useRouter } from 'next/router';
+import { appModeToDisciplineParam, syncUrlDisciplineParamCompat } from '@/utils/appMode';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 
 const options = Object.values(modes);
 
 export const AppModeDropdown = (): ReactElement => {
-  const router = useRouter();
+  const router = useRouterCompat();
   const [
     mode,
     setMode,
@@ -52,7 +52,7 @@ export const AppModeDropdown = (): ReactElement => {
     setUrlModeOverride(null);
     dismissModeNotice();
     setMode(nextMode);
-    void syncUrlDisciplineParam(router, nextMode);
+    syncUrlDisciplineParamCompat(router, nextMode);
     sendGTMEvent({
       event: 'app_mode_change',
       mode: nextMode,

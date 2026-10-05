@@ -5,13 +5,24 @@ import { render, waitFor } from '@/test-utils';
 import { NextRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
 
-const createMockRouter = (initial: Partial<NextRouter> = {}): NextRouter => {
-  const router: Partial<NextRouter> = {
+// The NavBar tree now reads the router through useRouterCompat, so the mock
+// has to satisfy both shapes.
+type MockRouter = Partial<NextRouter> & {
+  searchParams?: URLSearchParams;
+  onNavigateStart?: () => () => void;
+  onNavigateComplete?: () => () => void;
+};
+
+const createMockRouter = (initial: MockRouter = {}): NextRouter => {
+  const router: MockRouter = {
     basePath: '',
     pathname: '/',
     route: '/',
     asPath: '/',
     query: {},
+    searchParams: new URLSearchParams(),
+    onNavigateStart: (): (() => void) => () => undefined,
+    onNavigateComplete: (): (() => void) => () => undefined,
     isReady: true,
     isLocaleDomain: false,
     isPreview: false,
@@ -30,9 +41,16 @@ const createMockRouter = (initial: Partial<NextRouter> = {}): NextRouter => {
     ...initial,
   };
 
-  // Mock a stateful replace implementation to reflect URL changes
+  // Stateful replace so the tests can observe URL changes. useRouterCompat
+  // passes a string URL, unlike next/router's object form, so parse both.
   router.replace = vi.fn().mockImplementation((url: string | { pathname?: string; query?: ParsedUrlQuery }) => {
-    if (typeof url === 'object') {
+    if (typeof url === 'string') {
+      const parsed = new URL(url, 'http://localhost');
+      router.pathname = parsed.pathname;
+      router.searchParams = parsed.searchParams;
+      router.query = Object.fromEntries(parsed.searchParams.entries());
+      router.asPath = `${parsed.pathname}${parsed.search}`;
+    } else {
       if (url.pathname) {
         router.pathname = url.pathname;
       }
@@ -60,6 +78,10 @@ let mockRouter: NextRouter;
 
 vi.mock('next/router', () => ({
   useRouter: () => mockRouter,
+}));
+
+vi.mock('@/lib/useRouterCompat', () => ({
+  useRouterCompat: () => mockRouter,
 }));
 
 describe('AppModeUrlNotice', () => {

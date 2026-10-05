@@ -20,11 +20,14 @@ const mocks = vi.hoisted(() => ({
     asPath: '/',
     push: vi.fn(),
     replace: vi.fn(),
+    onNavigateStart: (): (() => void) => () => undefined,
+    onNavigateComplete: (): (() => void) => () => undefined,
     events: { on: vi.fn(), off: vi.fn() },
   })),
 }));
 
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
+vi.mock('@/lib/useRouterCompat', () => ({ useRouterCompat: mocks.useRouter }));
 
 vi.mock('@chakra-ui/react', async () => {
   const actual = await vi.importActual<typeof import('@chakra-ui/react')>('@chakra-ui/react');

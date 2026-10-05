@@ -1,34 +1,34 @@
-import { useShepherd } from 'react-shepherd';
 import type { Step, StepOptions } from 'shepherd.js';
 import { offset } from '@floating-ui/react-dom';
-import { useRouter } from 'next/router';
 import { useBreakpointValue } from '@chakra-ui/react';
 import * as Sentry from '@sentry/nextjs';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { LocalSettings } from '@/types';
 import { useStore } from '@/store';
-import { useMemo } from 'react';
+import { useCallback } from 'react';
+import { useRouterCompat } from '@/lib/useRouterCompat';
+import { SEARCH_PAGE_PATHNAMES } from '@/utils/appMode';
 
 export const useTour = (type?: 'home' | 'results' | 'abstract') => {
-  const router = useRouter();
+  const router = useRouterCompat();
   const appMode = useStore((state) => state.mode);
-  const Shepherd = useShepherd();
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const landingPage = /^(|\/|\/classic-form|\/paper-form)$/;
-  const resultsPage = '/search';
   const absPage = /\/abs\//;
 
   const tourType = type
     ? type
     : router.pathname.match(landingPage)
     ? 'home'
-    : router.pathname === resultsPage
+    : SEARCH_PAGE_PATHNAMES.has(router.pathname)
     ? 'results'
     : router.pathname.match(absPage)
     ? 'abstract'
     : 'none';
 
-  const tourObject = useMemo(() => {
+  const startTour = useCallback(async () => {
+    const { default: Shepherd } = await import('shepherd.js');
+
     const tour = new Shepherd.Tour({
       useModalOverlay: true,
       defaultStepOptions: {
@@ -105,10 +105,11 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
         document.getElementById('search-input')?.focus();
       }, 0);
     });
-    return { tourType, tour };
-  }, [Shepherd.Tour, tourType, isMobile, appMode]);
 
-  return tourObject;
+    tour.start();
+  }, [tourType, isMobile, appMode]);
+
+  return { tourType, startTour };
 };
 
 export const getHomeSteps = (isMobile: boolean, isAstrophysics = false) => {
