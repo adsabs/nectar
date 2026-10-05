@@ -538,4 +538,84 @@ describe('middleware route integration', () => {
       expect(res.headers.get('location')).toBeNull();
     });
   });
+
+  // The app router route reads the session token and request URL from these
+  // headers; nothing else pins them, and a regression here silently drops
+  // every server-rendered search back to the client fetch path.
+  describe('forwarded request headers', () => {
+    const ACCESS_TOKEN_HEADER = 'x-scix-access-token';
+    const FORWARDED_URL_HEADER = 'x-scix-forwarded-url';
+
+    // Next encodes overridden request headers onto the response as
+    // x-middleware-request-<name>, listed in x-middleware-override-headers.
+    const forwardedHeader = (res: NextResponse, name: string): string | null =>
+      res.headers.get(`x-middleware-request-${name}`);
+
+    const overridden = (res: NextResponse): string[] =>
+      (res.headers.get('x-middleware-override-headers') ?? '').split(',').filter(Boolean);
+
+    test('forwards the session token to the server renderer', async () => {
+      const res = await middleware(makeReq('https://example.com/search?q=star'));
+
+      expect(forwardedHeader(res, ACCESS_TOKEN_HEADER)).toBe('token');
+    });
+
+    test('forwards the path and query so the renderer can rebuild the search', async () => {
+      const res = await middleware(makeReq('https://example.com/search?q=star&sort=date+desc'));
+
+      expect(forwardedHeader(res, FORWARDED_URL_HEADER)).toBe('/search?q=star&sort=date+desc');
+    });
+
+    test('lists both headers as overridden', async () => {
+      const res = await middleware(makeReq('https://example.com/search?q=star'));
+
+      expect(overridden(res)).toEqual(expect.arrayContaining([ACCESS_TOKEN_HEADER, FORWARDED_URL_HEADER]));
+    });
+
+    // A client that supplies its own token header must never have it reach the
+    // renderer: the renderer would treat it as server-derived and search with
+    // someone else's credentials.
+    test('replaces a client-supplied token with the session token', async () => {
+      const req = makeReq('https://example.com/search?q=star', {
+        headers: { [ACCESS_TOKEN_HEADER]: 'forged-token' },
+      });
+
+      const res = await middleware(req);
+
+      expect(forwardedHeader(res, ACCESS_TOKEN_HEADER)).toBe('token');
+    });
+
+    // A session with no token never reaches the renderer at all — it is treated
+    // as a bootstrap failure and redirected. That is what makes it impossible
+    // for a forged token to be forwarded in place of a missing one.
+    test('a tokenless session is redirected rather than server-rendered', async () => {
+      getIronSessionMock.mockResolvedValue({ save: vi.fn(), destroy: vi.fn(), updateConfig: vi.fn() });
+      const req = makeReq('https://example.com/search?q=star', {
+        headers: { [ACCESS_TOKEN_HEADER]: 'forged-token' },
+      });
+
+      const res = await middleware(req);
+
+      expect(res.headers.get('location')).toContain('notify=api-connect-failed');
+      expect(overridden(res)).toEqual([]);
+    });
+
+    // Same reasoning for the URL: it decides which query gets server-rendered
+    // and seeded into the client cache.
+    test('replaces a client-supplied forwarded url with the real one', async () => {
+      const req = makeReq('https://example.com/search?q=star', {
+        headers: { [FORWARDED_URL_HEADER]: '/search?q=something-else' },
+      });
+
+      const res = await middleware(req);
+
+      expect(forwardedHeader(res, FORWARDED_URL_HEADER)).toBe('/search?q=star');
+    });
+
+    test('forwards a bare path when there is no query string', async () => {
+      const res = await middleware(makeReq('https://example.com/search'));
+
+      expect(forwardedHeader(res, FORWARDED_URL_HEADER)).toBe('/search');
+    });
+  });
 });
