@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
+vi.mock('@/lib/useRouterCompat', () => ({ useRouterCompat: mocks.useRouter }));
 
 describe('AddToRemoveFromLibraryModal', () => {
   const defaultProps = {

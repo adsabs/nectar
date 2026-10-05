@@ -34,7 +34,7 @@ import {
 import { useIsClient } from '@/lib/useIsClient';
 import { AppState, useStore, useStoreApi } from '@/store';
 import NextLink from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { curryN } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
@@ -49,7 +49,7 @@ import { solrSortOptions } from '@/components/Sort/model';
 import { ISortProps, Sort } from '@/components/Sort';
 import { sections } from '@/components/Visualizations';
 import { useColorModeColors } from '@/lib/useColorModeColors';
-import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import { makeSearchParams, parseQueryFromUrl, stringifySearchParams } from '@/utils/common/search';
 import { noop } from '@/utils/common/noop';
 import { SolrSort, SolrSortField } from '@/api/models';
 import { useVaultBigQuerySearch } from '@/api/vault/vault';
@@ -76,7 +76,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const { isAuthenticated } = useSession();
   const noneSelected = selected.length === 0;
   const [exploreAll, setExploreAll] = useState(true);
-  const router = useRouter();
+  const router = useRouterCompat();
   const toast = useToast();
 
   const { settings } = useSettings({ suspense: false });
@@ -99,11 +99,12 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     if (data && path) {
       if (path.path) {
         // go to viz page with original query
-        void router.push({ pathname: path.path, query: { ...router.query, qid: data.qid } });
+        void router.push(`${path.path}?${stringifySearchParams({ ...router.query, qid: data.qid })}`);
       } else {
         // new search with operator
         const q = createOperatorQuery(path.operator, `docs(${data.qid})`);
-        void router.push({ pathname: '', search: makeSearchParams({ q, sort: ['score desc'] }) });
+        const currentPath = router.asPath.split('?')[0];
+        void router.push(`${currentPath}?${makeSearchParams({ q, sort: ['score desc'] })}`);
       }
       clearSelected();
       setPath(null);
@@ -117,7 +118,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
       });
       setPath(null);
     }
-  }, [data, error, path]);
+  }, [data, error, path, router]);
 
   const handleExploreOption = (value: string | string[]) => {
     if (typeof value === 'string') {
@@ -128,7 +129,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const handleExploreVizLink: MouseEventHandler<HTMLButtonElement> = (e) => {
     const path = e.currentTarget.dataset.sectionPath;
     if (exploreAll) {
-      void router.push({ pathname: path, query: router.query });
+      void router.push(`${path}?${stringifySearchParams(router.query)}`);
     } else {
       // set the path which will trigger the search
       setPath({ path });
@@ -152,7 +153,8 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
         return;
       }
       const q = createOperatorQuery(operator, filteredQSet.join(' AND '));
-      void router.push({ pathname: '', search: makeSearchParams({ q, sort: ['score desc'] }) });
+      const currentPath = router.asPath.split('?')[0];
+      void router.push(`${currentPath}?${makeSearchParams({ q, sort: ['score desc'] })}`);
     } else {
       setPath({ operator });
     }
@@ -160,7 +162,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
 
   const handleOpenCitationHelper = () => {
     if (exploreAll) {
-      void router.push({ pathname: '/search/citation_helper', query: router.query });
+      void router.push(`/search/citation_helper?${stringifySearchParams(router.query)}`);
     } else {
       setPath({ path: '/search/citation_helper' });
     }
@@ -463,7 +465,7 @@ const SelectAllCheckbox = () => {
 
 const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExportFormat: string }): ReactElement => {
   const { exploreAll, defaultExportFormat, ...menuGroupProps } = props;
-  const router = useRouter();
+  const router = useRouterCompat();
   const store = useStoreApi();
   const [selected, setSelected] = useState<Bibcode[]>([]);
   const [route, setRoute] = useState(['', '']);
@@ -478,12 +480,9 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
       setSelected([]);
 
       // when vault query is done, transition to the export page passing only qid
-      void router.push(
-        { pathname: route[0], query: { ...router.query, qid: data.qid } },
-        { pathname: route[1], query: { ...router.query, qid: data.qid } },
-      );
+      void router.push(`${route[1]}?${stringifySearchParams({ ...router.query, qid: data.qid })}`);
     }
-  }, [data, route]);
+  }, [data, route, router]);
 
   // on route change
   useEffect(() => {
@@ -494,9 +493,9 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
 
     if (isNonEmptyString(route[0])) {
       // if explore all, then just use the current query, and do not trigger vault (redirect immediately)
-      void router.push({ pathname: route[0], query: router.query }, { pathname: route[1], query: router.query });
+      void router.push(`${route[1]}?${stringifySearchParams(router.query)}`);
     }
-  }, [route]);
+  }, [route, router]);
 
   const handleExportItemClick = curryN(2, (format: string) => {
     setRoute([`/search/exportcitation/[format]`, `/search/exportcitation/${format}`]);

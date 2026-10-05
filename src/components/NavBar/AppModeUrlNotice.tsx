@@ -1,6 +1,6 @@
 import { Alert, AlertDescription, AlertIcon, Box, Button, CloseButton, HStack } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { FC, useEffect, useRef, useState } from 'react';
 import shallow from 'zustand/shallow';
 import { useStore } from '@/store';
@@ -10,7 +10,7 @@ import {
   getAppModeLabel,
   mapDisciplineParamToAppMode,
   normalizeDisciplineParam,
-  syncUrlDisciplineParam,
+  syncUrlDisciplineParamCompat,
 } from '@/utils/appMode';
 
 const pulse = keyframes`
@@ -18,7 +18,7 @@ const pulse = keyframes`
 `;
 
 export const AppModeUrlNotice: FC = () => {
-  const router = useRouter();
+  const router = useRouterCompat();
   const [
     mode,
     setMode,
@@ -71,10 +71,6 @@ export const AppModeUrlNotice: FC = () => {
   const handledParam = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!router.isReady) {
-      return;
-    }
-
     // Only honor d param on /search routes; ignore elsewhere to prevent spurious notices/loops.
     const rawParam = router.pathname === '/search' ? router.query?.d : null;
     const mappedMode = mapDisciplineParamToAppMode(rawParam);
@@ -145,7 +141,7 @@ export const AppModeUrlNotice: FC = () => {
     }
 
     if (router.query?.d !== normalizedParam) {
-      void syncUrlDisciplineParam(router, mappedMode);
+      syncUrlDisciplineParamCompat(router, mappedMode);
     }
 
     const baselineMode = urlModePrevious ?? (mode !== mappedMode ? mode : AppMode.GENERAL);
@@ -167,7 +163,6 @@ export const AppModeUrlNotice: FC = () => {
       setVisible(true);
     }
   }, [
-    router.isReady,
     router.query?.d,
     mode,
     setMode,
@@ -191,29 +186,23 @@ export const AppModeUrlNotice: FC = () => {
   }, [modeNoticeVisible]);
 
   useEffect(() => {
-    const sync = async () => {
-      if (!router.isReady) {
-        return;
-      }
-      if (router.query?.d !== undefined) {
-        // URL already carries a discipline; avoid rewriting it here.
-        return;
-      }
-      if (urlModeOverride) {
-        // honor active URL override; avoid feedback loop while override is present
-        return;
-      }
-      const currentParam = normalizeDisciplineParam(router.query?.d);
-      const targetParam = appModeToDisciplineParam(mode);
-      if (currentParam === targetParam) {
-        return;
-      }
-      if (process.env.NODE_ENV !== 'production') {
-        console.debug('[app-mode] syncing URL param', { currentParam, targetParam, mode });
-      }
-      await syncUrlDisciplineParam(router, mode);
-    };
-    void sync();
+    if (router.query?.d !== undefined) {
+      // URL already carries a discipline; avoid rewriting it here.
+      return;
+    }
+    if (urlModeOverride) {
+      // honor active URL override; avoid feedback loop while override is present
+      return;
+    }
+    const currentParam = normalizeDisciplineParam(router.query?.d);
+    const targetParam = appModeToDisciplineParam(mode);
+    if (currentParam === targetParam) {
+      return;
+    }
+    if (process.env.NODE_ENV !== 'production') {
+      console.debug('[app-mode] syncing URL param', { currentParam, targetParam, mode });
+    }
+    syncUrlDisciplineParamCompat(router, mode);
   }, [router, mode, urlModeOverride]);
 
   // A forced switch (from a classic/paper form route) has no URL `d` param, so
@@ -246,7 +235,7 @@ export const AppModeUrlNotice: FC = () => {
     // discipline there would just re-trigger the switch, so navigate home.
     if (isForcedSwitch) {
       setForcedAstroFromMode(null);
-      void router.push('/');
+      router.push('/');
       return;
     }
 
@@ -254,7 +243,7 @@ export const AppModeUrlNotice: FC = () => {
     setUrlModePrevious(targetMode);
     setUrlModeUserSelected(true);
     setUrlModePendingParam(appModeToDisciplineParam(targetMode));
-    void syncUrlDisciplineParam(router, targetMode);
+    syncUrlDisciplineParamCompat(router, targetMode);
   };
 
   return (
