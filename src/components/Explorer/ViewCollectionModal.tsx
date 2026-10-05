@@ -18,7 +18,7 @@ import {
   IconButton,
 } from '@chakra-ui/react';
 import { ControlledPaginationControls } from '../Pagination';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { APP_DEFAULTS } from '@/config';
 import { NumPerPageType } from '@/types';
 import { useDebounce } from '@/lib/useDebounce';
@@ -51,16 +51,21 @@ export const ViewCollectionModal = ({
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
+  const getFacetValue = useCallback((val: string) => {
+    const regex = /^[01]\/(.*)/;
+    return regex.test(val) ? parseTitleFromKey(val) : val;
+  }, []);
+
   const filteredData = useMemo(() => {
     if (!debouncedSearchTerm) {
       return data;
     }
     return data.filter((d) =>
-      parseTitleFromKey(d.val as string)
+      getFacetValue(d.val as string)
         .toLowerCase()
         .includes(debouncedSearchTerm.toLowerCase()),
     );
-  }, [data, debouncedSearchTerm]);
+  }, [data, debouncedSearchTerm, getFacetValue]);
 
   const pageData = useMemo(() => {
     const start = pageIndex * pageSize;
@@ -131,7 +136,7 @@ export const ViewCollectionModal = ({
                         }
                       }}
                     >
-                      <Td>{parseTitleFromKey(d.val as string)}</Td>
+                      <Td>{getFacetValue(d.val as string)}</Td>
                       <Td isNumeric>{kFormatNumber(d.count)}</Td>
                     </Tr>
                   ))}

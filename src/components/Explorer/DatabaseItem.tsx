@@ -11,7 +11,7 @@ import { IADSApiSearchParams } from '@/api/search/types';
 import { useEffect, useState } from 'react';
 import { FeaturedPapers } from './FeaturedPapers';
 import { FacetFieldTable } from './FacetFieldTable';
-import { SubFacetCard } from './SubFacetCard';
+import { SubFacetCard, SubFacetSimpleCard } from './SubFacetCard';
 import { OverTimeChart } from './OverTimeChart';
 
 const cid = 'database';
@@ -23,7 +23,9 @@ export const DatabaseItem = ({ facetValue }: { facetValue: IExplorerFacet['searc
 
   const subFacets = facet.subset?.map((f) => databases[f]);
 
-  const [subFacet, setSubFacet] = useState<IExplorerFacet>(null); // optional, i.e astrophysics
+  const [subFacetDatabase, setSubFacetDatabase] = useState<IExplorerFacet>(null); // optional, i.e astrophysics
+
+  const [subFacetDoctype, setSubFacetDoctype] = useState<IExplorerFacet>(null);
 
   // The main query (q) for the page (i.e. database:astrophysics)
   const [query, setQuery] = useState<IADSApiSearchParams['q']>(
@@ -43,14 +45,26 @@ export const DatabaseItem = ({ facetValue }: { facetValue: IExplorerFacet['searc
 
   // apply sub-facet
   useEffect(() => {
-    setQuery(`${collection.searchQueryField}:"${subFacet ? subFacet.searchQueryValue : facet.searchQueryValue}"`);
-  }, [subFacet]);
+    const newQuery = `${collection.searchQueryField}:"${
+      subFacetDatabase ? subFacetDatabase.searchQueryValue : facet.searchQueryValue
+    }"`;
+
+    setQuery(`${newQuery}${subFacetDoctype ? ` doctype:"${subFacetDoctype.searchQueryValue}"` : ''}`);
+  }, [subFacetDatabase, subFacetDoctype]);
 
   const handleSelectSubset = (selected: IExplorerFacet['id']) => {
-    if (subFacet?.id === selected) {
-      setSubFacet(null);
+    if (subFacetDatabase?.id === selected) {
+      setSubFacetDatabase(null);
     } else {
-      setSubFacet(subFacets.find((d) => d.id === selected));
+      setSubFacetDatabase(subFacets.find((d) => d.id === selected));
+    }
+  };
+
+  const handleSelectDoctype = (selected: IExplorerFacet['id']) => {
+    if (subFacetDoctype?.id === selected) {
+      setSubFacetDoctype(null);
+    } else {
+      setSubFacetDoctype(explorerFacets.doctype.find((d) => d.id === selected));
     }
   };
 
@@ -103,27 +117,44 @@ export const DatabaseItem = ({ facetValue }: { facetValue: IExplorerFacet['searc
                   recordCount={
                     countData?.[collection.facetField].buckets.find((db) => db.val === d.facetKey)?.count || 0
                   }
-                  selected={d.id === subFacet?.id}
+                  selected={d.id === subFacetDatabase?.id}
                   onSelect={handleSelectSubset}
                 />
               ))}
             </Flex>
           </Box>
         )}
+        <Box as="section" w="full">
+          <Heading as="h3" size="md" mb={2}>
+            Document Types
+          </Heading>
+          <Flex gap={4} width="full" flexWrap="wrap">
+            {explorerFacets.doctype.map((d) => (
+              <SubFacetSimpleCard
+                key={`doctype-${d.label}`}
+                facet={d}
+                selected={d.id === subFacetDoctype?.id}
+                onSelect={handleSelectDoctype}
+              />
+            ))}
+          </Flex>
+        </Box>
         <FeaturedPapers query={{ q: query }} />
         <Flex direction="column">
           <Heading as="h3" size="md" my={4}>
-            Publication Over Time by Document Type
+            {subFacetDoctype === null
+              ? 'Publication Over Time by Document Type'
+              : `${subFacetDoctype.label} Over Time by Refereed Status`}
           </Heading>
-          <OverTimeChart type="doctype" query={{ q: query }} />
+          <OverTimeChart type={subFacetDoctype === null ? 'doctype' : 'refereed'} query={{ q: query }} />
         </Flex>
         <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
           <Flex direction="column" flex={1}>
             <Heading as="h3" size="md" my={4}>
-              Popular Journals in {facet.label}
+              Popular Publications in {facet.label}
             </Heading>
             <FacetFieldTable
-              label="Popular Journals"
+              label="Popular Publications"
               query={{ q: query }}
               facetField="pub"
               makeSearchLink={(facetVal) => makeJournalSearchLink({ q: query }, facetVal)}

@@ -1,6 +1,6 @@
 import { kFormatNumber } from '@/utils/common/formatters';
 import { ArrowForwardIcon, CheckCircleIcon } from '@chakra-ui/icons';
-import { Card, CardBody, Flex, Text } from '@chakra-ui/react';
+import { Box, Card, CardBody, Flex, Text } from '@chakra-ui/react';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { IExplorerFacet } from './types';
 
@@ -68,6 +68,61 @@ export const SubFacetCard = ({
           ) : (
             <ArrowForwardIcon boxSize={5} aria-hidden />
           )}
+        </Flex>
+      </CardBody>
+    </Card>
+  );
+};
+
+export const SubFacetSimpleCard = ({
+  facet,
+  selected,
+  onSelect,
+}: {
+  facet: IExplorerFacet;
+  selected: boolean;
+  onSelect: (id: IExplorerFacet['id']) => void;
+}) => {
+  const colors = useColorModeColors();
+
+  return (
+    <Card
+      minW={200}
+      minH={20}
+      flex={1}
+      cursor="pointer"
+      transition="all 0.3s ease-in-out"
+      position="relative"
+      overflow="hidden"
+      backgroundColor={selected ? colors.highlightBackground : 'transparent'}
+      _before={{
+        content: '""',
+        position: 'absolute',
+        inset: 0,
+        transition: 'opacity 0.2s ease-in-out',
+      }}
+      _hover={{
+        transform: 'scale(1.05)',
+        zIndex: 1,
+        boxShadow: 'xl',
+      }}
+      tabIndex={0}
+      onClick={() => onSelect(facet.id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(facet.id);
+        }
+      }}
+    >
+      <CardBody display="flex" position="relative" zIndex={1}>
+        <Flex w="100%" alignItems="center">
+          <Box as={facet.icon} boxSize={12} mr={4} flexShrink={0} aria-hidden />
+          <Flex direction="column">
+            <Text fontSize="lg" fontWeight="bold">
+              {facet.label}
+            </Text>
+          </Flex>
         </Flex>
       </CardBody>
     </Card>
