@@ -3,6 +3,7 @@ import { StoreSlice } from '@/store';
 import { NumPerPageType } from '@/types';
 import { mergeRight } from 'ramda';
 import { isNumPerPageType } from '@/utils/common/guards';
+import { writePrefsCookie } from '@/utils/common/prefs-cookie';
 import { IADSApiSearchParams } from '@/api/search/types';
 
 export type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
@@ -75,12 +76,11 @@ export const searchSlice: StoreSlice<ISearchState & ISearchAction> = (set) => ({
   clearQueryFlag: false,
   searchStatus: 'idle' as SearchStatus,
 
-  setNumPerPage: (numPerPage: NumPerPageType) =>
-    set(
-      () => ({ numPerPage: isNumPerPageType(numPerPage) ? numPerPage : APP_DEFAULTS.RESULT_PER_PAGE }),
-      false,
-      'search/setNumPerPage',
-    ),
+  setNumPerPage: (numPerPage: NumPerPageType) => {
+    const validated = isNumPerPageType(numPerPage) ? numPerPage : APP_DEFAULTS.RESULT_PER_PAGE;
+    set(() => ({ numPerPage: validated }), false, 'search/setNumPerPage');
+    writePrefsCookie({ numPerPage: validated });
+  },
 
   setQuery: (query: IADSApiSearchParams) => set(() => ({ query })),
 
