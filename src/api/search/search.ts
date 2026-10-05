@@ -1,5 +1,4 @@
 import axios, { AxiosError } from 'axios';
-import { omit } from 'ramda';
 import {
   MutationFunction,
   QueryFunction,
@@ -25,7 +24,6 @@ import {
   getReferencesParams,
   getSearchFacetJSONParams,
   getSearchFacetParams,
-  getSearchParams,
   getSearchStatsParams,
   getSimilarParams,
   getSingleRecordParams,
@@ -45,6 +43,7 @@ import { logger } from '@/logger';
 import { normalizeFields } from '@/api/search/utils';
 import { trackUserFlow, PERF_SPANS } from '@/lib/performance';
 import { resolveUiTag, SEARCH_API_KEYS, SearchNamespace } from '@/api/search/ui-tags';
+import { omitParams, searchPrimaryKey, searchQueryIdentity } from '@/api/search/searchQueryIdentity';
 
 export { SEARCH_API_KEYS, SEARCH_NAMESPACES, UI_TAGS, resolveUiTag } from '@/api/search/ui-tags';
 export type { SearchNamespace } from '@/api/search/ui-tags';
@@ -74,8 +73,7 @@ export const facetFieldSelector = (data: IADSApiSearchResponse): IADSApiSearchRe
 type SearchKeyProps = { bibcode: IDocsEntity['bibcode']; start?: number; rows?: number };
 
 export const searchKeys = {
-  primary: (params: IADSApiSearchParams, namespace: SearchNamespace = SEARCH_API_KEYS.primary) =>
-    [namespace, params] as const,
+  primary: searchPrimaryKey,
   highlight: (params: IADSApiSearchParams) => [SEARCH_API_KEYS.highlight, params] as const,
   abstracts: (params: IADSApiSearchParams) => [SEARCH_API_KEYS.abstracts, params] as const,
   preview: (bibcode: IDocsEntity['bibcode'], namespace: SearchNamespace = SEARCH_API_KEYS.preview) =>
@@ -99,10 +97,6 @@ export const searchKeys = {
   bigquery: () => [SEARCH_API_KEYS.bigquery] as const,
 };
 
-// default params to omit to keep cache entries more concise
-const omitParams = (query: IADSApiSearchParams) =>
-  omit<IADSApiSearchParams, string>(['fl', 'p'], query) as IADSApiSearchParams;
-
 /**
  * Generic search hook.
  * Default returns the Solr `response` block; override via `options.select`.
@@ -115,8 +109,7 @@ export function useSearch<TData = IADSApiSearchResponse['response']>(
 ) {
   const { namespace, ...queryOptions } = options;
 
-  // omit fields from queryKey
-  const cleanParams = omitParams(getSearchParams(params));
+  const { queryKey, queryHash } = searchQueryIdentity(params, namespace);
 
   // If options.select is provided, use it; otherwise use default
   const select =
@@ -125,8 +118,8 @@ export function useSearch<TData = IADSApiSearchResponse['response']>(
       : (responseSelector as (d: IADSApiSearchResponse) => TData);
 
   return useQuery<IADSApiSearchResponse, ErrorType, TData>({
-    queryKey: searchKeys.primary(cleanParams, namespace),
-    queryHash: JSON.stringify(searchKeys.primary(cleanParams, namespace)),
+    queryKey,
+    queryHash,
     queryFn: fetchSearch,
     select,
     // Don't retry 429s: a retry just burns another request against the daily
