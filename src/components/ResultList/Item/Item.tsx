@@ -8,7 +8,6 @@ import {
   Stack,
   Text,
   Tooltip,
-  useBreakpointValue,
   useTimeout,
 } from '@chakra-ui/react';
 import { AuthorList } from '@/components/AllAuthorsModal';
@@ -113,6 +112,7 @@ export const Item = (props: IItemProps): ReactElement => {
         href={{ pathname: `/abs/${encodedCanonicalID}/citations`, search: 'p=1' }}
         newTab={linkNewTab}
         onClick={saveScrollPosition}
+        _hover={{ textDecoration: 'underline' }}
       >
         <Text>cited(n): {doc.citation_count_norm.toFixed(2)}</Text>
       </SimpleLink>
@@ -122,6 +122,7 @@ export const Item = (props: IItemProps): ReactElement => {
       href={{ pathname: `/abs/${encodedCanonicalID}/citations`, search: 'p=1' }}
       newTab={linkNewTab}
       onClick={saveScrollPosition}
+      _hover={{ textDecoration: 'underline' }}
     >
       cited: {doc.citation_count}
     </SimpleLink>
@@ -139,7 +140,11 @@ export const Item = (props: IItemProps): ReactElement => {
       </SimpleLink>
     ) : null;
 
-  const divider = useBreakpointValue({ base: undefined, md: <Text px="2">·</Text> });
+  const divider = (
+    <Text px="2" display={{ base: 'none', md: 'block' }}>
+      ·
+    </Text>
+  );
 
   return (
     <Flex
