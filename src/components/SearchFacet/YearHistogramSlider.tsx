@@ -15,6 +15,8 @@ import { useGetSearchFacetCounts } from '@/api/search/search';
 import { getSearchFacetYearsParams } from '@/api/search/models';
 
 export const fqNameYearRange = 'range';
+
+export const FACET_HISTOGRAM_HEIGHT = 190;
 export interface IYearHistogramSliderProps {
   onQueryUpdate: ISearchFacetProps['onQueryUpdate'];
   expanded?: boolean;
@@ -96,7 +98,7 @@ const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHi
           Year(s)
         </Text>
       </Center>
-      <Flex justifyContent="center">
+      <Flex justifyContent="center" minH={`${FACET_HISTOGRAM_HEIGHT}px`}>
         {histogramData && selectedRange && (
           <Box height="170" position="relative" mt={5}>
             <HistogramSlider
@@ -115,7 +117,13 @@ const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHi
 
 export const HistogramSliderLoader = () => {
   return (
-    <Flex direction="column" justifyContent="center" alignItems="center" height="170" position="relative" mt={5}>
+    <Flex
+      direction="column"
+      justifyContent="center"
+      alignItems="center"
+      minH={`${FACET_HISTOGRAM_HEIGHT}px`}
+      position="relative"
+    >
       <CircularProgress isIndeterminate />
     </Flex>
   );
