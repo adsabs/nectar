@@ -1,7 +1,6 @@
 import { Box, Checkbox, Flex, Skeleton, SkeletonText, Stack, Text } from '@chakra-ui/react';
 import { range } from 'ramda';
 import { ReactElement } from 'react';
-import { useColorModeColors } from '@/lib/useColorModeColors';
 import {
   RESULT_ITEM_ABSTRACT_TOGGLE_HEIGHT,
   RESULT_ITEM_AUTHORS_HEIGHT,
@@ -18,7 +17,6 @@ export interface ISkeletonProps {
 
 export const ItemsSkeleton = (props: ISkeletonProps): ReactElement => {
   const { count = 0, indexStart = 0 } = props;
-  const colors = useColorModeColors();
 
   return (
     <>
@@ -28,7 +26,8 @@ export const ItemsSkeleton = (props: ISkeletonProps): ReactElement => {
           direction="row"
           as="article"
           border="1px"
-          borderColor={colors.border}
+          borderColor="gray.100"
+          _dark={{ borderColor: 'gray.400' }}
           mb={1}
           borderRadius="md"
           minH={RESULT_ITEM_HEIGHT}
@@ -36,7 +35,8 @@ export const ItemsSkeleton = (props: ISkeletonProps): ReactElement => {
         >
           <Flex
             direction="row"
-            backgroundColor={colors.panel}
+            backgroundColor="gray.50"
+            _dark={{ backgroundColor: 'gray.700' }}
             justifyContent="center"
             alignItems="center"
             mr="2"
