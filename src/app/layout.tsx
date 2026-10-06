@@ -6,6 +6,7 @@ import 'nprogress/nprogress.css';
 import '../styles/styles.css';
 import '../styles/page-loader.css';
 import 'shepherd.js/dist/css/shepherd.css';
+import '@/lib/fontawesome';
 import { BRAND_NAME_FULL } from '@/config';
 import { themeConfig } from '@/theme-tokens';
 import { COLOR_MODE_NO_FLASH_CSS } from '@/color-mode-no-flash';

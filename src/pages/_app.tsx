@@ -8,6 +8,7 @@ import { DehydratedState } from '@tanstack/react-query';
 import '../styles/styles.css';
 import '../styles/page-loader.css';
 import 'shepherd.js/dist/css/shepherd.css';
+import '@/lib/fontawesome';
 import { logger } from '@/logger';
 import { sendGTMEvent } from '@next/third-parties/google';
 import Head from 'next/head';
