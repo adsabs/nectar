@@ -2,6 +2,7 @@ import { Box, Flex, Skeleton, SkeletonText, Stack } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 
 import { ItemsSkeleton } from '@/components/ResultList/ItemsSkeleton';
+import { LIST_ACTIONS_HEIGHT, LIST_ACTIONS_HEIGHT_CSS } from '@/components/ResultList/listActionsHeight';
 import { NUM_FOUND_HEIGHT } from '@/components/NumFound/numFoundHeight';
 import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
 import { SearchFacetsPlaceholder } from '@/components/SearchFacet/SearchFacetsPlaceholder';
@@ -11,11 +12,11 @@ export interface IResultsSkeletonProps {
 }
 
 const RESULTS_STACK_SPACING = 10;
-export const LIST_ACTIONS_PLACEHOLDER_HEIGHT = 100;
+export const LIST_ACTIONS_PLACEHOLDER_HEIGHT = LIST_ACTIONS_HEIGHT;
 export const LIST_ACTIONS_PLACEHOLDER_MARGIN = 4;
 
 const ListActionsSkeleton = (): ReactElement => (
-  <Flex direction="column" gap={1} height={`${LIST_ACTIONS_PLACEHOLDER_HEIGHT}px`}>
+  <Flex direction="column" gap={1} height={LIST_ACTIONS_HEIGHT_CSS}>
     <Flex justifyContent="space-between" width="full" gap={1}>
       <Skeleton height={8} width="140px" />
       <Flex gap={1}>
