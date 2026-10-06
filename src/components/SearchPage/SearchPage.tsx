@@ -423,7 +423,7 @@ export const SearchPage = ({ initialData, initialQueryHash }: ISearchPageProps) 
                         <Text>This search is taking longer than expected. Please wait...</Text>
                       </Alert>
                     )}
-                    <ItemsSkeleton count={storeNumPerPage} />
+                    <ItemsSkeleton count={storeNumPerPage} indexStart={params.start} showIndexRail reserveItemHeight />
                   </>
                 ) : null}
                 <PartialResultsWarning isPartialResults={data?.responseHeader?.partialResults} />

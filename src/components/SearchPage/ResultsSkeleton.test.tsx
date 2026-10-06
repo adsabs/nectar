@@ -1,21 +1,19 @@
 import { describe, expect, test } from 'vitest';
 
 import { render } from '@/test-utils';
-import { LIST_ACTIONS_PLACEHOLDER_HEIGHT, LIST_ACTIONS_PLACEHOLDER_MARGIN, ResultsSkeleton } from './ResultsSkeleton';
-
-const LOADED_LIST_ACTIONS_SPAN = { base: 192, sm: 144, md: 104 };
+import { ResultsSkeleton } from './ResultsSkeleton';
 
 describe('ResultsSkeleton', () => {
-  test('reserves the full span the loaded toolbar occupies at every breakpoint', () => {
-    expect({
-      base: LIST_ACTIONS_PLACEHOLDER_HEIGHT.base + LIST_ACTIONS_PLACEHOLDER_MARGIN,
-      sm: LIST_ACTIONS_PLACEHOLDER_HEIGHT.sm + LIST_ACTIONS_PLACEHOLDER_MARGIN,
-      md: LIST_ACTIONS_PLACEHOLDER_HEIGHT.md + LIST_ACTIONS_PLACEHOLDER_MARGIN,
-    }).toEqual(LOADED_LIST_ACTIONS_SPAN);
+  test('renders the real toolbar so the fallback matches the client loading state', () => {
+    const { getByTestId } = render(<ResultsSkeleton count={3} />);
+
+    expect(getByTestId('listactions')).toBeInTheDocument();
   });
 
-  test('keeps the toolbar box at the measured ListActions height per breakpoint', () => {
-    expect(LIST_ACTIONS_PLACEHOLDER_HEIGHT).toEqual({ base: 188, sm: 140, md: 100 });
+  test('renders the count row in its loading state', () => {
+    const { getByTestId } = render(<ResultsSkeleton count={3} />);
+
+    expect(getByTestId('num-found-slot')).toBeInTheDocument();
   });
 
   test('renders one item placeholder per requested row', () => {

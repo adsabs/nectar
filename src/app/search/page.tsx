@@ -52,11 +52,13 @@ export default async function SearchPageRoute({ searchParams }: { searchParams: 
   const resolved = await searchParams;
   const store = await cookies();
   const numPerPage = readNumPerPagePref(store.toString());
+  const page = Number.parseInt(String(resolved.p ?? '1'), 10);
+  const indexStart = Number.isFinite(page) && page > 1 ? (page - 1) * numPerPage : 0;
 
   return (
     <>
       <SearchPageHeader />
-      <Suspense fallback={<ResultsSkeleton count={numPerPage} />}>
+      <Suspense fallback={<ResultsSkeleton count={numPerPage} indexStart={indexStart} />}>
         <Results searchParams={resolved} />
       </Suspense>
     </>
