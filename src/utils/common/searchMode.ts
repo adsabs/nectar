@@ -1,6 +1,6 @@
 import type { IADSApiSearchParams } from '@/api/search/types';
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
-import { omit } from 'ramda';
+import { omit, uniq } from 'ramda';
 import type { SolrSort } from '@/api/models';
 import {
   ADS_COMPAT_FQ_DATABASE,
@@ -39,12 +39,16 @@ export const buildSortChangeOutgoing = (
 
 export const applySearchModeDefaults = (query: IADSApiSearchParams, mode: string | undefined): IADSApiSearchParams => {
   if (mode === SearchMode.ADS_COMPAT) {
-    const withCollections = applyFiltersToQuery({
-      query,
-      values: ['astronomy', 'physics'],
-      field: 'database',
-      logic: 'or',
-    }) as IADSApiSearchParams;
+    const fqDatabase = typeof query.fq_database === 'string' ? query.fq_database : undefined;
+    const existingFq = (query.fq as string[] | undefined) ?? [];
+    const withCollections = fqDatabase?.includes(ADS_COMPAT_FQ_DATABASE)
+      ? ({ ...query, fq: uniq([...existingFq, ADS_COMPAT_FQ_ENTRY]) } as IADSApiSearchParams)
+      : (applyFiltersToQuery({
+          query,
+          values: ['astronomy', 'physics'],
+          field: 'database',
+          logic: 'or',
+        }) as IADSApiSearchParams);
     return { ...withCollections, sort: ADS_COMPAT_SORT };
   }
 

@@ -33,6 +33,33 @@ describe('applySearchModeDefaults — ADS_COMPAT', () => {
     const result = applySearchModeDefaults(ADS_QUERY, SearchMode.ADS_COMPAT);
     const count = (result.fq as string[]).filter((f) => f === ADS_COMPAT_FQ_ENTRY).length;
     expect(count).toBe(1);
+    expect(result.fq_database).toBe(ADS_COMPAT_FQ_DATABASE);
+  });
+
+  test('does not grow fq_database across repeated applications', () => {
+    const once = applySearchModeDefaults(BASE, SearchMode.ADS_COMPAT);
+    const twice = applySearchModeDefaults(once, SearchMode.ADS_COMPAT);
+    const thrice = applySearchModeDefaults(twice, SearchMode.ADS_COMPAT);
+    expect(thrice.fq_database).toBe(ADS_COMPAT_FQ_DATABASE);
+    expect(thrice.fq).toEqual([ADS_COMPAT_FQ_ENTRY]);
+  });
+
+  test('restores the fq entry when the query carries the clause without it', () => {
+    const missingEntry: IADSApiSearchParams = { ...BASE, fq_database: ADS_COMPAT_FQ_DATABASE };
+    const result = applySearchModeDefaults(missingEntry, SearchMode.ADS_COMPAT);
+    expect(result.fq).toEqual([ADS_COMPAT_FQ_ENTRY]);
+    expect(result.fq_database).toBe(ADS_COMPAT_FQ_DATABASE);
+  });
+
+  test('leaves a user-added database clause alongside the ADS clause untouched', () => {
+    const userNarrowed: IADSApiSearchParams = {
+      ...BASE,
+      fq: [ADS_COMPAT_FQ_ENTRY],
+      fq_database: `${ADS_COMPAT_FQ_DATABASE} AND database:"earthscience"`,
+    };
+    const result = applySearchModeDefaults(userNarrowed, SearchMode.ADS_COMPAT);
+    expect(result.fq_database).toBe(`${ADS_COMPAT_FQ_DATABASE} AND database:"earthscience"`);
+    expect(result.fq).toEqual([ADS_COMPAT_FQ_ENTRY]);
   });
 
   test('preserves unrelated fq filters', () => {

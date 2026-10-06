@@ -1,6 +1,7 @@
 import { render } from '@/test-utils';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ListActions } from '../ListActions';
+import { LIST_ACTIONS_HEIGHT_CSS } from '../listActionsHeight';
 
 const mocks = vi.hoisted(() => ({
   useRouter: vi.fn(() => ({
@@ -96,5 +97,19 @@ describe('ListActions abstracts toggle', () => {
     await user.click(getByLabelText('Show abstract previews for all results.'));
 
     expect(getByLabelText('Hide abstract previews for all results.')).toBeInTheDocument();
+  });
+});
+
+describe('ListActions reserved height', () => {
+  const defaultProps = {
+    onSortChange: vi.fn(),
+    onOpenAddToLibrary: vi.fn(),
+    isLoading: false,
+  };
+
+  test('reserves the toolbar height so the client-only rows cannot push results down', () => {
+    const { getByTestId } = render(<ListActions {...defaultProps} />);
+
+    expect(getByTestId('listactions')).toHaveStyle({ minHeight: LIST_ACTIONS_HEIGHT_CSS.base });
   });
 });
