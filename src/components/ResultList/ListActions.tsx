@@ -60,7 +60,11 @@ import { LIST_ACTIONS_HEIGHT_CSS } from '@/components/ResultList/listActionsHeig
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAlignLeft, faHighlighter } from '@fortawesome/free-solid-svg-icons';
 
-const PRE_HYDRATION_PROPS = { pointerEvents: 'none', opacity: 0.6, 'aria-hidden': true } as const;
+const INERT_ATTR = { inert: '' } as unknown as { inert?: boolean };
+
+const DIMMED_PROPS = { pointerEvents: 'none', opacity: 0.6 } as const;
+
+const INERT_PROPS = { ...DIMMED_PROPS, 'aria-hidden': true, ...INERT_ATTR } as const;
 
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];
@@ -175,6 +179,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
 
   const colors = useColorModeColors();
   const isInteractive = isClient && !isLoading;
+  const nonInteractiveProps = isInteractive ? {} : isClient ? INERT_PROPS : DIMMED_PROPS;
 
   return (
     <Box my={2}>
@@ -192,7 +197,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
         </VisuallyHidden>
         <Flex justifyContent="space-between" width="full" gap={1}>
           <SortWrapper onChange={onSortChange} />
-          <Flex gap={1} {...(isInteractive ? {} : PRE_HYDRATION_PROPS)}>
+          <Flex gap={1} {...nonInteractiveProps}>
             <NotificationBellButton isAuthenticated={isAuthenticated} onOpenNotification={onCreateNotificationOpen} />
             <HighlightsToggle />
             <AbstractsToggle />
@@ -205,7 +210,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
           backgroundColor={colors.panel}
           borderRadius="2px"
           p={2}
-          {...(isInteractive ? {} : PRE_HYDRATION_PROPS)}
+          {...nonInteractiveProps}
         >
           <Stack
             direction="row"

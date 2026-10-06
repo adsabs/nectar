@@ -104,6 +104,7 @@ describe('ListActions reserved height', () => {
   const defaultProps = {
     onSortChange: vi.fn(),
     onOpenAddToLibrary: vi.fn(),
+    onOpenRemoveFromLibrary: vi.fn(),
     isLoading: false,
   };
 
@@ -111,5 +112,32 @@ describe('ListActions reserved height', () => {
     const { getByTestId } = render(<ListActions {...defaultProps} />);
 
     expect(getByTestId('listactions')).toHaveStyle({ minHeight: LIST_ACTIONS_HEIGHT_CSS.base });
+  });
+
+  test('stays in the layout while loading instead of unmounting', () => {
+    const { getByTestId } = render(<ListActions {...defaultProps} isLoading />);
+
+    const toolbar = getByTestId('listactions');
+    expect(toolbar).toHaveStyle({ minHeight: LIST_ACTIONS_HEIGHT_CSS.base });
+    expect(toolbar.textContent).toContain('Bulk Actions');
+  });
+
+  test('marks the loading toolbar inert so its controls cannot be reached or fired', () => {
+    const { getByTestId } = render(<ListActions {...defaultProps} isLoading />);
+
+    const inertRegions = getByTestId('listactions').querySelectorAll('[inert]');
+    expect(inertRegions).toHaveLength(2);
+    inertRegions.forEach((region) => {
+      expect(region).toHaveAttribute('aria-hidden', 'true');
+      expect(region).toHaveStyle({ pointerEvents: 'none' });
+    });
+  });
+
+  test('releases the inert treatment once interactive', async () => {
+    const { getByTestId, findByLabelText } = render(<ListActions {...defaultProps} />);
+
+    await findByLabelText('Show abstract previews for all results.');
+
+    expect(getByTestId('listactions').querySelectorAll('[inert]')).toHaveLength(0);
   });
 });

@@ -214,7 +214,7 @@ export const Item = (props: IItemProps): ReactElement => {
                 authorCount={author_count}
                 bibcode={doc.bibcode}
                 maxAuthors={maxAuthors}
-                noOfLines={1}
+                clampLines={1}
               />
             )}
           </Box>
