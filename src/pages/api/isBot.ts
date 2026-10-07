@@ -1,199 +1,82 @@
 import { NextApiHandler } from 'next';
 import { logger } from '@/logger';
-import { resolve as dnsResolve, resolve4 as dnsResolve4 } from 'dns';
+import { resolve as dnsResolve, reverse as dnsReverse } from 'dns';
 import { promisify } from 'util';
 
-enum RESULT {
-  BOT,
-  HUMAN,
-  POTENTIAL_MALICIOUS_BOT,
-  UNVERIFIABLE,
-}
+import { BOT_CHECK_SIGNATURE_HEADER, BotCheckPayload, verifyBotCheck } from '@/middlewares/botCheckSignature';
+import { classifyCrawlerAtEdge, CRAWLER_RESULT } from '@/middlewares/crawlers';
+import { ReverseDnsLookups, verifyReverseDns } from '@/middlewares/reverseDns';
 
 const log = logger.child({}, { msgPrefix: '[isBot] ' });
 
-export const isBot: NextApiHandler = async (req, res) => {
-  const body = JSON.parse(req.body as string) as { ua: string; ip: string };
+const reverseDns = promisify(dnsReverse);
+const resolveRecords = promisify(dnsResolve) as (hostname: string, rrtype: string) => Promise<string[]>;
 
-  log.info('Checking if request is from a bot', { body });
-
-  const result = await evaluate(body.ua, body.ip);
-  return res.json(result);
+export const nodeDnsLookups: ReverseDnsLookups = {
+  lookupPtr: (ip) => reverseDns(ip),
+  lookupAddresses: (hostname, family) => resolveRecords(hostname, family),
 };
 
-const evaluate = (ua: string, remoteIP: string) => {
-  if (typeof remoteIP !== 'string' || remoteIP.length <= 0) {
-    log.debug('Request IP is not a string or is empty', { remoteIP });
-    return RESULT.HUMAN;
+export const evaluate = async (
+  ua: string,
+  remoteIP: string,
+  deps: ReverseDnsLookups = nodeDnsLookups,
+): Promise<CRAWLER_RESULT> => {
+  const classification = classifyCrawlerAtEdge(ua, remoteIP, { ipTrusted: true });
+
+  if ('result' in classification) {
+    return classification.result;
   }
-  return classify(ua, remoteIP);
-};
 
-const classify = async (ua: string, remoteIP: string) => {
-  const bot = getBot(ua);
-
-  if (bot) {
-    if (bot.type === 'UNVERIFIABLE') {
-      log.debug('Request is from a known, but unverifiable bot', { bot });
-      return RESULT.UNVERIFIABLE;
-    }
-
-    if (await verifyBot(bot, remoteIP)) {
-      log.debug('Request is from a known, and verified bot', { bot });
-      return RESULT.BOT;
-    }
-
-    log.debug('Request is from an unknown and unverifiable bot', { bot });
-    return RESULT.POTENTIAL_MALICIOUS_BOT;
+  if (await verifyReverseDns(remoteIP, classification.domains, deps)) {
+    log.debug('Request is from a known, and verified bot', { ua });
+    return CRAWLER_RESULT.BOT;
   }
-  log.debug('Request is likely from a human');
-  return RESULT.HUMAN;
+
+  log.debug('Request is from a known but unverified bot', { ua });
+  return CRAWLER_RESULT.POTENTIAL_MALICIOUS_BOT;
 };
 
-const getBot = (userAgentString: string) => {
-  if (typeof userAgentString !== 'string' || userAgentString.length <= 0) {
+const parseBody = (body: unknown): BotCheckPayload | null => {
+  const parsed: unknown = typeof body === 'string' ? JSON.parse(body) : body;
+
+  if (typeof parsed !== 'object' || parsed === null) {
     return null;
   }
 
-  const value = userAgentString.toLowerCase();
-  return UA.get(value);
+  const { ua, ip, ts } = parsed as { ua?: unknown; ip?: unknown; ts?: unknown };
+  return typeof ua === 'string' && typeof ip === 'string' && typeof ts === 'number' ? { ua, ip, ts } : null;
 };
 
-const verifyBot = async (bot: UAEntry, remoteIP: string): Promise<boolean> => {
-  const { type } = bot;
-  if (type === 'DNS') {
-    return await resolve(remoteIP, bot.DNS);
-  }
-  if (type === 'IPS') {
-    return bot.IPS.includes(remoteIP);
-  }
-  return false;
-};
+const signatureOf = (header: string | string[] | undefined): string | undefined =>
+  Array.isArray(header) ? header[0] : header;
 
-const reverseDns = promisify(dnsResolve);
-const resolve4 = promisify(dnsResolve4);
-
-/**
- * Resolves the PTR record for the given IP address and checks if it resolves to a domain
- * that is in the list of search engine bot domains.
- *
- * @param {string} remoteIp IP address to resolve
- * @param {string[]} searchEngineBotDomains list of search engine bot domains
- */
-const resolve = async (remoteIp: string, searchEngineBotDomains: string[]) => {
-  try {
-    const ptrRecords = await reverseDns(remoteIp);
-    log.debug('PTR records', { ptrRecords });
-    const resolvedDomains = new Set();
-
-    for (const ptrRecord of ptrRecords) {
-      const ptrDomain = ptrRecord;
-      for (const searchEngineBotDomain of searchEngineBotDomains) {
-        const ptrDomainParts = ptrDomain.split('.').reverse();
-        const searchEngineBotDomainParts = searchEngineBotDomain.split('.').reverse();
-
-        if (
-          ptrDomainParts.length >= searchEngineBotDomainParts.length &&
-          ptrDomainParts.every((part, index) => part === searchEngineBotDomainParts[index])
-        ) {
-          if (!resolvedDomains.has(ptrDomain)) {
-            resolvedDomains.add(ptrDomain);
-
-            const ipAddresses = await resolve4(ptrDomain);
-            log.debug('IP addresses', { ipAddresses });
-            if (ipAddresses.includes(remoteIp)) {
-              return true;
-            } else if (resolvedDomains.size === ptrRecords.length) {
-              return false;
-            }
-          }
-        }
-      }
+export const createIsBotHandler =
+  (deps: ReverseDnsLookups = nodeDnsLookups): NextApiHandler =>
+  async (req, res) => {
+    let body: BotCheckPayload | null;
+    try {
+      body = parseBody(req.body);
+    } catch {
+      body = null;
     }
 
-    return ptrRecords.length !== 0;
-  } catch (error) {
-    log.error('Error resolving PTR record, could not verify', { error });
-    return false;
-  }
-};
+    if (body === null) {
+      return res.status(400).json(CRAWLER_RESULT.HUMAN);
+    }
+
+    const signature = signatureOf(req.headers[BOT_CHECK_SIGNATURE_HEADER]);
+    if (!(await verifyBotCheck(body, signature, process.env.COOKIE_SECRET))) {
+      log.warn('Rejecting an unsigned or stale bot check');
+      return res.status(403).json(CRAWLER_RESULT.HUMAN);
+    }
+
+    log.info('Checking if request is from a bot', { body });
+
+    const result = await evaluate(body.ua, body.ip, deps);
+    return res.json(result);
+  };
+
+export const isBot = createIsBotHandler();
 
 export default isBot;
-
-enum BOTS {
-  GooglebotCom = 'googlebot.com',
-  GoogleCom = 'google.com',
-  ApplebotCom = 'applebot.apple.com',
-  SearchMsnCom = 'search.msn.com',
-  CrawlYahooNet = 'crawl.yahoo.net',
-  CrawlBaiduCom = 'crawl.baidu.com',
-  CrawlBaiduJp = 'crawl.baidu.jp',
-  YandexCom = 'yandex.com',
-  YandexRu = 'yandex.ru',
-  YandexNet = 'yandex.net',
-  AlexaCom = 'alexa.com',
-  OpenAI = 'openai.com',
-}
-
-type UAEntry = { type: 'DNS'; DNS: BOTS[] } | { type: 'IPS'; IPS: string[] } | { type: 'UNVERIFIABLE' };
-
-const UA = new Map<string, UAEntry>(
-  Object.entries({
-    googlebot: { type: 'DNS', DNS: [BOTS.GooglebotCom, BOTS.GoogleCom] },
-    googledocs: { type: 'DNS', DNS: [BOTS.GooglebotCom, BOTS.GoogleCom] },
-    'mediapartners-google': { type: 'DNS', DNS: [BOTS.GooglebotCom, BOTS.GoogleCom] },
-    'feedfetcher-google': { type: 'DNS', DNS: [BOTS.GooglebotCom, BOTS.GoogleCom] },
-    'adsbot-google-mobile-apps': { type: 'DNS', DNS: [BOTS.GooglebotCom, BOTS.GoogleCom] },
-    applebot: { type: 'DNS', DNS: [BOTS.ApplebotCom] },
-    bingbot: { type: 'DNS', DNS: [BOTS.SearchMsnCom] },
-    bingpreview: { type: 'DNS', DNS: [BOTS.SearchMsnCom] },
-    msnbot: { type: 'DNS', DNS: [BOTS.SearchMsnCom] },
-    slurp: { type: 'DNS', DNS: [BOTS.CrawlYahooNet] },
-    baiduspider: { type: 'DNS', DNS: [BOTS.CrawlBaiduCom, BOTS.CrawlBaiduJp] },
-    yandexbot: { type: 'DNS', DNS: [BOTS.YandexCom, BOTS.YandexRu, BOTS.YandexNet] },
-    alexa: { type: 'DNS', DNS: [BOTS.AlexaCom] },
-    openai: { type: 'DNS', DNS: [BOTS.OpenAI] },
-    gptbot: { type: 'IPS', IPS: ['52.230.152.0', '52.233.106.0'] },
-    duckduckbot: {
-      type: 'IPS',
-      IPS: [
-        '20.191.45.212',
-        '40.88.21.235',
-        '40.76.173.151',
-        '40.76.163.7',
-        '20.185.79.47',
-        '52.142.26.175',
-        '20.185.79.15',
-        '52.142.24.149',
-        '40.76.162.208',
-        '40.76.163.23',
-        '40.76.162.191',
-        '40.76.162.247',
-      ],
-    },
-    ia_archiver: {
-      type: 'UNVERIFIABLE',
-    },
-    facebot: {
-      type: 'UNVERIFIABLE',
-    },
-    facebookexternalhit: {
-      type: 'UNVERIFIABLE',
-    },
-    aolbuild: {
-      type: 'UNVERIFIABLE',
-    },
-    slackbot: {
-      type: 'UNVERIFIABLE',
-    },
-    'slack-imgproxy': {
-      type: 'UNVERIFIABLE',
-    },
-    twitterbot: {
-      type: 'UNVERIFIABLE',
-    },
-    bot: {
-      type: 'UNVERIFIABLE',
-    },
-  }),
-);
