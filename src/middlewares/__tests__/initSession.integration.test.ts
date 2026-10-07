@@ -132,6 +132,32 @@ describe('initSession integration', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
+  test('clears the bot flag when an expired bot session comes back as human', async () => {
+    const session = createSession({
+      token: {
+        access_token: 'unverifiable-bot-token',
+        expires_at: `${Math.floor(Date.now() / 1000) - 10}`,
+        username: 'anonymous',
+        anonymous: true,
+      },
+      bot: true,
+      apiCookieHash: '',
+    });
+
+    const req = new NextRequest('https://example.com/search', {
+      headers: { cookie: `${cookieName}=abc123`, 'user-agent': 'Mozilla/5.0 Chrome/120.0.0.0' },
+    });
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(makeBootstrapResponse('rotated'));
+
+    await initSession(req, NextResponse.next(), session as never);
+
+    expect(botCheckMock).toHaveBeenCalledTimes(1);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(session.bot).toBe(false);
+    expect(session.token?.access_token).toBe(bootstrapPayload.access_token);
+    expect(session.apiCookieHash).toBe(await hash('rotated'));
+  });
+
   test('hydrates session on slow path and rewrites session cookie', async () => {
     process.env.NEXT_PUBLIC_API_MOCKING = 'enabled';
     const session = createSession({

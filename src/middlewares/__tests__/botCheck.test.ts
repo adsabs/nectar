@@ -1,6 +1,8 @@
-import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
+import { describe, expect, test, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import { webcrypto } from 'crypto';
 import { botCheck } from '@/middlewares/botCheck';
+import { BOT_CHECK_MAX_SKEW_MS, BOT_CHECK_SIGNATURE_HEADER, verifyBotCheck } from '@/middlewares/botCheckSignature';
 import { CRAWLER_RESULT } from '@/middlewares/crawlers';
 
 const GOOGLEBOT = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
@@ -15,7 +17,14 @@ const GPTBOT_IP = '20.171.206.7';
 describe('botCheck', () => {
   const baseEnv = { ...process.env };
 
+  beforeAll(() => {
+    if (!globalThis.crypto?.subtle) {
+      Object.defineProperty(globalThis, 'crypto', { value: webcrypto });
+    }
+  });
+
   beforeEach(() => {
+    process.env.COOKIE_SECRET = 'test-cookie-secret-at-least-32-chars';
     process.env.VERIFIED_BOTS_ACCESS_TOKEN = 'bot-token';
     process.env.UNVERIFIABLE_BOTS_ACCESS_TOKEN = 'unverifiable-token';
     process.env.MALICIOUS_BOTS_ACCESS_TOKEN = 'malicious-token';
@@ -97,6 +106,33 @@ describe('botCheck', () => {
       vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network down'));
 
       await expect(botCheck(req)).resolves.toBeNull();
+    });
+
+    test('treats a rejected hop as human rather than reading its body', async () => {
+      const req = trustedReq(GOOGLEBOT, '66.249.66.1');
+      vi.spyOn(global, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify(CRAWLER_RESULT.BOT), { status: 403 }) as unknown as Response,
+      );
+
+      await expect(botCheck(req)).resolves.toBeNull();
+    });
+
+    test('signs the hop so the handler will accept it', async () => {
+      const req = trustedReq(GOOGLEBOT, '66.249.66.1');
+      const fetchSpy = mockCrawlerResponse(CRAWLER_RESULT.BOT);
+
+      await botCheck(req);
+
+      const [, init] = fetchSpy.mock.calls[0];
+      const headers = init?.headers as Record<string, string>;
+      const payload = JSON.parse(init?.body as string) as { ua: string; ip: string; ts: number };
+
+      expect(headers['content-type']).toBe('application/json');
+      expect(payload).toMatchObject({ ua: GOOGLEBOT, ip: '66.249.66.1' });
+      expect(Math.abs(Date.now() - payload.ts)).toBeLessThan(BOT_CHECK_MAX_SKEW_MS);
+      await expect(
+        verifyBotCheck(payload, headers[BOT_CHECK_SIGNATURE_HEADER], process.env.COOKIE_SECRET),
+      ).resolves.toBe(true);
     });
   });
 

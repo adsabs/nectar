@@ -2,6 +2,7 @@ import { edgeLogger } from '@/logger';
 import { NextRequest, userAgent } from 'next/server';
 import { IronSessionData } from 'iron-session';
 
+import { BOT_CHECK_SIGNATURE_HEADER, signBotCheck } from '@/middlewares/botCheckSignature';
 import { resolveClientIp } from '@/middlewares/clientIp';
 import { classifyCrawlerAtEdge, CRAWLER_RESULT } from '@/middlewares/crawlers';
 
@@ -13,11 +14,21 @@ export const CRAWLER_CHECK_TIMEOUT_MS = 2000;
 
 const crawlerCheck = async (req: NextRequest, ip: string, ua: string) => {
   try {
+    const payload = { ua, ip, ts: Date.now() };
     const res = await fetch(new URL('/api/isBot', req.nextUrl), {
       method: 'POST',
-      body: JSON.stringify({ ua, ip }),
+      headers: {
+        'content-type': 'application/json',
+        [BOT_CHECK_SIGNATURE_HEADER]: await signBotCheck(payload, process.env.COOKIE_SECRET),
+      },
+      body: JSON.stringify(payload),
       signal: AbortSignal.timeout(CRAWLER_CHECK_TIMEOUT_MS),
     });
+
+    if (!res.ok) {
+      throw new Error(`/api/isBot responded ${res.status}`);
+    }
+
     return (await res.json()) as CRAWLER_RESULT;
   } catch (err) {
     log.error({ err }, 'Fetching /api/isBot failed, continuing');

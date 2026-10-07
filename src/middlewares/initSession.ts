@@ -241,6 +241,7 @@ export const initSession = async (req: NextRequest, res: NextResponse, session: 
     log.debug('Refreshed token is valid');
     session.token = token;
     session.isAuthenticated = isAuthenticated(token);
+    session.bot = false;
 
     // Parse the Set-Cookie header from the API
     const setCookieHeader = headers.get('set-cookie');

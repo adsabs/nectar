@@ -3,6 +3,7 @@ import { logger } from '@/logger';
 import { resolve as dnsResolve, reverse as dnsReverse } from 'dns';
 import { promisify } from 'util';
 
+import { BOT_CHECK_SIGNATURE_HEADER, BotCheckPayload, verifyBotCheck } from '@/middlewares/botCheckSignature';
 import { classifyCrawlerAtEdge, CRAWLER_RESULT } from '@/middlewares/crawlers';
 import { ReverseDnsLookups, verifyReverseDns } from '@/middlewares/reverseDns';
 
@@ -36,21 +37,24 @@ export const evaluate = async (
   return CRAWLER_RESULT.POTENTIAL_MALICIOUS_BOT;
 };
 
-const parseBody = (body: unknown): { ua: string; ip: string } | null => {
+const parseBody = (body: unknown): BotCheckPayload | null => {
   const parsed: unknown = typeof body === 'string' ? JSON.parse(body) : body;
 
   if (typeof parsed !== 'object' || parsed === null) {
     return null;
   }
 
-  const { ua, ip } = parsed as { ua?: unknown; ip?: unknown };
-  return typeof ua === 'string' && typeof ip === 'string' ? { ua, ip } : null;
+  const { ua, ip, ts } = parsed as { ua?: unknown; ip?: unknown; ts?: unknown };
+  return typeof ua === 'string' && typeof ip === 'string' && typeof ts === 'number' ? { ua, ip, ts } : null;
 };
+
+const signatureOf = (header: string | string[] | undefined): string | undefined =>
+  Array.isArray(header) ? header[0] : header;
 
 export const createIsBotHandler =
   (deps: ReverseDnsLookups = nodeDnsLookups): NextApiHandler =>
   async (req, res) => {
-    let body: { ua: string; ip: string } | null;
+    let body: BotCheckPayload | null;
     try {
       body = parseBody(req.body);
     } catch {
@@ -59,6 +63,12 @@ export const createIsBotHandler =
 
     if (body === null) {
       return res.status(400).json(CRAWLER_RESULT.HUMAN);
+    }
+
+    const signature = signatureOf(req.headers[BOT_CHECK_SIGNATURE_HEADER]);
+    if (!(await verifyBotCheck(body, signature, process.env.COOKIE_SECRET))) {
+      log.warn('Rejecting an unsigned or stale bot check');
+      return res.status(403).json(CRAWLER_RESULT.HUMAN);
     }
 
     log.info('Checking if request is from a bot', { body });
