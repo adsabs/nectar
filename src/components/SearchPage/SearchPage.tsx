@@ -1,11 +1,12 @@
+'use client';
+
 import dynamic from 'next/dynamic';
 import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
 import { ISearchFacetsProps } from '@/components/SearchFacet';
+import { SearchFacetsColumn, SearchFacetsSkeletonContent } from '@/components/SearchFacet/SearchFacetsPlaceholder';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { last, omit } from 'ramda';
 import shallow from 'zustand/shallow';
-import { NextPage } from 'next';
-import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -34,16 +35,15 @@ import {
   useMediaQuery,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
-import { FormEventHandler, RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useIsClient } from '@/lib/useIsClient';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { useScrollRestoration } from '@/lib/useScrollRestoration';
 import { useCaptureSearchReturnUrl } from '@/lib/useSearchReturnTo';
 import { LocalSettings, NumPerPageType } from '@/types';
-import Head from 'next/head';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
+import { buildSearchPageTitle } from '@/utils/common/formatters';
 import { HideOnPrint } from '@/components/HideOnPrint';
-import { SearchBar } from '@/components/SearchBar';
 import { NumFound } from '@/components/NumFound';
 import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
 import { ItemsSkeleton, ListActions, Pagination, SimpleResultList } from '@/components/ResultList';
@@ -53,28 +53,29 @@ import { XMarkIcon } from '@heroicons/react/20/solid';
 import { CustomInfoMessage } from '@/components/Feedbacks';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { SimpleLink } from '@/components/SimpleLink';
-import { getDefaultSortForQuery, makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@/utils/common/search';
-import {
-  ADS_COMPAT_URL_PARAM,
-  buildSearchOutgoing,
-  buildSortChangeOutgoing,
-  SearchMode,
-} from '@/utils/common/searchMode';
+import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
+import { ADS_COMPAT_URL_PARAM, buildSortChangeOutgoing, SearchMode } from '@/utils/common/searchMode';
 import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
 import { SEARCH_API_KEYS, useSearch } from '@/api/search/search';
+import { searchQueryIdentity } from '@/api/search/searchQueryIdentity';
+import { selectInitialData } from '@/components/SearchPage/selectInitialData';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { getQueryType } from '@/lib/performance';
-import { defaultParams, withAbstractField } from '@/api/search/models';
+import { withAbstractField } from '@/api/search/models';
 import { solrDefaultSortDirection, SolrSort, SolrSortField } from '@/api/models';
-import { useApplyBoostTypeToParams } from '@/lib/useApplyBoostTypeToParams';
+import { clientSearchIdentityInputs, searchIdentity } from '@/lib/searchIdentity';
 import { SearchErrorAlert } from '@/components/SolrErrorAlert/SolrErrorAlert';
-import { useSettings } from '@/lib/useSettings';
+import { usePreferredSearchSort } from '@/lib/usePreferredSearchSort';
 import { useSearchMode } from '@/lib/useSearchMode';
 import { getResultsSteps } from '@/components/NavBar';
-import { useShepherd } from 'react-shepherd';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { handleBoundaryError } from '@/lib/errorHandler';
+
+export interface ISearchPageProps {
+  initialData?: IADSApiSearchResponse;
+  initialQueryHash?: string;
+}
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () =>
@@ -92,14 +93,9 @@ const SearchFacets = dynamic<ISearchFacetsProps>(
   { ssr: false },
 );
 
-// useLayoutEffect triggers an SSR warning on server-rendered pages; use
-// useEffect on the server where layout effects are a no-op anyway.
+// useLayoutEffect warns during SSR; useEffect is a no-op there instead.
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
-/**
- * Consolidated selector for search page store values
- * Using shallow comparison to prevent unnecessary re-renders
- */
 const useSearchPageStore = () =>
   useStore(
     (state) => ({
@@ -122,9 +118,6 @@ const selectors = {
   resetSearchFacets: (state: AppState) => state.resetSearchFacets,
 };
 
-/**
- * Error fallback component for error boundaries
- */
 const ErrorFallback = ({ label, resetErrorBoundary }: FallbackProps & { label: string }) => (
   <Alert status="error" my={2} borderRadius="md">
     <AlertIcon />
@@ -137,11 +130,10 @@ const ErrorFallback = ({ label, resetErrorBoundary }: FallbackProps & { label: s
   </Alert>
 );
 
-const SearchPage: NextPage = () => {
-  const router = useRouter();
+export const SearchPage = ({ initialData, initialQueryHash }: ISearchPageProps) => {
+  const router = useRouterCompat();
   const store = useStoreApi();
 
-  // Consolidated store selector - reduces subscription overhead
   const {
     numPerPage: storeNumPerPage,
     sort,
@@ -154,60 +146,57 @@ const SearchPage: NextPage = () => {
     setSearchStatus,
   } = useSearchPageStore();
 
-  const { settings } = useSettings({ suspense: false });
+  const preferredSearchSort = usePreferredSearchSort();
+  const appMode = useStore((state) => state.mode);
 
   const queryClient = useQueryClient();
   const queries = queryClient.getQueriesData<IADSApiSearchResponse>([SEARCH_API_KEYS.primary]);
-  // Safely extract numFound with defensive null checks
   const lastQuery = queries.length > 1 ? last(queries) : null;
   const numFound = lastQuery?.[1]?.response?.numFound;
   const [isPrint] = useMediaQuery('print');
 
-  // parse the query params from the URL, this should match what the server parsed
-  const parsedParams = parseQueryFromUrl(router.asPath);
+  const { params, searchParams } = searchIdentity(
+    clientSearchIdentityInputs({
+      asPath: router.asPath,
+      mode: appMode,
+      numPerPage: storeNumPerPage,
+      preferredSearchSort,
+      numFound,
+    }),
+  );
 
   const [searchMode, setSearchMode] = useSearchMode();
 
-  // Sync searchMode from URL ads_compat param — '1' means ADS_COMPAT, absent means skip.
-  const urlAdsCompat = (parsedParams as Record<string, unknown>)[ADS_COMPAT_URL_PARAM] as string | undefined;
+  const urlAdsCompat = (params as Record<string, unknown>)[ADS_COMPAT_URL_PARAM] as string | undefined;
   useEffect(() => {
     if (urlAdsCompat !== undefined) {
       setSearchMode(urlAdsCompat === '1' ? SearchMode.ADS_COMPAT : SearchMode.ALL_RELEVANT);
     }
   }, [urlAdsCompat, setSearchMode]);
 
-  const hasSortParam = useMemo(() => {
-    const queryString = router.asPath.split('?')[1];
-    if (!queryString) {
-      return false;
-    }
-    return new URLSearchParams(queryString).has('sort');
-  }, [router.asPath]);
-  const preferredSortField = settings?.preferredSearchSort ?? APP_DEFAULTS.PREFERRED_SEARCH_SORT;
-  const preferredSort = useMemo(
-    () => normalizeSolrSort([`${preferredSortField} ${solrDefaultSortDirection[preferredSortField]}`]),
-    [preferredSortField],
-  );
-  const sortWithDefault = hasSortParam ? parsedParams.sort : preferredSort;
-  const { params } = useApplyBoostTypeToParams({
-    params: {
-      ...defaultParams,
-      ...parsedParams,
-      sort: sortWithDefault,
-      rows: storeNumPerPage,
-      start: calculateStartIndex(parsedParams.p, storeNumPerPage, numFound),
-    },
-  });
-
-  const searchParams = omit(['p', ADS_COMPAT_URL_PARAM, 'd'], params) as IADSApiSearchParams;
   const showAbstracts = useStore((state) => state.showAbstracts);
+
+  // Seeds only the first mount; later queryKey changes (page, sort, filters)
+  // must fetch for real, not replay this payload under a new key.
+  const hasInitialDataRef = useRef(Boolean(initialData));
+  useEffect(() => {
+    hasInitialDataRef.current = false;
+  }, []);
+
+  const searchQueryParams = withAbstractField(searchParams, showAbstracts);
+  const { queryHash } = searchQueryIdentity(searchQueryParams, SEARCH_API_KEYS.primary);
+  const seededInitialData = selectInitialData({ initialData, initialQueryHash, queryHash });
+
   const { data, isSuccess, isLoading, isFetching, error, isError, refetch } = useSearch<IADSApiSearchResponse>(
-    withAbstractField(searchParams, showAbstracts),
-    { namespace: SEARCH_API_KEYS.primary, select: (data) => data },
+    searchQueryParams,
+    {
+      namespace: SEARCH_API_KEYS.primary,
+      select: (data) => data,
+      ...(hasInitialDataRef.current && seededInitialData ? { initialData: seededInitialData } : {}),
+    },
   );
 
   const resetPreviewTogglesForQuery = useStore((state) => state.resetPreviewTogglesForQuery);
-  // Resets preview toggles on a new query; see resetPreviewTogglesForQuery.
   useEffect(() => {
     if (typeof searchParams.q === 'string') {
       resetPreviewTogglesForQuery(searchParams.q);
@@ -216,8 +205,8 @@ const SearchPage: NextPage = () => {
 
   const histogramContainerRef = useRef<HTMLDivElement>(null);
   const isClient = useIsClient();
+  const facetsOpenPref = useStore(selectors.showFilters);
 
-  // Track if search is taking longer than expected
   const SLOW_SEARCH_THRESHOLD_MS = 5000;
   const [isSlowSearch, setIsSlowSearch] = useState(false);
   useEffect(() => {
@@ -242,17 +231,13 @@ const SearchPage: NextPage = () => {
     };
   }, [isLoading, isFetching]);
 
-  // Scroll restoration hook - automatically restores scroll position when returning from abstract page
   useScrollRestoration();
-
-  // Capture this tab's results URL so other pages can offer a reliable "back to results" link
   useCaptureSearchReturnUrl();
 
   const { isOpen: isEditLibraryOpen, onClose: onCloseEditLibrary, onOpen: onOpenEditLibrary } = useDisclosure();
 
   const [editLibraryAction, setEditLibraryAction] = useState<'add' | 'remove' | null>(null);
 
-  // start tour on the first time
   useTour();
 
   const handleOpenAddToLibrary = () => {
@@ -265,11 +250,9 @@ const SearchPage: NextPage = () => {
     onOpenEditLibrary();
   };
 
-  // on Sort change handler
   const handleSortChange = (sort: SolrSort) => {
     const query = store.getState().query;
     if (query.q.length === 0) {
-      // if query is empty, do not submit search
       return;
     }
 
@@ -280,51 +263,18 @@ const SearchPage: NextPage = () => {
     const newSort =
       currentSortField === newSortField ? sort : `${newSortField} ${solrDefaultSortDirection[newSortField]}`;
 
-    // Route the sort change through the search-mode path so ads_compat and the
-    // ADS filters stay consistent with the current mode; the chosen sort wins
-    // over the mode's default sort (see buildSortChangeOutgoing).
+    // Routes through buildSortChangeOutgoing so ads_compat and mode filters
+    // stay consistent; the chosen sort overrides the mode's default sort.
     const base = omit([ADS_COMPAT_URL_PARAM, 'd'], {
       ...params,
       ...query,
       p: 1,
     }) as IADSApiSearchParams;
     const search = makeSearchParams(buildSortChangeOutgoing(base, searchMode, normalizeSolrSort(newSort)));
-    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+    router.push(search ? `${router.pathname}?${search}` : router.pathname, { scroll: false, shallow: true });
   };
 
-  // On submission handler
-  const handleOnSubmit: FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-    const q = new FormData(e.currentTarget).get('q') as string;
-
-    const query = store.getState().query;
-    if (q.length === 0) {
-      // if query is empty, do not submit search
-      return;
-    }
-
-    // clear current docs since we are entering new search
-    clearSelectedDocs();
-
-    // generate a URL search string and trigger a page transition, and update store
-    const overriddenSort = getDefaultSortForQuery(q, params.sort);
-    const base = omit([ADS_COMPAT_URL_PARAM, 'd'], {
-      ...params,
-      ...query,
-      q,
-      sort: overriddenSort,
-      p: 1,
-    }) as IADSApiSearchParams;
-    const search = makeSearchParams(buildSearchOutgoing(base, searchMode));
-    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
-  };
-
-  // Drive searchStatus and store state based on the main search result.
-  // useIsomorphicLayoutEffect fires before paint on the client (so facets start
-  // loading in the same frame results render), but falls back to useEffect on
-  // the server to avoid the SSR warning React emits for useLayoutEffect.
-  // Uses isLoading (not isFetching) to avoid disabling facets during
-  // background refetches of the same query.
+  // isLoading, not isFetching: avoids disabling facets on background refetches.
   useIsomorphicLayoutEffect(() => {
     if (isLoading) {
       setSearchStatus('loading');
@@ -346,17 +296,11 @@ const SearchPage: NextPage = () => {
     }
   }, [data, isSuccess, isLoading, isError, setDocs, setQuery, submitQuery, setSearchStatus, searchParams]);
 
-  // Memoized retry handler for error alert
   const handleRetry = useCallback(() => {
     refetch();
   }, [refetch]);
 
-  /**
-   * When updating perPage, this updates the store with both the current
-   * numPerPage value and the current query
-   */
   const handlePerPageChange = (numPerPage: NumPerPageType) => {
-    // should reset to the first page on numPerPage update
     updateQuery({ start: 0, rows: numPerPage });
     setNumPerPage(numPerPage);
   };
@@ -364,19 +308,17 @@ const SearchPage: NextPage = () => {
   const handleSearchFacetSubmission = (queryUpdates: Partial<IADSApiSearchParams>) => {
     const search = makeSearchParams({ ...params, ...queryUpdates, p: 1 });
 
-    // clear current docs on filter change
     clearSelectedDocs();
 
-    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+    router.push(search ? `${router.pathname}?${search}` : router.pathname, { scroll: false, shallow: true });
   };
 
-  // conditions
   const loading = isLoading || isFetching;
   const noResults = !loading && isSuccess && data?.response?.numFound === 0;
   const hasResults = !loading && isSuccess && data?.response?.numFound > 0;
 
-  // Track the last query that fired search_no_results to prevent duplicate events
-  // when noResults stays true across re-renders (e.g. unstable params.q reference).
+  // Tracks the query that already fired search_no_results, since noResults
+  // can stay true across renders with an unstable params.q reference.
   const lastNoResultsQuery = useRef<string | null>(null);
   useEffect(() => {
     if (noResults && params.q !== lastNoResultsQuery.current) {
@@ -387,46 +329,62 @@ const SearchPage: NextPage = () => {
       lastNoResultsQuery.current = null;
     }
   }, [noResults, params.q]);
-  const showFilters = !isPrint && isClient;
   const showListActions = !isPrint && (loading || hasResults);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    document.title = buildSearchPageTitle(params.q, {
+      maxLength: APP_DEFAULTS.SEARCH_TITLE_QUERY_CUTOFF,
+      brandName: BRAND_NAME_FULL,
+    });
+  }, [params.q]);
 
   return (
     <Box>
-      <Head>
-        <title>{`${params.q} - ${BRAND_NAME_FULL} Search`}</title>
-      </Head>
       <Stack direction="column" spacing={10}>
-        <HideOnPrint pt={10}>
-          <form method="get" action="/search" onSubmit={handleOnSubmit}>
-            <Flex direction="column" width="full">
-              <SearchBar isLoading={loading} showBackLinkAs="new_search" />
-              <NumFound count={data?.response?.numFound} isLoading={loading} />
-            </Flex>
+        <HideOnPrint>
+          {/* Keep NumFound here, not hoisted into SearchPageHeader: a query hook
+              added there runs before SearchPage (outside the Suspense boundary)
+              and would build the query cache entry first, permanently blocking
+              this SSR seed. */}
+          <NumFound count={data?.response?.numFound} isLoading={loading} />
+          <Box data-testid="facet-filters-slot">
             <FacetFilters mt="2" />
-          </form>
+          </Box>
           <Box ref={histogramContainerRef} />
         </HideOnPrint>
         <Flex direction="row" gap={{ base: 0, lg: 10 }} width="full">
-          {showFilters ? (
-            <QueryErrorResetBoundary>
-              {({ reset }) => (
-                <ErrorBoundary
-                  onReset={reset}
-                  onError={(error, errorInfo) =>
-                    handleBoundaryError(error, errorInfo, { component: 'SearchFacetFilters' })
-                  }
-                  fallbackRender={(props) => (
-                    <ErrorFallback {...props} label="Unable to load filters. Please try again." />
+          {!isPrint && (
+            <SearchFacetsColumn
+              isOpen={isClient ? facetsOpenPref : true}
+              testId={isClient ? undefined : 'search-facets-placeholder'}
+            >
+              {isClient ? (
+                <QueryErrorResetBoundary>
+                  {({ reset }) => (
+                    <ErrorBoundary
+                      onReset={reset}
+                      onError={(error, errorInfo) =>
+                        handleBoundaryError(error, errorInfo, { component: 'SearchFacetFilters' })
+                      }
+                      fallbackRender={(props) => (
+                        <ErrorFallback {...props} label="Unable to load filters. Please try again." />
+                      )}
+                    >
+                      <SearchFacetFilters
+                        onSearchFacetSubmission={handleSearchFacetSubmission}
+                        histogramContainerRef={histogramContainerRef}
+                      />
+                    </ErrorBoundary>
                   )}
-                >
-                  <SearchFacetFilters
-                    onSearchFacetSubmission={handleSearchFacetSubmission}
-                    histogramContainerRef={histogramContainerRef}
-                  />
-                </ErrorBoundary>
+                </QueryErrorResetBoundary>
+              ) : (
+                <SearchFacetsSkeletonContent />
               )}
-            </QueryErrorResetBoundary>
-          ) : null}
+            </SearchFacetsColumn>
+          )}
           <Box width="full">
             {showListActions ? (
               <QueryErrorResetBoundary>
@@ -465,7 +423,7 @@ const SearchPage: NextPage = () => {
                         <Text>This search is taking longer than expected. Please wait...</Text>
                       </Alert>
                     )}
-                    <ItemsSkeleton count={storeNumPerPage} />
+                    <ItemsSkeleton count={storeNumPerPage} indexStart={params.start} showIndexRail reserveItemHeight />
                   </>
                 ) : null}
                 <PartialResultsWarning isPartialResults={data?.responseHeader?.partialResults} />
@@ -528,7 +486,7 @@ const SearchFacetFilters = (props: {
   if (isMobile) {
     return (
       <>
-        <Box as="aside" aria-labelledby="search-facets">
+        <Box>
           <Portal appendToParentPortal>
             <Button
               position="fixed"
@@ -560,7 +518,7 @@ const SearchFacetFilters = (props: {
 
   if (showFilters) {
     return (
-      <Flex as="aside" aria-labelledby="search-facets" minWidth="250px" direction="column" data-tour="search-facets">
+      <Flex direction="column" data-tour="search-facets">
         <a className="skip-link" href="#results">
           Skip to search results
         </a>
@@ -688,12 +646,6 @@ const NoResultsMsg = () => (
   />
 );
 
-export default SearchPage;
-
-/**
- * Shows a warning if the returned search is flagged as having partial results.
- * This is used to inform users that the results may not be complete.
- */
 const PartialResultsWarning = ({ isPartialResults }: { isPartialResults?: boolean }) => {
   if (!isPartialResults) {
     return null;
@@ -712,10 +664,8 @@ const PartialResultsWarning = ({ isPartialResults }: { isPartialResults?: boolea
 
 const useTour = () => {
   const appMode = useStore((state) => state.mode);
-  const Shepherd = useShepherd();
   const [isRendered, setIsRendered] = useState(false);
 
-  // tour should not start until the first element is rendered
   useEffect(() => {
     const observer = new MutationObserver(() => {
       const element = document.querySelector('[data-tour="sort-order"]');
@@ -731,7 +681,17 @@ const useTour = () => {
   }, []);
 
   useEffect(() => {
-    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_RESULTS_TOUR)) {
+    if (!isRendered || localStorage.getItem(LocalSettings.SEEN_RESULTS_TOUR)) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void import('shepherd.js').then(({ default: Shepherd }) => {
+      if (cancelled) {
+        return;
+      }
+
       const tour = new Shepherd.Tour({
         useModalOverlay: true,
         defaultStepOptions: {
@@ -758,7 +718,6 @@ const useTour = () => {
         tour.options.keyboardNavigation = false;
         document.removeEventListener('click', listener);
 
-        // give focus back to search input after shepherd cleaned up
         setTimeout(() => {
           document.getElementById('search-input')?.focus();
         }, 0);
@@ -768,7 +727,6 @@ const useTour = () => {
         tour.options.keyboardNavigation = false;
         document.removeEventListener('click', listener);
 
-        // give focus back to search input after shepherd cleaned up
         setTimeout(() => {
           document.getElementById('search-input')?.focus();
         }, 0);
@@ -777,8 +735,10 @@ const useTour = () => {
       setTimeout(() => {
         tour.start();
       }, 1000);
-    }
-  }, [isRendered, Shepherd]);
-};
+    });
 
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+    return () => {
+      cancelled = true;
+    };
+  }, [isRendered, appMode]);
+};

@@ -1,18 +1,14 @@
-import { AppState, useStore, useStoreApi } from '@/store';
-import { AppMode } from '@/types';
+import { AppState } from '@/store';
 import App, { AppContext, AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
-import { ReactElement, useEffect, useMemo } from 'react';
-import { DehydratedState, useQuery, useQueryClient } from '@tanstack/react-query';
-import { IronSession } from 'iron-session';
-import axios from 'axios';
-import { isNilOrEmpty, notEqual } from 'ramda-adjunct';
-import { useUser } from '@/lib/useUser';
+import { ReactElement, useMemo } from 'react';
+import { DehydratedState } from '@tanstack/react-query';
 import '../styles/styles.css';
 import '../styles/page-loader.css';
 import 'shepherd.js/dist/css/shepherd.css';
+import '@/lib/fontawesome';
 import { logger } from '@/logger';
 import { sendGTMEvent } from '@next/third-parties/google';
 import Head from 'next/head';
@@ -20,11 +16,9 @@ import { BRAND_NAME_FULL } from '@/config';
 // Not the barrel: it re-exports VizPageLayout, which drags the charts
 // (@nivo/*, CJS, so nothing shakes out) into every page.
 import { Layout } from '@/components/Layout/Layout';
-import { useIsClient } from '@/lib/useIsClient';
-import api from '@/api/api';
-import { userKeys } from '@/api/user/user';
+import { AppModeRouter, SettingsSync, UserSync } from '@/components/AppChrome';
 import { Providers } from '@/providers';
-import { isValidToken } from '@/auth-utils';
+import { PagesRouterCompatProvider } from '@/lib/useRouterCompat';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -70,13 +64,20 @@ function NectarApp({ Component, pageProps }: AppProps): ReactElement {
         <title>{BRAND_NAME_FULL}</title>
         <DefaultMeta />
       </Head>
-      <Providers pageProps={pageProps as AppPageProps}>
-        <AppModeRouter />
-        <TopProgressBar />
-        <UserSync />
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+      <Providers
+        cookies={(pageProps as AppPageProps).cookies}
+        dehydratedAppState={(pageProps as AppPageProps).dehydratedAppState}
+        dehydratedState={(pageProps as AppPageProps).dehydratedState}
+      >
+        <PagesRouterCompatProvider>
+          <AppModeRouter />
+          <TopProgressBar />
+          <UserSync />
+          <SettingsSync />
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </PagesRouterCompatProvider>
       </Providers>
     </>
   );
@@ -93,112 +94,6 @@ NectarApp.getInitialProps = async (appContext: AppContext) => {
       cookies: appContext.ctx.req?.headers.cookie ?? '',
     },
   };
-};
-
-const AppModeRouter = (): ReactElement => {
-  const storeApi = useStoreApi();
-  const setMode = useStore((state) => state.setMode);
-  const setForcedAstroFromMode = useStore((state) => state.setForcedAstroFromMode);
-  const showModeNotice = useStore((state) => state.showModeNotice);
-  const dismissModeNotice = useStore((state) => state.dismissModeNotice);
-  const router = useRouter();
-  const isClient = useIsClient();
-
-  useEffect(() => {
-    // The classic/paper forms are Astrophysics-only. When a user in another
-    // discipline lands here, switch them to Astrophysics and surface the
-    // "Switch back?" notice instead of bouncing them to the home page.
-    if (!isClient) {
-      return;
-    }
-    // Match /classic-form and /paper-form exactly, allowing a query or hash
-    // suffix — but not lookalikes such as /classic-former.
-    const onFormRoute = /^\/(classic|paper)-form(?:[/?#]|$)/.test(router.asPath);
-    const { mode, forcedAstroFromMode } = storeApi.getState();
-
-    // Navigating away from the form route without acting on the notice: clear
-    // the forced switch so its notice does not linger on unrelated routes.
-    if (!onFormRoute) {
-      if (forcedAstroFromMode !== null) {
-        setForcedAstroFromMode(null);
-        dismissModeNotice();
-      }
-      return;
-    }
-
-    if (mode !== AppMode.ASTROPHYSICS) {
-      setForcedAstroFromMode(mode);
-      setMode(AppMode.ASTROPHYSICS);
-      showModeNotice();
-    }
-  }, [router.asPath, isClient, storeApi, setMode, setForcedAstroFromMode, showModeNotice, dismissModeNotice]);
-
-  // Clean forceMode from URL after it has been applied to the store.
-  // The param is only needed for initial SSR load; keeping it in the URL
-  // would cause issues with bookmarking and sharing.
-  useEffect(() => {
-    if (isClient) {
-      const url = new URL(window.location.href);
-      if (url.searchParams.has('forceMode')) {
-        url.searchParams.delete('forceMode');
-        window.history.replaceState({}, '', url.toString());
-      }
-    }
-  }, [isClient]);
-
-  return <></>;
-};
-
-/**
- * Syncs the user data from the server to the client
- * work in progress, not sure if this is the best way to do this
- */
-const UserSync = (): ReactElement => {
-  const store = useStoreApi();
-  const { user } = useUser();
-  const qc = useQueryClient();
-
-  const { data } = useQuery<{
-    user: IronSession['token'];
-    isAuthenticated: boolean;
-  }>({
-    queryKey: ['user'],
-    queryFn: async () => {
-      const { data } = await axios.get<{
-        user: IronSession['token'];
-        isAuthenticated: boolean;
-      }>('/api/user', {
-        headers: {
-          'X-Refresh-Token': 1,
-        },
-      });
-      if (isNilOrEmpty(data)) {
-        throw new Error('Empty session');
-      }
-      return data;
-    },
-    retry: false,
-
-    // refetch every 5 minutes
-    refetchInterval: 60 * 5 * 1000,
-  });
-
-  // Comparing the incoming user data with the current user data, and update the store if they are different
-  useEffect(() => {
-    if (data?.user && isValidToken(data?.user) && notEqual(data.user, user)) {
-      logger.debug({ msg: 'User Synced', user: data.user });
-
-      store.setState({ user: data.user });
-
-      // apply the user data to the api instance
-      api.setUserData(data.user);
-
-      // attempt to invalidate any currently cached user settings
-      void qc.invalidateQueries(userKeys.getUserSettings());
-    }
-  }, [data, store, user, qc]);
-
-  return <></>;
 };
 
 export const reportWebVitals = (metric: NextWebVitalsMetric) => {

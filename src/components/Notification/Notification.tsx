@@ -1,22 +1,27 @@
 import { ToastId, useToast } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useStore } from '@/store';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { stripNotifyParam } from './stripNotifyParam';
 
 const TIMEOUT = 10000;
 
+// URL match alone can't tell a self-caused strip from a genuine nav to the
+// same URL (pages router fires one); this grace window disambiguates by time.
+export const SELF_STRIP_GRACE_MS = 250;
+
 export const Notification = () => {
   const toastId = useRef<ToastId>(null);
-  const router = useRouter();
+  const router = useRouterCompat();
   const timeoutId = useRef<NodeJS.Timeout>(null);
+  const selfStrippedUrlRef = useRef<string | null>(null);
+  const selfStrippedAtRef = useRef<number>(0);
   const notification = useStore((state) => state.notification);
   const resetNotification = useStore((state) => state.resetNotification);
   const toast = useToast({
     duration: TIMEOUT,
   });
 
-  // Reset notification (clear from store and close toast)
   const reset = useCallback(() => {
     resetNotification();
     clearTimeout(timeoutId.current);
@@ -25,7 +30,6 @@ export const Notification = () => {
     }
   }, [resetNotification, toast, toastId.current, timeoutId.current]);
 
-  // Show notification
   useEffect(() => {
     if (notification !== null && !toast.isActive(toastId.current)) {
       clearTimeout(timeoutId.current);
@@ -41,28 +45,46 @@ export const Notification = () => {
     };
   }, [notification, resetNotification, toast, toastId.current, reset]);
 
-  // replaceState: a route change would fire the reset below and close the toast.
+  // replaceState: under the app router this counts as a navigation, which
+  // would otherwise fire the reset below and close the toast within a tick.
   useEffect(() => {
     if (typeof window === 'undefined') {
       return;
     }
     const { pathname, search, hash } = window.location;
-    const stripped = stripNotifyParam(`${pathname}${search}${hash}`);
-    if (stripped !== `${pathname}${search}${hash}`) {
+    const current = `${pathname}${search}${hash}`;
+    const stripped = stripNotifyParam(current);
+    if (stripped !== current) {
+      selfStrippedUrlRef.current = stripped;
+      selfStrippedAtRef.current = Date.now();
       window.history.replaceState(window.history.state, '', stripped);
     }
   }, [notification]);
 
-  // Reset notification on route change
+  // Reset notification on route change, unless it's the navigation our own
+  // param strip above produced.
   useEffect(() => {
-    router.events.on('routeChangeStart', reset);
-    router.events.on('routeChangeComplete', reset);
-    router.events.on('routeChangeError', reset);
-    return () => {
-      router.events.off('routeChangeStart', reset);
-      router.events.off('routeChangeComplete', reset);
-      router.events.off('routeChangeError', reset);
-    };
+    return router.onNavigateStart(() => {
+      const armedUrl = selfStrippedUrlRef.current;
+      const armedAt = selfStrippedAtRef.current;
+      selfStrippedUrlRef.current = null;
+
+      if (armedUrl !== null && Date.now() - armedAt <= SELF_STRIP_GRACE_MS && typeof window !== 'undefined') {
+        const { pathname, search, hash } = window.location;
+        if (armedUrl === `${pathname}${search}${hash}`) {
+          return;
+        }
+      }
+
+      reset();
+    });
+  }, [router, reset]);
+
+  useEffect(() => {
+    if (!router.onNavigateError) {
+      return;
+    }
+    return router.onNavigateError(reset);
   }, [router, reset]);
 
   return <></>;

@@ -36,7 +36,7 @@ import { TimeSince } from '@/components/TimeSince';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
 
 import { NumPerPageType } from '@/types';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { uniq } from 'ramda';
 import { Fragment, MouseEvent, useMemo } from 'react';
 import { DeleteLibrary } from './DeleteLibrary';
@@ -140,7 +140,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
     ...tableProps
   } = props;
 
-  const router = useRouter();
+  const router = useRouterCompat();
 
   const breakpoint = useBreakpoint();
 
@@ -157,7 +157,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
   const toast = useToast();
 
   const handleSettings = (id: LibraryIdentifier) => {
-    void router.push({ pathname: `/user/libraries/${id}/settings`, query: { from: 'landing' } });
+    router.push(`/user/libraries/${id}/settings?from=landing`);
   };
 
   const handleDeleteLibrary = (id: LibraryIdentifier) => {

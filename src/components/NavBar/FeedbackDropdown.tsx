@@ -1,6 +1,6 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { DarkMode, HStack, Link, List, ListItem, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { MouseEvent, ReactElement } from 'react';
 import { ListType } from './types';
 import { useColorModeColors } from '@/lib/useColorModeColors';
@@ -45,7 +45,7 @@ const buildHref = (path: string, asPath: string): string => {
 export const FeedbackDropdown = (props: IFeedbackDropdownProps): ReactElement => {
   const { type, onFinished } = props;
   const items = Object.values(feedbackItems);
-  const router = useRouter();
+  const router = useRouterCompat();
   const colors = useColorModeColors();
 
   return type === ListType.DROPDOWN ? (
@@ -83,7 +83,7 @@ const SideFeedbackMenu = ({ onFinished }: { onFinished?: () => void }) => {
 
   const colors = useColorModeColors();
 
-  const router = useRouter();
+  const router = useRouterCompat();
 
   const handleAccordionClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (typeof onFinished === 'function') {

@@ -1,6 +1,8 @@
+'use client';
+
 import { Box, BoxProps, Button, Flex, Tag, TagCloseButton, TagLabel, Tooltip } from '@chakra-ui/react';
 import { clearFQs, removeFQClause } from '@/query-utils';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { curryN } from 'ramda';
 import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { FilterTuple, getFilters, getObjectName } from './helpers';
@@ -11,7 +13,7 @@ import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { useObjects } from '@/api/objects/objects';
 
 export const FacetFilters = (props: BoxProps): ReactElement => {
-  const router = useRouter();
+  const router = useRouterCompat();
   const [filterSections, setFilterSections] = useState<FilterTuple[]>([]);
 
   const [objectIds, setObjectIds] = useState<string[]>([]);
@@ -71,7 +73,7 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
         // Update the router with the new query
         if (isIADSSearchParams(params)) {
           const search = makeSearchParams(params);
-          void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+          router.push(search ? `${router.pathname}?${search}` : router.pathname, { scroll: false, shallow: true });
         }
       }
     }),
@@ -86,7 +88,7 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
 
     if (isIADSSearchParams(params)) {
       const search = makeSearchParams(params);
-      void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+      router.push(search ? `${router.pathname}?${search}` : router.pathname, { scroll: false, shallow: true });
     }
   };
 

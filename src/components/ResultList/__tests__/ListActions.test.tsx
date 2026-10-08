@@ -1,6 +1,7 @@
 import { render } from '@/test-utils';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ListActions } from '../ListActions';
+import { LIST_ACTIONS_HEIGHT_CSS } from '../listActionsHeight';
 
 const mocks = vi.hoisted(() => ({
   useRouter: vi.fn(() => ({
@@ -13,9 +14,20 @@ const mocks = vi.hoisted(() => ({
     isAuthenticated: false,
     logout: vi.fn(),
   })),
+  routerCompat: {
+    pathname: '/search',
+    searchParams: new URLSearchParams('?q=test%20query'),
+    query: { q: 'test query' },
+    asPath: '/search?q=test%20query',
+    push: vi.fn(),
+    replace: vi.fn(),
+    onNavigateStart: (): (() => void) => () => undefined,
+    onNavigateComplete: (): (() => void) => () => undefined,
+  },
 }));
 
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
+vi.mock('@/lib/useRouterCompat', () => ({ useRouterCompat: () => mocks.routerCompat }));
 vi.mock('@/lib/useSession', () => ({ useSession: mocks.useSession }));
 
 describe('ListActions notification bell button', () => {
@@ -85,5 +97,47 @@ describe('ListActions abstracts toggle', () => {
     await user.click(getByLabelText('Show abstract previews for all results.'));
 
     expect(getByLabelText('Hide abstract previews for all results.')).toBeInTheDocument();
+  });
+});
+
+describe('ListActions reserved height', () => {
+  const defaultProps = {
+    onSortChange: vi.fn(),
+    onOpenAddToLibrary: vi.fn(),
+    onOpenRemoveFromLibrary: vi.fn(),
+    isLoading: false,
+  };
+
+  test('reserves the toolbar height so the client-only rows cannot push results down', () => {
+    const { getByTestId } = render(<ListActions {...defaultProps} />);
+
+    expect(getByTestId('listactions')).toHaveStyle({ minHeight: LIST_ACTIONS_HEIGHT_CSS.base });
+  });
+
+  test('stays in the layout while loading instead of unmounting', () => {
+    const { getByTestId } = render(<ListActions {...defaultProps} isLoading />);
+
+    const toolbar = getByTestId('listactions');
+    expect(toolbar).toHaveStyle({ minHeight: LIST_ACTIONS_HEIGHT_CSS.base });
+    expect(toolbar.textContent).toContain('Bulk Actions');
+  });
+
+  test('marks the loading toolbar inert so its controls cannot be reached or fired', () => {
+    const { getByTestId } = render(<ListActions {...defaultProps} isLoading />);
+
+    const inertRegions = getByTestId('listactions').querySelectorAll('[inert]');
+    expect(inertRegions).toHaveLength(2);
+    inertRegions.forEach((region) => {
+      expect(region).toHaveAttribute('aria-hidden', 'true');
+      expect(region).toHaveStyle({ pointerEvents: 'none' });
+    });
+  });
+
+  test('releases the inert treatment once interactive', async () => {
+    const { getByTestId, findByLabelText } = render(<ListActions {...defaultProps} />);
+
+    await findByLabelText('Show abstract previews for all results.');
+
+    expect(getByTestId('listactions').querySelectorAll('[inert]')).toHaveLength(0);
   });
 });

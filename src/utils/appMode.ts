@@ -1,5 +1,7 @@
-import type { NextRouter } from 'next/router';
+import type { RouterCompat } from '@/lib/useRouterCompat';
 import { AppMode } from '@/types';
+
+export const SEARCH_PAGE_PATHNAMES = new Set(['/search']);
 
 const disciplineMap: Record<string, AppMode> = {
   general: AppMode.GENERAL,
@@ -74,13 +76,8 @@ export const getAppModeLabel = (mode: AppMode): string => {
   }
 };
 
-export const syncUrlDisciplineParam = async (router: NextRouter, mode?: AppMode | null): Promise<void> => {
-  if (!router.isReady) {
-    return;
-  }
-
-  // Only write the discipline param on the search page.
-  if (router.pathname !== '/search') {
+export const syncUrlDisciplineParamCompat = (router: RouterCompat, mode?: AppMode | null): void => {
+  if (!SEARCH_PAGE_PATHNAMES.has(router.pathname)) {
     return;
   }
 
@@ -88,22 +85,18 @@ export const syncUrlDisciplineParam = async (router: NextRouter, mode?: AppMode 
   const target = appModeToDisciplineParam(mode);
   const current = normalizeDisciplineParam(raw);
 
-  // If the normalized value matches but raw casing differs, rewrite to normalize the URL.
   const alreadyNormalized = target === current && (typeof raw === 'string' ? raw === target : true);
   if (alreadyNormalized) {
     return;
   }
 
-  const nextQuery = { ...router.query };
+  const nextParams = new URLSearchParams(router.searchParams);
   if (target) {
-    nextQuery.d = target;
+    nextParams.set('d', target);
   } else {
-    delete nextQuery.d;
+    nextParams.delete('d');
   }
 
-  const href = { pathname: router.pathname, query: nextQuery };
-  const options = { shallow: true, scroll: false };
-
-  // Prefer internal history replace to avoid reloads when only query changes.
-  await router.replace(href, undefined, options);
+  const query = nextParams.toString();
+  router.replace(query ? `${router.pathname}?${query}` : router.pathname, { shallow: true, scroll: false });
 };

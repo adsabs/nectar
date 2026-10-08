@@ -34,7 +34,7 @@ import {
 import { useIsClient } from '@/lib/useIsClient';
 import { AppState, useStore, useStoreApi } from '@/store';
 import NextLink from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { curryN } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
@@ -49,15 +49,22 @@ import { solrSortOptions } from '@/components/Sort/model';
 import { ISortProps, Sort } from '@/components/Sort';
 import { sections } from '@/components/Visualizations';
 import { useColorModeColors } from '@/lib/useColorModeColors';
-import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import { makeSearchParams, parseQueryFromUrl, stringifySearchParams } from '@/utils/common/search';
 import { noop } from '@/utils/common/noop';
 import { SolrSort, SolrSortField } from '@/api/models';
 import { useVaultBigQuerySearch } from '@/api/vault/vault';
 import { Bibcode } from '@/api/search/types';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { useExportFormats } from '@/lib/useExportFormats';
+import { LIST_ACTIONS_HEIGHT_CSS } from '@/components/ResultList/listActionsHeight';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAlignLeft, faHighlighter } from '@fortawesome/free-solid-svg-icons';
+
+const INERT_ATTR = { inert: '' } as unknown as { inert?: boolean };
+
+const DIMMED_PROPS = { pointerEvents: 'none', opacity: 0.6 } as const;
+
+const INERT_PROPS = { ...DIMMED_PROPS, 'aria-hidden': true, ...INERT_ATTR } as const;
 
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];
@@ -76,7 +83,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const { isAuthenticated } = useSession();
   const noneSelected = selected.length === 0;
   const [exploreAll, setExploreAll] = useState(true);
-  const router = useRouter();
+  const router = useRouterCompat();
   const toast = useToast();
 
   const { settings } = useSettings({ suspense: false });
@@ -99,11 +106,12 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     if (data && path) {
       if (path.path) {
         // go to viz page with original query
-        void router.push({ pathname: path.path, query: { ...router.query, qid: data.qid } });
+        void router.push(`${path.path}?${stringifySearchParams({ ...router.query, qid: data.qid })}`);
       } else {
         // new search with operator
         const q = createOperatorQuery(path.operator, `docs(${data.qid})`);
-        void router.push({ pathname: '', search: makeSearchParams({ q, sort: ['score desc'] }) });
+        const currentPath = router.asPath.split('?')[0];
+        void router.push(`${currentPath}?${makeSearchParams({ q, sort: ['score desc'] })}`);
       }
       clearSelected();
       setPath(null);
@@ -117,7 +125,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
       });
       setPath(null);
     }
-  }, [data, error, path]);
+  }, [data, error, path, router]);
 
   const handleExploreOption = (value: string | string[]) => {
     if (typeof value === 'string') {
@@ -128,7 +136,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const handleExploreVizLink: MouseEventHandler<HTMLButtonElement> = (e) => {
     const path = e.currentTarget.dataset.sectionPath;
     if (exploreAll) {
-      void router.push({ pathname: path, query: router.query });
+      void router.push(`${path}?${stringifySearchParams(router.query)}`);
     } else {
       // set the path which will trigger the search
       setPath({ path });
@@ -152,7 +160,8 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
         return;
       }
       const q = createOperatorQuery(operator, filteredQSet.join(' AND '));
-      void router.push({ pathname: '', search: makeSearchParams({ q, sort: ['score desc'] }) });
+      const currentPath = router.asPath.split('?')[0];
+      void router.push(`${currentPath}?${makeSearchParams({ q, sort: ['score desc'] })}`);
     } else {
       setPath({ operator });
     }
@@ -160,7 +169,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
 
   const handleOpenCitationHelper = () => {
     if (exploreAll) {
-      void router.push({ pathname: '/search/citation_helper', query: router.query });
+      void router.push(`/search/citation_helper?${stringifySearchParams(router.query)}`);
     } else {
       setPath({ path: '/search/citation_helper' });
     }
@@ -169,9 +178,11 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const handleOpsLink = useCallback((name: Operator) => () => handleOperationsLink(name), [exploreAll, router]);
 
   const colors = useColorModeColors();
+  const isInteractive = isClient && !isLoading;
+  const nonInteractiveProps = isInteractive ? {} : isClient ? INERT_PROPS : DIMMED_PROPS;
 
   return (
-    <Box my={2} display={isLoading ? 'none' : 'initial'}>
+    <Box my={2}>
       <Flex
         direction="column"
         gap={1}
@@ -179,133 +190,123 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
         as="section"
         aria-labelledby="result-actions-title"
         data-testid="listactions"
+        minH={LIST_ACTIONS_HEIGHT_CSS}
       >
         <VisuallyHidden as="h2" id="result-actions-title">
           Result Actions
         </VisuallyHidden>
         <Flex justifyContent="space-between" width="full" gap={1}>
           <SortWrapper onChange={onSortChange} />
-          {isClient && (
-            <Flex gap={1}>
-              <NotificationBellButton isAuthenticated={isAuthenticated} onOpenNotification={onCreateNotificationOpen} />
-              <HighlightsToggle />
-              <AbstractsToggle />
-            </Flex>
-          )}
+          <Flex gap={1} {...nonInteractiveProps}>
+            <NotificationBellButton isAuthenticated={isAuthenticated} onOpenNotification={onCreateNotificationOpen} />
+            <HighlightsToggle />
+            <AbstractsToggle />
+          </Flex>
         </Flex>
-        {isClient && (
+        <Stack
+          direction={{ base: 'column', md: 'row' }}
+          alignItems={{ base: 'start', md: 'center' }}
+          justifyContent={{ md: 'space-between' }}
+          backgroundColor={colors.panel}
+          borderRadius="2px"
+          p={2}
+          {...nonInteractiveProps}
+        >
           <Stack
-            direction={{ base: 'column', md: 'row' }}
-            alignItems={{ base: 'start', md: 'center' }}
-            justifyContent={{ md: 'space-between' }}
-            backgroundColor={colors.panel}
-            borderRadius="2px"
-            p={2}
+            direction="row"
+            spacing={{ base: '2', md: '5' }}
+            order={{ base: '2', md: '1' }}
+            mt={{ base: '2', md: '0' }}
+            wrap="wrap"
           >
-            <Stack
-              direction="row"
-              spacing={{ base: '2', md: '5' }}
-              order={{ base: '2', md: '1' }}
-              mt={{ base: '2', md: '0' }}
-              wrap="wrap"
-            >
-              <SelectAllCheckbox />
-              {!noneSelected && (
-                <>
-                  <Text data-testid="listactions-selected">{selected.length.toLocaleString()} Selected</Text>
-                  <Button variant="link" fontWeight="normal" onClick={clearSelected} data-testid="listactions-clearall">
-                    Clear All
-                  </Button>
-                  <SecondOrderOpsLinks />
-                </>
-              )}
-            </Stack>
-            <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
-              <Menu id="bulk-actions">
-                <MenuButton as={Button} rightIcon={<ChevronDownIcon />} data-tour="bulk-actions">
-                  Bulk Actions
-                </MenuButton>
-                <Portal>
-                  <MenuList>
-                    <MenuOptionGroup
-                      value={exploreAll ? 'all' : 'selected'}
-                      type="radio"
-                      onChange={handleExploreOption}
-                    >
-                      <MenuItemOption value="all" closeOnSelect={false}>
-                        All
-                      </MenuItemOption>
-                      <MenuItemOption value="selected" isDisabled={selected.length === 0} closeOnSelect={false}>
-                        Selected
-                      </MenuItemOption>
-                    </MenuOptionGroup>
-                    <MenuDivider />
-                    {isAuthenticated && (
-                      <>
-                        <MenuItem onClick={onOpenAddToLibrary}>Add to Library</MenuItem>
-                        <MenuItem onClick={onOpenRemoveFromLibrary}>Remove from Library</MenuItem>
-                        <MenuDivider />
-                      </>
-                    )}
-                    <ExportMenu exploreAll={exploreAll} defaultExportFormat={settings.defaultExportFormat} />
-                    <OrcidBulkMenu />
-                  </MenuList>
-                </Portal>
-              </Menu>
-              <Menu id="explore">
-                <MenuButton
-                  as={Button}
-                  rightIcon={<ChevronDownIcon />}
-                  data-testid="explorer-menu-btn"
-                  data-tour="explore"
-                >
-                  Explore
-                </MenuButton>
-                <Portal>
-                  <MenuList data-testid="explorer-menu-items">
-                    <MenuOptionGroup
-                      value={exploreAll ? 'all' : 'selected'}
-                      type="radio"
-                      onChange={handleExploreOption}
-                    >
-                      <MenuItemOption value="all" closeOnSelect={false}>
-                        All
-                      </MenuItemOption>
-                      <MenuItemOption value="selected" isDisabled={selected.length === 0} closeOnSelect={false}>
-                        Selected
-                      </MenuItemOption>
-                    </MenuOptionGroup>
-                    <MenuDivider />
-                    <MenuGroup title="VISUALIZATIONS">
-                      {sections.map((section) => (
-                        <MenuItem onClick={handleExploreVizLink} data-section-path={section.path} key={section.id}>
-                          {section.label}
-                        </MenuItem>
-                      ))}
-                    </MenuGroup>
-                    <MenuDivider />
-                    <MenuItem onClick={handleOpenCitationHelper}>Citation Helper</MenuItem>
-                    <MenuDivider />
-                    <MenuGroup title="OPERATIONS">
-                      <MenuItem onClick={handleOpsLink('trending')} data-testid="trending-operator">
-                        Trending
-                      </MenuItem>
-                      <MenuItem onClick={handleOpsLink('reviews')} data-testid="reviews-operator">
-                        Reviews
-                      </MenuItem>
-                      <MenuItem onClick={handleOpsLink('useful')} data-testid="useful-operator">
-                        Useful
-                      </MenuItem>
-                      <MenuItem onClick={handleOpsLink('similar')} data-testid="similar-operator">
-                        Similar
-                      </MenuItem>
-                    </MenuGroup>
-                  </MenuList>
-                </Portal>
-              </Menu>
-            </Stack>
+            <SelectAllCheckbox />
+            {!noneSelected && (
+              <>
+                <Text data-testid="listactions-selected">{selected.length.toLocaleString()} Selected</Text>
+                <Button variant="link" fontWeight="normal" onClick={clearSelected} data-testid="listactions-clearall">
+                  Clear All
+                </Button>
+                <SecondOrderOpsLinks />
+              </>
+            )}
           </Stack>
-        )}
+          <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
+            <Menu id="bulk-actions">
+              <MenuButton as={Button} rightIcon={<ChevronDownIcon />} data-tour="bulk-actions">
+                Bulk Actions
+              </MenuButton>
+              <Portal>
+                <MenuList>
+                  <MenuOptionGroup value={exploreAll ? 'all' : 'selected'} type="radio" onChange={handleExploreOption}>
+                    <MenuItemOption value="all" closeOnSelect={false}>
+                      All
+                    </MenuItemOption>
+                    <MenuItemOption value="selected" isDisabled={selected.length === 0} closeOnSelect={false}>
+                      Selected
+                    </MenuItemOption>
+                  </MenuOptionGroup>
+                  <MenuDivider />
+                  {isAuthenticated && (
+                    <>
+                      <MenuItem onClick={onOpenAddToLibrary}>Add to Library</MenuItem>
+                      <MenuItem onClick={onOpenRemoveFromLibrary}>Remove from Library</MenuItem>
+                      <MenuDivider />
+                    </>
+                  )}
+                  <ExportMenu exploreAll={exploreAll} defaultExportFormat={settings.defaultExportFormat} />
+                  <OrcidBulkMenu />
+                </MenuList>
+              </Portal>
+            </Menu>
+            <Menu id="explore">
+              <MenuButton
+                as={Button}
+                rightIcon={<ChevronDownIcon />}
+                data-testid="explorer-menu-btn"
+                data-tour="explore"
+              >
+                Explore
+              </MenuButton>
+              <Portal>
+                <MenuList data-testid="explorer-menu-items">
+                  <MenuOptionGroup value={exploreAll ? 'all' : 'selected'} type="radio" onChange={handleExploreOption}>
+                    <MenuItemOption value="all" closeOnSelect={false}>
+                      All
+                    </MenuItemOption>
+                    <MenuItemOption value="selected" isDisabled={selected.length === 0} closeOnSelect={false}>
+                      Selected
+                    </MenuItemOption>
+                  </MenuOptionGroup>
+                  <MenuDivider />
+                  <MenuGroup title="VISUALIZATIONS">
+                    {sections.map((section) => (
+                      <MenuItem onClick={handleExploreVizLink} data-section-path={section.path} key={section.id}>
+                        {section.label}
+                      </MenuItem>
+                    ))}
+                  </MenuGroup>
+                  <MenuDivider />
+                  <MenuItem onClick={handleOpenCitationHelper}>Citation Helper</MenuItem>
+                  <MenuDivider />
+                  <MenuGroup title="OPERATIONS">
+                    <MenuItem onClick={handleOpsLink('trending')} data-testid="trending-operator">
+                      Trending
+                    </MenuItem>
+                    <MenuItem onClick={handleOpsLink('reviews')} data-testid="reviews-operator">
+                      Reviews
+                    </MenuItem>
+                    <MenuItem onClick={handleOpsLink('useful')} data-testid="useful-operator">
+                      Useful
+                    </MenuItem>
+                    <MenuItem onClick={handleOpsLink('similar')} data-testid="similar-operator">
+                      Similar
+                    </MenuItem>
+                  </MenuGroup>
+                </MenuList>
+              </Portal>
+            </Menu>
+          </Stack>
+        </Stack>
       </Flex>
       <Portal>
         <AddNotificationModal isOpen={isCreateNotificationOpen} onClose={onCreateNotificationClose} />
@@ -463,7 +464,7 @@ const SelectAllCheckbox = () => {
 
 const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExportFormat: string }): ReactElement => {
   const { exploreAll, defaultExportFormat, ...menuGroupProps } = props;
-  const router = useRouter();
+  const router = useRouterCompat();
   const store = useStoreApi();
   const [selected, setSelected] = useState<Bibcode[]>([]);
   const [route, setRoute] = useState(['', '']);
@@ -478,12 +479,9 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
       setSelected([]);
 
       // when vault query is done, transition to the export page passing only qid
-      void router.push(
-        { pathname: route[0], query: { ...router.query, qid: data.qid } },
-        { pathname: route[1], query: { ...router.query, qid: data.qid } },
-      );
+      void router.push(`${route[1]}?${stringifySearchParams({ ...router.query, qid: data.qid })}`);
     }
-  }, [data, route]);
+  }, [data, route, router]);
 
   // on route change
   useEffect(() => {
@@ -494,9 +492,9 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
 
     if (isNonEmptyString(route[0])) {
       // if explore all, then just use the current query, and do not trigger vault (redirect immediately)
-      void router.push({ pathname: route[0], query: router.query }, { pathname: route[1], query: router.query });
+      void router.push(`${route[1]}?${stringifySearchParams(router.query)}`);
     }
-  }, [route]);
+  }, [route, router]);
 
   const handleExportItemClick = curryN(2, (format: string) => {
     setRoute([`/search/exportcitation/[format]`, `/search/exportcitation/${format}`]);

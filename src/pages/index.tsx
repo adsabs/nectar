@@ -44,9 +44,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { InfoIcon } from '@chakra-ui/icons';
 import { AppMode, LocalSettings } from '@/types';
-import { syncUrlDisciplineParam } from '@/utils/appMode';
 import { getHomeSteps } from '@/components/NavBar';
-import { useShepherd } from 'react-shepherd';
 import { useIsClient } from '@/lib/useIsClient';
 import { useScreenSize } from '@/lib/useScreenSize';
 import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
@@ -113,7 +111,6 @@ const HomePage: NextPage = () => {
           setMode(fallbackMode);
         }
         setUrlModeOverride(null);
-        void syncUrlDisciplineParam(router, fallbackMode);
         return;
       }
 
@@ -482,7 +479,6 @@ const FloatingIntroLink = () => {
 
 const useTour = () => {
   const appMode = useStore((state) => state.mode);
-  const Shepherd = useShepherd();
   const { isScreenLarge } = useScreenSize();
   const [isRendered, setIsRendered] = useState(false);
 
@@ -502,7 +498,21 @@ const useTour = () => {
   }, []);
 
   useEffect(() => {
-    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_LANDING_TOUR)) {
+    if (!isRendered || localStorage.getItem(LocalSettings.SEEN_LANDING_TOUR)) {
+      return;
+    }
+
+    let cancelled = false;
+    let startTimeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    // Dynamic import: shepherd.js is ~56 kB and runs once per visitor at most,
+    // so a static import would ship it to everyone in the shared bundle.
+    // Replaces react-shepherd, which needed its provider mounted on every route.
+    void import('shepherd.js').then(({ default: Shepherd }) => {
+      if (cancelled) {
+        return;
+      }
+
       const tour = new Shepherd.Tour({
         useModalOverlay: true,
         defaultStepOptions: {
@@ -544,9 +554,14 @@ const useTour = () => {
 
       tour.addSteps(getHomeSteps(!isScreenLarge, appMode === 'ASTROPHYSICS'));
       localStorage.setItem(LocalSettings.SEEN_LANDING_TOUR, 'true');
-      setTimeout(() => {
+      startTimeoutId = setTimeout(() => {
         tour.start();
       }, 1000);
-    }
+    });
+
+    return () => {
+      cancelled = true;
+      clearTimeout(startTimeoutId);
+    };
   }, [isRendered]);
 };

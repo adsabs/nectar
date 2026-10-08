@@ -17,8 +17,18 @@ const router = {
   query: { q: 'star' } as Record<string, string | string[] | undefined>,
 };
 
+const clientState = { isClient: true };
+
 vi.mock('next/router', () => ({
   useRouter: () => router,
+}));
+
+vi.mock('@/lib/useRouterCompat', () => ({
+  useRouterCompat: () => router,
+}));
+
+vi.mock('@/lib/useIsClient', () => ({
+  useIsClient: () => clientState.isClient,
 }));
 
 const resetRouter = () => {
@@ -26,6 +36,7 @@ const resetRouter = () => {
   router.pathname = '/search';
   router.asPath = '/search?q=star';
   router.query = { q: 'star' };
+  clientState.isClient = true;
 };
 
 beforeEach(resetRouter);
@@ -116,8 +127,8 @@ describe('useCaptureSearchReturnUrl', () => {
     await waitFor(() => expect(getSessionItem<string>(KEY)).toBe('/search?q=star'));
   });
 
-  test('does not capture before the route is ready', async () => {
-    router.isReady = false;
+  test('does not capture before the client has mounted', async () => {
+    clientState.isClient = false;
     renderHook(() => useCaptureSearchReturnUrl());
     await Promise.resolve();
     expect(getSessionItem<string>(KEY)).toBeNull();

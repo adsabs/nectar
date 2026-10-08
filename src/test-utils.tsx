@@ -12,6 +12,23 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MathJaxProvider } from '@/mathjax';
 import { theme } from '@/theme';
+import { RouterCompat, RouterCompatContext } from '@/lib/routerCompatContext';
+
+// Lets components under test call useRouterCompat without mocking
+// next/router or next/navigation; mirrors an idle route and no-ops on
+// navigation. Tests needing real navigation mock @/lib/useRouterCompat
+// directly instead, bypassing this context.
+const stubRouterCompat: RouterCompat = {
+  pathname: '/',
+  searchParams: new URLSearchParams(),
+  query: {},
+  searchQuery: {},
+  asPath: '/',
+  push: () => undefined,
+  replace: () => undefined,
+  onNavigateStart: () => () => undefined,
+  onNavigateComplete: () => () => undefined,
+};
 
 /**
  * Attach listeners and return the mocks
@@ -66,7 +83,9 @@ export const DefaultProviders = ({
       <MathJaxProvider>
         <QueryClientProvider client={queryClient}>
           <StoreProvider createStore={() => createStore(store)}>
-            <Container maxW="container.lg">{children}</Container>
+            <RouterCompatContext.Provider value={stubRouterCompat}>
+              <Container maxW="container.lg">{children}</Container>
+            </RouterCompatContext.Provider>
           </StoreProvider>
         </QueryClientProvider>
       </MathJaxProvider>

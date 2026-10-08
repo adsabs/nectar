@@ -29,6 +29,11 @@
     "typeRoots": [
       "./node_modules/@types",
       "./src/types"
+    ],
+    "plugins": [
+      {
+        "name": "next"
+      }
     ]
   },
   "include": [
@@ -36,7 +41,11 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "vitest-setup.ts"
+    "vitest-setup.ts",
+    "dist/types/**/*.ts",
+    "dist/dev/types/**/*.ts",
+    "./dist//types/**/*.ts",
+    "./dist//dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

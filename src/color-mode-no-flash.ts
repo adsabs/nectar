@@ -1,4 +1,4 @@
-import { theme } from './theme';
+import { themeColors } from './theme-tokens';
 
 // Pre-hydration anti-flash rule: ColorModeScript sets these classes/attrs
 // synchronously before paint, so this CSS (inlined in <Head>) paints the
@@ -6,11 +6,11 @@ import { theme } from './theme';
 // Values must track `styles.global` in ./theme.ts or they will drift.
 export const COLOR_MODE_NO_FLASH_CSS = `
   html[data-theme='dark'], body.chakra-ui-dark {
-    background-color: ${theme.colors.gray['800']};
+    background-color: ${themeColors.gray['800']};
     color: white;
   }
   html[data-theme='light'], body.chakra-ui-light {
     background-color: white;
-    color: ${theme.colors.gray['700']};
+    color: ${themeColors.gray['700']};
   }
 `;

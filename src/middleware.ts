@@ -2,6 +2,7 @@ import { sessionConfig, TRACING_HEADERS } from '@/config';
 import { initSession } from '@/middlewares/initSession';
 import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
 import { getIronSession } from 'iron-session/edge';
+import { IronSession } from 'iron-session';
 import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit, RATE_LIMIT_RETRY_AFTER_SECONDS } from '@/rateLimit';
@@ -405,6 +406,29 @@ const setAuthTag = (isAuthenticated: boolean): void => {
   Sentry.getIsolationScope().setTag(SENTRY_AUTH_TAG_NAME, authTagForSession(isAuthenticated));
 };
 
+const ACCESS_TOKEN_HEADER = 'x-scix-access-token';
+const FORWARDED_URL_HEADER = 'x-scix-forwarded-url';
+
+const buildSessionResponse = async (req: NextRequest): Promise<{ res: NextResponse; session: IronSession }> => {
+  const sessionRes = NextResponse.next();
+  const session = await getIronSession(req, sessionRes, sessionConfig);
+  await initSession(req, sessionRes, session);
+
+  const forwardedHeaders = new Headers(req.headers);
+  forwardedHeaders.delete(ACCESS_TOKEN_HEADER);
+  if (session.token?.access_token) {
+    forwardedHeaders.set(ACCESS_TOKEN_HEADER, session.token.access_token);
+  }
+
+  forwardedHeaders.delete(FORWARDED_URL_HEADER);
+  forwardedHeaders.set(FORWARDED_URL_HEADER, req.nextUrl.pathname + req.nextUrl.search);
+
+  const res = NextResponse.next({ request: { headers: forwardedHeaders } });
+  sessionRes.headers.getSetCookie().forEach((cookie) => res.headers.append('set-cookie', cookie));
+
+  return { res, session };
+};
+
 // The whole auth/account surface is exempt from the node limiter: login,
 // register, forgotpassword, and the emailed verify/reset flows are all
 // low-volume, account-critical navigations we point rate-limited users to.
@@ -481,21 +505,18 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  const res = NextResponse.next();
-
   // Emit analytics
   void emitAnalytics(req);
 
   // Skip middleware for data prefetches
   if (path.startsWith('/_next/data')) {
     log.debug({ path, duration: Date.now() - startTime }, 'Skipping data prefetch');
-    return res;
+    return NextResponse.next();
   }
 
   // For the home page, only hydrate session to avoid redirect loops
   if (path === '/') {
-    const session = await getIronSession(req, res, sessionConfig);
-    await initSession(req, res, session);
+    const { res, session } = await buildSessionResponse(req);
     setAuthCookie(res, session.isAuthenticated);
     setAuthTag(session.isAuthenticated);
     log.info(
@@ -519,8 +540,7 @@ export async function middleware(req: NextRequest) {
 
   log.debug({ ip, path }, 'Rate limit check passed');
 
-  const session = await getIronSession(req, res, sessionConfig);
-  await initSession(req, res, session);
+  const { res, session } = await buildSessionResponse(req);
   setAuthCookie(res, session.isAuthenticated);
   setAuthTag(session.isAuthenticated);
 

@@ -6,19 +6,29 @@ import { AppState, useStore } from '@/store';
 import { useOrcid, useOrcidExpiryWatcher } from './useOrcid';
 import { ORCID_MODE_TIMEOUT } from '@/config';
 
-const mocks = vi.hoisted(() => ({
-  toast: Object.assign(vi.fn(), { isActive: vi.fn(() => false) }),
-  useRouter: vi.fn(() => ({
+const mocks = vi.hoisted(() => {
+  const defaultRouter = {
     pathname: '/',
     query: {},
     asPath: '/',
     push: vi.fn(),
     replace: vi.fn(),
+    onNavigateStart: (): (() => void) => () => undefined,
+    onNavigateComplete: (): (() => void) => () => undefined,
     events: { on: vi.fn(), off: vi.fn() },
-  })),
-}));
+  };
+  const routerRef = { current: defaultRouter as unknown };
+
+  return {
+    toast: Object.assign(vi.fn(), { isActive: vi.fn(() => false) }),
+    defaultRouter,
+    routerRef,
+    useRouter: vi.fn(() => routerRef.current),
+  };
+});
 
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
+vi.mock('@/lib/useRouterCompat', () => ({ useRouterCompat: mocks.useRouter }));
 
 vi.mock('@chakra-ui/react', async () => {
   const actual = await vi.importActual<typeof import('@chakra-ui/react')>('@chakra-ui/react');
@@ -255,5 +265,155 @@ describe('useOrcid — profile error toasts', () => {
 
     expect(profileCalls.every((call) => call.enabled === false)).toBe(true);
     expect(nameCalls.every((call) => call.enabled === false)).toBe(true);
+  });
+});
+
+const createMockRouter = (pathname: string) => {
+  const navigateListeners = new Set<() => void>();
+  const completeListeners = new Set<() => void>();
+  const errorListeners = new Set<() => void>();
+
+  const router = {
+    pathname,
+    query: {},
+    asPath: pathname,
+    push: vi.fn(),
+    replace: vi.fn(),
+    onNavigateStart: (cb: () => void) => {
+      navigateListeners.add(cb);
+      return () => navigateListeners.delete(cb);
+    },
+    onNavigateComplete: (cb: () => void) => {
+      completeListeners.add(cb);
+      return () => completeListeners.delete(cb);
+    },
+    onNavigateError: (cb: () => void) => {
+      errorListeners.add(cb);
+      return () => errorListeners.delete(cb);
+    },
+    events: { on: vi.fn(), off: vi.fn() },
+  };
+
+  const emit = (listeners: Set<() => void>) => act(() => listeners.forEach((listener) => listener()));
+
+  return {
+    router,
+    completeListeners,
+    errorListeners,
+    emitNavigateStart: () => emit(navigateListeners),
+    emitNavigateComplete: () => emit(completeListeners),
+    emitNavigateError: () => emit(errorListeners),
+  };
+};
+
+describe('useOrcid — logout', () => {
+  afterEach(() => {
+    mocks.routerRef.current = mocks.defaultRouter;
+  });
+
+  test.each(['/user/orcid', '/user/orcid/OAuth'])('navigates home before resetting on %s', (pathname) => {
+    const { router, emitNavigateComplete } = createMockRouter(pathname);
+    mocks.routerRef.current = router;
+    const { result } = renderOrcid();
+
+    act(() => result.current.logout());
+
+    expect(router.replace).toHaveBeenCalledWith('/');
+    expect(result.current.isAuthenticated).toBe(true);
+
+    emitNavigateComplete();
+
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
+  // The reset unmounts the ORCiD page's data, so it must not run while that
+  // page is still on screen. Pages Router fires navigation-start before the
+  // URL swap, which is too early.
+  test('does not reset when navigation only starts', () => {
+    const { router, emitNavigateStart } = createMockRouter('/user/orcid');
+    mocks.routerRef.current = router;
+    const { result } = renderOrcid();
+
+    act(() => result.current.logout());
+    emitNavigateStart();
+
+    expect(result.current.isAuthenticated).toBe(true);
+  });
+
+  test('unsubscribes once the reset has run', () => {
+    const { router, completeListeners, emitNavigateComplete } = createMockRouter('/user/orcid');
+    mocks.routerRef.current = router;
+    const { result } = renderOrcid();
+
+    act(() => result.current.logout());
+    expect(completeListeners.size).toBe(1);
+
+    emitNavigateComplete();
+
+    expect(completeListeners.size).toBe(0);
+  });
+
+  test('resets immediately when not on an ORCiD page', () => {
+    const { router } = createMockRouter('/search');
+    mocks.routerRef.current = router;
+    const { result } = renderOrcid();
+
+    act(() => result.current.logout());
+
+    expect(router.replace).not.toHaveBeenCalled();
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
+  // The reset used to hang off `replace().finally()`, which ran whether the
+  // navigation succeeded or failed. Subscribing only to completion leaves a
+  // logged-out user still showing as ORCiD-active when the navigation aborts.
+  test('still resets when the navigation home fails', () => {
+    const { router, emitNavigateError } = createMockRouter('/user/orcid');
+    mocks.routerRef.current = router;
+    const { result } = renderOrcid();
+
+    act(() => result.current.logout());
+    emitNavigateError();
+
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
+  test('unsubscribes from both outcomes after a failed navigation', () => {
+    const { router, completeListeners, errorListeners, emitNavigateError } = createMockRouter('/user/orcid');
+    mocks.routerRef.current = router;
+    const { result } = renderOrcid();
+
+    act(() => result.current.logout());
+    expect(completeListeners.size).toBe(1);
+    expect(errorListeners.size).toBe(1);
+
+    emitNavigateError();
+
+    expect(completeListeners.size).toBe(0);
+    expect(errorListeners.size).toBe(0);
+  });
+
+  test('unsubscribes from both outcomes after a successful navigation', () => {
+    const { router, completeListeners, errorListeners, emitNavigateComplete } = createMockRouter('/user/orcid');
+    mocks.routerRef.current = router;
+    const { result } = renderOrcid();
+
+    act(() => result.current.logout());
+    emitNavigateComplete();
+
+    expect(completeListeners.size).toBe(0);
+    expect(errorListeners.size).toBe(0);
+  });
+
+  test('resets only once when both outcomes somehow fire', () => {
+    const { router, emitNavigateComplete, emitNavigateError } = createMockRouter('/user/orcid');
+    mocks.routerRef.current = router;
+    const { result } = renderOrcid();
+
+    act(() => result.current.logout());
+    emitNavigateComplete();
+    emitNavigateError();
+
+    expect(result.current.isAuthenticated).toBe(false);
   });
 });

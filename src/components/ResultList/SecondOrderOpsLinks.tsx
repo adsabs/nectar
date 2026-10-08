@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/react';
 import * as Q from '@/query-utils';
 import { AppState, useStore } from '@/store';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { Reducer, useEffect, useReducer } from 'react';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { useVaultBigQuerySearch } from '@/api/vault/vault';
@@ -45,7 +45,7 @@ const reducer: Reducer<State, { type: 'setType'; payload: State['type'] } | { ty
 
 const useSecondOrderOps = () => {
   const selected = useStore(selectors.docs);
-  const router = useRouter();
+  const router = useRouterCompat();
   const [state, dispatch] = useReducer(reducer, initialState);
   const { data: qResult } = useVaultBigQuerySearch(selected, { enabled: state.enabled });
 
@@ -69,9 +69,9 @@ const useSecondOrderOps = () => {
       dispatch({ type: 'reset' });
 
       // trigger the new search
-      void router.push({ pathname: '/search', search });
+      void router.push(`/search?${search}`);
     }
-  }, [qResult, state.type]);
+  }, [qResult, state.type, router]);
 
   return {
     onLimit: () => dispatch({ type: 'setType', payload: 'limit' }),
