@@ -98,6 +98,7 @@ class Api {
   private service: AxiosInstance;
   private userData: IUserData;
   private udInvalidated: boolean;
+  private botSession: boolean;
   private recentError: { status: number; config: AxiosRequestConfig };
   private pendingRequestsMap: Map<string, Promise<AxiosResponse>>;
 
@@ -251,6 +252,9 @@ class Api {
     if (sessionUserData) {
       return sessionUserData;
     }
+    if (this.botSession) {
+      return null;
+    }
     // If session fails, try to refresh the data
     return await this.tryRefreshUserData();
   }
@@ -264,6 +268,11 @@ class Api {
     try {
       log.debug('Fetching API access data from session endpoint (/api/user)');
       const { data } = await axios.get<IApiUserResponse>('/api/user');
+      if (data.bot) {
+        this.botSession = true;
+        log.debug('Session is server-classified as a crawler, its credential stays server-side');
+        return null;
+      }
       if (isValidToken(data.user)) {
         log.debug('Successfully fetched API access data from session, saving...');
         return data.user;
@@ -290,6 +299,11 @@ class Api {
       const { data } = await axios.get<IApiUserResponse>('/api/user', {
         headers: { 'X-Refresh-Token': '1' },
       });
+      if (data.bot) {
+        this.botSession = true;
+        log.debug('Session is server-classified as a crawler, its credential stays server-side');
+        return null;
+      }
       if (isValidToken(data.user)) {
         log.debug('Successfully refreshed API access data, saving...');
         return data.user;
@@ -301,6 +315,11 @@ class Api {
         notifyRateLimit();
       }
       log.error({ err: e }, 'Failed to refresh API access data from /api/user');
+    }
+
+    if (this.botSession) {
+      log.debug('Refusing to bootstrap ordinary credentials for a crawler session');
+      return null;
     }
 
     log.debug('Trying to refresh API access using bootstrap API');
@@ -389,6 +408,7 @@ class Api {
     void this.init();
     this.userData = null;
     this.udInvalidated = false;
+    this.botSession = false;
     this.recentError = null;
     this.pendingRequestsMap = new Map();
   }
