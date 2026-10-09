@@ -22,6 +22,12 @@ describe('parseIp', () => {
     expect(bytes('::ffff:1.2.3.4')).toEqual([1, 2, 3, 4]);
   });
 
+  test('accepts a zero run standing for exactly one group', () => {
+    expect(bytes('1:2:3:4:5:6:7::')).toEqual([0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 0]);
+    expect(bytes('::2:3:4:5:6:7:8')).toEqual([0, 0, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8]);
+    expect(bytes('1:2:3:4:5::1.2.3.4')).toEqual([0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 0, 1, 2, 3, 4]);
+  });
+
   test.each([
     ['too few octets', '1.2.3'],
     ['octet out of range', '1.2.3.256'],
@@ -29,6 +35,12 @@ describe('parseIp', () => {
     ['two zero runs', '1::2::3'],
     ['too many groups', '1:2:3:4:5:6:7:8:9'],
     ['empty', ''],
+    ['a zero run standing for no groups, trailing', '1:2:3:4:5:6:7:8::'],
+    ['a zero run standing for no groups, leading', '::1:2:3:4:5:6:7:8'],
+    ['a zero run with eight groups and a mapped tail', '0:0:0:0:0:ffff:14ab:ce07::'],
+    ['a zero run with no groups left for the embedded IPv4', '0:0:0:0:0:ffff::20.171.206.7'],
+    ['a zero run with an embedded IPv4 overflowing the address', '1:2:3:4:5:6:7::1.2.3.4'],
+    ['a zero run with an embedded IPv4 filling the address', '1:2:3:4:5:6::1.2.3.4'],
   ])('rejects %s', (_name, ip) => {
     expect(parseIp(ip)).toBeNull();
   });

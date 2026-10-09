@@ -127,6 +127,17 @@ describe('classifyCrawlerAtEdge', () => {
   });
 
   test.each([
+    ['eight explicit groups', '0:0:0:0:0:ffff:14ab:ce07::'],
+    ['an embedded IPv4 with no groups to compress', '0:0:0:0:0:ffff::20.171.206.7'],
+  ])('does not verify a published address re-encoded with %s', (_name, ip) => {
+    expect(trusted(GPTBOT, ip)).toEqual({ result: CRAWLER_RESULT.POTENTIAL_MALICIOUS_BOT });
+  });
+
+  test('verifies the canonical IPv4-mapped form of a published address', () => {
+    expect(trusted(GPTBOT, '::ffff:20.171.206.7')).toEqual({ result: CRAWLER_RESULT.BOT });
+  });
+
+  test.each([
     ['ChatGPT-User', 'Mozilla/5.0 (compatible; ChatGPT-User/1.0; +https://openai.com/bot)'],
     ['OAI-SearchBot', 'Mozilla/5.0 (compatible; OAI-SearchBot/1.0; +https://openai.com/searchbot)'],
   ])('treats %s as unverifiable rather than malicious', (_name, ua) => {

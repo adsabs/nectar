@@ -40,9 +40,9 @@ const parseIpv6Bytes = (ip: string): Uint8Array | null => {
     groups.pop();
   }
 
-  const groupCount = head.length + tail.length;
   const trailingGroups = trailing === null ? 0 : 2;
-  if (halves.length === 2 ? groupCount + trailingGroups > 8 : groupCount + trailingGroups !== 8) {
+  const explicitGroups = head.length + tail.length + trailingGroups;
+  if (halves.length === 2 ? explicitGroups > 7 : explicitGroups !== 8) {
     return null;
   }
 
