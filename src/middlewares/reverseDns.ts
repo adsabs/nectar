@@ -12,6 +12,9 @@ export interface ReverseDnsLookups {
 
 const normalizeHostname = (hostname: string) => hostname.toLowerCase().replace(/\.$/, '');
 
+const ptrTargetFor = (remoteIp: string, parsed: Uint8Array): string =>
+  parsed.length === 4 ? Array.from(parsed).join('.') : remoteIp;
+
 export const isSubdomainOf = (hostname: string, domain: string): boolean => {
   const hostLabels = normalizeHostname(hostname).split('.').reverse();
   const domainLabels = normalizeHostname(domain).split('.').reverse();
@@ -39,7 +42,7 @@ export const verifyReverseDns = async (
 
   let ptrRecords: readonly string[];
   try {
-    ptrRecords = await lookupPtr(remoteIp);
+    ptrRecords = await lookupPtr(ptrTargetFor(remoteIp, expected));
   } catch {
     return false;
   }

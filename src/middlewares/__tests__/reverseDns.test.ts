@@ -126,6 +126,19 @@ describe('verifyReverseDns', () => {
       expect(deps.lookupAddresses).toHaveBeenCalledWith('crawl.googlebot.com', 'A');
     });
 
+    test.each([
+      ['::ffff:66.249.66.1', '66.249.66.1'],
+      ['::FFFF:66.249.66.1', '66.249.66.1'],
+      ['::ffff:42f9:4201', '66.249.66.1'],
+      ['66.249.66.1', '66.249.66.1'],
+      ['2001:4860:4801:0010:0:0:0:2a', '2001:4860:4801:0010:0:0:0:2a'],
+    ])('looks %s up under its in-addr form, %s', async (inbound, expectedTarget) => {
+      const deps = confirmWith('66.249.66.1');
+
+      await verifyReverseDns(inbound, GOOGLE_DOMAINS, deps);
+      expect(deps.lookupPtr).toHaveBeenCalledWith(expectedTarget);
+    });
+
     test('still rejects a genuinely different address', async () => {
       await expect(verifyReverseDns('66.249.66.1', GOOGLE_DOMAINS, confirmWith('66.249.66.2'))).resolves.toBe(false);
     });
