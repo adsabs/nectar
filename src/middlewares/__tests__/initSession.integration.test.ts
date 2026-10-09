@@ -5,10 +5,24 @@ import { initSession, isValidToken, hash } from '@/middlewares/initSession';
 import { TRACING_HEADERS } from '@/config';
 
 const botCheckMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const logDebug = vi.hoisted(() => vi.fn());
 
 vi.mock('@/middlewares/botCheck', () => ({
   botCheck: botCheckMock,
 }));
+
+vi.mock('@/logger', () => {
+  const child = () => ({
+    child,
+    trace: vi.fn(),
+    debug: logDebug,
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+  });
+  return { logger: child(), edgeLogger: child(), REDACTED_LOG_PATHS: [] };
+});
 
 describe('initSession integration', () => {
   const ORIGINAL_ENV = { ...process.env };
@@ -105,6 +119,30 @@ describe('initSession integration', () => {
     expect(session.save).not.toHaveBeenCalled();
     expect(isValidToken(session.token || undefined)).toBe(true);
     expect(session.apiCookieHash).toBe(cookieHash);
+  });
+
+  test('does not log the incoming session token', async () => {
+    logDebug.mockClear();
+    const session = createSession({
+      token: {
+        access_token: 'shared-elevated-bot-token',
+        expires_at: `${Math.floor(Date.now() / 1000) + 300}`,
+        username: 'anonymous',
+        anonymous: true,
+      },
+      apiCookieHash: 'stale',
+      bot: true,
+    });
+
+    const req = new NextRequest('https://example.com/search', {
+      headers: { cookie: `${cookieName}=abc123`, 'user-agent': 'Googlebot/2.1' },
+    });
+    vi.spyOn(global, 'fetch').mockResolvedValue(makeBootstrapResponse('rotated'));
+
+    await initSession(req, NextResponse.next(), session as never);
+
+    expect(logDebug).toHaveBeenCalled();
+    expect(JSON.stringify(logDebug.mock.calls)).not.toContain('shared-elevated-bot-token');
   });
 
   test('adopts the bot token on the outer session and skips bootstrap', async () => {

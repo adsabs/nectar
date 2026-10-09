@@ -13,6 +13,21 @@ vi.mock('@sentry/nextjs', async (orig) => {
   return { ...actual, getIsolationScope: vi.fn() };
 });
 
+const logDebug = vi.hoisted(() => vi.fn());
+
+vi.mock('@/logger', () => {
+  const child = () => ({
+    child,
+    trace: vi.fn(),
+    debug: logDebug,
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+  });
+  return { logger: child(), edgeLogger: child(), REDACTED_LOG_PATHS: [] };
+});
+
 type SSRPropsWithState = {
   dehydratedAppState?: Partial<AppState>;
 } & Record<string, unknown>;
@@ -190,6 +205,18 @@ describe('updateUserStateSSR', () => {
       const props = await propsFor({ token: BOT_TOKEN, bot: false, isAuthenticated: false });
 
       expect(JSON.stringify(props)).toContain('shared-elevated-bot-token');
+    });
+
+    test.each([
+      ['a bot session', true],
+      ['an ordinary session', false],
+    ])('does not log the access token for %s', async (_name, bot) => {
+      logDebug.mockClear();
+
+      await propsFor({ token: BOT_TOKEN, bot, isAuthenticated: false });
+
+      expect(logDebug).toHaveBeenCalled();
+      expect(JSON.stringify(logDebug.mock.calls)).not.toContain('shared-elevated-bot-token');
     });
   });
 

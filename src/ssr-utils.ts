@@ -56,8 +56,10 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
 
   log.debug({
     msg: 'Injecting session data into client props',
-    userData,
     isValidUserData: isUserData(userData),
+    isBotSession: ctx.req.session.bot === true,
+    username: userData?.username,
+    anonymous: userData?.anonymous,
     resolvedMode,
     cookieMode,
   });

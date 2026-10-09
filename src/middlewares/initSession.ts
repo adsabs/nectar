@@ -180,7 +180,16 @@ export const hash = async (str?: string) => {
  * @param session - The iron-session to update
  */
 export const initSession = async (req: NextRequest, res: NextResponse, session: IronSession) => {
-  log.debug({ session }, 'Initializing session');
+  log.debug(
+    {
+      isAuthenticated: session.isAuthenticated,
+      bot: session.bot,
+      hasValidToken: isValidToken(session.token),
+      tokenExpiresAt: session.token?.expires_at,
+      apiCookieHash: session.apiCookieHash,
+    },
+    'Initializing session',
+  );
 
   const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
   const apiCookieHash = await hash(adsSessionCookie);
