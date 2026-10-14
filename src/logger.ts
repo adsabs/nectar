@@ -1,7 +1,10 @@
 import pino, { Logger } from 'pino';
 
+export const REDACTED_LOG_PATHS = ['access_token', '*.access_token', '*.*.access_token', '*.*.*.access_token'];
+
 export const logger: Logger = pino({
   errorKey: 'error',
+  redact: REDACTED_LOG_PATHS,
   browser: {
     asObject: true,
   },
