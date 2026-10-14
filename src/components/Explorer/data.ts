@@ -40,7 +40,7 @@ export const explorerCollections: Record<IExplorerCollection['id'], IExplorerCol
   },
 };
 
-export const databases: Record<IExplorerCollection['id'], IExplorerFacet> = {
+export const databases: Record<IExplorerFacet['id'], IExplorerFacet> = {
   astronomy: {
     id: 'astronomy',
     facetKey: 'astronomy',

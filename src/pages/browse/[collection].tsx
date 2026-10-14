@@ -4,7 +4,7 @@ import { explorerCollections } from '@/components/Explorer/data';
 import { dataDetails } from '@/components/Explorer/data_data';
 import { doctypeDetails } from '@/components/Explorer/doctype_data';
 import { allRecordsQuery, searchFacetDefaultParams } from '@/components/Explorer/helpers';
-import { IExplorerCollection, isExplorerCollection } from '@/components/Explorer/types';
+import { ExplorerCollectionID, IExplorerCollection, isExplorerCollection } from '@/components/Explorer/types';
 import { CustomInfoMessage } from '@/components/Feedbacks';
 import { parseTitleFromKey } from '@/components/SearchFacet/helpers';
 import { getSearchFacetParams } from '@/components/SearchFacet/useGetFacetData';
@@ -29,7 +29,7 @@ import {
   InputRightElement,
   IconButton,
 } from '@chakra-ui/react';
-import { NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 
 import { useRouter } from 'next/router';
@@ -37,11 +37,14 @@ import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from '@/lib/useDebounce';
 import { ControlledPaginationControls } from '@/components/Pagination/ControlledPaginationControls';
 import { NumPerPageType } from '@/types';
+import { composeNextGSSP } from '@/ssr-utils';
 
-const CollectionPage: NextPage = () => {
+interface ICollectionPageProps {
+  collection: Exclude<ExplorerCollectionID, 'database'>;
+}
+
+const CollectionPage: NextPage<ICollectionPageProps> = ({ collection }) => {
   const router = useRouter();
-
-  const collection = router.query.collection as string;
 
   const colors = useColorModeColors();
 
@@ -54,21 +57,17 @@ const CollectionPage: NextPage = () => {
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const searchParams = useMemo(() => {
+    const { facetSearchParams } = explorerCollections[collection];
     return {
       ...allRecordsQuery,
       filter: [] as string[],
-      field: explorerCollections[collection].facetSearchParams.field,
-      ['json.facet']: getSearchFacetParams({
-        ...searchFacetDefaultParams,
-        ...explorerCollections[collection].facetSearchParams,
-      }),
+      field: facetSearchParams.field,
+      ['json.facet']: getSearchFacetParams({ ...searchFacetDefaultParams, ...facetSearchParams }),
     };
   }, [collection]);
 
   // fetch collection (facet) data
-  const { data, isError, isLoading, error } = useGetSearchFacetJSON(searchParams, {
-    enabled: collection && isExplorerCollection(collection),
-  });
+  const { data, isError, isLoading, error } = useGetSearchFacetJSON(searchParams);
 
   const getFacetValue = (val: string) => {
     const regex = /^[01]\/(.*)/;
@@ -78,28 +77,19 @@ const CollectionPage: NextPage = () => {
   // clean up collection data
   const collectionData = useMemo(() => {
     return (
-      (collection === 'database'
-        ? data?.database.buckets
-        : collection === 'doctype'
+      (collection === 'doctype'
         ? data?.doctype_facet_hier.buckets.filter(
             (t) => !explorerCollections.doctype.ignoreFacetKeys.includes(t.val as string),
           )
         : collection === 'bibgroup'
         ? data?.bibgroup_facet.buckets
-        : collection === 'data'
-        ? data?.data_facet.buckets.filter((t) => explorerCollections.data.filterFacetKeys.includes(t.val as string))
-        : []) ?? []
+        : data?.data_facet.buckets.filter((t) => explorerCollections.data.filterFacetKeys.includes(t.val as string))) ??
+      []
     );
   }, [data, collection]);
 
   const facetDetails = useMemo(() => {
-    return collection === 'doctype'
-      ? doctypeDetails
-      : collection === 'bibgroup'
-      ? bibgroupDetails
-      : collection === 'data'
-      ? dataDetails
-      : {};
+    return collection === 'doctype' ? doctypeDetails : collection === 'bibgroup' ? bibgroupDetails : dataDetails;
   }, [collection]);
 
   const filteredData = useMemo(() => {
@@ -139,10 +129,6 @@ const CollectionPage: NextPage = () => {
   const handleSelectFacet = (collection: IExplorerCollection['id'], facet: string) => {
     router.push({ pathname: '/browse', query: { collection: collection, facet: facet } });
   };
-
-  if (!collection || !isExplorerCollection(collection) || collection === 'database') {
-    return null;
-  }
 
   return (
     <Container maxW="container.xl" my={4} minH="container.sm">
@@ -268,4 +254,17 @@ const LoadingSkeleton = () => (
 );
 
 export default CollectionPage;
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+  const collection = Array.isArray(ctx.params?.collection) ? ctx.params.collection[0] : ctx.params?.collection;
+
+  if (!isExplorerCollection(collection)) {
+    return { props: {}, notFound: true };
+  }
+
+  if (collection === 'database') {
+    return { props: {}, redirect: { destination: '/browse', permanent: false } };
+  }
+
+  return { props: { collection } };
+});

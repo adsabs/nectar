@@ -9,18 +9,20 @@ import { FacetItem } from '@/components/Explorer/FacetItem';
 const BrowsePage: NextPage = () => {
   const router = useRouter();
 
-  const { collection, facet } = router.query;
+  const collection = Array.isArray(router.query.collection) ? router.query.collection[0] : router.query.collection;
+
+  const facet = Array.isArray(router.query.facet) ? router.query.facet[0] : router.query.facet;
 
   return (
     <Container maxW="container.xl" my={4} minH="container.sm">
       <Head>
         <title>{`${BRAND_NAME_FULL} - Explorer`}</title>
       </Head>
-      {collection && facet && isExplorerCollection(collection as string) ? (
+      {facet && isExplorerCollection(collection) ? (
         collection === 'database' ? (
-          <DatabaseItem facetValue={facet as string} />
+          <DatabaseItem facetValue={facet} />
         ) : (
-          <FacetItem cid={collection as string} facetKey={facet as string} />
+          <FacetItem cid={collection} facetKey={facet} />
         )
       ) : (
         <ExplorerLanding />
