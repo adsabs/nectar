@@ -5,11 +5,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
 import { ReactElement, useEffect, useMemo } from 'react';
-import { DehydratedState, useQuery, useQueryClient } from '@tanstack/react-query';
-import { IronSession } from 'iron-session';
-import axios from 'axios';
-import { isNilOrEmpty, notEqual } from 'ramda-adjunct';
-import { useUser } from '@/lib/useUser';
+import { DehydratedState } from '@tanstack/react-query';
 import '../styles/styles.css';
 import '../styles/page-loader.css';
 import 'shepherd.js/dist/css/shepherd.css';
@@ -21,10 +17,8 @@ import { BRAND_NAME_FULL } from '@/config';
 // (@nivo/*, CJS, so nothing shakes out) into every page.
 import { Layout } from '@/components/Layout/Layout';
 import { useIsClient } from '@/lib/useIsClient';
-import api from '@/api/api';
-import { userKeys } from '@/api/user/user';
 import { Providers } from '@/providers';
-import { isValidToken } from '@/auth-utils';
+import { UserSync } from '@/components/UserSync/UserSync';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -145,58 +139,6 @@ const AppModeRouter = (): ReactElement => {
       }
     }
   }, [isClient]);
-
-  return <></>;
-};
-
-/**
- * Syncs the user data from the server to the client
- * work in progress, not sure if this is the best way to do this
- */
-const UserSync = (): ReactElement => {
-  const store = useStoreApi();
-  const { user } = useUser();
-  const qc = useQueryClient();
-
-  const { data } = useQuery<{
-    user: IronSession['token'];
-    isAuthenticated: boolean;
-  }>({
-    queryKey: ['user'],
-    queryFn: async () => {
-      const { data } = await axios.get<{
-        user: IronSession['token'];
-        isAuthenticated: boolean;
-      }>('/api/user', {
-        headers: {
-          'X-Refresh-Token': 1,
-        },
-      });
-      if (isNilOrEmpty(data)) {
-        throw new Error('Empty session');
-      }
-      return data;
-    },
-    retry: false,
-
-    // refetch every 5 minutes
-    refetchInterval: 60 * 5 * 1000,
-  });
-
-  // Comparing the incoming user data with the current user data, and update the store if they are different
-  useEffect(() => {
-    if (data?.user && isValidToken(data?.user) && notEqual(data.user, user)) {
-      logger.debug({ msg: 'User Synced', user: data.user });
-
-      store.setState({ user: data.user });
-
-      // apply the user data to the api instance
-      api.setUserData(data.user);
-
-      // attempt to invalidate any currently cached user settings
-      void qc.invalidateQueries(userKeys.getUserSettings());
-    }
-  }, [data, store, user, qc]);
 
   return <></>;
 };

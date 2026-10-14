@@ -210,6 +210,38 @@ describe('initSession integration', () => {
     expect(setCookie?.path).toBe('/');
   });
 
+  test('forces slow path when API cookie hash differs, with no refresh header', async () => {
+    const session = createSession({
+      token: {
+        access_token: 'valid',
+        expires_at: `${Math.floor(Date.now() / 1000) + 300}`,
+        username: 'anonymous@ads',
+        anonymous: true,
+      },
+      apiCookieHash: await hash('pre-login-cookie'),
+      isAuthenticated: false,
+    });
+
+    const req = new NextRequest('https://example.com/search', {
+      headers: {
+        cookie: `${cookieName}=post-login-cookie`,
+      },
+    });
+    const res = NextResponse.next();
+
+    const fetchSpy = vi
+      .spyOn(global, 'fetch')
+      .mockResolvedValue(makeBootstrapResponse('post-login-cookie') as Response);
+
+    await initSession(req, res, session as never);
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(session.save).toHaveBeenCalledTimes(1);
+    expect(session.token?.access_token).toBe(bootstrapPayload.access_token);
+    expect(session.token?.username).toBe(bootstrapPayload.username);
+    expect(session.apiCookieHash).toBe(await hash('post-login-cookie'));
+  });
+
   test('does not set response cookie when API cookie value is unchanged', async () => {
     const cookieValue = 'unchanged';
     const session = createSession({
