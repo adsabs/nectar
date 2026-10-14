@@ -2,15 +2,15 @@ import { useGetSearchFacetJSON } from '@/api/search/search';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { kFormatNumber } from '@/utils/common/formatters';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
-import { useDisclosure, Heading, Flex, Box, Card, CardBody, Text } from '@chakra-ui/react';
-import { useState } from 'react';
+import { Heading, Flex, Box, Card, CardBody, Text } from '@chakra-ui/react';
 import { getSearchFacetParams } from '../SearchFacet/useGetFacetData';
 import { explorerCollections, explorerFacets } from './data';
-import { ViewCollectionModal } from './ViewCollectionModal';
 import { IExplorerCollection } from './types';
 import { useRouter } from 'next/router';
 import { allRecordsQuery, searchFacetDefaultParams } from './helpers';
 import { CompassIcon } from '../icons/browser/CompassIcon';
+import { dataDetails } from './data_data';
+import { bibgroupDetails } from './bibgroup_data';
 
 export const ExplorerLanding = () => {
   const router = useRouter();
@@ -77,33 +77,12 @@ export const ExplorerLanding = () => {
 
   const colors = useColorModeColors();
 
-  const [focusedCollection, setFocusedCollection] = useState<IExplorerCollection['id']>('database');
-
-  const [focusedData, setFocusedData] = useState<{ val: number | string; count: number }[]>([]);
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const handleViewAll = (id: IExplorerCollection['id']) => {
-    setFocusedCollection(id);
-    setFocusedData(
-      (id === 'database'
-        ? databaseData?.database.buckets
-        : id === 'doctype'
-        ? rtypeData?.doctype_facet_hier.buckets.filter(
-            (t) => !explorerCollections.doctype.ignoreFacetKeys.includes(t.val as string),
-          )
-        : id === 'bibgroup'
-        ? bibgroupData?.bibgroup_facet.buckets
-        : id === 'data'
-        ? dataData?.data_facet.buckets.filter((t) => explorerCollections.data.filterFacetKeys.includes(t.val as string))
-        : []) ?? [],
-    );
-    onOpen();
+  const handleViewCollection = (collection: IExplorerCollection['id']) => {
+    router.push({ pathname: `${router.pathname}/${collection}` });
   };
 
   const handleSelectFacet = (collection: IExplorerCollection['id'], facet: string) => {
     router.push({ pathname: router.pathname, query: { collection, facet: facet } });
-    onClose();
   };
 
   return (
@@ -187,12 +166,12 @@ export const ExplorerLanding = () => {
               color={colors.link}
               cursor="pointer"
               fontWeight="bold"
-              onClick={() => handleViewAll('doctype')}
+              onClick={() => handleViewCollection('doctype')}
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  handleViewAll('doctype');
+                  handleViewCollection('doctype');
                 }
               }}
             >
@@ -263,12 +242,12 @@ export const ExplorerLanding = () => {
               color={colors.link}
               cursor="pointer"
               fontWeight="bold"
-              onClick={() => handleViewAll('bibgroup')}
+              onClick={() => handleViewCollection('bibgroup')}
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  handleViewAll('bibgroup');
+                  handleViewCollection('bibgroup');
                 }
               }}
             >
@@ -313,6 +292,11 @@ export const ExplorerLanding = () => {
                       <Text fontSize="lg" fontWeight="bold">
                         {bg.label}
                       </Text>
+                      {bibgroupDetails[bg.facetKey as string]?.title && (
+                        <Text fontSize="sm" color={colors.lightText}>
+                          {bibgroupDetails[bg.facetKey as string].title}
+                        </Text>
+                      )}
                       {!isBibgroupLoading && !isBibgroupError && (
                         <Text fontSize="sm">
                           {kFormatNumber(
@@ -340,12 +324,12 @@ export const ExplorerLanding = () => {
               color={colors.link}
               cursor="pointer"
               fontWeight="bold"
-              onClick={() => handleViewAll('data')}
+              onClick={() => handleViewCollection('data')}
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  handleViewAll('data');
+                  handleViewCollection('data');
                 }
               }}
             >
@@ -390,6 +374,11 @@ export const ExplorerLanding = () => {
                       <Text fontSize="lg" fontWeight="bold">
                         {dc.label}
                       </Text>
+                      {dataDetails[dc.facetKey as string]?.title && (
+                        <Text fontSize="sm" color={colors.lightText}>
+                          {dataDetails[dc.facetKey as string].title}
+                        </Text>
+                      )}
                       {!isDataLoading && !isDataError && (
                         <Text fontSize="sm">
                           {kFormatNumber(
@@ -406,14 +395,6 @@ export const ExplorerLanding = () => {
             ))}
           </Flex>
         </Box>
-        <ViewCollectionModal
-          collectionId={focusedCollection}
-          label={explorerCollections[focusedCollection]?.label}
-          data={focusedData}
-          isOpen={isOpen}
-          onClose={onClose}
-          onSelectFacet={handleSelectFacet}
-        />
       </Flex>
     </>
   );

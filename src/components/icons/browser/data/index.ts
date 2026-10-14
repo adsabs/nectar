@@ -1,0 +1,11 @@
+export { AstroDataIcon } from './AstroDataIcon';
+export { InstitutionIcon } from './InstitutionIcon';
+export { TelescopeIcon } from './TelescopeIcon';
+export { ClimateIcon } from './ClimateIcon';
+export { EnvironmentIcon } from './EnvironmentIcon';
+export { PlanetaryIcon } from './PlanetaryIcon';
+export { EarthObservationIcon } from './EarthObservationIcon';
+export { GeoscienceIcon } from './GeoscienceIcon';
+export { HeliophysicsIcon } from './HeliophysicsIcon';
+export { OceanIcon } from './OceanIcon';
+export { SoftwareIcon } from './SoftwareIcon';

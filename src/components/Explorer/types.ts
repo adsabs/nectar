@@ -11,12 +11,12 @@ export interface IExplorerCollection {
   filterFacetKeys?: IExplorerFacet['facetKey'][]; // only select these keys, should not be used with ignoreFacetKeys
 }
 
-export type ExplorerCollectionID = (typeof validCollectionIds)[number];
+export type ExplorerCollectionID = (typeof EXPLORER_COLLECTION_IDS)[number];
 
-const validCollectionIds = ['database', 'doctype', 'bibgroup', 'data'];
+export const EXPLORER_COLLECTION_IDS = ['database', 'doctype', 'bibgroup', 'data'] as const;
 
-export function isExplorerCollection(value: string): value is ExplorerCollectionID {
-  return validCollectionIds.includes(value as ExplorerCollectionID);
+export function isExplorerCollection(value: unknown): value is ExplorerCollectionID {
+  return typeof value === 'string' && (EXPLORER_COLLECTION_IDS as readonly string[]).includes(value);
 }
 
 export interface IExplorerFacet {
@@ -27,4 +27,11 @@ export interface IExplorerFacet {
   icon?: React.FC;
   image?: string;
   subset?: IExplorerFacet['id'][];
+}
+
+export interface IFacetDetail {
+  facetKey: string;
+  title: string;
+  icon?: React.FC;
+  desc?: string;
 }

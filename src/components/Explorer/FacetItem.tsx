@@ -1,7 +1,6 @@
 import { SimpleLink } from '@/components/SimpleLink';
-import { ArrowBackIcon } from '@chakra-ui/icons';
-import { Box, Flex, Heading, Text } from '@chakra-ui/react';
-import { databases, doctypeMap, explorerCollections } from './data';
+import { Box, Flex, Heading, HStack, Text } from '@chakra-ui/react';
+import { databases, explorerCollections } from './data';
 import { useGetSearchFacetJSON } from '@/api/search/search';
 import { getSearchFacetParams } from '../SearchFacet/useGetFacetData';
 import { allRecordsQuery, makeDataGroupSearchLink, makeJournalSearchLink, searchFacetDefaultParams } from './helpers';
@@ -14,17 +13,32 @@ import { applyFiltersToQuery, parseTitleFromKey } from '../SearchFacet/helpers';
 import { SubFacetCard } from './SubFacetCard';
 import { IExplorerCollection } from './types';
 import { OverTimeChart } from './OverTimeChart';
+import { doctypeDetails, doctypeSearchParamsMap } from './doctype_data';
+import { dataDetails } from './data_data';
+import { bibgroupDetails } from './bibgroup_data';
 
 const databaseFacetIds = ['astrophysics', 'heliophysics', 'planetary', 'earthscience'];
 
 export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; facetKey: string }) => {
   const collection = explorerCollections[cid];
 
-  const facet = parseTitleFromKey(facetKey);
+  const regex = /^[01]\/(.*)/;
+
+  const facet = regex.test(facetKey) ? parseTitleFromKey(facetKey) : facetKey;
 
   const databaseFacets = databaseFacetIds.map((id) => databases[id]);
 
   const [database, setDatabase] = useState<(typeof databaseFacetIds)[number] | null>(null);
+
+  const facetDetails = useMemo(() => {
+    return collection.id === 'doctype'
+      ? doctypeDetails
+      : collection.id === 'bibgroup'
+      ? bibgroupDetails
+      : collection.id === 'data'
+      ? dataDetails
+      : {};
+  }, [collection]);
 
   // Use facet search to get record counts
   const { data: countData } = useGetSearchFacetJSON({
@@ -56,7 +70,7 @@ export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; f
   const searchQueryParams: IADSApiSearchParams = useMemo(() => {
     const q =
       collection.id === 'doctype'
-        ? doctypeMap[facetKey].map((dt) => `${collection.searchQueryField}:"${dt}"`).join(' OR ')
+        ? doctypeSearchParamsMap[facetKey].map((dt) => `${collection.searchQueryField}:"${dt}"`).join(' OR ')
         : `${collection.searchQueryField}:"${facetKey}"`;
 
     //  Optional database filter
@@ -83,10 +97,11 @@ export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; f
   if (facet) {
     return (
       <Flex direction="column" gap={6}>
-        <SimpleLink href="/browse">
-          <ArrowBackIcon boxSize={5} mr={2} />
-          Back to Explore
-        </SimpleLink>
+        <HStack>
+          <SimpleLink href="/browse">Explore</SimpleLink>
+          <>{' > '}</>
+          <SimpleLink href={`/browse/${collection.id}`}>{collection.label}</SimpleLink>
+        </HStack>
         <Flex
           direction="column"
           bgImage={`url('${collection.image}')`}
@@ -101,13 +116,14 @@ export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; f
         >
           <Box my={5}>
             <h2>
-              <Text fontSize="sm" p={0}>
-                {collection.label}
-              </Text>
               <Text fontSize="2xl" fontWeight="bold" p={0} m={0}>
                 {facet}
               </Text>
             </h2>
+            <Text fontWeight="semibold">{facetDetails[facetKey]?.title}</Text>
+            <Text fontSize="sm" width="30%" my={2}>
+              {facetDetails[facetKey]?.desc}
+            </Text>
           </Box>
           <Text fontSize="sm" fontWeight="normal">
             {kFormatNumber(
@@ -147,10 +163,10 @@ export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; f
         <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
           <Flex direction="column" flex={1}>
             <Heading as="h3" size="md" my={4}>
-              Popular Journals in {facet}
+              Popular Publications in {facet}
             </Heading>
             <FacetFieldTable
-              label="Popular Journals"
+              label="Popular Publications"
               query={searchQueryParams}
               facetField="pub"
               makeSearchLink={(facetVal) => makeJournalSearchLink(searchQueryParams, facetVal)}
