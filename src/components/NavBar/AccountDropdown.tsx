@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { DividerItem, ItemItem, ItemType, ListType } from './types';
@@ -40,7 +40,7 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
   const { isAuthenticated, logout } = useSession();
   const username = useGetUserEmail();
 
-  const router = useRouter();
+  const router = useRouterCompat();
   const itemsToShow = isAuthenticated
     ? [
         {

@@ -12,6 +12,16 @@ const mocks = vi.hoisted(() => ({
     push: vi.fn(),
     events: { on: vi.fn(), off: vi.fn() },
   })),
+  routerCompat: {
+    pathname: '/',
+    searchParams: new URLSearchParams(''),
+    query: {},
+    asPath: '/',
+    push: vi.fn(),
+    replace: vi.fn(),
+    onNavigateStart: (): (() => void) => () => undefined,
+    onNavigateComplete: (): (() => void) => () => undefined,
+  },
   useSettings: vi.fn((): { settings: Partial<IADSApiUserDataResponse> } => ({
     settings: { defaultCitationFormat: 'agu' },
   })),
@@ -19,6 +29,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
+vi.mock('@/lib/useRouterCompat', () => ({ useRouterCompat: () => mocks.routerCompat }));
 vi.mock('@/lib/useSettings', () => ({ useSettings: mocks.useSettings }));
 vi.mock('@/api/export/export', () => ({
   useGetExportCitation: mocks.useGetExportCitation,

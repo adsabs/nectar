@@ -1,10 +1,13 @@
+'use client';
+
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { MathJaxProvider } from './mathjax';
 import { ChakraProvider, cookieStorageManagerSSR } from '@chakra-ui/react';
 import { StoreProvider, useCreateStore, useStore } from './store';
-import { Hydrate, QueryClientProvider } from '@tanstack/react-query';
+import type { AppState } from './store/types';
+import { Hydrate, QueryClientProvider, DehydratedState } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { FC, useEffect, useRef } from 'react';
+import { FC, ReactNode, useEffect, useRef } from 'react';
 import { useCreateQueryClient } from './lib/useCreateQueryClient';
 import { logger } from './logger';
 import { theme } from './theme';
@@ -21,43 +24,46 @@ import {
 } from '@/lib/performance';
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 import { useTrackUserId } from './lib/useTrackUserId';
-import { ShepherdJourneyProvider } from 'react-shepherd';
-import type { AppPageProps } from '@/pages/_app';
 import { useOrcidExpiryWatcher } from '@/lib/orcid/useOrcid';
 import { authTagForSession, SENTRY_AUTH_TAG_NAME } from '@/lib/sentryAuthTag';
 import { isAuthenticated } from '@/auth-utils';
 
-export const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
-  const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
-  const colorModeManager = cookieStorageManagerSSR(pageProps.cookies ?? '');
+export type ProvidersProps = {
+  cookies?: string;
+  dehydratedAppState: Partial<AppState>;
+  dehydratedState: DehydratedState;
+  children?: ReactNode;
+};
+
+export const Providers: FC<ProvidersProps> = ({ children, cookies, dehydratedAppState, dehydratedState }) => {
+  const createStore = useCreateStore(dehydratedAppState ?? {});
+  const colorModeManager = cookieStorageManagerSSR(cookies ?? '');
 
   return (
     <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
       <MathJaxProvider>
-        <ShepherdJourneyProvider>
-          <ChakraProvider
-            theme={theme}
-            colorModeManager={colorModeManager}
-            toastOptions={{
-              defaultOptions: {
-                position: 'top',
-                duration: 3000,
-                isClosable: true,
-                variant: 'subtle',
-              },
-            }}
-          >
-            <StoreProvider createStore={createStore}>
-              <QCProvider>
-                <Hydrate state={pageProps.dehydratedState}>
-                  <Telemetry />
-                  {children}
-                </Hydrate>
-                <ReactQueryDevtools />
-              </QCProvider>
-            </StoreProvider>
-          </ChakraProvider>
-        </ShepherdJourneyProvider>
+        <ChakraProvider
+          theme={theme}
+          colorModeManager={colorModeManager}
+          toastOptions={{
+            defaultOptions: {
+              position: 'top',
+              duration: 3000,
+              isClosable: true,
+              variant: 'subtle',
+            },
+          }}
+        >
+          <StoreProvider createStore={createStore}>
+            <QCProvider>
+              <Hydrate state={dehydratedState}>
+                <Telemetry />
+                {children}
+              </Hydrate>
+              <ReactQueryDevtools />
+            </QCProvider>
+          </StoreProvider>
+        </ChakraProvider>
       </MathJaxProvider>
     </GoogleReCaptchaProvider>
   );

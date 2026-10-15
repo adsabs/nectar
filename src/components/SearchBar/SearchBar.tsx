@@ -16,9 +16,12 @@ interface SearchBarProps extends Omit<ISearchInputProps, 'dispatch' | 'state'> {
   showBackLinkAs?: 'new_search' | 'results' | 'none';
 }
 
+const initSearchInputState = (query: string | undefined) =>
+  query ? { ...initialState, searchTerm: query, cursorPosition: query.length } : initialState;
+
 export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((props, ref) => {
   const { query, queryAddition, isLoading, showBackLinkAs = 'none', ...rest } = props;
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, query, initSearchInputState);
   const inputRef = useRef<HTMLInputElement>(null);
   const refs = useMergeRefs(inputRef, ref);
   const { landingFormUrl } = useLandingFormPreference();

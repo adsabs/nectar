@@ -37,6 +37,10 @@ vi.mock('next/router', () => ({
   useRouter: () => mockRouter,
 }));
 
+vi.mock('@/lib/useRouterCompat', () => ({
+  useRouterCompat: () => mockRouter,
+}));
+
 const items = Object.values(feedbackItems);
 
 describe('FeedbackDropdown', () => {

@@ -33,7 +33,7 @@ import { useDebounce } from '@/lib/useDebounce';
 import { MathJax } from 'better-react-mathjax';
 import { saveAs } from 'file-saver';
 import { matchSorter } from 'match-sorter';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import {
   ChangeEventHandler,
   forwardRef,
@@ -70,7 +70,7 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
   });
   const initialRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
-  const router = useRouter();
+  const router = useRouterCompat();
   const { settings } = useSettings({ suspense: false });
 
   // resolve the active sort: prefer whatever sort is in the URL, fall back to user's stored preference
@@ -80,12 +80,7 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
   const activeSort = hasSortParam ? parseQueryFromUrl(router.asPath).sort : preferredSort;
 
   // on history change (or url params), close the modal
-  useEffect(() => {
-    router.events.on('beforeHistoryChange', onClose);
-    return () => {
-      router.events.off('beforeHistoryChange', onClose);
-    };
-  }, [onClose]);
+  useEffect(() => router.onNavigateStart(onClose), [router, onClose]);
 
   // to avoid having to play with the forwarded ref, just focus here
   const handleSearchClear = () => {

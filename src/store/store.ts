@@ -18,6 +18,8 @@ import { isPlainObject, isPrimitive } from 'ramda-adjunct';
 import { logger } from '@/logger';
 import { IUserData } from '@/api/user/types';
 import { isAuthenticated } from '@/auth-utils';
+import { isNumPerPageType } from '@/utils/common/guards';
+import { writePrefsCookie } from '@/utils/common/prefs-cookie';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
 
@@ -41,6 +43,16 @@ export const mergePersistedState = (persistedState: Partial<AppState>, currentSt
     }
   }
   return merged;
+};
+
+export const seedNumPerPagePref = (state: AppState | undefined): void => {
+  if (!state) {
+    return;
+  }
+  const numPerPage: unknown = state.numPerPage;
+  if (typeof numPerPage === 'number' && isNumPerPageType(numPerPage)) {
+    writePrefsCookie({ numPerPage });
+  }
 };
 
 export const createStore = (preloadedState: Partial<AppState> = {}) => {
@@ -81,6 +93,7 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
             orcid: state.orcid,
           }),
           merge: mergePersistedState,
+          onRehydrateStorage: () => seedNumPerPagePref,
         }),
         { name: APP_STORAGE_KEY },
       ),
@@ -110,7 +123,7 @@ export const useCreateStore = (incomingState: Partial<AppState> = {}): (() => St
   store = store ?? createStore(incomingState);
 
   // Synchronously apply mode from GSSP state on page navigation (new incomingState).
-  // useApplyBoostTypeToParams derives boostType from appMode. If mode is stale on the first
+  // buildSearchParams derives boostType from appMode. If mode is stale on the first
   // render (singleton store from a previous page), boostType is wrong → cache key changes
   // after the useEffect correction → second search fires. Applying before children render
   // keeps boostType stable.

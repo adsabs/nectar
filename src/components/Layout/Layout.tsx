@@ -1,7 +1,7 @@
 import { Container, Flex, useMediaQuery } from '@chakra-ui/react';
 import { SkipNavLink } from '@chakra-ui/skip-nav';
-import { useRouter } from 'next/router';
-import { FC } from 'react';
+import { useRouterCompat } from '@/lib/useRouterCompat';
+import { FC, ReactNode } from 'react';
 import { Footer } from '../Footer';
 import { NavBar } from '../NavBar';
 import dynamic from 'next/dynamic';
@@ -24,8 +24,15 @@ const LandingTabs = dynamic(
 );
 
 const LANDING_PAGES = ['/', '/classic-form', '/paper-form'];
-export const Layout: FC = ({ children }) => {
-  const router = useRouter();
+
+interface LayoutProps {
+  children?: ReactNode;
+  initialSiteAlertMessage?: string | null;
+  initialSiteAlertDismissedHash?: string;
+}
+
+export const Layout: FC<LayoutProps> = ({ children, initialSiteAlertMessage, initialSiteAlertDismissedHash }) => {
+  const router = useRouterCompat();
 
   const isLandingPage = LANDING_PAGES.includes(router.pathname);
 
@@ -39,7 +46,9 @@ export const Layout: FC = ({ children }) => {
         <Favicons />
       </Head>
       <SkipNavLink id="main-content">Skip to content</SkipNavLink>
-      {isPrint ? null : <SiteAlert />}
+      {isPrint ? null : (
+        <SiteAlert initialMessage={initialSiteAlertMessage} initialDismissedHash={initialSiteAlertDismissedHash} />
+      )}
       {isPrint ? null : <NavBar />}
       {isPrint ? null : <Notification />}
       <main>

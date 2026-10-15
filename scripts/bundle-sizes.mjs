@@ -74,6 +74,39 @@ for (const file of [...new Set([...polyfills, ...shared])]) {
   sharedGzip += size.gzip;
 }
 
+// App router routes (e.g. /search) aren't in manifest.pages on this Next
+// version; route-bundle-stats.json reports every route's first-load chunks
+// instead. Its own byte count is uncompressed, so measure() re-gzips them.
+let routeStats = [];
+try {
+  routeStats = JSON.parse(await readFile(join(DIST, 'diagnostics', 'route-bundle-stats.json'), 'utf8'));
+} catch (err) {
+  if (err.code !== 'ENOENT') {
+    throw err;
+  }
+  console.warn('route-bundle-stats.json not found; app-router routes (e.g. /search) will be absent from the report.');
+}
+
+const distPrefix = `${DIST.replace(/\/+$/, '')}/`;
+for (const row of routeStats) {
+  // Route handlers ship no client JS; "first load" doesn't apply to them, and
+  // every one reports the same byte count, which is noise, not a route size.
+  if (pages[row.route] || row.route.startsWith('/api/')) {
+    continue;
+  }
+  const files = [
+    ...new Set(row.firstLoadChunkPaths.map((p) => (p.startsWith(distPrefix) ? p.slice(distPrefix.length) : p))),
+  ].filter(isJs);
+  let raw = 0;
+  let gzip = 0;
+  for (const file of files) {
+    const size = await measure(file);
+    raw += size.raw;
+    gzip += size.gzip;
+  }
+  pages[row.route] = { raw, gzip, files: files.length };
+}
+
 const result = {
   generatedAt: new Date().toISOString(),
   shared: { raw: sharedRaw, gzip: sharedGzip },

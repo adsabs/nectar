@@ -5,13 +5,39 @@ import { FacetFilters } from '../FacetFilters';
 const mockPush = vi.fn();
 const routerRef = { asPath: '/search?q=star' };
 
-vi.mock('next/router', () => ({
-  useRouter: () => ({
-    asPath: routerRef.asPath,
-    query: routerRef.asPath,
-    pathname: '/search',
+const routerCache = new Map<string, unknown>();
+
+const routerFor = (asPath: string) => {
+  const cached = routerCache.get(asPath);
+  if (cached) {
+    return cached;
+  }
+
+  const [pathname, queryString = ''] = asPath.split('?');
+  const searchParams = new URLSearchParams(queryString);
+  const query: Record<string, string | string[]> = {};
+  for (const key of new Set(searchParams.keys())) {
+    const values = searchParams.getAll(key);
+    query[key] = values.length > 1 ? values : values[0];
+  }
+
+  const router = {
+    pathname,
+    searchParams,
+    query,
+    searchQuery: query,
+    asPath,
     push: mockPush,
-  }),
+    replace: () => undefined,
+    onNavigateStart: () => () => undefined,
+    onNavigateComplete: () => () => undefined,
+  };
+  routerCache.set(asPath, router);
+  return router;
+};
+
+vi.mock('@/lib/useRouterCompat', () => ({
+  useRouterCompat: () => routerFor(routerRef.asPath),
 }));
 
 const DATABASE_FQ = 'fq=%7B!type%3Daqp%20v%3D%24fq_database%7D';
@@ -73,7 +99,7 @@ describe('FacetFilters — collection splitting in ADS compat mode', () => {
     await user.click(closeButton);
 
     expect(mockPush).toHaveBeenCalledTimes(1);
-    const search = decodeURIComponent((mockPush.mock.calls[0][0] as { search: string }).search);
+    const search = decodeURIComponent(mockPush.mock.calls[0][0] as string);
     expect(search).toContain('database:"physics"');
     expect(search).not.toContain('astronomy');
     expect(search).toContain('ads_compat=1');
@@ -123,7 +149,7 @@ describe('FacetFilters — collection split edge cases', () => {
     await user.click(container.querySelector('[data-value="astronomy"]'));
 
     expect(mockPush).toHaveBeenCalledTimes(1);
-    const search = decodeURIComponent((mockPush.mock.calls[0][0] as { search: string }).search);
+    const search = decodeURIComponent(mockPush.mock.calls[0][0] as string);
     expect(search).not.toContain('fq_database');
     expect(search).not.toContain('fq=');
     expect(search).toContain('ads_compat=1');

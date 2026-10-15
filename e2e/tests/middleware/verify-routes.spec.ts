@@ -14,10 +14,12 @@ test.describe('Verify Routes (Suite D)', () => {
     await verifyPage.setScenarioHeader('verify-success');
 
     const response = await verifyPage.gotoWithToken('test-token');
-    await verifyPage.waitForUrl('**/user/account/login?notify=verify-account-success', { timeout: 5000 });
 
-    verifyPage.urlContains('/user/account/login');
-    verifyPage.urlContains('notify=verify-account-success');
+    expect(response?.url()).toContain('/user/account/login');
+    expect(response?.url()).toContain('notify=verify-account-success');
+
+    await verifyPage.expectTextVisible('Your account has been verified.');
+    await verifyPage.waitForUrl('**/user/account/login', { timeout: 5000 });
 
     const setCookieHeader = response?.headers()['set-cookie'];
     const adsSessionCookie = extractCookie(setCookieHeader, 'ads_session');

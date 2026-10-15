@@ -8,7 +8,6 @@ import {
   Stack,
   Text,
   Tooltip,
-  useBreakpointValue,
   useTimeout,
 } from '@chakra-ui/react';
 import { AuthorList } from '@/components/AllAuthorsModal';
@@ -28,7 +27,16 @@ import { HideOnPrint } from '@/components/HideOnPrint';
 import { SimpleLink } from '@/components/SimpleLink';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 
-import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
+import { getFormattedNumericPubdate, stripHtml, unwrapStringValue } from '@/utils/common/formatters';
+import {
+  RESULT_ITEM_ABSTRACT_TOGGLE_HEIGHT,
+  RESULT_ITEM_AUTHORS_HEIGHT,
+  RESULT_ITEM_HEIGHT,
+  RESULT_ITEM_META_ROW_HEIGHT,
+  RESULT_ITEM_PUB_ROW_HEIGHT,
+  RESULT_ITEM_TITLE_HEIGHT,
+  RESULT_ITEM_TITLE_LINES,
+} from '@/components/ResultList/itemHeight';
 import { IDocsEntity } from '@/api/search/types';
 import { keys, toPairs } from 'ramda';
 import { sendGTMEvent } from '@next/third-parties/google';
@@ -87,7 +95,7 @@ export const Item = (props: IItemProps): ReactElement => {
 
   const colors = useColorModeColors();
 
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const plainTitle = stripHtml(unwrapStringValue(title));
 
   // Scroll restoration - save position when navigating to abstract
   const { saveScrollPosition } = useScrollRestoration();
@@ -104,6 +112,7 @@ export const Item = (props: IItemProps): ReactElement => {
         href={{ pathname: `/abs/${encodedCanonicalID}/citations`, search: 'p=1' }}
         newTab={linkNewTab}
         onClick={saveScrollPosition}
+        _hover={{ textDecoration: 'underline' }}
       >
         <Text>cited(n): {doc.citation_count_norm.toFixed(2)}</Text>
       </SimpleLink>
@@ -113,6 +122,7 @@ export const Item = (props: IItemProps): ReactElement => {
       href={{ pathname: `/abs/${encodedCanonicalID}/citations`, search: 'p=1' }}
       newTab={linkNewTab}
       onClick={saveScrollPosition}
+      _hover={{ textDecoration: 'underline' }}
     >
       cited: {doc.citation_count}
     </SimpleLink>
@@ -130,10 +140,23 @@ export const Item = (props: IItemProps): ReactElement => {
       </SimpleLink>
     ) : null;
 
-  const divider = useBreakpointValue({ base: undefined, md: <Text px="2">·</Text> });
+  const divider = (
+    <Text px="2" display={{ base: 'none', md: 'block' }}>
+      ·
+    </Text>
+  );
 
   return (
-    <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md" id={bibcode}>
+    <Flex
+      direction="row"
+      as="article"
+      border="1px"
+      borderColor={colors.border}
+      mb={1}
+      borderRadius="md"
+      id={bibcode}
+      minH={RESULT_ITEM_HEIGHT}
+    >
       <Flex
         as={HideOnPrint}
         direction="row"
@@ -157,26 +180,49 @@ export const Item = (props: IItemProps): ReactElement => {
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex
-          direction={isMobile ? 'column' : 'row'}
-          justifyContent={isMobile ? 'flex-start' : 'space-between'}
-          minH="40px"
+          direction={{ base: 'column', md: 'row' }}
+          justifyContent={{ base: 'flex-start', md: 'space-between' }}
+          minH={RESULT_ITEM_TITLE_HEIGHT}
         >
-          <SimpleLink
-            href={`/abs/${encodedCanonicalID}/abstract`}
-            fontWeight="semibold"
-            className="article-title"
-            onClick={handleAbstractClick}
+          <Tooltip label={plainTitle} aria-label="title tooltip" placement="top" isDisabled={!plainTitle}>
+            <SimpleLink
+              href={`/abs/${encodedCanonicalID}/abstract`}
+              fontWeight="semibold"
+              className="article-title"
+              onClick={handleAbstractClick}
+              _hover={{ textDecoration: 'underline' }}
+            >
+              <Text
+                as={MathJax}
+                noOfLines={RESULT_ITEM_TITLE_LINES}
+                minH={RESULT_ITEM_TITLE_HEIGHT}
+                display="-webkit-box !important"
+                dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }}
+              />
+            </SimpleLink>
+          </Tooltip>
+          <Flex
+            alignItems="start"
+            ml={{ base: 0, md: 1 }}
+            order={{ base: -1, md: 0 }}
+            my={{ base: 2, md: 0 }}
+            minH={RESULT_ITEM_ABSTRACT_TOGGLE_HEIGHT}
           >
-            <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
-          </SimpleLink>
-          <Flex alignItems="start" ml={isMobile ? 0 : 1} order={isMobile ? -1 : 0} my={isMobile ? 2 : 0}>
             {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} rank={index} />}
           </Flex>
         </Flex>
         <Flex direction="column">
-          {author_count > 0 && (
-            <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} maxAuthors={maxAuthors} />
-          )}
+          <Box minH={RESULT_ITEM_AUTHORS_HEIGHT}>
+            {author_count > 0 && (
+              <AuthorList
+                author={author}
+                authorCount={author_count}
+                bibcode={doc.bibcode}
+                maxAuthors={maxAuthors}
+                clampLines={1}
+              />
+            )}
+          </Box>
           <Stack
             direction={{ base: 'column', md: 'row' }}
             fontSize="xs"
@@ -184,15 +230,11 @@ export const Item = (props: IItemProps): ReactElement => {
             gap={{ base: 0.5, md: 0 }}
             flexWrap="wrap"
             divider={divider}
+            minH={RESULT_ITEM_PUB_ROW_HEIGHT}
           >
             <Text>{formattedPubDate}</Text>
-            <Tooltip
-              label={pub}
-              aria-label="publication tooltip"
-              placement="top"
-              isDisabled={!pub || pub.length <= APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF}
-            >
-              <Text>{truncatedPub}</Text>
+            <Tooltip label={pub} aria-label="publication tooltip" placement="top" isDisabled={!pub}>
+              <Text noOfLines={1}>{truncatedPub}</Text>
             </Tooltip>
             {!!credited && <>{credited}</>}
             {cite}
@@ -204,17 +246,20 @@ export const Item = (props: IItemProps): ReactElement => {
             gap={{ base: 0.5, md: 0 }}
             flexWrap="wrap"
             divider={divider}
+            minH={RESULT_ITEM_META_ROW_HEIGHT}
           >
             {doc.volume && <Text>Volume: {doc.volume}</Text>}
             {doc.page && <Text>Page/ID: {doc.page}</Text>}
           </Stack>
           {showHighlights && <Highlights highlights={highlights} isFetchingHighlights={isFetchingHighlights} />}
-          <AbstractPreview
-            bibcode={bibcode}
-            abstract={abstract}
-            isFetchingAbstract={isFetchingAbstract}
-            allowAbstracts={allowAbstracts}
-          />
+          <Box minH={RESULT_ITEM_ABSTRACT_TOGGLE_HEIGHT} data-testid="abstract-preview-slot">
+            <AbstractPreview
+              bibcode={bibcode}
+              abstract={abstract}
+              isFetchingAbstract={isFetchingAbstract}
+              allowAbstracts={allowAbstracts}
+            />
+          </Box>
         </Flex>
       </Stack>
     </Flex>

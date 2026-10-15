@@ -11,7 +11,6 @@ import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { useRouter } from 'next/router';
 import { AppMode } from '@/types';
-import { syncUrlDisciplineParam } from '@/utils/appMode';
 import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
 
 const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
@@ -53,7 +52,6 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
         setMode(fallbackMode);
       }
       setUrlModeOverride(null);
-      void syncUrlDisciplineParam(router, fallbackMode);
       return;
     }
     if (urlModePrevious) {

@@ -16,6 +16,15 @@ export const truncateDecimal = (num: number, d: number): number => {
   return parseFloat(regex.exec(num.toString())[0]);
 };
 
+export const buildSearchPageTitle = (
+  query: string | undefined,
+  options: { maxLength: number; brandName: string },
+): string => {
+  const q = query ?? '';
+  const truncated = q.length > options.maxLength ? `${q.slice(0, options.maxLength)}…` : q;
+  return `${truncated} - ${options.brandName} Search`;
+};
+
 /**
  * Regular expression pattern to match a date string in the format YYYY-MM-DD.
  * Captures the year and month as named groups.
