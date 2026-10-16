@@ -13,7 +13,9 @@ export interface IUseDownloadFileOptions {
   onDownloaded?: () => void;
 }
 
-export const useDownloadFile = (value: string | (() => string), options: IUseDownloadFileOptions = {}) => {
+export type DownloadFileValue = BlobPart | (() => BlobPart);
+
+export const useDownloadFile = (value: DownloadFileValue, options: IUseDownloadFileOptions = {}) => {
   const { timeout = 300, filename = 'download', appendDate = false, type = 'TEXT', onDownloaded = noop } = options;
   const [hasDownloaded, setHasDownloaded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -23,7 +25,7 @@ export const useDownloadFile = (value: string | (() => string), options: IUseDow
   // generate URI for the passed in value
   const href = useMemo(() => {
     const content = typeof value === 'function' ? [value()] : [value];
-    if (typeof window !== 'undefined' && isNonEmptyString(content[0])) {
+    if (typeof window !== 'undefined' && hasBlobContent(content[0])) {
       const blob = new window.Blob(content, { type: meta[0] });
       return window.URL.createObjectURL(blob);
     }
@@ -63,6 +65,19 @@ export const useDownloadFile = (value: string | (() => string), options: IUseDow
   useEffect(() => setIsDownloading(false), [hasDownloaded]);
 
   return { onDownload, hasDownloaded, isDownloading, value, filename: file, linkHref: href };
+};
+
+const hasBlobContent = (content: BlobPart): boolean => {
+  if (typeof content === 'string') {
+    return isNonEmptyString(content);
+  }
+  if (content instanceof Blob) {
+    return content.size > 0;
+  }
+  if (content instanceof ArrayBuffer) {
+    return content.byteLength > 0;
+  }
+  return ArrayBuffer.isView(content) && content.byteLength > 0;
 };
 
 const getDateString = () => formatISO(new Date());

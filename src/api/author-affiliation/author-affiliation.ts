@@ -1,6 +1,7 @@
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
 import { ADSQuery } from '@/api/types';
+import { getExportFileType } from '@/components/AuthorAffiliations/models';
 import { QueryFunction, useQuery } from '@tanstack/react-query';
 import { getAuthorAffiliationSearchParams } from './model';
 import { IAuthorAffiliationExportPayload, IAuthorAffiliationPayload, IAuthorAffiliationResponse } from './types';
@@ -10,8 +11,11 @@ export const authorAffiliationsKeys = {
   export: (params: IAuthorAffiliationExportPayload) => ['authoraffiliation/export', params] as const,
 };
 
-type SearchQuery = ADSQuery<Parameters<typeof authorAffiliationsKeys['search']>[0], IAuthorAffiliationResponse['data']>;
-type ExportQuery = ADSQuery<Parameters<typeof authorAffiliationsKeys['export']>[0], string>;
+type SearchQuery = ADSQuery<
+  Parameters<(typeof authorAffiliationsKeys)['search']>[0],
+  IAuthorAffiliationResponse['data']
+>;
+type ExportQuery = ADSQuery<Parameters<(typeof authorAffiliationsKeys)['export']>[0], string | ArrayBuffer>;
 
 export const useAuthorAffiliationSearch: SearchQuery = (params, options) => {
   const searchParams = getAuthorAffiliationSearchParams(params);
@@ -46,16 +50,20 @@ export const fetchAuthorAffiliationSearch: QueryFunction<IAuthorAffiliationRespo
   return data.data;
 };
 
-export const fetchAuthorAffiliationExport: QueryFunction<string> = async ({ meta }) => {
+const getExportResponseType = (format: IAuthorAffiliationExportPayload['format']): ApiRequestConfig['responseType'] =>
+  getExportFileType(format) === 'XLS' ? 'arraybuffer' : undefined;
+
+export const fetchAuthorAffiliationExport: QueryFunction<string | ArrayBuffer> = async ({ meta }) => {
   const { params } = meta as { params: IAuthorAffiliationExportPayload };
 
   const config: ApiRequestConfig = {
     method: 'POST',
     url: ApiTargets.AUTHOR_AFFILIATION_EXPORT,
     data: params,
+    responseType: getExportResponseType(params.format),
   };
 
-  const { data } = await api.request<string>(config);
+  const { data } = await api.request<string | ArrayBuffer>(config);
 
   return data;
 };

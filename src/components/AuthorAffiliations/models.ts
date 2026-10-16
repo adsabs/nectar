@@ -9,6 +9,10 @@ export const exportTypes = [
 
 export const exportTypeFileMappings = ['CSV', 'CSV', 'XLS', 'XLS', 'TEXT', 'BROWSER'] as const;
 
+export const getExportFileType = (
+  format: (typeof exportTypes)[number],
+): (typeof exportTypeFileMappings)[number] | undefined => exportTypeFileMappings[exportTypes.indexOf(format)];
+
 export const countOptions = [1, 2, 3, 4, 5, 10];
 export const NONESYMBOL = '-' as const;
 export const EXPORT_DELIMETER = '|' as const;

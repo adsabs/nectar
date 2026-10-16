@@ -2,7 +2,7 @@ import { authorAffiliationsKeys, useAuthorAffiliationExport } from '@/api/author
 import { mergeLeft } from 'ramda';
 import { Reducer, useEffect, useReducer } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { exportTypeFileMappings, exportTypes } from '../models';
+import { exportTypeFileMappings, exportTypes, getExportFileType } from '../models';
 import { IAuthorAffState, useAuthorAffStore } from '../store';
 import { FileType, useDownloadFile } from '@/lib/useDownloadFile';
 
@@ -38,7 +38,7 @@ const reducer: Reducer<IExportModalState, Action> = (state, action) => {
         {
           mode: 'SELECTING',
           format: action.format,
-          type: exportTypeFileMappings[exportTypes.indexOf(action.format)],
+          type: getExportFileType(action.format),
         },
         state,
       );
