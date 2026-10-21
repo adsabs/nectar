@@ -88,4 +88,8 @@ export abstract class BasePage {
   urlMatches(pattern: RegExp): void {
     expect(this.page.url()).toMatch(pattern);
   }
+
+  async expectTextVisible(text: string, options?: { timeout?: number }): Promise<void> {
+    await expect(this.page.getByText(text)).toBeVisible(options);
+  }
 }

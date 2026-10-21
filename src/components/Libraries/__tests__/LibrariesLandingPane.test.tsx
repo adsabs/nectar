@@ -21,6 +21,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
+vi.mock('@/lib/useRouterCompat', () => ({ useRouterCompat: mocks.useRouter }));
 
 // @/test-utils's render() zeroes staleTime/cacheTime and defaults
 // refetchOnMount to true, which would hide the options under test.

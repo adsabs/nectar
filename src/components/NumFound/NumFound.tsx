@@ -4,6 +4,7 @@ import { ReactElement } from 'react';
 
 import { truncateDecimal } from '@/utils/common/formatters';
 import { useGetSearchStats } from '@/api/search/search';
+import { NUM_FOUND_HEIGHT } from '@/components/NumFound/numFoundHeight';
 
 export interface INumFoundProps {
   count?: number;
@@ -21,7 +22,7 @@ export const NumFound = (props: INumFoundProps): ReactElement => {
 
   if (isLoading) {
     return (
-      <Box h={5}>
+      <Box h={NUM_FOUND_HEIGHT} data-testid="num-found-slot">
         <SkeletonText noOfLines={1} w="40" mt="1" skeletonHeight={2} />
       </Box>
     );
@@ -30,7 +31,7 @@ export const NumFound = (props: INumFoundProps): ReactElement => {
   const countString = typeof count === 'number' ? sanitizeNum(count) : '0';
 
   return (
-    <Box h={5}>
+    <Box h={NUM_FOUND_HEIGHT} data-testid="num-found-slot">
       <Text role="status" fontSize="xs">
         Your search returned{' '}
         <Text as="span" fontWeight="bold">

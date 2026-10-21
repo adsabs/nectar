@@ -4,7 +4,7 @@ import { MenuDropdown } from '@/components/NavBar/MenuDropdown';
 import { useOrcid } from '@/lib/orcid/useOrcid';
 
 import { Flex, HStack, Icon, Switch, Text } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { AppState, useStore } from '@/store';
 import { OrcidInactiveLogo, OrcidLogo } from '@/components/images';
 import { isBrowser } from '@/utils/common/guards';
@@ -16,7 +16,7 @@ interface IOrcidDropdownProps {
 
 export const OrcidDropdown = ({ type, onFinished }: IOrcidDropdownProps): ReactElement => {
   const { toggleOrcidMode, login, logout, isAuthenticated } = useOrcid();
-  const router = useRouter();
+  const router = useRouterCompat();
   const handleSelect: MouseEventHandler<HTMLButtonElement> = (e) => {
     onFinished?.();
     const id = e.currentTarget.dataset['id'];

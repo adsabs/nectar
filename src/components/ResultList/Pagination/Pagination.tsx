@@ -24,7 +24,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 
 import { APP_DEFAULTS } from '@/config';
 import { NumPerPageType, SafeSearchUrlParams } from '@/types';
-import { useRouter } from 'next/router';
+import { useRouterCompat } from '@/lib/useRouterCompat';
 import { clamp, curryN } from 'ramda';
 import { Dispatch, FC, KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
 import { MenuPlacement } from 'react-select';
@@ -244,13 +244,13 @@ export const Pagination = (props: PaginationProps): ReactElement => {
 
 const PaginationButton: FC<{ page: number; noLinks: boolean; onlyUpdatePageParam: boolean }> = (props) => {
   const { children, page, noLinks, onlyUpdatePageParam } = props;
-  const router = useRouter();
+  const router = useRouterCompat();
   const getLinkParams = useCallback(
     (page: number): ISimpleLinkProps => {
       const search = onlyUpdatePageParam
-        ? stringifySearchParams({ ...router.query, p: page })
+        ? stringifySearchParams({ ...router.searchQuery, p: page })
         : makeSearchParams({
-            ...router.query,
+            ...router.searchQuery,
             p: page,
           } as SafeSearchUrlParams);
 
@@ -258,7 +258,7 @@ const PaginationButton: FC<{ page: number; noLinks: boolean; onlyUpdatePageParam
         href: { pathname: router.pathname, search },
       };
     },
-    [router.pathname, router.asPath, router.query],
+    [router.pathname, router.asPath, router.searchQuery],
   );
 
   return noLinks ? (
@@ -288,7 +288,7 @@ const ManualPageSelect = ({
   dispatch: Dispatch<PaginationAction>;
   skipRouting: boolean;
 }) => {
-  const router = useRouter();
+  const router = useRouterCompat();
   // hold intermediate page in local state
   const [page, setPage] = useState(currentPage);
   const [isOpen, setIsOpen] = useState(false);
@@ -306,10 +306,8 @@ const ManualPageSelect = ({
   const handleSubmit = useCallback(() => {
     if (page !== currentPage) {
       if (!skipRouting) {
-        void router.push({
-          pathname: router.pathname,
-          search: makeSearchParams({ ...router.query, p: page } as SafeSearchUrlParams),
-        });
+        const search = makeSearchParams({ ...router.searchQuery, p: page } as SafeSearchUrlParams);
+        void router.push(`${router.pathname}?${search}`);
       }
       if (typeof dispatch === 'function') {
         dispatch({ type: 'SET_PAGE', payload: page });
@@ -320,7 +318,7 @@ const ManualPageSelect = ({
       }
     }
     close();
-  }, [page, currentPage, skipRouting, dispatch, onPageSelect]);
+  }, [page, currentPage, skipRouting, dispatch, onPageSelect, router]);
 
   // on enter, submit the change
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {

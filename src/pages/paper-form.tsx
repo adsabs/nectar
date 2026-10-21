@@ -41,7 +41,7 @@ import { fetchVaultSearch, vaultKeys } from '@/api/vault/vault';
 import { SimpleLink } from '@/components/SimpleLink';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { AppMode } from '@/types';
-import { appModeToDisciplineParam, syncUrlDisciplineParam } from '@/utils/appMode';
+import { appModeToDisciplineParam } from '@/utils/appMode';
 import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
 
 const MAX_SIMPLE_QUERY_BIBCODES = 50;
@@ -117,7 +117,6 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
         setMode(fallbackMode);
       }
       setUrlModeOverride(null);
-      void syncUrlDisciplineParam(router, fallbackMode);
       return;
     }
     if (urlModePrevious) {
