@@ -305,7 +305,7 @@ export const theme = extendTheme(
       Modal: {
         baseStyle: (props: StyleFunctionProps) => ({
           dialog: {
-            bg: mode('whiteAlpha.900', 'gray.800')(props),
+            bg: mode('white', 'gray.800')(props),
           },
         }),
       },
