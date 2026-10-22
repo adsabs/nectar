@@ -61,6 +61,7 @@ async function logout(req: NextApiRequest, res: NextApiResponse<ILogoutResponse>
           session.token = pickUserData(userData);
           session.isAuthenticated = false;
           session.apiCookieHash = await hash(apiSessionCookie?.value);
+          session.bot = false;
           await session.save();
           log.info('Logout successful');
           return res.status(200).json({ success: true });

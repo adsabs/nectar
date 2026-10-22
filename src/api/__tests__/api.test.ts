@@ -165,6 +165,50 @@ test('Fallback to bootstrapping directly if the /api/user endpoint continuously 
   expect(onReq.mock.calls[3][0].headers.get('authorization')).toMatchInlineSnapshot('"Bearer mocked-anonymous-token"');
 });
 
+test('a crawler session does not bootstrap ordinary credentials', async ({ server }: TestContext) => {
+  const { onRequest: onReq } = createServerListenerMocks(server);
+  server.use(
+    testHandlerWith200,
+    rest.get(`*${API_USER}`, (_, res, ctx) => res(ctx.status(200), ctx.json({ isAuthenticated: false, bot: true }))),
+  );
+
+  await expect(testRequest).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: Unable to obtain API access]`);
+
+  expect(urls(onReq)).toStrictEqual([API_USER]);
+});
+
+test('a crawler session does not bootstrap after a 401 either', async ({ server }: TestContext) => {
+  const { onRequest: onReq } = createServerListenerMocks(server);
+  server.use(
+    testHandlerWith401,
+    rest.get(`*${API_USER}`, (_, res, ctx) => res(ctx.status(200), ctx.json({ isAuthenticated: false, bot: true }))),
+  );
+
+  api.setUserData(mockUserData);
+
+  await expect(testRequest).rejects.toThrow();
+
+  expect(urls(onReq)).toStrictEqual(['/test', API_USER]);
+});
+
+test('a crawler session does not bootstrap once /api/user stops responding', async ({ server }: TestContext) => {
+  server.use(
+    testHandlerWith401,
+    rest.get(`*${API_USER}`, (_, res, ctx) =>
+      res.once(ctx.status(200), ctx.json({ isAuthenticated: false, bot: true })),
+    ),
+    rest.get(`*${API_USER}`, (_, res, ctx) => res(ctx.status(500), ctx.json({ error: 'Server Error' }))),
+  );
+
+  api.setUserData(mockUserData);
+  await expect(testRequest).rejects.toThrow();
+
+  const { onRequest: onReq } = createServerListenerMocks(server);
+  await expect(() => testRequest({ second: 'request' })).rejects.toThrow();
+
+  expect(urls(onReq)).toStrictEqual([API_USER]);
+});
+
 test('passing token initially skips bootstrap', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandlerWith200);

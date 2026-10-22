@@ -19,6 +19,7 @@ declare global {
       VERIFIED_BOTS_ACCESS_TOKEN: string;
       UNVERIFIABLE_BOTS_ACCESS_TOKEN: string;
       MALICIOUS_BOTS_ACCESS_TOKEN: string;
+      TRUSTED_CLIENT_IP_HEADER?: string;
       NEXT_PUBLIC_GTM_ID: string;
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: string;
       NEXT_PUBLIC_API_MOCKING: string;

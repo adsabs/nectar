@@ -180,7 +180,16 @@ export const hash = async (str?: string) => {
  * @param session - The iron-session to update
  */
 export const initSession = async (req: NextRequest, res: NextResponse, session: IronSession) => {
-  log.debug({ session }, 'Initializing session');
+  log.debug(
+    {
+      isAuthenticated: session.isAuthenticated,
+      bot: session.bot,
+      hasValidToken: isValidToken(session.token),
+      tokenExpiresAt: session.token?.expires_at,
+      apiCookieHash: session.apiCookieHash,
+    },
+    'Initializing session',
+  );
 
   const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
   const apiCookieHash = await hash(adsSessionCookie);
@@ -206,7 +215,16 @@ export const initSession = async (req: NextRequest, res: NextResponse, session: 
   log.debug('Session is invalid, or expired, creating new one...');
 
   // check if the user is a bot
-  await botCheck(req, res);
+  const botToken = await botCheck(req);
+
+  if (botToken) {
+    session.token = botToken;
+    session.isAuthenticated = false;
+    session.apiCookieHash = '';
+    session.bot = true;
+    await session.save();
+    return res;
+  }
 
   const testScenario = req.headers.get('x-test-scenario');
   const testHeaders = testScenario ? { 'x-test-scenario': testScenario } : undefined;
@@ -232,6 +250,7 @@ export const initSession = async (req: NextRequest, res: NextResponse, session: 
     log.debug('Refreshed token is valid');
     session.token = token;
     session.isAuthenticated = isAuthenticated(token);
+    session.bot = false;
 
     // Parse the Set-Cookie header from the API
     const setCookieHeader = headers.get('set-cookie');
