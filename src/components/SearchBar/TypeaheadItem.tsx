@@ -1,5 +1,5 @@
 import { TypeaheadOption } from '@/components/SearchBar/types';
-import { Dispatch, useCallback, useEffect, useRef, useState } from 'react';
+import { Dispatch, MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { SearchInputAction } from '@/components/SearchBar/searchInputReducer';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { Code, DarkMode, Flex, LightMode, ListItem, ListItemProps, Text, useColorMode } from '@chakra-ui/react';
@@ -28,6 +28,10 @@ export const TypeaheadItem = (props: ITypeaheadItemProps) => {
     }
   }, [dispatch, index, onClick]);
 
+  const handleMouseDown = useCallback((e: MouseEvent<HTMLLIElement>) => {
+    e.preventDefault();
+  }, []);
+
   const handleMouseOver = () => {
     setIsMouseOver(true);
   };
@@ -51,6 +55,7 @@ export const TypeaheadItem = (props: ITypeaheadItemProps) => {
       px="2"
       py="1"
       onClick={handleClick}
+      onMouseDown={handleMouseDown}
       role="presentation"
       onMouseEnter={handleMouseOver}
       onMouseLeave={handleMouseLeave}

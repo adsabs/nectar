@@ -1,5 +1,7 @@
 import { render } from '@/test-utils';
 import userEvent from '@testing-library/user-event';
+import { FormEvent } from 'react';
+import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { SearchBar } from '../index';
 
@@ -33,6 +35,11 @@ const createUser = () =>
   userEvent.setup({
     advanceTimers: vi.advanceTimersByTime.bind(vi),
   });
+
+const GlobalQueryProbe = () => {
+  const { query } = useIntermediateQuery();
+  return <span data-testid="global-query">{query}</span>;
+};
 
 test('SearchBar renders without crashing', () => render(<SearchBar />));
 
@@ -318,6 +325,168 @@ test('Navigating to an item shows a preview in the input', async () => {
   expect(input).toHaveValue('similar()');
   await user.keyboard('{ArrowDown}');
   expect(input).toHaveValue('sim');
+});
+
+test('Highlighting a suggestion places the caret inside the quotes', async () => {
+  const user = createUser();
+  const { getByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'author:"');
+  await user.keyboard('{ArrowDown}');
+  expect(input.value).toBe('author:""');
+  expect(input.selectionStart).toBe(8);
+});
+
+test('Arrow down still cycles suggestions with the caret inside the quotes', async () => {
+  const user = createUser();
+  const { getByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'auth');
+  await user.keyboard('{ArrowDown}');
+  expect(input.value).toBe('author:""');
+  await user.keyboard('{ArrowDown}');
+  expect(input.value).toBe('first_author:""');
+  await user.keyboard('{ArrowDown}');
+  expect(input.value).toBe('auth');
+});
+
+test('A mid-query caret cannot open the typeahead menu', async () => {
+  const user = createUser();
+  const { getByTestId, queryAllByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'year:2020');
+  input.setSelectionRange(0, 0);
+  await user.keyboard('sim');
+  expect(queryAllByTestId('search-autocomplete-item')).toHaveLength(0);
+  await user.keyboard('{ArrowDown}');
+  expect(queryAllByTestId('search-autocomplete-item')).toHaveLength(0);
+});
+
+test('Cycling with a mid-query caret does not destroy an earlier token', async () => {
+  const user = createUser();
+  const { getByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'year:2020 sim');
+  input.setSelectionRange(3, 3);
+  await user.keyboard('{ArrowDown}');
+  expect(input.value).toBe('year:2020 similar()');
+  await user.keyboard('{Enter}');
+  expect(input.value).toBe('year:2020 similar()');
+});
+
+test('Typing while a suggestion is highlighted inserts inside the quotes', async () => {
+  const user = createUser();
+  const { getByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'author:"');
+  await user.keyboard('{ArrowDown}');
+  await user.keyboard('smith');
+  expect(input.value).toBe('author:"smith"');
+});
+
+test('Typing while a paren-shaped suggestion is highlighted inserts inside the parens', async () => {
+  const user = createUser();
+  const { getByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'sim');
+  await user.keyboard('{ArrowDown}');
+  expect(input.value).toBe('similar()');
+  await user.keyboard('x');
+  expect(input.value).toBe('similar(x)');
+});
+
+test('Clicking a quickfield while a preview shows appends to the committed value', async () => {
+  const user = createUser();
+  const { getByTestId, getAllByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'author:"');
+  await user.keyboard('{ArrowDown}');
+  expect(input.value).toBe('author:""');
+  await user.click(getAllByTestId('quickfield')[1]);
+  expect(input.value).toBe('author:"" first_author:""');
+});
+
+test('Submitting while a preview shows searches the text the user sees', async () => {
+  const user = createUser();
+  const submitted: string[] = [];
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    submitted.push(new FormData(e.currentTarget).get('q') as string);
+  };
+  const { getByTestId } = render(
+    <form onSubmit={handleSubmit}>
+      <SearchBar />
+      <GlobalQueryProbe />
+    </form>,
+  );
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'author:"');
+  await user.keyboard('{ArrowDown}');
+  expect(input.value).toBe('author:""');
+  await user.click(getByTestId('search-submit'));
+  expect(submitted).toEqual(['author:""']);
+  await vi.advanceTimersByTimeAsync(1000);
+  expect(getByTestId('global-query').textContent).toBe('author:""');
+});
+
+test('Clicking away while a preview shows keeps the text the user sees', async () => {
+  const user = createUser();
+  const { getByTestId } = render(
+    <>
+      <SearchBar />
+      <GlobalQueryProbe />
+      <button data-testid="outside">outside</button>
+    </>,
+  );
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'author:"');
+  await user.keyboard('{ArrowDown}');
+  expect(input.value).toBe('author:""');
+  await user.click(getByTestId('outside'));
+  expect(input.value).toBe('author:""');
+  expect(document.activeElement).toBe(getByTestId('outside'));
+  await vi.advanceTimersByTimeAsync(1000);
+  expect(getByTestId('global-query').textContent).toBe('author:""');
+  expect(document.activeElement).toBe(getByTestId('outside'));
+});
+
+test('Clicking away with no preview showing moves focus away', async () => {
+  const user = createUser();
+  const { getByTestId } = render(
+    <>
+      <SearchBar />
+      <button data-testid="outside">outside</button>
+    </>,
+  );
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'zzzz');
+  await user.click(getByTestId('outside'));
+  expect(document.activeElement).toBe(getByTestId('outside'));
+});
+
+test('Backspace on a preview deletes inside the quotes', async () => {
+  const user = createUser();
+  const { getByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'author:"');
+  await user.keyboard('{ArrowDown}');
+  expect(input.selectionStart).toBe(8);
+  await user.keyboard('{Backspace}');
+  expect(input.value).toBe('author:"');
+  expect(input.selectionStart).toBe(7);
+});
+
+test('ArrowLeft on a preview then typing inserts at the visible caret', async () => {
+  const user = createUser();
+  const { getByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'author:"');
+  await user.keyboard('{ArrowDown}');
+  await user.keyboard('{ArrowLeft}');
+  expect(input.selectionStart).toBe(7);
+  await user.keyboard('s');
+  expect(input.value).toBe('author:s""');
+  expect(input.selectionStart).toBe(8);
 });
 
 test('title quickfield renders and appends to input', async () => {
