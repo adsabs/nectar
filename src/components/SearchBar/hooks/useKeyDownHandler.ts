@@ -30,7 +30,7 @@ export const useKeyDownHandler = (props: IUseKeyDownHandlerProps): KeyboardEvent
       dispatch({ type: 'KEYDOWN_ESCAPE' });
     }
 
-    if (e.key === 'ArrowDown' && e.currentTarget.selectionStart === e.currentTarget.value.length) {
+    if (e.key === 'ArrowDown' && (isOpen || e.currentTarget.selectionStart === e.currentTarget.value.length)) {
       e.preventDefault();
       dispatch({ type: 'KEYDOWN_ARROW_DOWN' });
     }

@@ -239,4 +239,92 @@ describe('SearchInput reducer', () => {
       expect(result.focused).toBe(42);
     });
   });
+
+  describe('Committing a focused preview', () => {
+    const authorItem: TypeaheadOption = { value: 'author:""', label: 'Author', desc: '', id: 0, match: [] };
+
+    test('COMMIT_PREVIEW writes the focused item into the search term', () => {
+      const state: ISearchInputState = {
+        ...initialState,
+        searchTerm: 'author:"',
+        cursorPosition: 8,
+        isOpen: true,
+        items: [authorItem],
+        focused: 0,
+      };
+      const result = reducer(state, { type: 'COMMIT_PREVIEW' });
+      expect(result.searchTerm).toBe('author:""');
+      expect(result.cursorPosition).toBe(8);
+      expect(result.focused).toBe(-1);
+      expect(result.isOpen).toBe(false);
+    });
+
+    test('COMMIT_PREVIEW leaves state untouched when nothing is focused', () => {
+      const state: ISearchInputState = {
+        ...initialState,
+        searchTerm: 'author:"',
+        cursorPosition: 8,
+        items: [authorItem],
+        focused: -1,
+      };
+      expect(reducer(state, { type: 'COMMIT_PREVIEW' })).toBe(state);
+    });
+
+    test('COMMIT_PREVIEW commits a focused UAT item', () => {
+      const state: ISearchInputState = {
+        ...initialState,
+        searchTerm: 'uat:"Tek',
+        isOpen: true,
+        uatItems: uatOptions,
+        focused: 0,
+      };
+      const result = reducer(state, { type: 'COMMIT_PREVIEW' });
+      expect(result.searchTerm).toBe('uat:"Tektites"');
+      expect(result.cursorPosition).toBe(14);
+      expect(result.focused).toBe(-1);
+    });
+
+    test('COMMIT_PREVIEW does not request focus back into the input', () => {
+      const state: ISearchInputState = {
+        ...initialState,
+        searchTerm: 'author:"',
+        cursorPosition: 8,
+        isOpen: true,
+        items: [authorItem],
+        focused: 0,
+        focusRequestId: 3,
+      };
+      expect(reducer(state, { type: 'COMMIT_PREVIEW' }).focusRequestId).toBe(3);
+    });
+
+    test('KEYDOWN_ENTER requests focus back into the input', () => {
+      const state: ISearchInputState = {
+        ...initialState,
+        searchTerm: 'author:"',
+        cursorPosition: 8,
+        isOpen: true,
+        items: [authorItem],
+        focused: 0,
+        focusRequestId: 3,
+      };
+      expect(reducer(state, { type: 'KEYDOWN_ENTER' }).focusRequestId).toBe(4);
+    });
+
+    test('SET_SEARCH_TERM_ADDITION appends to the committed preview, not the stale term', () => {
+      const state: ISearchInputState = {
+        ...initialState,
+        searchTerm: 'author:"',
+        cursorPosition: 8,
+        isOpen: true,
+        items: [authorItem],
+        focused: 0,
+      };
+      const result = reducer(state, {
+        type: 'SET_SEARCH_TERM_ADDITION',
+        payload: { queryAddition: 'first_author:""' },
+      });
+      expect(result.searchTerm).toBe('author:"" first_author:""');
+      expect(result.focused).toBe(-1);
+    });
+  });
 });
