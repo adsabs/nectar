@@ -6,6 +6,7 @@ import { logger } from '@/logger';
  */
 export enum SessionStorageKey {
   SearchReturnUrl = 'search-return-url',
+  ClassicFormSnapshot = 'nectar-classic-form',
 }
 
 const isBrowser = (): boolean => typeof window !== 'undefined';

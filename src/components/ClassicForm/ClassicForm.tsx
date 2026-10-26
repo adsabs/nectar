@@ -31,8 +31,9 @@ import { useErrorMessage } from '@/lib/useErrorMessage';
 import { useIsClient } from '@/lib/useIsClient';
 import { useRouter } from 'next/router';
 import PT from 'prop-types';
-import { FormEventHandler, useMemo } from 'react';
+import { FormEventHandler, useEffect, useMemo } from 'react';
 import { Control, Controller, useForm, useWatch } from 'react-hook-form';
+import { clearClassicFormSnapshot, readClassicFormSnapshot, saveClassicFormSnapshot } from './form-snapshot';
 import { getSearchQuery, getSearchQueryParams } from './helpers';
 import { IClassicFormState, IRawClassicFormState } from './types';
 import { useStore } from '@/store';
@@ -84,11 +85,24 @@ export const ClassicForm = (props: IClassicFormProps) => {
     defaultValues: defaultClassicFormState,
   });
 
+  useEffect(() => {
+    const snapshot = readClassicFormSnapshot();
+    if (snapshot) {
+      reset(snapshot);
+    }
+  }, [reset]);
+
+  const handleReset = () => {
+    clearClassicFormSnapshot();
+    reset(defaultClassicFormState);
+  };
+
   const formSubmit: FormEventHandler = (e) => {
     e.preventDefault();
 
     void handleSubmit((params) => {
       try {
+        saveClassicFormSnapshot(params);
         // The classic form is Astrophysics-only, so the search it produces must
         // run in Astrophysics regardless of the discipline the user is viewing.
         if (mode !== AppMode.ASTROPHYSICS) {
@@ -342,7 +356,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
 
         <Stack direction="row">
           <Button type="submit">Search</Button>
-          <Button type="reset" variant="outline" onClick={() => reset(defaultClassicFormState)}>
+          <Button type="reset" variant="outline" onClick={handleReset}>
             Reset
           </Button>
         </Stack>

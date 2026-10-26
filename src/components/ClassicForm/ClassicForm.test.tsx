@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@/test-utils';
 import { AppMode } from '@/types';
 import { ClassicForm, defaultClassicFormState } from './ClassicForm';
+import { readClassicFormSnapshot, saveClassicFormSnapshot } from './form-snapshot';
 
 const router = {
   route: '/classic-form',
@@ -17,8 +18,15 @@ vi.mock('next/router', () => ({
 
 const searchButtons = (): HTMLElement[] => screen.getAllByRole('button', { name: 'Search' });
 
+const submittedSearch = (call = 0): string => (router.push.mock.calls[call][0] as { search: string }).search;
+
+const readableQuery = (call = 0): string => decodeURIComponent(submittedSearch(call).replace(/\+/g, ' '));
+
 describe('ClassicForm', () => {
-  beforeEach(() => router.push.mockReset());
+  beforeEach(() => {
+    router.push.mockReset();
+    sessionStorage.clear();
+  });
 
   // The classic form is Astrophysics-only, so submitting while viewing another
   // discipline must still produce an Astrophysics search (SCIX-887).
@@ -413,6 +421,159 @@ describe('ClassicForm', () => {
 
       expect(afterReset).toEqual(pristine);
       expect(new URLSearchParams(afterReset).get('q')).not.toContain('Smith');
+    });
+
+    test('drops the stored snapshot, so a later mount starts from defaults', async () => {
+      saveClassicFormSnapshot({ ...defaultClassicFormState, title: 'star' });
+
+      const { user, unmount } = render(<ClassicForm ssrError="" />);
+      await waitFor(() => expect(screen.getByLabelText('Title')).toHaveValue('star'));
+
+      await user.click(resetButton());
+
+      await waitFor(() => expect(screen.getByLabelText('Title')).toHaveValue(''));
+      expect(readClassicFormSnapshot()).toBeNull();
+
+      unmount();
+      render(<ClassicForm ssrError="" />);
+
+      expect(screen.getByLabelText('Title')).toHaveValue('');
+    });
+  });
+
+  describe('search state persistence', () => {
+    test('stores nothing before a submit', async () => {
+      const { user } = render(<ClassicForm ssrError="" />);
+
+      await user.type(screen.getByLabelText('Title'), 'star');
+
+      expect(readClassicFormSnapshot()).toBeNull();
+    });
+
+    test('snapshots the submitted values', async () => {
+      const { user } = render(<ClassicForm ssrError="" />);
+
+      await user.type(screen.getByLabelText('Title'), 'star');
+      await user.click(searchButtons().at(-1));
+
+      await waitFor(() => expect(readClassicFormSnapshot()?.title).toBe('star'));
+    });
+
+    test('restores a text field on mount', async () => {
+      saveClassicFormSnapshot({ ...defaultClassicFormState, title: 'star' });
+
+      render(<ClassicForm ssrError="" />);
+
+      await waitFor(() => expect(screen.getByLabelText('Title')).toHaveValue('star'));
+    });
+
+    test('restores the Collection checkboxes', async () => {
+      saveClassicFormSnapshot({ ...defaultClassicFormState, limit: ['astronomy', 'earthscience'] });
+
+      render(<ClassicForm ssrError="" />);
+
+      await waitFor(() => {
+        const checked = screen
+          .getAllByRole('checkbox')
+          .filter((input) => input.getAttribute('name') === 'limit' && (input as HTMLInputElement).checked)
+          .map((input) => input.getAttribute('value'));
+        expect(checked).toEqual(['astronomy', 'earthscience']);
+      });
+    });
+
+    test('restores a non-default logic radio and submits that operator', async () => {
+      saveClassicFormSnapshot({ ...defaultClassicFormState, logic_title: 'boolean' });
+
+      const { user } = render(<ClassicForm ssrError="" />);
+
+      const titleLogic = screen
+        .getAllByRole('radiogroup')
+        .find((group) => within(group).queryByRole('radio', { name: 'Boolean' }) !== null);
+      await waitFor(() => expect(within(titleLogic).getByRole('radio', { name: 'Boolean' })).toBeChecked());
+
+      await user.type(screen.getByLabelText('Title'), 'star pulsar');
+      await user.click(searchButtons().at(-1));
+
+      await waitFor(() => expect(router.push).toHaveBeenCalledTimes(1));
+      expect(readableQuery()).toContain('title:(star pulsar)');
+      expect(readableQuery()).not.toContain('AND');
+    });
+
+    test('submits the restored value rather than the default', async () => {
+      saveClassicFormSnapshot({ ...defaultClassicFormState, title: 'star' });
+
+      const { user } = render(<ClassicForm ssrError="" />);
+      await waitFor(() => expect(screen.getByLabelText('Title')).toHaveValue('star'));
+
+      await user.click(searchButtons().at(-1));
+
+      await waitFor(() => expect(router.push).toHaveBeenCalledTimes(1));
+      expect(readableQuery()).toContain('title:(star)');
+    });
+
+    test('submits a restored Collection', async () => {
+      saveClassicFormSnapshot({ ...defaultClassicFormState, limit: ['earthscience'] });
+
+      const { user } = render(<ClassicForm ssrError="" />);
+      await waitFor(() => expect(screen.getByRole('checkbox', { name: 'Earth Science' })).toBeChecked());
+
+      await user.click(searchButtons().at(-1));
+
+      await waitFor(() => expect(router.push).toHaveBeenCalledTimes(1));
+      expect(readableQuery()).toContain('earthscience');
+      expect(readableQuery()).not.toContain('astronomy');
+    });
+
+    test('the second submission replaces the first in storage', async () => {
+      const { user, unmount } = render(<ClassicForm ssrError="" />);
+
+      await user.type(screen.getByLabelText('Title'), 'star');
+      await user.click(searchButtons().at(-1));
+      await waitFor(() => expect(readClassicFormSnapshot()?.title).toBe('star'));
+
+      await user.clear(screen.getByLabelText('Title'));
+      await user.type(screen.getByLabelText('Title'), 'pulsar');
+      await user.click(searchButtons().at(-1));
+
+      await waitFor(() => expect(readClassicFormSnapshot()?.title).toBe('pulsar'));
+
+      unmount();
+      render(<ClassicForm ssrError="" />);
+
+      await waitFor(() => expect(screen.getByLabelText('Title')).toHaveValue('pulsar'));
+    });
+
+    test('does not restore the publications filter, so the picker and the query agree', async () => {
+      const first = render(<ClassicForm ssrError="" />);
+
+      await first.user.type(screen.getByLabelText('Title'), 'star');
+      const picker = screen.getByLabelText('bibstem picker');
+      await first.user.click(picker);
+      await first.user.type(picker, 'ApJ');
+      await first.user.click(await screen.findByText('The Astrophysical Journal (ApJ)'));
+
+      await first.user.click(searchButtons().at(-1));
+      await waitFor(() => expect(router.push).toHaveBeenCalledTimes(1));
+      expect(submittedSearch()).toContain('bibstem');
+
+      first.unmount();
+      const second = render(<ClassicForm ssrError="" />);
+
+      await waitFor(() => expect(screen.getByLabelText('Title')).toHaveValue('star'));
+      expect(screen.queryAllByText('ApJ')).toHaveLength(0);
+
+      await second.user.click(searchButtons().at(-1));
+      await waitFor(() => expect(router.push).toHaveBeenCalledTimes(2));
+      expect(submittedSearch(1)).not.toContain('bibstem');
+    });
+
+    test('ignores a malformed snapshot and clears it', async () => {
+      sessionStorage.setItem('nectar-classic-form', JSON.stringify({ title: 42 }));
+
+      render(<ClassicForm ssrError="" />);
+
+      await waitFor(() => expect(screen.getByLabelText('Title')).toHaveValue(''));
+      expect(sessionStorage.getItem('nectar-classic-form')).toBeNull();
     });
   });
 });
