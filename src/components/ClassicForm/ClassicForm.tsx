@@ -29,10 +29,11 @@ import { useErrorMessage } from '@/lib/useErrorMessage';
 import { useIsClient } from '@/lib/useIsClient';
 import { useRouter } from 'next/router';
 import PT from 'prop-types';
-import { FormEventHandler, useMemo } from 'react';
+import { FormEventHandler, useEffect, useMemo, useState } from 'react';
 import { Control, Controller, useForm, UseFormRegisterReturn, useWatch } from 'react-hook-form';
+import { clearClassicFormSnapshot, readClassicFormSnapshot, saveClassicFormSnapshot } from './form-snapshot';
 import { getSearchQuery, getSearchQueryParams } from './helpers';
-import { IClassicFormState, IRawClassicFormState } from './types';
+import { IClassicFormState, IRawClassicFormState, LogicChoice } from './types';
 import { useStore } from '@/store';
 import { AppMode } from '@/types';
 
@@ -71,6 +72,43 @@ export interface IClassicFormProps {
 }
 
 export const ClassicForm = (props: IClassicFormProps) => {
+  const [initialValues, setInitialValues] = useState<IClassicFormState>(defaultClassicFormState);
+  const [formInstance, setFormInstance] = useState(0);
+
+  useEffect(() => {
+    const snapshot = readClassicFormSnapshot();
+    if (snapshot) {
+      setInitialValues(snapshot);
+      setFormInstance((instance) => instance + 1);
+    }
+  }, []);
+
+  const handleReset = () => {
+    clearClassicFormSnapshot();
+    setInitialValues(defaultClassicFormState);
+    setFormInstance((instance) => instance + 1);
+  };
+
+  return (
+    <ClassicFormFields
+      key={formInstance}
+      ssrError={props.ssrError}
+      initialValues={initialValues}
+      onReset={handleReset}
+    />
+  );
+};
+
+ClassicForm.propTypes = propTypes;
+
+interface IClassicFormFieldsProps {
+  ssrError: string;
+  initialValues: IClassicFormState;
+  onReset: () => void;
+}
+
+const ClassicFormFields = (props: IClassicFormFieldsProps) => {
+  const { initialValues, onReset } = props;
   const isClient = useIsClient();
   const router = useRouter();
   const [queryError, setQueryError] = useErrorMessage<string>(props.ssrError);
@@ -78,7 +116,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
   const setMode = useStore((state) => state.setMode);
 
   const { register, control, handleSubmit } = useForm<IClassicFormState>({
-    defaultValues: defaultClassicFormState,
+    defaultValues: initialValues,
   });
 
   const formSubmit: FormEventHandler = (e) => {
@@ -86,6 +124,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
 
     void handleSubmit((params) => {
       try {
+        saveClassicFormSnapshot(params);
         // The classic form is Astrophysics-only, so the search it produces must
         // run in Astrophysics regardless of the discipline the user is viewing.
         if (mode !== AppMode.ASTROPHYSICS) {
@@ -113,7 +152,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
             <FormLabel as="legend" m={0} mr={4}>
               Collection
             </FormLabel>
-            <CheckboxGroup defaultValue={['astronomy', 'physics']}>
+            <CheckboxGroup defaultValue={initialValues.limit}>
               <HStack spacing="6" wrap="wrap">
                 <Checkbox value="astronomy" {...register('limit')}>
                   Astronomy
@@ -158,7 +197,11 @@ export const ClassicForm = (props: IClassicFormProps) => {
                   </Tooltip>
                 </SimpleLink>
               </HStack>
-              <LogicRadios variant="andor" radioProps={register('logic_author')} />
+              <LogicRadios
+                variant="andor"
+                radioProps={register('logic_author')}
+                defaultValue={initialValues.logic_author}
+              />
             </Flex>
             <Textarea
               {...register('author')}
@@ -180,7 +223,11 @@ export const ClassicForm = (props: IClassicFormProps) => {
                   </Tooltip>
                 </FormLabel>
               </HStack>
-              <LogicRadios variant="andor" radioProps={register('logic_object')} />
+              <LogicRadios
+                variant="andor"
+                radioProps={register('logic_object')}
+                defaultValue={initialValues.logic_object}
+              />
             </Flex>
             <Textarea
               {...register('object')}
@@ -226,7 +273,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
         <FormControl>
           <Flex direction="row" justifyContent="space-between">
             <FormLabel>Title</FormLabel>
-            <LogicRadios variant="all" radioProps={register('logic_title')} />
+            <LogicRadios variant="all" radioProps={register('logic_title')} defaultValue={initialValues.logic_title} />
           </Flex>
           <Input {...register('title')} />
         </FormControl>
@@ -235,7 +282,11 @@ export const ClassicForm = (props: IClassicFormProps) => {
         <FormControl>
           <Flex direction="row" justifyContent="space-between">
             <FormLabel>Abstract / Keywords</FormLabel>
-            <LogicRadios variant="all" radioProps={register('logic_abstract_keywords')} />
+            <LogicRadios
+              variant="all"
+              radioProps={register('logic_abstract_keywords')}
+              defaultValue={initialValues.logic_abstract_keywords}
+            />
           </Flex>
           <Input {...register('abstract_keywords')} />
         </FormControl>
@@ -243,7 +294,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
         {/* Property */}
         <FormControl as="fieldset">
           <FormLabel as="legend">Property</FormLabel>
-          <CheckboxGroup>
+          <CheckboxGroup defaultValue={initialValues.property}>
             <HStack spacing={4}>
               <Checkbox fontWeight="bold" value="refereed-only" {...register('property')}>
                 Refereed only
@@ -309,7 +360,12 @@ export const ClassicForm = (props: IClassicFormProps) => {
         )}
 
         <FormControl>
-          <Button type="submit">Search</Button>
+          <HStack spacing={3}>
+            <Button type="submit">Search</Button>
+            <Button type="reset" variant="outline" onClick={onReset}>
+              Clear form
+            </Button>
+          </HStack>
         </FormControl>
 
         <CurrentQuery control={control} />
@@ -318,12 +374,14 @@ export const ClassicForm = (props: IClassicFormProps) => {
   );
 };
 
-ClassicForm.propTypes = propTypes;
-
-const LogicRadios = (props: { variant: 'andor' | 'all'; radioProps: UseFormRegisterReturn }) => {
-  const { variant, radioProps } = props;
+const LogicRadios = (props: {
+  variant: 'andor' | 'all';
+  radioProps: UseFormRegisterReturn;
+  defaultValue: LogicChoice;
+}) => {
+  const { variant, radioProps, defaultValue } = props;
   return (
-    <RadioGroup defaultValue="and" aria-label="logical selector">
+    <RadioGroup defaultValue={defaultValue} aria-label="logical selector">
       <Stack spacing={4} direction="row">
         <Radio size="sm" {...radioProps} value="and">
           And
