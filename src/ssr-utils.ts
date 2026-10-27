@@ -14,6 +14,7 @@ import { readPrefsCookie } from '@/utils/common/prefs-cookie';
 import { SearchMode } from '@/utils/common/searchMode';
 import { getIsolationScope } from '@sentry/nextjs';
 import { authTagForSession, SENTRY_AUTH_TAG_NAME } from '@/lib/sentryAuthTag';
+import { ErrorSource, handleError } from '@/lib/errorHandler';
 
 const log = logger.child({}, { msgPrefix: '[ssr-inject] ' });
 
@@ -108,7 +109,11 @@ export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
         try {
           result = await fn(ctx, ssrProps);
         } catch (error) {
-          logger.error({ error });
+          handleError(error, {
+            source: ErrorSource.SERVER,
+            context: { route: ctx.resolvedUrl.split('?')[0] },
+            tags: { stage: 'gssp-compose' },
+          });
           props = { pageError: parseAPIError(error) };
         }
         if (result && 'props' in result) {
