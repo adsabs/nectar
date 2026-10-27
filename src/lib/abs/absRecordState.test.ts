@@ -9,10 +9,13 @@ const base = {
   doc: undefined as IDocsEntity | undefined,
   hasClientData: false,
   clientDocsCount: 0,
+  canFetch: true,
   isLoading: false,
   isFetching: false,
   isError: false,
 };
+
+const disabledQuery = { canFetch: false, isLoading: true, isFetching: false, isError: false };
 
 describe('deriveAbsRecordState', () => {
   const found: AbsSSRResult = { outcome: 'found' };
@@ -64,5 +67,47 @@ describe('deriveAbsRecordState', () => {
 
   test('never flashes not-found for an ambiguous found outcome with no client data yet', () => {
     expect(deriveAbsRecordState({ ...base, ssr: found })).toEqual({ kind: 'loading' });
+  });
+
+  describe('a query that cannot fetch never rests on loading', () => {
+    const missingSSR: AbsSSRResult = { outcome: 'error', statusCode: 500, reason: 'missing-ssr-props' };
+
+    test('disabled query with dropped SSR props reports the SSR error, not loading', () => {
+      expect(deriveAbsRecordState({ ...base, ...disabledQuery, ssr: missingSSR })).toEqual({
+        kind: 'error',
+        statusCode: 500,
+      });
+    });
+
+    test('disabled query with an SSR error reports that error, not loading', () => {
+      expect(deriveAbsRecordState({ ...base, ...disabledQuery, ssr: errored })).toEqual({
+        kind: 'error',
+        statusCode: 503,
+      });
+    });
+
+    test('disabled query with SSR not-found reports not-found, not loading', () => {
+      expect(deriveAbsRecordState({ ...base, ...disabledQuery, ssr: notFound })).toEqual({ kind: 'not-found' });
+    });
+
+    test('disabled query with an SSR found it cannot confirm reports error without a status code', () => {
+      expect(deriveAbsRecordState({ ...base, ...disabledQuery, ssr: found })).toEqual({ kind: 'error' });
+    });
+
+    test('content still wins over a disabled query', () => {
+      expect(deriveAbsRecordState({ ...base, ...disabledQuery, ssr: found, doc })).toEqual({ kind: 'content', doc });
+    });
+
+    test('a client-confirmed empty result still wins over a disabled query', () => {
+      expect(
+        deriveAbsRecordState({ ...base, ...disabledQuery, ssr: errored, hasClientData: true, clientDocsCount: 0 }),
+      ).toEqual({ kind: 'not-found' });
+    });
+  });
+
+  test('an enabled query that has not started fetching yet still shows loading', () => {
+    expect(deriveAbsRecordState({ ...base, ssr: found, canFetch: true, isLoading: true, isFetching: false })).toEqual({
+      kind: 'loading',
+    });
   });
 });

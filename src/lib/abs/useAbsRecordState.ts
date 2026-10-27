@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { path } from 'ramda';
+import { useRouter } from 'next/router';
 import * as Sentry from '@sentry/nextjs';
 
 import { useGetAbstract } from '@/api/search/search';
@@ -23,14 +24,17 @@ type UseAbsRecordStateResult = {
 const MISSING_SSR: AbsSSRResult = { outcome: 'error', statusCode: 500, reason: 'missing-ssr-props' };
 
 export const useAbsRecordState = ({ ssr, queryId, initialDoc }: UseAbsRecordStateArgs): UseAbsRecordStateResult => {
+  const router = useRouter();
   const resolvedSSR = ssr ?? MISSING_SSR;
-  const resolvedQueryId = queryId ?? '';
+  const routerId = typeof router.query.id === 'string' ? router.query.id : '';
+  const resolvedQueryId = queryId || routerId;
   const isNegativeSSR = resolvedSSR.outcome !== 'found';
+  const isQueryEnabled = resolvedQueryId.length > 0;
 
   const { data, isLoading, isFetching, isError } = useGetAbstract(
     { id: resolvedQueryId },
     {
-      enabled: resolvedQueryId.length > 0,
+      enabled: isQueryEnabled,
       // Found/not-found hydrate from the seeded cache and never refetch. Only the
       // error path fetches client-side — retry it so a transient SSR failure
       // recovers via the browser session.
@@ -46,6 +50,7 @@ export const useAbsRecordState = ({ ssr, queryId, initialDoc }: UseAbsRecordStat
     doc,
     hasClientData: data !== undefined,
     clientDocsCount: data?.docs?.length ?? 0,
+    canFetch: isQueryEnabled,
     isLoading,
     isFetching,
     isError,
@@ -55,6 +60,7 @@ export const useAbsRecordState = ({ ssr, queryId, initialDoc }: UseAbsRecordStat
   // residual false negatives. Keyed by queryId (not a bool) so it re-fires across
   // client-side navigation without a remount.
   const recoveredQueryId = useRef<string | null>(null);
+  const ssrReason = resolvedSSR.outcome === 'error' ? resolvedSSR.reason : null;
   useEffect(() => {
     if (isNegativeSSR && clientDoc && recoveredQueryId.current !== resolvedQueryId) {
       recoveredQueryId.current = resolvedQueryId;
@@ -64,12 +70,13 @@ export const useAbsRecordState = ({ ssr, queryId, initialDoc }: UseAbsRecordStat
           absRecord: {
             queryId: resolvedQueryId,
             ssrOutcome: resolvedSSR.outcome,
+            ssrReason,
             bibcode: clientDoc.bibcode ?? null,
           },
         },
       });
     }
-  }, [isNegativeSSR, clientDoc, resolvedQueryId, resolvedSSR.outcome]);
+  }, [isNegativeSSR, clientDoc, resolvedQueryId, resolvedSSR.outcome, ssrReason]);
 
   return { doc, state };
 };
