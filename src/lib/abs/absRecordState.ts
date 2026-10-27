@@ -27,6 +27,7 @@ type DeriveAbsRecordStateInput = {
   doc?: IDocsEntity;
   hasClientData: boolean;
   clientDocsCount: number;
+  canFetch: boolean;
   isLoading: boolean;
   isFetching: boolean;
   isError: boolean;
@@ -35,14 +36,14 @@ type DeriveAbsRecordStateInput = {
 // Never render not-found while ambiguous — default to loading. not-found is
 // reserved for a confirmed empty result the client hasn't contradicted.
 export const deriveAbsRecordState = (input: DeriveAbsRecordStateInput): AbsRecordUIState => {
-  const { ssr, doc, hasClientData, clientDocsCount, isLoading, isFetching, isError } = input;
+  const { ssr, doc, hasClientData, clientDocsCount, canFetch, isLoading, isFetching, isError } = input;
 
   if (doc) {
     return { kind: 'content', doc };
   }
 
   // Client is actively resolving (or re-checking a negative SSR outcome) — wait.
-  if (isLoading || isFetching) {
+  if (isFetching || (isLoading && canFetch)) {
     return { kind: 'loading' };
   }
 
@@ -69,5 +70,5 @@ export const deriveAbsRecordState = (input: DeriveAbsRecordStateInput): AbsRecor
   }
 
   // Ambiguous — never flash not-found.
-  return { kind: 'loading' };
+  return canFetch ? { kind: 'loading' } : { kind: 'error' };
 };
