@@ -154,6 +154,7 @@ const Login: NextPage = () => {
                 placeholder="email@example.com"
                 name="email"
                 id="email"
+                data-testid="login-email"
                 autoFocus
                 onChange={handleChange}
                 value={params.email}
@@ -165,6 +166,7 @@ const Login: NextPage = () => {
                 <PasswordTextInput
                   name="password"
                   id="password"
+                  data-testid="login-password"
                   pr="4.5rem"
                   onChange={handleChange}
                   value={params.password}
@@ -175,7 +177,7 @@ const Login: NextPage = () => {
               Forgot password?
             </SimpleLink>
             {/* show loading indicator even after success, since we should be awaiting a page refresh */}
-            <Button type="submit" isLoading={isLoading || data?.success}>
+            <Button type="submit" data-testid="login-submit" isLoading={isLoading || data?.success}>
               Submit
             </Button>
             {isLoading || data?.success ? null : (

@@ -154,6 +154,7 @@ export const Item = (props: IItemProps): ReactElement => {
       borderRadius="md"
       id={bibcode}
       sx={ROW_CONTAINMENT_SX}
+      data-testid="result-item"
     >
       <Flex
         as={HideOnPrint}
@@ -186,6 +187,7 @@ export const Item = (props: IItemProps): ReactElement => {
             href={`/abs/${encodedCanonicalID}/abstract`}
             fontWeight="semibold"
             className="article-title"
+            data-testid="result-title"
             onClick={handleAbstractClick}
           >
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
