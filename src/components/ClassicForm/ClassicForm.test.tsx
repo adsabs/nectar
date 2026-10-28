@@ -193,6 +193,78 @@ describe('ClassicForm', () => {
     });
   });
 
+  describe('Additional search options separator', () => {
+    test('sits between the early Search button and Publication Date Start', () => {
+      render(<ClassicForm ssrError="" />);
+
+      const label = screen.getByText('Additional search options');
+      const [early] = searchButtons();
+      const pubdateStart = screen.getByLabelText('Publication Date Start');
+
+      expect(early.compareDocumentPosition(label) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(label.compareDocumentPosition(pubdateStart) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+      const separator = label.parentElement;
+      expect(early.parentElement.nextElementSibling).toBe(separator);
+      expect(separator.nextElementSibling).toHaveAttribute('data-testid', 'publication-dates');
+    });
+
+    test('is non-interactive and adds no tab stop', () => {
+      render(<ClassicForm ssrError="" />);
+
+      const label = screen.getByText('Additional search options');
+
+      expect(label).not.toHaveAttribute('tabindex');
+      expect(label.closest('button')).toBeNull();
+      expect(label.closest('a')).toBeNull();
+      expect(label.closest('[role="button"]')).toBeNull();
+    });
+
+    test('leaves the fields below it visible and enabled', () => {
+      render(<ClassicForm ssrError="" />);
+
+      const below = [
+        screen.getByLabelText('Publication Date Start'),
+        screen.getByLabelText('Publication Date End'),
+        screen.getByLabelText('Title'),
+        screen.getByLabelText('Abstract / Keywords'),
+        screen.getByRole('checkbox', { name: 'Refereed only' }),
+        screen.getByRole('checkbox', { name: 'Articles only' }),
+        screen.getByLabelText('bibstem picker'),
+      ];
+
+      for (const field of below) {
+        expect(field).toBeVisible();
+        expect(field).toBeEnabled();
+      }
+    });
+  });
+
+  describe('keyboard order', () => {
+    test('tabs from the Object textarea to the early Search button to Publication Date Start', async () => {
+      const { user } = render(<ClassicForm ssrError="" />);
+
+      const object = screen.getByLabelText(/^Object/);
+      object.focus();
+      expect(object).toHaveFocus();
+
+      await user.tab();
+      expect(searchButtons()[0]).toHaveFocus();
+
+      await user.tab();
+      expect(screen.getByLabelText('Publication Date Start')).toHaveFocus();
+    });
+
+    test('uses no positive tabIndex anywhere in the form', () => {
+      const { container } = render(<ClassicForm ssrError="" />);
+
+      const positive = Array.from(container.querySelectorAll('[tabindex]')).filter(
+        (el) => Number(el.getAttribute('tabindex')) > 0,
+      );
+      expect(positive).toEqual([]);
+    });
+  });
+
   describe('Reset button', () => {
     const resetButton = (): HTMLElement => screen.getByRole('button', { name: 'Reset' });
 

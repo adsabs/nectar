@@ -7,6 +7,7 @@ import {
   Checkbox,
   CheckboxGroup,
   Code,
+  Divider,
   Flex,
   FormControl,
   FormHelperText,
@@ -25,6 +26,7 @@ import {
 } from '@chakra-ui/react';
 import { CalendarIcon, ExternalLinkIcon, InfoOutlineIcon } from '@chakra-ui/icons';
 
+import { useColorModeColors } from '@/lib/useColorModeColors';
 import { useErrorMessage } from '@/lib/useErrorMessage';
 import { useIsClient } from '@/lib/useIsClient';
 import { useRouter } from 'next/router';
@@ -76,6 +78,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
   const [queryError, setQueryError] = useErrorMessage<string>(props.ssrError);
   const mode = useStore((state) => state.mode);
   const setMode = useStore((state) => state.setMode);
+  const { border, lightText } = useColorModeColors();
 
   const { register, control, handleSubmit, reset } = useForm<IClassicFormState>({
     defaultValues: defaultClassicFormState,
@@ -201,6 +204,14 @@ export const ClassicForm = (props: IClassicFormProps) => {
         <FormControl>
           <Button type="submit">Search</Button>
         </FormControl>
+
+        <HStack spacing={3}>
+          <Divider flex={1} borderColor={border} />
+          <Text flexShrink={0} fontSize="xs" color={lightText} whiteSpace="nowrap">
+            Additional search options
+          </Text>
+          <Divider flex={1} borderColor={border} />
+        </HStack>
 
         {/* Publication dates */}
         <Stack
