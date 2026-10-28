@@ -97,7 +97,7 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
   }
 
   return (
-    <Box {...props} my="3">
+    <Box {...props} my="3" data-tour="facet-filters">
       <Flex {...props} mb="1" wrap="wrap">
         {filterSections.map(([label, cleanClauses, rawClauses, alias, operators, isTermLevel]) => (
           <span key={label}>

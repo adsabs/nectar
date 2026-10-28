@@ -185,12 +185,24 @@ pre {
 }
 
 .tour-badge {
-  font-size: 12px;
-  line-height: 1em;
-  padding: 6px 6px;
-  border-radius: 5px;
-  color: #E8F1FF;
-  background: #0057D9;
-  text-transform: uppercase;
-  letter-spacing: .03em;
+  padding: 2px 10px; border-radius: 999px;
+  background: linear-gradient(90deg, #2196f3, #7c4dff); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; white-space: nowrap;
 }
+
+.tour-badge-old {
+  padding: 2px 10px; border-radius: 999px;
+  background: #7a7a7a;
+  color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; white-space: nowrap;
+}
+
+.tour-step-new .shepherd-content::before {
+  content: ''; display: block; height: 10px;
+  border-radius: 5px 5px 0 0;
+  background: linear-gradient(90deg, #2196f3, #7c4dff);
+}
+
+.tour-step-wide.shepherd-element { width: 520px; max-width: 520px; }

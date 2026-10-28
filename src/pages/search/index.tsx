@@ -732,6 +732,8 @@ const useTour = () => {
     return () => observer.disconnect();
   }, []);
 
+  const isADSCompatMode = useStore((state) => state.searchMode === 'ADS_COMPAT');
+
   useEffect(() => {
     if (isRendered && !localStorage.getItem(LocalSettings.SEEN_RESULTS_TOUR)) {
       const tour = new Shepherd.Tour({
@@ -744,7 +746,7 @@ const useTour = () => {
         },
         exitOnEsc: true,
       });
-      tour.addSteps(getResultsSteps(appMode === 'ASTROPHYSICS'));
+      tour.addSteps(getResultsSteps(appMode === 'ASTROPHYSICS', isADSCompatMode));
       localStorage.setItem(LocalSettings.SEEN_RESULTS_TOUR, 'true');
 
       const listener = (e: MouseEvent) => {
