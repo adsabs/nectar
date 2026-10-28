@@ -1,0 +1,789 @@
+{
+  "responseHeader": {
+    "status": 0,
+    "QTime": 0,
+    "params": {
+      "q": ""
+    }
+  },
+  "response": {
+    "numFound": 25,
+    "docs": [
+      {
+        "bibcode": "2024E2E..0001.0001E",
+        "title": [
+          "E2E Result 01"
+        ],
+        "author": [
+          "Author 01, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 1,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.01"
+        ],
+        "esources": [],
+        "page": "0001",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "1",
+        "identifier": [
+          "2024E2E..0001.0001E"
+        ],
+        "volume": "0001"
+      },
+      {
+        "bibcode": "2024E2E..0002.0002E",
+        "title": [
+          "E2E Result 02"
+        ],
+        "author": [
+          "Author 02, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 2,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.02"
+        ],
+        "esources": [],
+        "page": "0002",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "2",
+        "identifier": [
+          "2024E2E..0002.0002E"
+        ],
+        "volume": "0002"
+      },
+      {
+        "bibcode": "2024E2E..0003.0003E",
+        "title": [
+          "E2E Result 03"
+        ],
+        "author": [
+          "Author 03, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 3,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.03"
+        ],
+        "esources": [],
+        "page": "0003",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "3",
+        "identifier": [
+          "2024E2E..0003.0003E"
+        ],
+        "volume": "0003"
+      },
+      {
+        "bibcode": "2024E2E..0004.0004E",
+        "title": [
+          "E2E Result 04"
+        ],
+        "author": [
+          "Author 04, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 4,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.04"
+        ],
+        "esources": [],
+        "page": "0004",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "4",
+        "identifier": [
+          "2024E2E..0004.0004E"
+        ],
+        "volume": "0004"
+      },
+      {
+        "bibcode": "2024E2E..0005.0005E",
+        "title": [
+          "E2E Result 05"
+        ],
+        "author": [
+          "Author 05, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 5,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.05"
+        ],
+        "esources": [],
+        "page": "0005",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "5",
+        "identifier": [
+          "2024E2E..0005.0005E"
+        ],
+        "volume": "0005"
+      },
+      {
+        "bibcode": "2024E2E..0006.0006E",
+        "title": [
+          "E2E Result 06"
+        ],
+        "author": [
+          "Author 06, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 6,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.06"
+        ],
+        "esources": [],
+        "page": "0006",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "6",
+        "identifier": [
+          "2024E2E..0006.0006E"
+        ],
+        "volume": "0006"
+      },
+      {
+        "bibcode": "2024E2E..0007.0007E",
+        "title": [
+          "E2E Result 07"
+        ],
+        "author": [
+          "Author 07, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 7,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.07"
+        ],
+        "esources": [],
+        "page": "0007",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "7",
+        "identifier": [
+          "2024E2E..0007.0007E"
+        ],
+        "volume": "0007"
+      },
+      {
+        "bibcode": "2024E2E..0008.0008E",
+        "title": [
+          "E2E Result 08"
+        ],
+        "author": [
+          "Author 08, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 8,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.08"
+        ],
+        "esources": [],
+        "page": "0008",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "8",
+        "identifier": [
+          "2024E2E..0008.0008E"
+        ],
+        "volume": "0008"
+      },
+      {
+        "bibcode": "2024E2E..0009.0009E",
+        "title": [
+          "E2E Result 09"
+        ],
+        "author": [
+          "Author 09, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 9,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.09"
+        ],
+        "esources": [],
+        "page": "0009",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "9",
+        "identifier": [
+          "2024E2E..0009.0009E"
+        ],
+        "volume": "0009"
+      },
+      {
+        "bibcode": "2024E2E..0010.0010E",
+        "title": [
+          "E2E Result 10"
+        ],
+        "author": [
+          "Author 10, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 10,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.10"
+        ],
+        "esources": [],
+        "page": "0010",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "10",
+        "identifier": [
+          "2024E2E..0010.0010E"
+        ],
+        "volume": "0010"
+      },
+      {
+        "bibcode": "2024E2E..0011.0011E",
+        "title": [
+          "E2E Result 11"
+        ],
+        "author": [
+          "Author 11, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 11,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.11"
+        ],
+        "esources": [],
+        "page": "0011",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "11",
+        "identifier": [
+          "2024E2E..0011.0011E"
+        ],
+        "volume": "0011"
+      },
+      {
+        "bibcode": "2024E2E..0012.0012E",
+        "title": [
+          "E2E Result 12"
+        ],
+        "author": [
+          "Author 12, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 12,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.12"
+        ],
+        "esources": [],
+        "page": "0012",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "12",
+        "identifier": [
+          "2024E2E..0012.0012E"
+        ],
+        "volume": "0012"
+      },
+      {
+        "bibcode": "2024E2E..0013.0013E",
+        "title": [
+          "E2E Result 13"
+        ],
+        "author": [
+          "Author 13, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 13,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.13"
+        ],
+        "esources": [],
+        "page": "0013",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "13",
+        "identifier": [
+          "2024E2E..0013.0013E"
+        ],
+        "volume": "0013"
+      },
+      {
+        "bibcode": "2024E2E..0014.0014E",
+        "title": [
+          "E2E Result 14"
+        ],
+        "author": [
+          "Author 14, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 14,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.14"
+        ],
+        "esources": [],
+        "page": "0014",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "14",
+        "identifier": [
+          "2024E2E..0014.0014E"
+        ],
+        "volume": "0014"
+      },
+      {
+        "bibcode": "2024E2E..0015.0015E",
+        "title": [
+          "E2E Result 15"
+        ],
+        "author": [
+          "Author 15, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 15,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.15"
+        ],
+        "esources": [],
+        "page": "0015",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "15",
+        "identifier": [
+          "2024E2E..0015.0015E"
+        ],
+        "volume": "0015"
+      },
+      {
+        "bibcode": "2024E2E..0016.0016E",
+        "title": [
+          "E2E Result 16"
+        ],
+        "author": [
+          "Author 16, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 16,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.16"
+        ],
+        "esources": [],
+        "page": "0016",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "16",
+        "identifier": [
+          "2024E2E..0016.0016E"
+        ],
+        "volume": "0016"
+      },
+      {
+        "bibcode": "2024E2E..0017.0017E",
+        "title": [
+          "E2E Result 17"
+        ],
+        "author": [
+          "Author 17, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 17,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.17"
+        ],
+        "esources": [],
+        "page": "0017",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "17",
+        "identifier": [
+          "2024E2E..0017.0017E"
+        ],
+        "volume": "0017"
+      },
+      {
+        "bibcode": "2024E2E..0018.0018E",
+        "title": [
+          "E2E Result 18"
+        ],
+        "author": [
+          "Author 18, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 18,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.18"
+        ],
+        "esources": [],
+        "page": "0018",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "18",
+        "identifier": [
+          "2024E2E..0018.0018E"
+        ],
+        "volume": "0018"
+      },
+      {
+        "bibcode": "2024E2E..0019.0019E",
+        "title": [
+          "E2E Result 19"
+        ],
+        "author": [
+          "Author 19, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 19,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.19"
+        ],
+        "esources": [],
+        "page": "0019",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "19",
+        "identifier": [
+          "2024E2E..0019.0019E"
+        ],
+        "volume": "0019"
+      },
+      {
+        "bibcode": "2024E2E..0020.0020E",
+        "title": [
+          "E2E Result 20"
+        ],
+        "author": [
+          "Author 20, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 20,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.20"
+        ],
+        "esources": [],
+        "page": "0020",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "20",
+        "identifier": [
+          "2024E2E..0020.0020E"
+        ],
+        "volume": "0020"
+      },
+      {
+        "bibcode": "2024E2E..0021.0021E",
+        "title": [
+          "E2E Result 21"
+        ],
+        "author": [
+          "Author 21, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 21,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.21"
+        ],
+        "esources": [],
+        "page": "0021",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "21",
+        "identifier": [
+          "2024E2E..0021.0021E"
+        ],
+        "volume": "0021"
+      },
+      {
+        "bibcode": "2024E2E..0022.0022E",
+        "title": [
+          "E2E Result 22"
+        ],
+        "author": [
+          "Author 22, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 22,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.22"
+        ],
+        "esources": [],
+        "page": "0022",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "22",
+        "identifier": [
+          "2024E2E..0022.0022E"
+        ],
+        "volume": "0022"
+      },
+      {
+        "bibcode": "2024E2E..0023.0023E",
+        "title": [
+          "E2E Result 23"
+        ],
+        "author": [
+          "Author 23, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 23,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.23"
+        ],
+        "esources": [],
+        "page": "0023",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "23",
+        "identifier": [
+          "2024E2E..0023.0023E"
+        ],
+        "volume": "0023"
+      },
+      {
+        "bibcode": "2024E2E..0024.0024E",
+        "title": [
+          "E2E Result 24"
+        ],
+        "author": [
+          "Author 24, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 24,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.24"
+        ],
+        "esources": [],
+        "page": "0024",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "24",
+        "identifier": [
+          "2024E2E..0024.0024E"
+        ],
+        "volume": "0024"
+      },
+      {
+        "bibcode": "2024E2E..0025.0025E",
+        "title": [
+          "E2E Result 25"
+        ],
+        "author": [
+          "Author 25, A."
+        ],
+        "author_count": 1,
+        "pubdate": "2024-01-00",
+        "bibstem": [
+          "E2E"
+        ],
+        "citation_count": 25,
+        "citation_count_norm": 0,
+        "credit": [],
+        "doi": [
+          "10.0000/e2e.25"
+        ],
+        "esources": [],
+        "page": "0025",
+        "property": [],
+        "pub": "E2E Journal",
+        "reference_count": 0,
+        "data": [],
+        "id": "25",
+        "identifier": [
+          "2024E2E..0025.0025E"
+        ],
+        "volume": "0025"
+      }
+    ]
+  }
+}

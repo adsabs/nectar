@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/no-require-imports -- CommonJS Node script, run directly by node in the stub container */
 const express = require('express');
+const searchResultsFixture = require('./fixtures/search-results.json');
+const searchEmptyFixture = require('./fixtures/search-empty.json');
 
 const { buildSearchResponse, EMPTY_SEARCH_RESPONSE } = require('./search-docs');
 
@@ -215,21 +216,55 @@ app.get('/accounts/verify/:token', (req, res) => {
 });
 
 app.get(['/search/query', '/v1/search/query'], (req, res) => {
+  const scenario = req.headers['x-test-search-scenario'] || req.headers['x-test-scenario'];
   const isFacetRequest = Object.keys(req.query).some((key) => key.startsWith('facet') || key === 'json.facet');
 
-  calls.push({ endpoint: '/search/query', rows: req.query.rows, timestamp: Date.now() });
+  const requested = Number.parseInt(req.query.rows, 10);
+  const rows = Number.isInteger(requested) ? Math.min(Math.max(requested, 0), MAX_SEARCH_ROWS) : DEFAULT_SEARCH_ROWS;
+  const parsedStart = Number.parseInt(req.query.start, 10);
+  const start = Number.isInteger(parsedStart) ? parsedStart : 0;
+
+  calls.push({
+    endpoint: '/search/query',
+    scenario,
+    start,
+    rows,
+    timestamp: Date.now(),
+  });
+
+  console.log(`[STUB] Search called with scenario: ${scenario || 'default'}, start=${start}, rows=${rows}`);
 
   if (isFacetRequest) {
     return res.status(200).json(EMPTY_SEARCH_RESPONSE);
   }
 
-  const requested = Number.parseInt(req.query.rows, 10);
-  const rows = Number.isInteger(requested) ? Math.min(Math.max(requested, 0), MAX_SEARCH_ROWS) : DEFAULT_SEARCH_ROWS;
-  const start = Number.parseInt(req.query.start, 10);
+  if (scenario === 'search-error') {
+    return res.status(500).send('Server Error');
+  }
 
-  console.log(`[STUB] Search query called with rows: ${rows}`);
+  if (scenario === 'search-empty') {
+    return res.status(200).json(searchEmptyFixture);
+  }
 
-  return res.status(200).json(buildSearchResponse(rows, Number.isInteger(start) ? start : 0));
+  if (scenario === 'search-results') {
+    return res.status(200).json({
+      ...searchResultsFixture,
+      response: {
+        ...searchResultsFixture.response,
+        docs: searchResultsFixture.response.docs.slice(start, start + rows),
+      },
+    });
+  }
+
+  return res.status(200).json(buildSearchResponse(rows, start));
+});
+
+app.get('/vault/configuration/site_wide_message', (req, res) => {
+  res.status(200).json('');
+});
+
+app.get('/vault/user-data', (req, res) => {
+  res.status(200).json({});
 });
 
 app.get('/__test__/calls', (req, res) => {
@@ -259,6 +294,9 @@ app.listen(PORT, () => {
   console.log('  - GET  /search/query');
   console.log('  - POST /accounts/user/login');
   console.log('  - GET  /accounts/verify/:token');
+  console.log('  - GET  /search/query');
+  console.log('  - GET  /vault/configuration/site_wide_message');
+  console.log('  - GET  /vault/user-data');
   console.log('  - ALL  /link_gateway/*');
   console.log('  - GET  /__test__/calls');
   console.log('  - POST /__test__/reset');
