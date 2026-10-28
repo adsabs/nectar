@@ -192,6 +192,10 @@ export const ClassicForm = (props: IClassicFormProps) => {
           </FormControl>
         </Stack>
 
+        <FormControl>
+          <Button type="submit">Search</Button>
+        </FormControl>
+
         {/* Publication dates */}
         <Stack
           direction={['column', 'row']}
