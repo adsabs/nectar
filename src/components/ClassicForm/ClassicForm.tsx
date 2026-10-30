@@ -7,6 +7,7 @@ import {
   Checkbox,
   CheckboxGroup,
   Code,
+  Divider,
   Flex,
   FormControl,
   FormHelperText,
@@ -25,12 +26,13 @@ import {
 } from '@chakra-ui/react';
 import { CalendarIcon, ExternalLinkIcon, InfoOutlineIcon } from '@chakra-ui/icons';
 
+import { useColorModeColors } from '@/lib/useColorModeColors';
 import { useErrorMessage } from '@/lib/useErrorMessage';
 import { useIsClient } from '@/lib/useIsClient';
 import { useRouter } from 'next/router';
 import PT from 'prop-types';
 import { FormEventHandler, useMemo } from 'react';
-import { Control, Controller, useForm, UseFormRegisterReturn, useWatch } from 'react-hook-form';
+import { Control, Controller, useForm, useWatch } from 'react-hook-form';
 import { getSearchQuery, getSearchQueryParams } from './helpers';
 import { IClassicFormState, IRawClassicFormState } from './types';
 import { useStore } from '@/store';
@@ -76,8 +78,9 @@ export const ClassicForm = (props: IClassicFormProps) => {
   const [queryError, setQueryError] = useErrorMessage<string>(props.ssrError);
   const mode = useStore((state) => state.mode);
   const setMode = useStore((state) => state.setMode);
+  const { border, lightText } = useColorModeColors();
 
-  const { register, control, handleSubmit } = useForm<IClassicFormState>({
+  const { register, control, handleSubmit, reset } = useForm<IClassicFormState>({
     defaultValues: defaultClassicFormState,
   });
 
@@ -113,22 +116,28 @@ export const ClassicForm = (props: IClassicFormProps) => {
             <FormLabel as="legend" m={0} mr={4}>
               Collection
             </FormLabel>
-            <CheckboxGroup defaultValue={['astronomy', 'physics']}>
-              <HStack spacing="6" wrap="wrap">
-                <Checkbox value="astronomy" {...register('limit')}>
-                  Astronomy
-                </Checkbox>
-                <Checkbox value="physics" {...register('limit')}>
-                  Physics
-                </Checkbox>
-                <Checkbox value="general" {...register('limit')}>
-                  General
-                </Checkbox>
-                <Checkbox value="earthscience" {...register('limit')}>
-                  Earth Science
-                </Checkbox>
-              </HStack>
-            </CheckboxGroup>
+            <Controller
+              name="limit"
+              control={control}
+              render={({ field }) => (
+                <CheckboxGroup value={field.value} onChange={field.onChange}>
+                  <HStack spacing="6" wrap="wrap">
+                    <Checkbox value="astronomy" name="limit" onBlur={field.onBlur}>
+                      Astronomy
+                    </Checkbox>
+                    <Checkbox value="physics" name="limit" onBlur={field.onBlur}>
+                      Physics
+                    </Checkbox>
+                    <Checkbox value="general" name="limit" onBlur={field.onBlur}>
+                      General
+                    </Checkbox>
+                    <Checkbox value="earthscience" name="limit" onBlur={field.onBlur}>
+                      Earth Science
+                    </Checkbox>
+                  </HStack>
+                </CheckboxGroup>
+              )}
+            />
           </Flex>
         </FormControl>
 
@@ -158,7 +167,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
                   </Tooltip>
                 </SimpleLink>
               </HStack>
-              <LogicRadios variant="andor" radioProps={register('logic_author')} />
+              <LogicRadios variant="andor" control={control} name="logic_author" />
             </Flex>
             <Textarea
               {...register('author')}
@@ -180,7 +189,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
                   </Tooltip>
                 </FormLabel>
               </HStack>
-              <LogicRadios variant="andor" radioProps={register('logic_object')} />
+              <LogicRadios variant="andor" control={control} name="logic_object" />
             </Flex>
             <Textarea
               {...register('object')}
@@ -191,6 +200,18 @@ export const ClassicForm = (props: IClassicFormProps) => {
             />
           </FormControl>
         </Stack>
+
+        <FormControl>
+          <Button type="submit">Search</Button>
+        </FormControl>
+
+        <HStack spacing={3}>
+          <Divider flex={1} borderColor={border} />
+          <Text flexShrink={0} fontSize="xs" color={lightText} whiteSpace="nowrap">
+            Additional search options
+          </Text>
+          <Divider flex={1} borderColor={border} />
+        </HStack>
 
         {/* Publication dates */}
         <Stack
@@ -226,7 +247,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
         <FormControl>
           <Flex direction="row" justifyContent="space-between">
             <FormLabel>Title</FormLabel>
-            <LogicRadios variant="all" radioProps={register('logic_title')} />
+            <LogicRadios variant="all" control={control} name="logic_title" />
           </Flex>
           <Input {...register('title')} />
         </FormControl>
@@ -235,7 +256,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
         <FormControl>
           <Flex direction="row" justifyContent="space-between">
             <FormLabel>Abstract / Keywords</FormLabel>
-            <LogicRadios variant="all" radioProps={register('logic_abstract_keywords')} />
+            <LogicRadios variant="all" control={control} name="logic_abstract_keywords" />
           </Flex>
           <Input {...register('abstract_keywords')} />
         </FormControl>
@@ -243,16 +264,22 @@ export const ClassicForm = (props: IClassicFormProps) => {
         {/* Property */}
         <FormControl as="fieldset">
           <FormLabel as="legend">Property</FormLabel>
-          <CheckboxGroup>
-            <HStack spacing={4}>
-              <Checkbox fontWeight="bold" value="refereed-only" {...register('property')}>
-                Refereed only
-              </Checkbox>
-              <Checkbox fontWeight="bold" value="articles-only" {...register('property')}>
-                Articles only
-              </Checkbox>
-            </HStack>
-          </CheckboxGroup>
+          <Controller
+            name="property"
+            control={control}
+            render={({ field }) => (
+              <CheckboxGroup value={field.value} onChange={field.onChange}>
+                <HStack spacing={4}>
+                  <Checkbox fontWeight="bold" value="refereed-only" name="property" onBlur={field.onBlur}>
+                    Refereed only
+                  </Checkbox>
+                  <Checkbox fontWeight="bold" value="articles-only" name="property" onBlur={field.onBlur}>
+                    Articles only
+                  </Checkbox>
+                </HStack>
+              </CheckboxGroup>
+            )}
+          />
         </FormControl>
 
         {/* BibstemPicker */}
@@ -264,7 +291,12 @@ export const ClassicForm = (props: IClassicFormProps) => {
               <FormControl>
                 <VisuallyHidden id="bibstem">Publications</VisuallyHidden>
                 <FormLabel htmlFor="bibstem-picker">Publications</FormLabel>
-                <BibstemPicker isMultiple onChange={(items) => field.onChange(items)} id="bibstem-picker" />
+                <BibstemPicker
+                  isMultiple
+                  value={field.value}
+                  onChange={(items) => field.onChange(items)}
+                  id="bibstem-picker"
+                />
               </FormControl>
             )}
           />
@@ -308,9 +340,12 @@ export const ClassicForm = (props: IClassicFormProps) => {
           </Alert>
         )}
 
-        <FormControl>
+        <Stack direction="row">
           <Button type="submit">Search</Button>
-        </FormControl>
+          <Button type="reset" variant="outline" onClick={() => reset(defaultClassicFormState)}>
+            Reset
+          </Button>
+        </Stack>
 
         <CurrentQuery control={control} />
       </Stack>
@@ -320,24 +355,36 @@ export const ClassicForm = (props: IClassicFormProps) => {
 
 ClassicForm.propTypes = propTypes;
 
-const LogicRadios = (props: { variant: 'andor' | 'all'; radioProps: UseFormRegisterReturn }) => {
-  const { variant, radioProps } = props;
+type LogicFieldName = 'logic_author' | 'logic_object' | 'logic_title' | 'logic_abstract_keywords';
+
+const LogicRadios = (props: {
+  variant: 'andor' | 'all';
+  control: Control<IClassicFormState>;
+  name: LogicFieldName;
+}) => {
+  const { variant, control, name } = props;
   return (
-    <RadioGroup defaultValue="and" aria-label="logical selector">
-      <Stack spacing={4} direction="row">
-        <Radio size="sm" {...radioProps} value="and">
-          And
-        </Radio>
-        <Radio size="sm" {...radioProps} value="or">
-          Or
-        </Radio>
-        {variant === 'all' && (
-          <Radio size="sm" {...radioProps} value="boolean">
-            Boolean
-          </Radio>
-        )}
-      </Stack>
-    </RadioGroup>
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <RadioGroup value={field.value} onChange={field.onChange} aria-label="logical selector">
+          <Stack spacing={4} direction="row">
+            <Radio size="sm" name={name} onBlur={field.onBlur} value="and">
+              And
+            </Radio>
+            <Radio size="sm" name={name} onBlur={field.onBlur} value="or">
+              Or
+            </Radio>
+            {variant === 'all' && (
+              <Radio size="sm" name={name} onBlur={field.onBlur} value="boolean">
+                Boolean
+              </Radio>
+            )}
+          </Stack>
+        </RadioGroup>
+      )}
+    />
   );
 };
 
