@@ -46,6 +46,7 @@ export const SearchModifierBar = ({ onModeChange, onNavigate, isDisabled, ...box
           rightIcon={<ChevronDownIcon />}
           aria-label={`Search mode: ${currentOption.label}`}
           isDisabled={isDisabled}
+          data-tour="search-mode-dropdown"
         >
           <Text as="span" fontWeight="normal" mr={1} fontSize="sm">
             Search mode:
