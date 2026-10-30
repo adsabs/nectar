@@ -7,9 +7,9 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 PORT=8000 next dev | pino-pretty --colorizeObjects=false -S",
-    "dev:mocks": "NODE_TLS_REJECT_UNAUTHORIZED=0 NEXT_PUBLIC_API_MOCKING=enabled PORT=8000 next dev | pino-pretty --colorizeObjects=false -S",
-    "dev:e2e": "NODE_TLS_REJECT_UNAUTHORIZED=0 API_HOST_SERVER=http://127.0.0.1:18080 BASE_URL=http://127.0.0.1:18080 PORT=8000 next dev | pino-pretty --colorizeObjects=false -S",
+    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 PORT=${PORT:-8000} next dev | pino-pretty --colorizeObjects=false -S",
+    "dev:mocks": "NODE_TLS_REJECT_UNAUTHORIZED=0 NEXT_PUBLIC_API_MOCKING=enabled PORT=${PORT:-8000} next dev | pino-pretty --colorizeObjects=false -S",
+    "dev:e2e": "NODE_TLS_REJECT_UNAUTHORIZED=0 API_HOST_SERVER=http://127.0.0.1:18080 BASE_URL=http://127.0.0.1:18080 PORT=${PORT:-8000} next dev | pino-pretty --colorizeObjects=false -S",
     "stub": "node e2e-stub/server.js",
     "build": "./scripts/build-prod.sh",
     "build:local": "./scripts/build-local.sh",
