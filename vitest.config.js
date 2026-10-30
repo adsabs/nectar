@@ -7,7 +7,7 @@ export default defineConfig({
   cacheDir: '.vitest',
   test: {
     environment: 'jsdom',
-    exclude: [...defaultExclude, '**/e2e/**', '**/.worktrees/**'],
+    exclude: [...defaultExclude, '**/e2e/**', '**/.worktrees/**', '**/dist/**'],
     setupFiles: ['./vitest-setup.ts'],
     isolate: true,
     maxConcurrency: 16,

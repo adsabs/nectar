@@ -56,23 +56,27 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
 
   log.debug({
     msg: 'Injecting session data into client props',
-    userData,
     isValidUserData: isUserData(userData),
+    isBotSession: ctx.req.session.bot === true,
+    username: userData?.username,
+    anonymous: userData?.anonymous,
     resolvedMode,
     cookieMode,
   });
+
+  const clientUserData = ctx.req.session.bot ? undefined : userData;
 
   const qc = new QueryClient();
   if (prevResult?.props?.dehydratedState) {
     hydrate(qc, prevResult.props.dehydratedState);
   }
-  qc.setQueryData(['user'], userData);
+  qc.setQueryData(['user'], clientUserData);
 
   return Promise.resolve({
     props: {
       dehydratedAppState: {
         ...incomingState,
-        user: isUserData(userData) ? userData : {},
+        user: isUserData(clientUserData) ? clientUserData : {},
         notification: getNotification(ctx.query?.notify as NotificationId),
         ...(resolvedMode && { mode: resolvedMode }),
         ...(cookieSearchMode && { searchMode: cookieSearchMode }),
