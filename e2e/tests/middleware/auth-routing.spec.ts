@@ -113,19 +113,28 @@ test.describe('Auth Routing (Suite C)', () => {
     loginPage.urlContains('q=test');
   });
 
-  test('C7: Login form falls back to reload when next param is invalid', async ({ loginPage }) => {
+  test('C7: Login form falls back to reload when next param is invalid', async ({ page, loginPage, nectarUrl }) => {
     await loginPage.addSessionCookie('anonymous-session');
     await loginPage.setScenarioHeader('bootstrap-anonymous');
 
     await loginPage.gotoWithNext('https://evil.example');
 
+    const loginUrl = page.url();
+
     await loginPage.fillCredentials('test@example.com', 'password123');
     await loginPage.mockLoginSuccess();
-    await loginPage.setScenarioHeader('bootstrap-authenticated');
+
+    const reloadRequest = page.waitForRequest(
+      (request) => request.isNavigationRequest() && request.url() === loginUrl,
+      { timeout: 10_000 },
+    );
     await loginPage.submit();
 
-    await loginPage.waitForLoadState('networkidle');
+    const response = await (await reloadRequest).response();
+    expect(response?.status()).toBe(200);
 
-    loginPage.urlMatches(/\/(user\/account\/login|\?notify=account-login-success)?$/);
+    const url = new URL(page.url());
+    expect(url.origin).toBe(nectarUrl);
+    expect(url.pathname).toBe('/user/account/login');
   });
 });
