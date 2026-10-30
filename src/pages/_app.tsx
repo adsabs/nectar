@@ -220,7 +220,7 @@ const DefaultMeta = () => {
       <meta name="title" content="Science Explorer" />
       <meta
         name="description"
-        content="Science Explorer is a digital library for astronomy, physics, and earth science, providing access to 20+ million records and advanced research tools."
+        content="Science Explorer is a comprehensive search engine and discovery platform that connects scientific literature to datasets, software, and products for researchers across the Earth and space sciences."
       />
       <meta
         name="keywords"
