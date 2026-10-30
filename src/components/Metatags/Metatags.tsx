@@ -64,7 +64,7 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
       <meta property="og:title" content={title} data-highwire="true" />
 
-      <meta property="og:site_name" content="NASA/ADS" data-highwire="true" />
+      <meta property="og:site_name" content="Science Explorer (SciX)" data-highwire="true" />
 
       <meta property="og:description" content={doc.abstract} data-highwire="true" />
 
@@ -178,13 +178,13 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
       <meta name="twitter:title" content={title} data-highwire="true" />
 
-      <meta name="twitter:site" content="@adsabs" data-highwire="true" />
+      <meta name="twitter:site" content="@scixcommunity" data-highwire="true" />
 
-      <meta name="twitter:domain" content="NASA/ADS" data-highwire="true" />
+      <meta name="twitter:domain" content="Science Explorer (SciX)" data-highwire="true" />
 
       <meta name="twitter:image:src" content={logo} data-highwire="true" />
 
-      <meta name="twitter:creator" content="@adsabs" data-highwire="true" />
+      <meta name="twitter:creator" content="@scixcommunity" data-highwire="true" />
     </>
   );
 };
