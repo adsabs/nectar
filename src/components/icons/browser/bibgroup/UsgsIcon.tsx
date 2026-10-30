@@ -18,4 +18,4 @@ const icon = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
     </g>
   </svg>
 );
-export const USGSIcon = forwardRef(icon);
+export const UsgsIcon = forwardRef(icon);
