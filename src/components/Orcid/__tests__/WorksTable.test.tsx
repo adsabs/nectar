@@ -1,6 +1,7 @@
-import { expect, test, TestContext } from 'vitest';
+import { afterEach, expect, test, TestContext, vi } from 'vitest';
 import { createServerListenerMocks, render, urls } from '@/test-utils';
 import { WorksTable } from '@/components/Orcid';
+import { getUpdated } from '@/components/Orcid/WorksTable';
 import { rest } from 'msw';
 
 import { equals } from 'ramda';
@@ -9,6 +10,31 @@ import orcidProfileResponse from '@/mocks/responses/orcid/orcid-profile_full.jso
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
 import { ApiTargets } from '@/api/models';
 import { IADSApiSearchResponse } from '@/api/search/types';
+
+const ORCID_UPDATED = '2024-03-15T12:00:00+00:00';
+const EN_US_DATETIME = /^[A-Z][a-z]{2} \d{1,2}, \d{4}, \d{2}:\d{2}:\d{2}$/;
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+test('Updated cell renders its relative label in English', () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2024-03-20T12:00:00+00:00'));
+
+  const { container } = render(<>{getUpdated(ORCID_UPDATED)}</>);
+
+  expect(container.textContent.trim()).toBe('5 days ago');
+});
+
+test('Updated cell renders its absolute tooltip in English', async () => {
+  const { user, container, findByRole } = render(<>{getUpdated(ORCID_UPDATED)}</>);
+
+  await user.hover(container.querySelector('span'));
+  const tooltip = await findByRole('tooltip');
+
+  expect(tooltip.textContent.trim()).toMatch(EN_US_DATETIME);
+});
 
 test.skip('triggers call to profile on mount', async ({ server }: TestContext) => {
   const { onRequest } = createServerListenerMocks(server);

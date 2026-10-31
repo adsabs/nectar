@@ -1,5 +1,5 @@
 import { Box, Tooltip } from '@chakra-ui/react';
-import { intlFormat, intlFormatDistance } from 'date-fns';
+import { formatAbsoluteDateTime, formatRelativeDate } from '@/utils/common/dates';
 
 export interface TimeSinceProps {
   date: string | null | undefined;
@@ -28,19 +28,9 @@ export const TimeSince = ({ date }: TimeSinceProps) => {
     return null;
   }
 
-  const formatted = intlFormatDistance(dateStr, new Date());
+  const formatted = formatRelativeDate(dateStr);
   return (
-    <Tooltip
-      label={intlFormat(dateStr, {
-        hour12: false,
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      })}
-    >
+    <Tooltip label={formatAbsoluteDateTime(dateStr)}>
       <Box tabIndex={-1}>{formatted}</Box>
     </Tooltip>
   );
