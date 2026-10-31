@@ -5,6 +5,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Portal,
   Tooltip,
   useClipboard,
   useDisclosure,
@@ -195,13 +196,15 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
           />
         </Tooltip>
         {fullSourceItems.length > 0 && (
-          <MenuList>
-            {fullSourceItems.map((item) => (
-              <MenuItem key={item.id} data-id={item.id} onClick={handleResourceClick}>
-                {item.label}
-              </MenuItem>
-            ))}
-          </MenuList>
+          <Portal>
+            <MenuList>
+              {fullSourceItems.map((item) => (
+                <MenuItem key={item.id} data-id={item.id} onClick={handleResourceClick}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Portal>
         )}
       </Menu>
 
@@ -218,13 +221,15 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
           />
         </Tooltip>
         {referenceItems.length > 0 && (
-          <MenuList>
-            {referenceItems.map((item) => (
-              <MenuItem key={item.id} data-id={item.id} onClick={handleReferenceClick}>
-                {item.label}
-              </MenuItem>
-            ))}
-          </MenuList>
+          <Portal>
+            <MenuList>
+              {referenceItems.map((item) => (
+                <MenuItem key={item.id} data-id={item.id} onClick={handleReferenceClick}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Portal>
         )}
       </Menu>
 
@@ -241,13 +246,15 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
           />
         </Tooltip>
         {dataProductItems.length > 0 && (
-          <MenuList>
-            {dataProductItems.map((item) => (
-              <MenuItem key={item.id} data-id={item.id} onClick={handleDataProductClick}>
-                {item.label}
-              </MenuItem>
-            ))}
-          </MenuList>
+          <Portal>
+            <MenuList>
+              {dataProductItems.map((item) => (
+                <MenuItem key={item.id} data-id={item.id} onClick={handleDataProductClick}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Portal>
         )}
       </Menu>
 
@@ -264,10 +271,12 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
           variant="link"
           size="sm"
         />
-        <MenuList>
-          <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
-          <CopyMenuItem text={citation} onCopyComplete={handleCitationCopied} label="Copy Citation" asHtml />
-        </MenuList>
+        <Portal>
+          <MenuList>
+            <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
+            <CopyMenuItem text={citation} onCopyComplete={handleCitationCopied} label="Copy Citation" asHtml />
+          </MenuList>
+        </Portal>
       </Menu>
     </Flex>
   );
