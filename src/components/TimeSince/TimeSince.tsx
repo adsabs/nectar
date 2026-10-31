@@ -1,5 +1,5 @@
 import { Box, Tooltip } from '@chakra-ui/react';
-import { formatAbsoluteDateTime, formatRelativeDate } from '@/utils/common/formatters';
+import { formatAbsoluteDateTime, formatRelativeDate } from '@/utils/common/dates';
 
 export interface TimeSinceProps {
   date: string | null | undefined;

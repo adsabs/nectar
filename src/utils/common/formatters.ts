@@ -1,28 +1,8 @@
 import { isArray, isNonEmptyString, isNotString } from 'ramda-adjunct';
 import { head, pipe, when } from 'ramda';
 import DOMPurify from 'isomorphic-dompurify';
-import { format, intlFormat, intlFormatDistance, isValid, parseISO } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { logger } from '@/logger';
-
-export const DATE_LOCALE = 'en-US';
-
-export const formatRelativeDate = (date: Date, baseDate: Date = new Date()): string =>
-  intlFormatDistance(date, baseDate, { locale: DATE_LOCALE });
-
-export const formatAbsoluteDateTime = (date: Date): string =>
-  intlFormat(
-    date,
-    {
-      hour12: false,
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    },
-    { locale: DATE_LOCALE },
-  );
 
 /**
  * Truncates a decimal number to a specified number of decimal places without rounding.

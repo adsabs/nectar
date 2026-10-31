@@ -35,7 +35,7 @@ import {
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import { isNilOrEmpty, isObject } from 'ramda-adjunct';
 import { BRAND_NAME_FULL, BRAND_NAME_SHORT, ORCID_ADS_SOURCE_NAME } from '@/config';
-import { formatAbsoluteDateTime, formatRelativeDate } from '@/utils/common/formatters';
+import { formatAbsoluteDateTime, formatRelativeDate } from '@/utils/common/dates';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useOrcidProfile } from '@/lib/orcid/useOrcidProfile';

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { intlFormat, intlFormatDistance } from 'date-fns';
-import { formatAbsoluteDateTime, formatRelativeDate } from '../formatters';
+import { formatAbsoluteDateTime, formatRelativeDate } from '../dates';
 
 vi.mock('date-fns', async (importOriginal) => {
   const actual = await importOriginal<typeof import('date-fns')>();
