@@ -8,7 +8,7 @@ WORKDIR /app
 # Install express
 RUN npm install express
 
-COPY server.js .
+COPY server.js search-docs.js ./
 
 EXPOSE 18080
 

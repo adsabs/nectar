@@ -40,6 +40,18 @@ const AbstractPreview = dynamic<IAbstractPreviewProps>(
     })),
   { ssr: false },
 );
+
+const ROW_CONTAINMENT_SX = {
+  contentVisibility: 'auto',
+  containIntrinsicSize: 'auto 327px',
+  '@media (min-width: 768px)': {
+    containIntrinsicSize: 'auto 144px',
+  },
+  '@media print': {
+    contentVisibility: 'visible',
+  },
+};
+
 export interface IItemProps {
   doc: IDocsEntity;
   index: number;
@@ -133,7 +145,16 @@ export const Item = (props: IItemProps): ReactElement => {
   const divider = useBreakpointValue({ base: undefined, md: <Text px="2">·</Text> });
 
   return (
-    <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md" id={bibcode}>
+    <Flex
+      direction="row"
+      as="article"
+      border="1px"
+      borderColor={colors.border}
+      mb={1}
+      borderRadius="md"
+      id={bibcode}
+      sx={ROW_CONTAINMENT_SX}
+    >
       <Flex
         as={HideOnPrint}
         direction="row"

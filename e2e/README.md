@@ -87,12 +87,39 @@ The CI environment matches the Docker setup exactly, so `pnpm test:e2e:docker` i
 ```
 e2e/
 ├── tests/              # Test files
-│   └── middleware/     # Middleware integration tests
+│   ├── middleware/     # Middleware integration tests
+│   ├── search/         # Search result list tests
+│   └── smoke/          # Navigation smoke tests
 ├── fixtures/           # Test helpers and utilities
 ├── docker-compose.yml  # Docker orchestration
 ├── playwright.config.ts
 └── tsconfig.json       # Isolated TypeScript config
 ```
+
+## Visual baselines
+
+`tests/search/result-item.spec.ts` compares committed PNG baselines, gated
+behind `E2E_VISUAL=1`, which `docker-compose.yml` sets for its pinned
+`mcr.microsoft.com/playwright` container. Host runs skip them because font
+and anti-aliasing differences make them unusable outside that container.
+
+Two pins must move together: the Playwright image tag in `docker-compose.yml`
+and `@playwright/test` in the lockfile. Bumping one without the other either
+fails browser resolution or invalidates every baseline.
+
+Regenerate after an intentional UI change, with the stack already up:
+
+```bash
+docker compose -f e2e/docker-compose.yml up -d stub nectar
+docker compose -f e2e/docker-compose.yml run --rm tests \
+  sh -c "cd /app && node_modules/.bin/playwright test \
+    --config e2e/playwright.config.ts \
+    e2e/tests/search/result-item.spec.ts \
+    --grep 'renders unchanged' --update-snapshots"
+```
+
+Inspect the regenerated PNGs before committing. A baseline that silently lost
+the thing it was meant to capture still passes.
 
 ## Writing Tests
 

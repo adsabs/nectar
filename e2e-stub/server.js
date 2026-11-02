@@ -1,7 +1,12 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- CommonJS Node script, run directly by node in the stub container */
 const express = require('express');
+
+const { buildSearchResponse, EMPTY_SEARCH_RESPONSE } = require('./search-docs');
 
 const app = express();
 const PORT = 18080;
+const DEFAULT_SEARCH_ROWS = 10;
+const MAX_SEARCH_ROWS = 500;
 
 const calls = [];
 
@@ -209,6 +214,24 @@ app.get('/accounts/verify/:token', (req, res) => {
     .json({ message: 'success', email: 'verified@example.com' });
 });
 
+app.get(['/search/query', '/v1/search/query'], (req, res) => {
+  const isFacetRequest = Object.keys(req.query).some((key) => key.startsWith('facet') || key === 'json.facet');
+
+  calls.push({ endpoint: '/search/query', rows: req.query.rows, timestamp: Date.now() });
+
+  if (isFacetRequest) {
+    return res.status(200).json(EMPTY_SEARCH_RESPONSE);
+  }
+
+  const requested = Number.parseInt(req.query.rows, 10);
+  const rows = Number.isInteger(requested) ? Math.min(Math.max(requested, 0), MAX_SEARCH_ROWS) : DEFAULT_SEARCH_ROWS;
+  const start = Number.parseInt(req.query.start, 10);
+
+  console.log(`[STUB] Search query called with rows: ${rows}`);
+
+  return res.status(200).json(buildSearchResponse(rows, Number.isInteger(start) ? start : 0));
+});
+
 app.get('/__test__/calls', (req, res) => {
   res.json({ calls, count: calls.length });
 });
@@ -233,6 +256,7 @@ app.listen(PORT, () => {
   console.log(`[STUB] E2E stub backend listening on http://127.0.0.1:${PORT}`);
   console.log('[STUB] Endpoints:');
   console.log('  - GET  /accounts/bootstrap');
+  console.log('  - GET  /search/query');
   console.log('  - POST /accounts/user/login');
   console.log('  - GET  /accounts/verify/:token');
   console.log('  - ALL  /link_gateway/*');
