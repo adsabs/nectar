@@ -33,9 +33,9 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
-import { intlFormat, intlFormatDistance } from 'date-fns';
 import { isNilOrEmpty, isObject } from 'ramda-adjunct';
 import { BRAND_NAME_FULL, BRAND_NAME_SHORT, ORCID_ADS_SOURCE_NAME } from '@/config';
+import { formatAbsoluteDateTime, formatRelativeDate } from '@/utils/common/dates';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useOrcidProfile } from '@/lib/orcid/useOrcidProfile';
@@ -308,24 +308,10 @@ const getTitle = (work: IOrcidProfileEntry): ReactElement => {
   return <Text>{work.title}</Text>;
 };
 
-const getUpdated = (date: string) => {
+export const getUpdated = (date: string) => {
   const dateStr = new Date(date);
-  const formatted = intlFormatDistance(dateStr, new Date());
-  return (
-    <Tooltip
-      label={intlFormat(dateStr, {
-        hour12: false,
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      })}
-    >
-      {formatted}
-    </Tooltip>
-  );
+  const formatted = formatRelativeDate(dateStr);
+  return <Tooltip label={formatAbsoluteDateTime(dateStr)}>{formatted}</Tooltip>;
 };
 
 const getSource = (sources: IOrcidProfileEntry['source']) => {
