@@ -658,11 +658,15 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
     {
       id: 'full-text-sources',
       title: isAstrophysics
-        ? '<span class="tour-title">Full Text Sources<span class="tour-badge-old">Same as ADS</span></span>'
-        : 'Full Text Sources',
-      text: 'Links out to full text versions of this item, possibly including publisher records, preprints, scans of historical materials, or links via your institution’s library.',
+        ? '<span class="tour-title">Full Text & Resources<span class="tour-badge-old">Same as ADS</span></span>'
+        : 'Full Text & Resources',
+      text: `Links out to full text versions of this item, possibly including publisher records, preprints, scans of historical materials, or links via your institution’s library.<br/><br/>${
+        isAstrophysics
+          ? 'Data Products like on ADS plus new Related Materials provide external links to data, software, and other resources either as external links or records within SciX.'
+          : 'External links to related data products and software, or to related records within SciX.'
+      }`,
       attachTo: {
-        element: isMobile ? '[data-tour="full-text-sources-mobile"]' : '[data-tour="full-text-sources-desktop"]',
+        element: isMobile ? '[data-tour="fulltext-resources-mobile"]' : '[data-tour="fulltext-resources-desktop"]',
         on: isMobile ? 'bottom' : 'right',
       },
       floatingUIOptions: {
@@ -678,44 +682,8 @@ export const getAbstractSteps = (isMobile: boolean, isAstrophysics = false) => {
       ],
       showOn() {
         return (
-          !!document.querySelector('[data-tour="full-text-sources-mobile"]') ||
-          !!document.querySelector('[data-tour="full-text-sources-desktop"]')
-        );
-      },
-    },
-    {
-      id: 'data-products',
-      title: isAstrophysics
-        ? '<span class="tour-title">Data Products, Related Materials<span class="tour-badge-old">Same as ADS</span></span>'
-        : 'Data Products, Related Materials',
-      text: isAstrophysics
-        ? 'Data Products like on ADS plus new Related Materials provide external links to data, software, and other resources either as external links or records within SciX.'
-        : 'External links to related data products and software, or to related records within SciX.',
-      attachTo: {
-        element: isMobile ? '[data-tour="data-products-mobile"]' : '[data-tour="data-products-desktop"]',
-        on: isMobile ? 'bottom' : 'right',
-      },
-      floatingUIOptions: {
-        middleware: [offset(10)],
-      },
-      classes: 'tour-step-wide',
-      buttons: [
-        {
-          text: 'Prev',
-          action: function () {
-            this.back();
-          },
-        },
-        {
-          text: 'Next',
-          action: function () {
-            this.next();
-          },
-        },
-      ],
-      showOn() {
-        return !!document.querySelector(
-          isMobile ? '[data-tour="data-products-mobile"]' : '[data-tour="data-products-desktop"]',
+          !!document.querySelector('[data-tour="fulltext-resources-mobile"]') ||
+          !!document.querySelector('[data-tour="fulltext-resources-desktop"]')
         );
       },
     },

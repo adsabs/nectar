@@ -93,9 +93,14 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
     <>
       {style === 'accordion' ? (
         <Box id="resources-container">
-          <Accordion variant="abs-resources" allowMultiple defaultIndex={fullTextResources.length === 0 ? [] : [0]}>
+          <Accordion
+            variant="abs-resources"
+            allowMultiple
+            defaultIndex={fullTextResources.length === 0 ? [] : [0]}
+            data-tour="fulltext-resources-desktop"
+          >
             <AccordionItem isDisabled={fullTextResources.length === 0}>
-              <AccordionButton data-tour="full-text-sources-desktop">
+              <AccordionButton>
                 <Box flex="1" textAlign="left" fontWeight="medium">
                   Full Text Sources
                 </Box>
@@ -106,7 +111,7 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
               </AccordionPanel>
             </AccordionItem>
             <AccordionItem isDisabled={dataProductResources.length === 0}>
-              <AccordionButton data-tour="data-products-desktop">
+              <AccordionButton>
                 <Box flex="1" textAlign="left" fontWeight="medium">
                   Data Products
                 </Box>
@@ -131,7 +136,15 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
         </Box>
       ) : (
         <Box id="resources-container">
-          <HStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
+          <HStack
+            as="section"
+            wrap="wrap"
+            spacing={0.5}
+            columnGap={1}
+            rowGap={1}
+            alignItems="start"
+            data-tour="fulltext-resources-mobile"
+          >
             <FullTextSourceItems resources={fullTextResources} type="menu" />
             <DataProductDropdown dataProducts={dataProductResources} relatedWorks={relatedResources} />
           </HStack>
@@ -155,7 +168,6 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
         as={Button}
         rightIcon={<ChevronDownIcon />}
         isDisabled={dataProducts.length === 0 && relatedWorks.length === 0}
-        data-tour="data-products-mobile"
       >
         Other Resources
       </MenuButton>
