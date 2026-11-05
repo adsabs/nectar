@@ -14,6 +14,18 @@ Sentry.init({
   sendDefaultPii: false,
   enableLogs: true,
 
+  ignoreErrors: [
+    /\b(?:_vwo_code|pintrk|googletag|fbq|ttq|twq|snaptr|_satellite)\b is not defined/,
+    'NS_ERROR_NOT_INITIALIZED',
+  ],
+
+  denyUrls: [
+    /^chrome(?:-extension)?:\/\//,
+    /^moz-extension:\/\//,
+    /^safari-(?:web-)?extension:\/\//,
+    /\.translate\.goog/,
+  ],
+
   // Tag /v1/* API spans with normalized api.domain / api.endpoint for grouping.
   beforeSendSpan: beforeSendApiSpan,
 
