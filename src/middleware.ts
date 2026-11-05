@@ -126,7 +126,23 @@ const loginMiddleware = async (req: NextRequest, res: NextResponse) => {
   if (session.isAuthenticated) {
     const next = req.nextUrl.searchParams.get('next');
     if (next) {
-      const nextUrl = new URL(decodeURIComponent(next), req.nextUrl.origin);
+      let nextUrl: URL;
+      try {
+        nextUrl = new URL(decodeURIComponent(next), req.nextUrl.origin);
+      } catch (error) {
+        log.warn(
+          {
+            err: error,
+            nextParam: next,
+            userId: await getUserLogId(session.token?.username),
+          },
+          'Login - malformed next param rejected',
+        );
+        const url = req.nextUrl.clone();
+        url.searchParams.delete('next');
+        url.pathname = '/';
+        return redirect(url, req, { message: 'account-login-success' });
+      }
       const url = req.nextUrl.clone();
       if (nextUrl.origin !== url.origin) {
         log.warn(

@@ -278,6 +278,34 @@ describe('middleware route integration', () => {
     expect(res.headers.get('location')).toBe('https://example.com/?notify=account-login-success');
   });
 
+  test('login route: redirects authenticated users to / when next param is malformed', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: true,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const req = makeReq('https://example.com/user/account/login?next=%');
+    const res = (await middleware(req)) as NextResponse;
+    expect(res.status).toBe(307);
+    expect(res.headers.get('location')).toBe('https://example.com/?notify=account-login-success');
+  });
+
+  test('login route: redirects authenticated users to the double-encoded next param emitted by the protected-route guard', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: true,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const req = makeReq('https://example.com/user/account/login?next=%252Fuser%252Flibraries');
+    const res = (await middleware(req)) as NextResponse;
+    expect(res.status).toBe(307);
+    expect(res.headers.get('location')).toBe('https://example.com/user/libraries?notify=account-login-success');
+  });
+
   test('login route: redirects authenticated users to / when next param is missing', async () => {
     getIronSessionMock.mockResolvedValue({
       isAuthenticated: true,
