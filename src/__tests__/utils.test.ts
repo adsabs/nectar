@@ -221,6 +221,32 @@ describe('parseQueryFromUrl', () => {
       [`${baseUrl}?q=object:“test”`, {}],
       { q: 'object:"test"', sort: ['score desc', 'date desc'], p: 1 },
     ],
+    [
+      'Case with an encoded percent literal',
+      [`${baseUrl}?q=100%25`, {}],
+      { q: '100%', sort: ['score desc', 'date desc'], p: 1 },
+    ],
+    ['Case with a bare percent', [`${baseUrl}?q=%`, {}], { q: '%', sort: ['score desc', 'date desc'], p: 1 }],
+    [
+      'Case with a truncated percent escape',
+      [`${baseUrl}?q=a%2`, {}],
+      { q: 'a%2', sort: ['score desc', 'date desc'], p: 1 },
+    ],
+    [
+      'Case with a double-encoded escape inside a phrase',
+      [`${baseUrl}?q=title%3A%22a%2520b%22`, {}],
+      { q: 'title:"a%20b"', sort: ['score desc', 'date desc'], p: 1 },
+    ],
+    [
+      'Case with an empty q param',
+      [`${baseUrl}?q=`, {}],
+      { q: APP_DEFAULTS.EMPTY_QUERY, sort: ['score desc', 'date desc'], p: 1 },
+    ],
+    [
+      'Case with percent-encoded unicode',
+      [`${baseUrl}?q=%E4%B8%AD%E6%96%87`, {}],
+      { q: '中文', sort: ['score desc', 'date desc'], p: 1 },
+    ],
   ])('%s', (_, args, expected) => {
     const result = parseQueryFromUrl(...args);
     expect(result).toEqual(expected);
