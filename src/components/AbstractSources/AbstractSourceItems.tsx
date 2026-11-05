@@ -89,12 +89,7 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
     <Box {...boxProps}>
       {type === 'menu' ? (
         <Menu id="full-text-sources">
-          <MenuButton
-            as={Button}
-            rightIcon={<ChevronDownIcon />}
-            isDisabled={resources.length === 0}
-            data-tour="full-text-sources-mobile"
-          >
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon />} isDisabled={resources.length === 0}>
             Full Text Sources
           </MenuButton>
           {resources.length > 0 && (
