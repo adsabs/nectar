@@ -41,6 +41,7 @@ import { useExportFormats } from '@/lib/useExportFormats';
 export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
   singleMode?: boolean;
   initialFormat?: string;
+  initialCustomFormatId?: string;
   authorcutoff?: number;
   keyformat?: string;
   journalformat?: ExportApiJournalFormat;
@@ -74,6 +75,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
   const {
     singleMode = false,
     initialFormat = ExportApiFormatKey.bibtex,
+    initialCustomFormatId,
     authorcutoff,
     keyformat,
     journalformat,
@@ -216,7 +218,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
               <TabPanel>
                 <Stack direction={['column', 'row']} spacing={4}>
                   <Stack spacing="4" flexGrow={[3, 2]} maxW="lg">
-                    <CustomFormatSelect dispatch={dispatch} />
+                    <CustomFormatSelect dispatch={dispatch} initialCustomFormatId={initialCustomFormatId} />
                   </Stack>
                 </Stack>
               </TabPanel>
