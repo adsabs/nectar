@@ -42,7 +42,6 @@ import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@/components/Orcid';
 import { useOrcid } from '@/lib/orcid/useOrcid';
 import { useSession } from '@/lib/useSession';
-import { useSettings } from '@/lib/useSettings';
 
 import { AddNotificationModal } from '@/components/EmailNotifications/AddNotificationModal';
 import { solrSortOptions } from '@/components/Sort/model';
@@ -55,7 +54,7 @@ import { SolrSort, SolrSortField } from '@/api/models';
 import { useVaultBigQuerySearch } from '@/api/vault/vault';
 import { Bibcode } from '@/api/search/types';
 import { ExportApiFormatKey } from '@/api/export/types';
-import { useExportFormats } from '@/lib/useExportFormats';
+import { useCitationFormat } from '@/lib/useCitationFormat';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAlignLeft, faHighlighter } from '@fortawesome/free-solid-svg-icons';
 
@@ -78,8 +77,6 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const [exploreAll, setExploreAll] = useState(true);
   const router = useRouter();
   const toast = useToast();
-
-  const { settings } = useSettings({ suspense: false });
 
   const {
     isOpen: isCreateNotificationOpen,
@@ -247,7 +244,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                         <MenuDivider />
                       </>
                     )}
-                    <ExportMenu exploreAll={exploreAll} defaultExportFormat={settings.defaultExportFormat} />
+                    <ExportMenu exploreAll={exploreAll} />
                     <OrcidBulkMenu />
                   </MenuList>
                 </Portal>
@@ -461,17 +458,15 @@ const SelectAllCheckbox = () => {
   );
 };
 
-const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExportFormat: string }): ReactElement => {
-  const { exploreAll, defaultExportFormat, ...menuGroupProps } = props;
+const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactElement => {
+  const { exploreAll, ...menuGroupProps } = props;
   const router = useRouter();
   const store = useStoreApi();
   const [selected, setSelected] = useState<Bibcode[]>([]);
   const [route, setRoute] = useState(['', '']);
-  const { getFormatOptionByLabel } = useExportFormats();
+  const { format } = useCitationFormat();
 
   const { data } = useVaultBigQuerySearch(selected, { enabled: !exploreAll && selected.length > 0 });
-
-  const defaultExportFormatValue = getFormatOptionByLabel(defaultExportFormat).value;
 
   useEffect(() => {
     if (data) {
@@ -512,7 +507,7 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.aastex)}>in AASTeX</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.endnote)}>in EndNote</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.ris)}>in RIS</MenuItem>
-      <MenuItem onClick={handleExportItemClick(defaultExportFormatValue)}>Other Formats</MenuItem>
+      <MenuItem onClick={handleExportItemClick(format.id)}>Other Formats</MenuItem>
       <MenuDivider />
       <MenuItem onClick={handleOpenAuthorAffiliation}>Author Affiliations</MenuItem>
     </MenuGroup>
