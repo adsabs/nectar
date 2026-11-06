@@ -82,6 +82,14 @@ E2E tests run automatically on every PR via GitHub Actions (`.github/workflows/e
 
 The CI environment matches the Docker setup exactly, so `pnpm test:e2e:docker` is the best local validation.
 
+## Quarantined specs (`@wip`)
+
+Specs tagged `@wip` are excluded when `CI` is set (`e2e/playwright.config.ts`
+`grepInvert`). They are not excluded locally: a plain `pnpm test:e2e` run
+**includes** them, so a known-failing quarantined spec will show up when
+running locally. Target or skip them explicitly with `--grep @wip` or
+`--grep-invert @wip`.
+
 ## Test Structure
 
 ```
@@ -184,7 +192,8 @@ e2e/
 │   ├── base.page.ts         — Abstract base class (navigation, cookies, scenarios)
 │   ├── home.page.ts         — Landing page
 │   ├── login.page.ts        — Login form page
-│   ├── search.page.ts       — Search results page
+│   ├── search.page.ts       — Search form page (home/landing search box)
+│   ├── search-results.page.ts — Search results page (rows, pagination, facets)
 │   ├── register.page.ts     — Registration page
 │   ├── forgot-password.page.ts — Forgot password page
 │   ├── verify.page.ts       — Email verification page
@@ -192,6 +201,8 @@ e2e/
 │   └── index.ts             — Barrel export
 └── tests/
     ├── middleware/           — Middleware integration tests
+    ├── search/               — Search results tests
+    ├── guards/               — Repo-health guard specs (e.g. testid guard)
     └── smoke/                — Smoke/navigation tests
 ```
 
@@ -199,8 +210,10 @@ e2e/
 
 1. Create `e2e/pages/my-page.page.ts` extending `BasePage`
 2. Set the `path` property (e.g., `/my-page`)
-3. Add selectors as private readonly properties
-4. Add action methods (e.g., `fillForm`, `submit`)
+3. Expose `Locator` getters built from `page.getByTestId(...)` (or, where no
+   testid exists, a role-based locator) — do not store CSS selector strings
+4. Add action methods (e.g., `fillForm`, `submit`) that drive those locators;
+   tests own assertions, so no POM method may contain `expect`
 5. Export from `e2e/pages/index.ts`
 6. Add a fixture in `e2e/fixtures/nectar.fixture.ts`
 

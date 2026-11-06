@@ -1,12 +1,17 @@
-import { Page, BrowserContext, Response, expect } from '@playwright/test';
+import { Page, BrowserContext, Response } from '@playwright/test';
+
+const headersByPage = new WeakMap<Page, Record<string, string>>();
 
 export abstract class BasePage {
   constructor(protected readonly page: Page, protected readonly context: BrowserContext, readonly baseUrl: string) {}
 
   protected abstract readonly path: string;
 
-  get url(): string {
-    return this.page.url();
+  protected async mergeExtraHeaders(headers: Record<string, string>): Promise<void> {
+    const extraHeaders = headersByPage.get(this.page) ?? {};
+    Object.assign(extraHeaders, headers);
+    headersByPage.set(this.page, extraHeaders);
+    await this.page.setExtraHTTPHeaders(extraHeaders);
   }
 
   buildUrl(params?: string): string {
@@ -31,18 +36,6 @@ export abstract class BasePage {
     return this.page.goto(this.buildUrl(params), options);
   }
 
-  async gotoUrl(url: string, options?: { waitUntil?: 'load' | 'commit' | 'networkidle' }): Promise<Response | null> {
-    return this.page.goto(url, options);
-  }
-
-  async waitForUrl(pattern: string | RegExp, options?: { timeout?: number }): Promise<void> {
-    await this.page.waitForURL(pattern, options);
-  }
-
-  async waitForLoadState(state: 'load' | 'domcontentloaded' | 'networkidle'): Promise<void> {
-    await this.page.waitForLoadState(state);
-  }
-
   async clearCookies(): Promise<void> {
     await this.context.clearCookies();
   }
@@ -52,9 +45,7 @@ export abstract class BasePage {
   }
 
   async setScenarioHeader(scenario: string): Promise<void> {
-    await this.page.setExtraHTTPHeaders({
-      'x-test-scenario': scenario,
-    });
+    await this.mergeExtraHeaders({ 'x-test-scenario': scenario });
   }
 
   async setScenarioViaRoute(scenario: string): Promise<void> {
@@ -65,27 +56,7 @@ export abstract class BasePage {
     });
   }
 
-  async setExtraHeaders(headers: Record<string, string>): Promise<void> {
-    await this.page.setExtraHTTPHeaders(headers);
-  }
-
-  async interceptRoute(pattern: string, handler: Parameters<Page['route']>[1]): Promise<void> {
-    await this.page.route(pattern, handler);
-  }
-
   async getCookies() {
     return this.context.cookies();
-  }
-
-  urlContains(substring: string): void {
-    expect(this.page.url()).toContain(substring);
-  }
-
-  urlEquals(expected: string): void {
-    expect(this.page.url()).toBe(expected);
-  }
-
-  urlMatches(pattern: RegExp): void {
-    expect(this.page.url()).toMatch(pattern);
   }
 }
