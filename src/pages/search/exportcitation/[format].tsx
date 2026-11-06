@@ -21,6 +21,8 @@ import { ExportApiFormatKey } from '@/api/export/types';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { fetchSearchInfinite, SEARCH_NAMESPACES, searchKeys, useSearchInfinite } from '@/api/search/search';
 import { exportCitationKeys, fetchExportCitation, fetchExportFormats } from '@/api/export/export';
+import { disciplineCitationFormatId, resolveRouteFormat } from '@/lib/citationFormat';
+import { readPrefsCookie } from '@/utils/common/prefs-cookie';
 
 interface IExportCitationPageProps {
   format: string;
@@ -129,6 +131,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   } = parseQueryFromUrl<{ qid: string; format: string }>(ctx.req.url, { sortPostfix: 'id asc' });
 
   const { format } = ctx.params as { format: string };
+  const { mode } = readPrefsCookie(ctx.req.headers.cookie);
 
   if (!query && !qid) {
     return {
@@ -169,7 +172,11 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     const records = data.pages[0].response.docs.map((d) => d.bibcode);
 
     const { params: exportParams } = getExportCitationDefaultContext({
-      format: formats.includes(format) ? format : ExportApiFormatKey.bibtex,
+      format: resolveRouteFormat({
+        requested: format,
+        availableIds: formats,
+        fallbackId: disciplineCitationFormatId(mode),
+      }),
       records,
       singleMode: false,
       sort: params.sort,
