@@ -1,5 +1,5 @@
 import { render, waitFor } from '@/test-utils';
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, it, test, vi } from 'vitest';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
 import { IDocsEntity } from '@/api/search/types';
 import { IADSApiUserDataResponse, JournalFormatName } from '@/api/user/types';
@@ -12,14 +12,25 @@ const mocks = vi.hoisted(() => ({
     push: vi.fn(),
     events: { on: vi.fn(), off: vi.fn() },
   })),
-  useSettings: vi.fn((): { settings: Partial<IADSApiUserDataResponse> } => ({
-    settings: { defaultCitationFormat: 'agu' },
-  })),
+  useSettings: vi.fn((): { settings: Partial<IADSApiUserDataResponse> } => ({ settings: {} })),
+  useCitationFormat: vi.fn(),
+  copyMenuItem: vi.fn(),
   useGetExportCitation: vi.fn(() => ({ data: undefined as { export: string } | undefined })),
 }));
 
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
 vi.mock('@/lib/useSettings', () => ({ useSettings: mocks.useSettings }));
+vi.mock('@/lib/useCitationFormat', () => ({ useCitationFormat: mocks.useCitationFormat }));
+vi.mock('@/components/CopyButton', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/components/CopyButton')>();
+  return {
+    ...actual,
+    CopyMenuItem: (props: { label: string; text: string; asHtml?: boolean; isDisabled?: boolean }) => {
+      mocks.copyMenuItem(props);
+      return <button disabled={props.isDisabled}>{props.label}</button>;
+    },
+  };
+});
 vi.mock('@/api/export/export', () => ({
   useGetExportCitation: mocks.useGetExportCitation,
 }));
@@ -38,10 +49,16 @@ const makeDoc = (overrides?: Partial<IDocsEntity>): IDocsEntity =>
   } as unknown as IDocsEntity);
 
 describe('ItemResourceDropdowns', () => {
-  afterEach(() => {
+  beforeEach(() => {
     mocks.useGetExportCitation.mockClear();
     mocks.useGetExportCitation.mockReturnValue({ data: undefined });
-    mocks.useSettings.mockReturnValue({ settings: { defaultCitationFormat: 'agu' } });
+    mocks.useSettings.mockReturnValue({ settings: {} });
+    mocks.copyMenuItem.mockClear();
+    mocks.useCitationFormat.mockReturnValue({
+      format: { id: 'agu', name: 'AGU', asHtml: true, isInModal: true },
+      isReady: true,
+      resolveWithSettings: vi.fn(),
+    });
   });
 
   test('does not fetch citation on mount', () => {
@@ -99,10 +116,14 @@ describe('ItemResourceDropdowns', () => {
     expect(getByLabelText('share options')).toBeInTheDocument();
   });
 
-  test('includes custom bibtex keyformat when default citation format is bibtex', async () => {
+  test('includes custom bibtex keyformat when the resolved format is bibtex', async () => {
+    mocks.useCitationFormat.mockReturnValue({
+      format: { id: 'bibtex', name: 'BibTeX', asHtml: false, isInModal: true },
+      isReady: true,
+      resolveWithSettings: vi.fn(),
+    });
     mocks.useSettings.mockReturnValue({
       settings: {
-        defaultCitationFormat: 'bibtex',
         bibtexKeyFormat: '%1H+%Y',
         bibtexABSKeyFormat: '%R',
         bibtexJournalFormat: JournalFormatName.AASTeXMacros,
@@ -131,7 +152,7 @@ describe('ItemResourceDropdowns', () => {
     });
   });
 
-  test('does not send bibtex params when default citation format is not bibtex', async () => {
+  test('does not send bibtex params when the resolved format is not bibtex', async () => {
     const { user, getByLabelText } = render(<ItemResourceDropdowns doc={makeDoc()} />);
 
     await user.click(getByLabelText('share options'));
@@ -141,6 +162,102 @@ describe('ItemResourceDropdowns', () => {
         expect.not.objectContaining({ keyformat: expect.anything() }),
         expect.objectContaining({ enabled: true }),
       );
+    });
+  });
+
+  describe('copy flavour follows the resolved format (criterion 9)', () => {
+    const withFormat = (format: { id: string; name: string; asHtml: boolean }) => {
+      mocks.useCitationFormat.mockReturnValue({
+        format: { ...format, isInModal: true },
+        isReady: true,
+        resolveWithSettings: vi.fn(),
+      });
+      mocks.useGetExportCitation.mockReturnValue({ data: { export: 'Author, A. (2020).' } });
+    };
+
+    const copyProps = () => mocks.copyMenuItem.mock.calls.at(-1)?.[0] as { asHtml?: boolean; text?: string };
+
+    it.each([
+      { id: 'agu', name: 'AGU', asHtml: true },
+      { id: 'ieee', name: 'IEEE', asHtml: true },
+      { id: 'apsj', name: 'APS Journals', asHtml: true },
+      { id: 'bibtex', name: 'BibTeX', asHtml: false },
+      { id: 'icarus', name: 'Icarus', asHtml: false },
+      { id: 'ris', name: 'RIS', asHtml: false },
+    ])('copies $name as html=$asHtml', async ({ id, name, asHtml }) => {
+      withFormat({ id, name, asHtml });
+      const { user, getByLabelText } = render(<ItemResourceDropdowns doc={makeDoc()} />);
+
+      await user.click(getByLabelText('share options'));
+
+      await waitFor(() => expect(copyProps()).toBeDefined());
+      expect(copyProps().asHtml).toBe(asHtml);
+    });
+
+    test('requests the resolved format rather than a fixed one', async () => {
+      withFormat({ id: 'apsj', name: 'APS Journals', asHtml: true });
+      const { user, getByLabelText } = render(<ItemResourceDropdowns doc={makeDoc()} />);
+
+      await user.click(getByLabelText('share options'));
+
+      await waitFor(() => {
+        expect(mocks.useGetExportCitation).toHaveBeenCalledWith(
+          expect.objectContaining({ format: 'apsj' }),
+          expect.objectContaining({ enabled: true }),
+        );
+      });
+    });
+
+    test('carries a saved custom template into the request', async () => {
+      mocks.useCitationFormat.mockReturnValue({
+        format: {
+          id: 'custom',
+          name: 'My Format',
+          asHtml: false,
+          isInModal: false,
+          customFormat: '%1H:%Y:%q',
+          customFormatId: 'format-abc',
+        },
+        isReady: true,
+        resolveWithSettings: vi.fn(),
+      });
+      mocks.useGetExportCitation.mockReturnValue({ data: { export: 'Star:2003:NanoL' } });
+      const { user, getByLabelText } = render(<ItemResourceDropdowns doc={makeDoc()} />);
+
+      await user.click(getByLabelText('share options'));
+
+      await waitFor(() => {
+        expect(mocks.useGetExportCitation).toHaveBeenCalledWith(
+          expect.objectContaining({ format: 'custom', customFormat: '%1H:%Y:%q' }),
+          expect.objectContaining({ enabled: true }),
+        );
+      });
+    });
+  });
+
+  describe('an empty citation is not offered for copying', () => {
+    test('disables the copy item while there is no citation yet', async () => {
+      mocks.useGetExportCitation.mockReturnValue({ data: undefined });
+      const { user, getByLabelText } = render(<ItemResourceDropdowns doc={makeDoc()} />);
+
+      await user.click(getByLabelText('share options'));
+
+      await waitFor(() => expect(mocks.copyMenuItem).toHaveBeenCalled());
+      const props = mocks.copyMenuItem.mock.calls.at(-1)?.[0] as { isDisabled?: boolean; text?: string };
+      expect(props.text).toBe('');
+      expect(props.isDisabled).toBe(true);
+    });
+
+    test('enables the copy item once the citation arrives', async () => {
+      mocks.useGetExportCitation.mockReturnValue({ data: { export: 'Author, A. (2020).' } });
+      const { user, getByLabelText } = render(<ItemResourceDropdowns doc={makeDoc()} />);
+
+      await user.click(getByLabelText('share options'));
+
+      await waitFor(() => expect(mocks.copyMenuItem).toHaveBeenCalled());
+      const props = mocks.copyMenuItem.mock.calls.at(-1)?.[0] as { isDisabled?: boolean; text?: string };
+      expect(props.text).toBe('Author, A. (2020).');
+      expect(props.isDisabled).toBe(false);
     });
   });
 

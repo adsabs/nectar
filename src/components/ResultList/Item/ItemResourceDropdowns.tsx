@@ -22,6 +22,7 @@ import { IDocsEntity } from '@/api/search/types';
 import { CopyMenuItem } from '@/components/CopyButton';
 import { useGetExportCitation } from '@/api/export/export';
 import { getBibtexExportParams } from '@/api/export/getBibtexExportParams';
+import { useCitationFormat } from '@/lib/useCitationFormat';
 import { useSettings } from '@/lib/useSettings';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { closeFullTextTimingSpan } from '@/lib/performance';
@@ -29,8 +30,6 @@ import { closeFullTextTimingSpan } from '@/lib/performance';
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
   rank?: number;
-  /** @deprecated No longer used — citation is fetched lazily. */
-  defaultCitation?: string;
 }
 
 export interface IItem {
@@ -49,12 +48,14 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
   const [isRefsOpen, setIsRefsOpen] = useState(false);
   const [isDataOpen, setIsDataOpen] = useState(false);
   const { settings } = useSettings();
+  const { format } = useCitationFormat();
 
   const { data: citationData } = useGetExportCitation(
     {
-      format: settings.defaultCitationFormat,
+      format: format.id,
+      customFormat: format.customFormat,
       bibcode: [doc.bibcode],
-      ...getBibtexExportParams(settings, settings.defaultCitationFormat),
+      ...getBibtexExportParams(settings, format.id),
     },
     { enabled: isShareOpen && !!doc.bibcode },
   );
@@ -274,7 +275,13 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
         <Portal>
           <MenuList>
             <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
-            <CopyMenuItem text={citation} onCopyComplete={handleCitationCopied} label="Copy Citation" asHtml />
+            <CopyMenuItem
+              text={citation}
+              onCopyComplete={handleCitationCopied}
+              label="Copy Citation"
+              asHtml={format.asHtml}
+              isDisabled={citation === ''}
+            />
           </MenuList>
         </Portal>
       </Menu>
