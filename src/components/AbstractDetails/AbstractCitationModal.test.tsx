@@ -3,46 +3,183 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { AbstractCitationModal } from './AbstractCitationModal';
 import { IADSApiUserDataResponse, JournalFormatName } from '@/api/user/types';
 import { ExportApiJournalFormat, IExportApiParams } from '@/api/export/types';
+import { ResolvedCitationFormat } from '@/lib/citationFormat';
 
 const bibtexOption = { id: 'bibtex', value: 'bibtex', label: 'BibTeX', type: 'text', ext: 'bib', route: '/bibtex' };
-const aguOption = { id: 'agu', value: 'agu', label: 'AGU', type: 'text', ext: 'agu', route: '/agu' };
+const aguOption = { id: 'agu', value: 'agu', label: 'AGU', type: 'HTML', ext: 'agu', route: '/agu' };
+const risOption = { id: 'ris', value: 'ris', label: 'RIS', type: 'tagged', ext: 'txt', route: '/ris' };
+const apsjOption = { id: 'apsj', value: 'apsj', label: 'APS Journals', type: 'HTML', ext: 'rtf', route: '/apsj' };
+
+const allOptions = [bibtexOption, aguOption, risOption, apsjOption];
+
+const resolved = (overrides?: Partial<ResolvedCitationFormat>): ResolvedCitationFormat => ({
+  id: 'agu',
+  name: 'AGU',
+  asHtml: true,
+  isInModal: true,
+  ...overrides,
+});
+
+interface CitationQueryResult {
+  data: { export: string };
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+}
 
 const mocks = vi.hoisted(() => ({
-  useSettings: vi.fn((): { settings: Partial<IADSApiUserDataResponse> } => ({
-    settings: { defaultCitationFormat: 'agu' },
-  })),
+  useSettings: vi.fn((): { settings: Partial<IADSApiUserDataResponse> } => ({ settings: {} })),
   useExportFormats: vi.fn(),
   useSession: vi.fn(() => ({ isAuthenticated: false })),
-  useGetExportCitation: vi.fn(() => ({
-    data: { export: '' },
-    isLoading: false,
-    isError: false,
-    error: null as Error | null,
-  })),
+  useCitationFormat: vi.fn(),
+  useGetExportCitation: vi.fn<(params: IExportApiParams, options?: { enabled?: boolean }) => CitationQueryResult>(),
 }));
 
 vi.mock('@/lib/useSettings', () => ({ useSettings: mocks.useSettings }));
 vi.mock('@/lib/useExportFormats', () => ({ useExportFormats: mocks.useExportFormats }));
 vi.mock('@/lib/useSession', () => ({ useSession: mocks.useSession }));
+vi.mock('@/lib/useCitationFormat', () => ({ useCitationFormat: mocks.useCitationFormat }));
 vi.mock('@/api/export/export', () => ({
   useGetExportCitation: mocks.useGetExportCitation,
 }));
 
+const requestedFormats = (): string[] =>
+  mocks.useGetExportCitation.mock.calls.map((call) => String(call[0]?.format ?? ''));
+
 describe('AbstractCitationModal', () => {
   beforeEach(() => {
-    mocks.useGetExportCitation.mockClear();
-    mocks.useSettings.mockReturnValue({ settings: { defaultCitationFormat: 'agu' } });
+    mocks.useGetExportCitation.mockReset();
+    mocks.useGetExportCitation.mockReturnValue({
+      data: { export: '' },
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+    mocks.useSettings.mockReturnValue({ settings: {} });
     mocks.useSession.mockReturnValue({ isAuthenticated: false });
+    mocks.useCitationFormat.mockReturnValue({
+      format: resolved(),
+      isReady: true,
+      resolveWithSettings: vi.fn(),
+    });
     mocks.useExportFormats.mockReturnValue({
-      formatOptions: [bibtexOption, aguOption],
-      getFormatOptionById: (id: string) => [bibtexOption, aguOption].find((o) => o.id === id),
+      formatOptions: allOptions,
+      getFormatOptionById: (id: string) => allOptions.find((o) => o.id === id),
     });
   });
 
-  test('includes custom bibtex params when the default format is bibtex', async () => {
+  describe('preselects the resolved default format (criterion 5)', () => {
+    test('requests the resolved format when the modal opens', async () => {
+      mocks.useCitationFormat.mockReturnValue({
+        format: resolved({ id: 'ris', name: 'RIS', asHtml: false }),
+        isReady: true,
+        resolveWithSettings: vi.fn(),
+      });
+
+      render(<AbstractCitationModal isOpen onClose={vi.fn()} bibcode="2020ApJ...123..456A" />);
+
+      await waitFor(() => expect(requestedFormats()).toContain('ris'));
+      expect(requestedFormats()).not.toContain('agu');
+    });
+
+    test('shows the resolved format in the format selector', async () => {
+      mocks.useCitationFormat.mockReturnValue({
+        format: resolved({ id: 'ris', name: 'RIS', asHtml: false }),
+        isReady: true,
+        resolveWithSettings: vi.fn(),
+      });
+
+      const { findByText } = render(<AbstractCitationModal isOpen onClose={vi.fn()} bibcode="2020ApJ...123..456A" />);
+
+      expect(await findByText('RIS')).toBeInTheDocument();
+    });
+
+    test('requests bibtex when that is the resolved format', async () => {
+      mocks.useCitationFormat.mockReturnValue({
+        format: resolved({ id: 'bibtex', name: 'BibTeX', asHtml: false }),
+        isReady: true,
+        resolveWithSettings: vi.fn(),
+      });
+
+      render(<AbstractCitationModal isOpen onClose={vi.fn()} bibcode="2020ApJ...123..456A" />);
+
+      await waitFor(() => expect(requestedFormats()).toContain('bibtex'));
+    });
+
+    test('falls back to AGU when the resolved format is not one the modal can show', async () => {
+      mocks.useCitationFormat.mockReturnValue({
+        format: resolved({ id: 'apsj', name: 'APS Journals', isInModal: false }),
+        isReady: true,
+        resolveWithSettings: vi.fn(),
+      });
+
+      render(<AbstractCitationModal isOpen onClose={vi.fn()} bibcode="2020ApJ...123..456A" />);
+
+      await waitFor(() => expect(requestedFormats()).toContain('agu'));
+      expect(requestedFormats()).not.toContain('apsj');
+    });
+
+    test('keeps a format the reader picks instead of snapping back to the default', async () => {
+      const { findByRole, user } = render(
+        <AbstractCitationModal isOpen onClose={vi.fn()} bibcode="2020ApJ...123..456A" />,
+      );
+
+      await waitFor(() => expect(requestedFormats()).toContain('agu'));
+
+      const selector = await findByRole('combobox', { name: 'Format' });
+      selector.focus();
+      await user.type(selector, '{arrowdown}{enter}');
+
+      await waitFor(() => expect(requestedFormats()).toContain('ris'));
+      expect(requestedFormats().at(-1)).toBe('ris');
+    });
+
+    test('still shows the reader’s pick after the renders settle', async () => {
+      const { findByRole, user } = render(
+        <AbstractCitationModal isOpen onClose={vi.fn()} bibcode="2020ApJ...123..456A" />,
+      );
+
+      const selector = await findByRole('combobox', { name: 'Format' });
+      selector.focus();
+      await user.type(selector, '{arrowdown}{enter}');
+
+      await waitFor(() => expect(requestedFormats()).toContain('ris'));
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      expect(requestedFormats().at(-1)).toBe('ris');
+    });
+
+    test('does not request anything while the modal is closed', () => {
+      render(<AbstractCitationModal isOpen={false} onClose={vi.fn()} bibcode="2020ApJ...123..456A" />);
+
+      expect(mocks.useGetExportCitation).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ enabled: false }),
+      );
+    });
+
+    test('links "More export options" to the resolved format, not a hardcoded default (criterion 8)', async () => {
+      mocks.useCitationFormat.mockReturnValue({
+        format: resolved({ id: 'ris', name: 'RIS', asHtml: false }),
+        isReady: true,
+        resolveWithSettings: vi.fn(),
+      });
+
+      const { findByRole } = render(<AbstractCitationModal isOpen onClose={vi.fn()} bibcode="2020ApJ...123..456A" />);
+
+      const link = await findByRole('link', { name: /more export options/i });
+      expect(link.getAttribute('href')).toMatch(/\/exportcitation\/ris$/);
+    });
+  });
+
+  test('includes custom bibtex params when the resolved format is bibtex', async () => {
+    mocks.useCitationFormat.mockReturnValue({
+      format: resolved({ id: 'bibtex', name: 'BibTeX', asHtml: false }),
+      isReady: true,
+      resolveWithSettings: vi.fn(),
+    });
     mocks.useSettings.mockReturnValue({
       settings: {
-        defaultCitationFormat: 'bibtex',
         bibtexKeyFormat: '%1H+%Y',
         bibtexABSKeyFormat: '%R',
         bibtexJournalFormat: JournalFormatName.AASTeXMacros,
@@ -71,9 +208,13 @@ describe('AbstractCitationModal', () => {
   });
 
   test('passes an empty keyformat through when bibtex settings are unset', async () => {
+    mocks.useCitationFormat.mockReturnValue({
+      format: resolved({ id: 'bibtex', name: 'BibTeX', asHtml: false }),
+      isReady: true,
+      resolveWithSettings: vi.fn(),
+    });
     mocks.useSettings.mockReturnValue({
       settings: {
-        defaultCitationFormat: 'bibtex',
         bibtexKeyFormat: '',
         bibtexABSKeyFormat: '',
         bibtexJournalFormat: JournalFormatName.AASTeXMacros,
@@ -107,8 +248,7 @@ describe('AbstractCitationModal', () => {
       );
     });
 
-    const lastCall = mocks.useGetExportCitation.mock.calls.at(-1) as unknown as [IExportApiParams, unknown] | undefined;
-    expect(lastCall?.[0]).not.toHaveProperty('keyformat');
+    expect(mocks.useGetExportCitation.mock.calls.at(-1)?.[0]).not.toHaveProperty('keyformat');
   });
 
   test('disables the citation format settings button for an anonymous user', async () => {
