@@ -12,13 +12,7 @@ import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 import { isNotEmpty } from 'ramda-adjunct';
 import { logger } from '@/logger';
 import { SettingsLayout } from '@/components/Layout';
-import {
-  BibtexTabPanel,
-  CustomFormatsTabPanel,
-  GeneralTabPanel,
-  QuickExportFormatTabPane,
-  ResetSettingsButton,
-} from '@/components/Settings';
+import { BibtexTabPanel, CustomFormatsTabPanel, GeneralTabPanel, ResetSettingsButton } from '@/components/Settings';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IADSApiUserDataResponse, UserDataKeys } from '@/api/user/types';
 import { UserDataSetterEvent } from '@/components/Settings/Export/types';
@@ -36,8 +30,6 @@ const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, actio
   switch (action.type) {
     case 'SET_DEFAULT_EXPORT_FORMAT':
       return { [UserDataKeys.DEFAULT_EXPORT_FORMAT]: action.payload };
-    case 'SET_DEFAULT_CITATION_FORMAT':
-      return { [UserDataKeys.DEFAULT_CITATION_FORMAT]: action.payload };
     case 'ADD_CUSTOM_FORMAT':
       return {
         [UserDataKeys.CUSTOM_FORMATS]: [
@@ -114,16 +106,9 @@ const bibtexSettingsKeys = [
   UserDataKeys.BIBTEX_JOURNAL_FORMAT,
 ];
 
-const citationFormatSettingsKeys = [UserDataKeys.DEFAULT_CITATION_FORMAT];
+const exportSettingsKeysByTab = [defaultFormatSettingsKeys, customFormatsSettingsKeys, bibtexSettingsKeys];
 
-const exportSettingsKeysByTab = [
-  defaultFormatSettingsKeys,
-  customFormatsSettingsKeys,
-  bibtexSettingsKeys,
-  citationFormatSettingsKeys,
-];
-
-const exportTabNames = ['Default Format', 'Custom Formats', 'BibTeX', 'Default Copy Citation Format'];
+const exportTabNames = ['Default Format', 'Custom Formats', 'BibTeX'];
 
 export const Page: NextPage = () => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
@@ -193,7 +178,6 @@ const ExportSettings = ({ onTabChange }: { onTabChange: (index: number) => void 
         <Tab>Default Format</Tab>
         <Tab>Custom Formats</Tab>
         <Tab>BibTeX</Tab>
-        <Tab>Default Copy Citation Format</Tab>
       </TabList>
       <TabPanels>
         <TabPanel px={{ base: 0, sm: '2' }}>
@@ -204,9 +188,6 @@ const ExportSettings = ({ onTabChange }: { onTabChange: (index: number) => void 
         </TabPanel>
         <TabPanel px={{ base: 0, sm: '2' }}>
           <BibtexTabPanel sampleBib={sampleBib} dispatch={dispatch} />
-        </TabPanel>
-        <TabPanel px={{ base: 0, sm: '2' }}>
-          <QuickExportFormatTabPane sampleBib={sampleBib} dispatch={dispatch} />
         </TabPanel>
       </TabPanels>
     </Tabs>

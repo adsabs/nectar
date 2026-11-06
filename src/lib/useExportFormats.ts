@@ -1,5 +1,5 @@
 import { useGetExportFormats } from '@/api/export/export';
-import { ExportFormatsApiResponse, IExportFormat, MostUsedExportFormats } from '@/api/export/types';
+import { ExportFormatsApiResponse, IExportFormat } from '@/api/export/types';
 import { DEFAULT_EXPORT_FORMATS } from '@/components/CitationExporter/models';
 import { SelectOption } from '@/components/Select';
 import { UseQueryOptions } from '@tanstack/react-query';
@@ -65,17 +65,6 @@ export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiRespo
     [formatOptions],
   );
 
-  const isValidCitationFormatId = useCallback(
-    (id: string) => {
-      return (
-        typeof id === 'string' &&
-        formatOptions.findIndex((o) => o.id === id) > -1 &&
-        MostUsedExportFormats.includes(id as ExportApiFormatKey)
-      );
-    },
-    [formatOptions],
-  );
-
   return {
     format: data,
     getFormatById,
@@ -84,7 +73,6 @@ export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiRespo
     getFormatOptionById,
     isValidFormat,
     isValidFormatLabel,
-    isValidCitationFormatId,
     getFormatOptionByLabel,
   };
 };
