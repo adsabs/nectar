@@ -6,9 +6,12 @@ import * as Sentry from '@sentry/nextjs';
 
 import { beforeSendApiSpan } from '@/lib/normalizeApiSpan';
 import { readAuthTag, SENTRY_AUTH_TAG_NAME } from '@/lib/sentryAuthTag';
+import { readSentryEnvironment } from '@/lib/sentryEnvironment';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+
+  environment: readSentryEnvironment(),
 
   tunnel: '/api/monitor',
   sendDefaultPii: false,

@@ -28,7 +28,12 @@ declare global {
       GIT_SHA: string;
       CSP_REPORT_URI: string;
       CSP_REPORT_ONLY: string;
+      SENTRY_ENVIRONMENT?: string;
     }
+  }
+
+  interface Window {
+    __scixSentryEnvironment?: string;
   }
 }
 export {};
