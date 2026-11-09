@@ -2,11 +2,10 @@ import dynamic from 'next/dynamic';
 import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
 import { ISearchFacetsProps } from '@/components/SearchFacet';
 import { AppState, useStore, useStoreApi } from '@/store';
-import { last, omit } from 'ramda';
+import { omit } from 'ramda';
 import shallow from 'zustand/shallow';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useQueryClient } from '@tanstack/react-query';
 
 import {
   Alert,
@@ -37,11 +36,12 @@ import {
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
 import { FormEventHandler, RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useIsClient } from '@/lib/useIsClient';
+import { useLatestSearchNumFound } from '@/lib/useLatestSearchNumFound';
 import { useScrollRestoration } from '@/lib/useScrollRestoration';
 import { useCaptureSearchReturnUrl } from '@/lib/useSearchReturnTo';
 import { LocalSettings, NumPerPageType } from '@/types';
 import Head from 'next/head';
-import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
+import { APP_DEFAULTS, BRAND_NAME_FULL, PRIMER_ROWS } from '@/config';
 import { HideOnPrint } from '@/components/HideOnPrint';
 import { SearchBar } from '@/components/SearchBar';
 import { NumFound } from '@/components/NumFound';
@@ -60,11 +60,11 @@ import {
   buildSortChangeOutgoing,
   SearchMode,
 } from '@/utils/common/searchMode';
-import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
-import { SEARCH_API_KEYS, useSearch } from '@/api/search/search';
+import { IADSApiSearchParams } from '@/api/search/types';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { getQueryType } from '@/lib/performance';
 import { defaultParams, withAbstractField } from '@/api/search/models';
+import { useProgressiveSearch } from '@/lib/useProgressiveSearch';
 import { solrDefaultSortDirection, SolrSort, SolrSortField } from '@/api/models';
 import { useApplyBoostTypeToParams } from '@/lib/useApplyBoostTypeToParams';
 import { SearchErrorAlert } from '@/components/SolrErrorAlert/SolrErrorAlert';
@@ -156,11 +156,7 @@ const SearchPage: NextPage = () => {
 
   const { settings } = useSettings({ suspense: false });
 
-  const queryClient = useQueryClient();
-  const queries = queryClient.getQueriesData<IADSApiSearchResponse>([SEARCH_API_KEYS.primary]);
-  // Safely extract numFound with defensive null checks
-  const lastQuery = queries.length > 1 ? last(queries) : null;
-  const numFound = lastQuery?.[1]?.response?.numFound;
+  const numFound = useLatestSearchNumFound();
   const [isPrint] = useMediaQuery('print');
 
   // parse the query params from the URL, this should match what the server parsed
@@ -200,11 +196,25 @@ const SearchPage: NextPage = () => {
   });
 
   const searchParams = omit(['p', ADS_COMPAT_URL_PARAM, 'd'], params) as IADSApiSearchParams;
+
   const showAbstracts = useStore((state) => state.showAbstracts);
-  const { data, isSuccess, isLoading, isFetching, error, isError, refetch } = useSearch<IADSApiSearchResponse>(
-    withAbstractField(searchParams, showAbstracts),
-    { namespace: SEARCH_API_KEYS.primary, select: (data) => data },
-  );
+  const {
+    data,
+    docs,
+    isSuccess,
+    isLoading,
+    isFetching,
+    error,
+    isError,
+    isFillError,
+    fillError,
+    isFillFetching,
+    isFullSetLoaded,
+    refetch,
+    refetchFill,
+    resultSetKey,
+    pageRowCount,
+  } = useProgressiveSearch(withAbstractField(searchParams, showAbstracts));
 
   const resetPreviewTogglesForQuery = useStore((state) => state.resetPreviewTogglesForQuery);
   // Resets preview toggles on a new query; see resetPreviewTogglesForQuery.
@@ -353,6 +363,10 @@ const SearchPage: NextPage = () => {
     refetch();
   }, [refetch]);
 
+  const handleRetryFill = useCallback(() => {
+    refetchFill();
+  }, [refetchFill]);
+
   /**
    * When updating perPage, this updates the store with both the current
    * numPerPage value and the current query
@@ -445,6 +459,7 @@ const SearchPage: NextPage = () => {
                       onOpenAddToLibrary={handleOpenAddToLibrary}
                       onOpenRemoveFromLibrary={handleOpenRemoveFromLibrary}
                       isLoading={isLoading}
+                      isFullSetLoaded={isFullSetLoaded}
                     />
                   </ErrorBoundary>
                 )}
@@ -467,7 +482,7 @@ const SearchPage: NextPage = () => {
                         <Text>This search is taking longer than expected. Please wait...</Text>
                       </Alert>
                     )}
-                    <ItemsSkeleton count={storeNumPerPage} />
+                    <ItemsSkeleton count={Math.min(storeNumPerPage, PRIMER_ROWS)} />
                   </>
                 ) : null}
                 <PartialResultsWarning isPartialResults={data?.responseHeader?.partialResults} />
@@ -486,14 +501,19 @@ const SearchPage: NextPage = () => {
                           )}
                         >
                           <SimpleResultList
-                            docs={data.response.docs}
+                            docs={docs}
                             indexStart={params.start}
                             useNormCite={sort.startsWith('citation_count_norm')}
                             measureRenderSpan
+                            renderSpanKey={resultSetKey}
+                            renderSpanTotal={pageRowCount}
                           />
                         </ErrorBoundary>
                       )}
                     </QueryErrorResetBoundary>
+                    {isFillError && (
+                      <SearchErrorAlert error={fillError} onRetry={handleRetryFill} isRetrying={isFillFetching} />
+                    )}
                     {!isPrint && (
                       <Pagination
                         numPerPage={storeNumPerPage}

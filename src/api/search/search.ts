@@ -100,7 +100,7 @@ export const searchKeys = {
 };
 
 // default params to omit to keep cache entries more concise
-const omitParams = (query: IADSApiSearchParams) =>
+export const omitParams = (query: IADSApiSearchParams) =>
   omit<IADSApiSearchParams, string>(['fl', 'p'], query) as IADSApiSearchParams;
 
 /**
