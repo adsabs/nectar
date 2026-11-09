@@ -42,7 +42,14 @@ export const docsSlice: StoreSlice<IDocsState & IDocsAction> = (set, get) => ({
   // sets the current docs
   setDocs: (docs: string[]) =>
     set(
-      (state) => ({ docs: { ...state.docs, current: docs, isAllSelected: false, isSomeSelected: false } }),
+      (state) => ({
+        docs: {
+          ...state.docs,
+          current: docs,
+          isAllSelected: getIsAllSelected({ ...state.docs, current: docs }),
+          isSomeSelected: getIsSomeSelected({ ...state.docs, current: docs }),
+        },
+      }),
       false,
       'docs/setDocs',
     ),

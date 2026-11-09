@@ -64,12 +64,13 @@ export interface IListActionsProps {
   onOpenAddToLibrary: () => void;
   onOpenRemoveFromLibrary: () => void;
   isLoading: boolean;
+  isFullSetLoaded?: boolean;
 }
 
 type Operator = 'trending' | 'reviews' | 'useful' | 'similar';
 
 export const ListActions = (props: IListActionsProps): ReactElement => {
-  const { onSortChange = noop, onOpenAddToLibrary, onOpenRemoveFromLibrary, isLoading } = props;
+  const { onSortChange = noop, onOpenAddToLibrary, onOpenRemoveFromLibrary, isLoading, isFullSetLoaded = true } = props;
   const selected = useStore((state) => state.docs.selected ?? []);
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();
@@ -209,7 +210,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
               mt={{ base: '2', md: '0' }}
               wrap="wrap"
             >
-              <SelectAllCheckbox />
+              <SelectAllCheckbox isFullSetLoaded={isFullSetLoaded} />
               {!noneSelected && (
                 <>
                   <Text data-testid="listactions-selected">{selected.length.toLocaleString()} Selected</Text>
@@ -440,18 +441,19 @@ const useDocSelection = () => {
   };
 };
 
-const SelectAllCheckbox = () => {
+const SelectAllCheckbox = ({ isFullSetLoaded }: { isFullSetLoaded: boolean }) => {
   const { selectAll, isAllSelected, isSomeSelected, clearAllSelected } = useDocSelection();
 
   const handleChange = () => {
     isAllSelected || isSomeSelected ? clearAllSelected() : selectAll();
   };
 
-  return (
+  const checkbox = (
     <Checkbox
       size="md"
       isChecked={isAllSelected}
       isIndeterminate={!isAllSelected && isSomeSelected}
+      isDisabled={!isFullSetLoaded}
       onChange={handleChange}
       data-testid="listactions-checkbox"
       aria-label={isSomeSelected || isAllSelected ? 'deselect all' : 'select all'}
@@ -459,6 +461,8 @@ const SelectAllCheckbox = () => {
       Select All
     </Checkbox>
   );
+
+  return isFullSetLoaded ? checkbox : <Tooltip label="Loading all results">{checkbox}</Tooltip>;
 };
 
 const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExportFormat: string }): ReactElement => {
