@@ -13,7 +13,7 @@ const authenticatedUser: IUserData = {
   expires_at: '9999999999999999',
 };
 
-const renderUseUser = () => {
+const renderUseUser = (options?: { seedCache?: IUserData }) => {
   const store = createStore({ user: authenticatedUser });
   // Mirrors the production defaults from useCreateQueryClient, so the cache
   // entry survives invalidation the way it does in the app.
@@ -22,6 +22,9 @@ const renderUseUser = () => {
       queries: { retry: false, refetchOnMount: false, staleTime: Infinity, cacheTime: 5 * 60 * 1000 },
     },
   });
+  if (options?.seedCache) {
+    queryClient.setQueryData(['user'], options.seedCache);
+  }
 
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>
@@ -33,16 +36,16 @@ const renderUseUser = () => {
   return { ...result, store, queryClient };
 };
 
-test('mirrors a valid store user into the user cache as raw user data', async () => {
-  const { queryClient } = renderUseUser();
+test('does not mirror the store user into the user cache', async () => {
+  const { result, queryClient } = renderUseUser();
 
-  await waitFor(() => expect(queryClient.getQueryData(['user'])).toEqual(authenticatedUser));
+  await waitFor(() => expect(result.current.user).toEqual(authenticatedUser));
+
+  expect(queryClient.getQueryState(['user'])).toBeUndefined();
 });
 
 test('reset clears the store user and invalidates the cached identity', async () => {
-  const { result, store, queryClient } = renderUseUser();
-
-  await waitFor(() => expect(queryClient.getQueryData(['user'])).toEqual(authenticatedUser));
+  const { result, store, queryClient } = renderUseUser({ seedCache: authenticatedUser });
 
   await act(async () => {
     await result.current.reset();
