@@ -11,9 +11,10 @@ import { DEFAULT_USER_DATA } from '@/api/user/models';
 
 export interface ICustomFormatSelectProps {
   dispatch: Dispatch<CitationExporterEvent>;
+  initialCustomFormatId?: string;
 }
 
-export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
+export const CustomFormatSelect = ({ dispatch, initialCustomFormatId }: ICustomFormatSelectProps) => {
   const { isAuthenticated } = useSession();
 
   const { settings: settingsData } = useSettings({ suspense: false });
@@ -33,14 +34,35 @@ export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
     .sort((a, b) => (a.label < b.label ? -1 : 1));
   customFormatOptions.unshift({ id: 'new', label: 'Enter Custom Format', value: 'new', code: '%1H:%Y:%q' });
 
+  const matchedInitialOption = initialCustomFormatId
+    ? customFormatOptions.find((o) => o.id === initialCustomFormatId)
+    : undefined;
+
   // init to user's default
   const defaultCustomFormat =
-    customFormatOptions.length === 1
+    matchedInitialOption ??
+    (customFormatOptions.length === 1
       ? customFormatOptions[0]
-      : customFormatOptions.find((o) => o.id === customFormats[0].id);
+      : customFormatOptions.find((o) => o.id === customFormats[0].id));
   const [selectedFormatOption, setSelectedFormatOption] = useState(defaultCustomFormat);
 
   const [formatCode, setFormatCode] = useState(selectedFormatOption.code);
+
+  const [appliedInitialId, setAppliedInitialId] = useState<string | undefined>(
+    matchedInitialOption ? initialCustomFormatId : undefined,
+  );
+
+  useEffect(() => {
+    if (!initialCustomFormatId || appliedInitialId === initialCustomFormatId) {
+      return;
+    }
+    const match = customFormatOptions.find((o) => o.id === initialCustomFormatId);
+    if (!match) {
+      return;
+    }
+    setSelectedFormatOption(match);
+    setAppliedInitialId(initialCustomFormatId);
+  }, [initialCustomFormatId, customFormatOptions, appliedInitialId]);
 
   // initial fetch
   useEffect(() => {

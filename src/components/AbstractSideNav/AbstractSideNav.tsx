@@ -14,13 +14,11 @@ import {
 import { useRouter } from 'next/router';
 import { HTMLAttributes, ReactElement } from 'react';
 import { Routes } from './types';
-import { useSettings } from '@/lib/useSettings';
+import { useCitationFormat } from '@/lib/useCitationFormat';
 import { IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@/components/NavigationMenu';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetGraphicsCount } from '@/api/graphics/graphics';
 import { useHasMetrics } from '@/api/metrics/metrics';
-import { useExportFormats } from '@/lib/useExportFormats';
-import { ExportApiFormatKey } from '@/api/export/types';
 import { ChatIcon, CheckCircleIcon } from '@chakra-ui/icons';
 
 const abstractPath = '/abs';
@@ -38,17 +36,9 @@ const useGetItems = ({
   const docId = router.query.id as string;
   const encodedDocId = docId ? encodeURIComponent(docId) : '';
 
-  const { settings } = useSettings();
+  const { format } = useCitationFormat();
 
-  const { formatOptions } = useExportFormats();
-
-  // for export citation menu link, it needs to go to user's default setting if logged in
-  // otherwise go to bibtex
-  const defaultExportFormat = settings.defaultExportFormat;
-  const defaultExportFormatPath =
-    typeof defaultExportFormat === 'string'
-      ? formatOptions.find((f) => f.label === defaultExportFormat)?.value ?? ExportApiFormatKey.bibtex
-      : ExportApiFormatKey.bibtex;
+  const defaultExportFormatPath = format.id;
 
   const items: Record<Routes, IMenuItem> = {
     [Routes.ABSTRACT]: {

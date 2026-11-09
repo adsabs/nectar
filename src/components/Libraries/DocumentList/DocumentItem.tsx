@@ -43,7 +43,6 @@ export interface IItemProps {
   useNormCite?: boolean;
   linkNewTab?: boolean;
   hideResources?: boolean;
-  defaultCitation: string;
 }
 
 export const DocumentItem = (props: IItemProps): ReactElement => {
@@ -60,7 +59,6 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
     onSet = noop,
     useNormCite,
     hideResources = true,
-    defaultCitation,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
   const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
@@ -123,7 +121,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
           </SimpleLink>
           {!isClient || hideResources ? null : (
             <Flex alignItems="start" ml={1}>
-              <ItemResourceDropdowns doc={doc} defaultCitation={defaultCitation} />
+              <ItemResourceDropdowns doc={doc} />
               <Tooltip label={isOpen ? 'Hide annotation' : 'Show annotation'}>
                 <IconButton
                   aria-label={isOpen ? 'Hide annotation' : 'Show annotation'}

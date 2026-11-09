@@ -60,7 +60,7 @@ import { useSettings } from '@/lib/useSettings';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { useVaultBigQuerySearch } from '@/api/vault/vault';
 import { useRouter } from 'next/router';
-import { useExportFormats } from '@/lib/useExportFormats';
+import { useCitationFormat } from '@/lib/useCitationFormat';
 import { APP_DEFAULTS } from '@/config';
 export interface ILibraryEntityPaneProps {
   id: LibraryIdentifier;
@@ -502,8 +502,6 @@ const BulkMenu = ({
   onClearAll: () => void;
   onDeleteSelected: () => void;
 }) => {
-  const { settings } = useSettings();
-
   const { panel: PanelBackground } = useColorModeColors();
 
   const [applyToAll, setApplyToAll] = useState(selectedDocs.length === 0);
@@ -566,14 +564,9 @@ const BulkMenu = ({
               </MenuOptionGroup>
               <MenuDivider />
               {applyToAll ? (
-                <ExportMenu library={library} sort={sort} defaultExportFormat={settings.defaultExportFormat} />
+                <ExportMenu library={library} sort={sort} />
               ) : (
-                <ExportMenu
-                  library={library}
-                  docs={selectedDocs}
-                  sort={sort}
-                  defaultExportFormat={settings.defaultExportFormat}
-                />
+                <ExportMenu library={library} docs={selectedDocs} sort={sort} />
               )}
             </MenuList>
           </Portal>
@@ -591,18 +584,14 @@ const BulkMenu = ({
   );
 };
 
-const ExportMenu = (
-  props: MenuGroupProps & { docs?: string[]; library: string; sort: SolrSort; defaultExportFormat: string },
-): ReactElement => {
-  const { docs, library, defaultExportFormat, sort, ...menuGroupProps } = props;
+const ExportMenu = (props: MenuGroupProps & { docs?: string[]; library: string; sort: SolrSort }): ReactElement => {
+  const { docs, library, sort, ...menuGroupProps } = props;
   const router = useRouter();
   const [selected, setSelected] = useState<Bibcode[]>(null);
   const [route, setRoute] = useState(['', '']);
-  const { getFormatOptionByLabel } = useExportFormats();
+  const { format } = useCitationFormat();
 
   const { data } = useVaultBigQuerySearch(selected ?? [], { enabled: !!selected && selected.length > 0 });
-
-  const defaultExportFormatValue = getFormatOptionByLabel(defaultExportFormat).value;
 
   useEffect(() => {
     // when vault query is done, transition to the export page passing only qid
@@ -653,7 +642,7 @@ const ExportMenu = (
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.aastex)}>in AASTeX</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.endnote)}>in EndNote</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.ris)}>in RIS</MenuItem>
-      <MenuItem onClick={handleExportItemClick(defaultExportFormatValue)}>Other Formats</MenuItem>
+      <MenuItem onClick={handleExportItemClick(format.id)}>Other Formats</MenuItem>
     </MenuGroup>
   );
 };
