@@ -58,6 +58,63 @@ describe('sentry.client.config', () => {
     expect(tags.app).toBe('nectar');
   });
 
+  const matchesAny = (patterns: Array<string | RegExp>, value: string): boolean =>
+    patterns.some((pattern) => (typeof pattern === 'string' ? value.includes(pattern) : pattern.test(value)));
+
+  const loadClientFilters = async () => {
+    const options = await loadInitOptions('./sentry.client.config');
+    return {
+      ignoreErrors: options.ignoreErrors as Array<string | RegExp>,
+      denyUrls: options.denyUrls as Array<string | RegExp>,
+    };
+  };
+
+  test.each([
+    'ReferenceError: _vwo_code is not defined',
+    'ReferenceError: pintrk is not defined',
+    'ReferenceError: googletag is not defined',
+    'ReferenceError: fbq is not defined',
+    'NS_ERROR_NOT_INITIALIZED: No error message',
+  ])('drops injected third-party noise: %s', async (message) => {
+    const { ignoreErrors } = await loadClientFilters();
+
+    expect(matchesAny(ignoreErrors, message)).toBe(true);
+  });
+
+  test.each([
+    'Error: Empty session',
+    'Error: Typesetting failed: {"isTrusted":true}',
+    'Unknown error',
+    'AxiosError: Request failed with status code 401',
+    'Error: Bootstrap failed during abstract SSR',
+    'ReferenceError: formatDate is not defined',
+  ])('keeps reporting our own errors: %s', async (message) => {
+    const { ignoreErrors } = await loadClientFilters();
+
+    expect(matchesAny(ignoreErrors, message)).toBe(false);
+  });
+
+  test.each([
+    'chrome-extension://abcdefghijklmnop/inject.js',
+    'moz-extension://abcdefghijklmnop/inject.js',
+    'safari-web-extension://ABCDEF/inject.js',
+    'https://scixplorer-org.translate.goog/_next/static/chunks/abc.js',
+  ])('drops errors raised from %s', async (url) => {
+    const { denyUrls } = await loadClientFilters();
+
+    expect(matchesAny(denyUrls, url)).toBe(true);
+  });
+
+  test.each([
+    'https://scixplorer.org/_next/static/chunks/abc.js',
+    'https://scixplorer.org/abs/2026ApJ..1008...36N/abstract',
+    'blob:https://scixplorer.org/0d8e2f94-1f1d-4a2c-9c2f-7f1f5f8a9b10',
+  ])('keeps errors raised from %s', async (url) => {
+    const { denyUrls } = await loadClientFilters();
+
+    expect(matchesAny(denyUrls, url)).toBe(false);
+  });
+
   test('reports the environment the server injected into the page', async () => {
     vi.stubGlobal('document', { cookie: '' });
     vi.stubGlobal('window', { __scixSentryEnvironment: 'ads-prod' });
