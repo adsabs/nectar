@@ -3,16 +3,19 @@ import { test as base, expect } from '@playwright/test';
 import { HomePage } from '../pages/home.page';
 import { LoginPage } from '../pages/login.page';
 import { SearchPage } from '../pages/search.page';
+import { SearchResultsPage } from '../pages/search-results.page';
 import { RegisterPage } from '../pages/register.page';
 import { ForgotPasswordPage } from '../pages/forgot-password.page';
 import { VerifyPage } from '../pages/verify.page';
 import { SettingsPage } from '../pages/settings.page';
+import { LocalSettings } from '../../src/types';
 
 export type NectarTestContext = {
   nectarUrl: string;
   homePage: HomePage;
   loginPage: LoginPage;
   searchPage: SearchPage;
+  searchResultsPage: SearchResultsPage;
   registerPage: RegisterPage;
   forgotPasswordPage: ForgotPasswordPage;
   verifyPage: VerifyPage;
@@ -22,11 +25,18 @@ export type NectarTestContext = {
   getNextData: () => Promise<any>;
   assertCookieRewritten: (cookie: string | undefined, expectedValue: string) => void;
   resetStub: () => Promise<void>;
+  suppressProductTour: void;
+};
+
+export type ProductTourVisibility = 'suppressed' | 'visible';
+
+export type NectarTestOptions = {
+  productTour: ProductTourVisibility;
 };
 
 const STUB_URL = process.env.STUB_URL || 'http://127.0.0.1:18080';
 
-export const test = base.extend<NectarTestContext>({
+export const test = base.extend<NectarTestContext & NectarTestOptions>({
   nectarUrl: async ({}, use) => {
     await use(process.env.NECTAR_URL || process.env.BASE_URL || 'http://127.0.0.1:8000');
   },
@@ -41,6 +51,10 @@ export const test = base.extend<NectarTestContext>({
 
   searchPage: async ({ page, context, nectarUrl }, use) => {
     await use(new SearchPage(page, context, nectarUrl));
+  },
+
+  searchResultsPage: async ({ page, context, nectarUrl }, use) => {
+    await use(new SearchResultsPage(page, context, nectarUrl));
   },
 
   registerPage: async ({ page, context, nectarUrl }, use) => {
@@ -95,6 +109,27 @@ export const test = base.extend<NectarTestContext>({
       await request.post(`${STUB_URL}/__test__/reset`);
     });
   },
+
+  productTour: ['suppressed', { option: true }],
+
+  suppressProductTour: [
+    async ({ context, productTour }, use) => {
+      if (productTour === 'visible') {
+        await use();
+        return;
+      }
+      const seenTourKeys = [
+        LocalSettings.SEEN_LANDING_TOUR,
+        LocalSettings.SEEN_RESULTS_TOUR,
+        LocalSettings.SEEN_ABSTRACT_TOUR,
+      ];
+      await context.addInitScript((keys: string[]) => {
+        keys.forEach((key) => window.localStorage.setItem(key, 'true'));
+      }, seenTourKeys);
+      await use();
+    },
+    { auto: true },
+  ],
 });
 
 export { expect };

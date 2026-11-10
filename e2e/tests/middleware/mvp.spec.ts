@@ -14,11 +14,8 @@ test.describe('Middleware MVP', () => {
     });
 
     await freshPage.goto(`${nectarUrl}/search`, { waitUntil: 'load' });
-    await freshPage.waitForURL('**/?notify=api-connect-failed', {
-      timeout: 5000,
-    });
 
-    expect(freshPage.url()).toContain('/?notify=api-connect-failed');
+    await freshPage.waitForURL(/\/\?notify=api-connect-failed/);
 
     const stubUrl = process.env.STUB_URL || 'http://127.0.0.1:18080';
     const response = await request.get(`${stubUrl}/__test__/calls`);

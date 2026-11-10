@@ -1,28 +1,28 @@
-import { IADSApiSearchResponse } from '@/api/search/types';
+import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@/api/search/types';
 
 type GenerateOptions = {
-  params?: Record<string, string>;
+  params?: Partial<IADSApiSearchParams>;
   numFound?: number;
-  start?: number;
-  innerResponse?: Record<string, unknown>;
-  [key: string]: unknown;
+  innerResponse?: { docs?: IDocsEntity[] };
+  facets?: IADSApiSearchResponse['facets'];
+  stats?: IADSApiSearchResponse['stats'];
+  facet_counts?: IADSApiSearchResponse['facet_counts'];
+  highlighting?: IADSApiSearchResponse['highlighting'];
 };
 
-export const generateSearchResponse = <T = IADSApiSearchResponse>(options: GenerateOptions): T => {
-  const { params = {}, numFound = 0, start = 0, innerResponse, ...props } = options;
+export const generateSearchResponse = (options: GenerateOptions): IADSApiSearchResponse => {
+  const { params = {}, numFound = 0, innerResponse, ...rest } = options;
 
   return {
     responseHeader: {
       status: 0,
       QTime: 0,
-      params,
+      params: { q: '', ...params },
     },
     response: {
       numFound,
-      start,
-      docs: [],
-      ...innerResponse,
+      docs: innerResponse?.docs ?? [],
     },
-    ...props,
-  } as T;
+    ...rest,
+  };
 };

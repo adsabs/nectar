@@ -1,0 +1,13 @@
+{
+  "responseHeader": {
+    "status": 0,
+    "QTime": 0,
+    "params": {
+      "q": ""
+    }
+  },
+  "response": {
+    "numFound": 0,
+    "docs": []
+  }
+}
