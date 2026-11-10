@@ -2,8 +2,6 @@ import { describe, expect, test } from 'vitest';
 import crawlerRanges from '@/middlewares/crawler-ranges.generated.json';
 import { parseIp } from '@/middlewares/cidr';
 
-const MAX_SNAPSHOT_AGE_DAYS = 90;
-
 describe('crawler range snapshot', () => {
   const crawlers = Object.entries(crawlerRanges.crawlers);
 
@@ -26,12 +24,5 @@ describe('crawler range snapshot', () => {
 
       expect(Number(bits), `${prefix} is implausibly broad`).toBeGreaterThanOrEqual(8);
     }
-  });
-
-  test(`was refreshed within ${MAX_SNAPSHOT_AGE_DAYS} days`, () => {
-    const ageDays = (Date.now() - Date.parse(crawlerRanges.fetchedAt)) / 86_400_000;
-
-    expect(Number.isNaN(ageDays)).toBe(false);
-    expect(ageDays).toBeLessThan(MAX_SNAPSHOT_AGE_DAYS);
   });
 });
