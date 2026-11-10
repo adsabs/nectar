@@ -113,7 +113,7 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
             <AccordionItem isDisabled={dataProductResources.length === 0}>
               <AccordionButton>
                 <Box flex="1" textAlign="left" fontWeight="medium">
-                  Data Products
+                  Linked Data Products
                 </Box>
                 <AccordionIcon />
               </AccordionButton>
@@ -173,7 +173,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
       </MenuButton>
       <MenuList>
         {dataProducts.length > 0 && (
-          <MenuGroup title="Data Products">
+          <MenuGroup title="Linked Data Products">
             {dataProducts.map((item) => (
               <MenuItem key={item.id} data-id={item.id} as={SimpleLink} href={item.path} newTab>
                 {item.label}

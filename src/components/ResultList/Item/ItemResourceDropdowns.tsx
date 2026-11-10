@@ -235,10 +235,10 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
 
       {/* data product items menu */}
       <Menu variant="compact" onOpen={() => setIsDataOpen(true)} onClose={() => setIsDataOpen(false)}>
-        <Tooltip label="Data products" isDisabled={isDataOpen}>
+        <Tooltip label="Linked data products" isDisabled={isDataOpen}>
           <MenuButton
             as={IconButton}
-            aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
+            aria-label={dataProductItems.length > 0 ? 'Linked data products' : 'No linked data products'}
             icon={<CircleStackIcon width="20px" height="20px" />}
             isDisabled={dataProductItems.length === 0}
             variant="link"

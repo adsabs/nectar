@@ -99,7 +99,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     isLowerCase: false,
   },
   data: {
-    label: 'Data',
+    label: 'Linked Data',
     field: 'data_facet' as FacetField,
     logic: defaultLogic,
     storeId: 'data',
