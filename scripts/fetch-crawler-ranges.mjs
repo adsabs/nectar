@@ -1,4 +1,4 @@
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -33,6 +33,14 @@ const fetchRanges = async (name, url) => {
   return { creationTime: body.creationTime ?? null, prefixes };
 };
 
+const readSnapshot = async () => {
+  try {
+    return JSON.parse(await readFile(OUT, 'utf8'));
+  } catch {
+    return null;
+  }
+};
+
 const main = async () => {
   const entries = await Promise.all(
     Object.entries(SOURCES).map(async ([name, url]) => {
@@ -42,13 +50,22 @@ const main = async () => {
     }),
   );
 
+  const crawlers = Object.fromEntries(entries);
+  const existing = await readSnapshot();
+  const relative = path.relative(process.cwd(), OUT);
+
+  if (existing && JSON.stringify(existing.crawlers) === JSON.stringify(crawlers)) {
+    console.log(`\n${relative} unchanged since ${existing.fetchedAt}; nothing written`);
+    return;
+  }
+
   const snapshot = {
     fetchedAt: new Date().toISOString(),
-    crawlers: Object.fromEntries(entries),
+    crawlers,
   };
 
   await writeFile(OUT, `${JSON.stringify(snapshot, null, 2)}\n`);
-  console.log(`\nwrote ${path.relative(process.cwd(), OUT)}`);
+  console.log(`\nwrote ${relative}`);
 };
 
 await main();
