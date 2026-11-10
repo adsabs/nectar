@@ -16,10 +16,11 @@ import {
   useMergeRefs,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { ChangeEventHandler, Dispatch, useCallback, useEffect } from 'react';
+import { ChangeEventHandler, Dispatch, useCallback, useEffect, useRef } from 'react';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { ISearchInputState, SearchInputAction } from '@/components/SearchBar/searchInputReducer';
 import {
+  getCursorPosition,
   getFocusedItemValue,
   getPreview,
   updateUATSearchTerm,
@@ -58,20 +59,46 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   });
   useSyncWithGlobal({ searchTerm: state.searchTerm, dispatch });
 
-  // handle updates to the cursor position, usually just to move inside "" or ()
-  useEffect(() => {
-    // if the input is focused and the cursor position is less than the search term length,
-    // set the selection range to the cursor position
-    if (input.current && state.cursorPosition < state.searchTerm.length) {
-      input.current.setSelectionRange(state.cursorPosition, state.cursorPosition);
-    }
-  }, [input, state.cursorPosition, state.searchTerm.length]);
+  const hasTypeaheadItems = state.items.length > 0 || state.uatItems.length > 0 || state.journalItems.length > 0;
+
+  const { effectiveValue, effectiveCursorPosition } =
+    state.focused === -1 || !hasTypeaheadItems
+      ? { effectiveValue: state.searchTerm, effectiveCursorPosition: state.cursorPosition }
+      : (() => {
+          const focusedValue = getFocusedItemValue(
+            state.items.length > 0 ? state.items : state.uatItems.length > 0 ? state.uatItems : state.journalItems,
+            state.focused,
+          );
+
+          if (focusedValue === null) {
+            return { effectiveValue: state.searchTerm, effectiveCursorPosition: state.cursorPosition };
+          }
+
+          const previewValue =
+            state.uatItems.length > 0
+              ? updateUATSearchTerm(state.searchTerm, focusedValue)
+              : state.journalItems.length > 0
+              ? updateJournalSearchTerm(state.searchTerm, focusedValue, journalSearchParams?.fieldType)
+              : getPreview(state.searchTerm, focusedValue);
+
+          return { effectiveValue: previewValue, effectiveCursorPosition: getCursorPosition(previewValue) };
+        })();
 
   useEffect(() => {
-    if (state.searchTerm) {
-      focus();
+    if (input.current && effectiveCursorPosition < effectiveValue.length) {
+      input.current.setSelectionRange(effectiveCursorPosition, effectiveCursorPosition);
     }
-  }, [state.searchTerm, focus]);
+  }, [input, effectiveCursorPosition, effectiveValue]);
+
+  const lastHandledFocusRequest = useRef(state.focusRequestId);
+
+  useEffect(() => {
+    if (lastHandledFocusRequest.current === state.focusRequestId) {
+      return;
+    }
+    lastHandledFocusRequest.current = state.focusRequestId;
+    focus();
+  }, [state.focusRequestId, focus]);
 
   // handle updates to the search term
   const handleInputChange: ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -101,28 +128,9 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
 
   const handleItemClick = useCallback(() => focus({ moveCursorToEnd: false }), [focus]);
 
-  const value =
-    state.focused === -1 || (!state.items.length && !state.uatItems.length && !state.journalItems.length)
-      ? state.searchTerm
-      : (() => {
-          const focusedValue = getFocusedItemValue(
-            state.items.length > 0 ? state.items : state.uatItems.length > 0 ? state.uatItems : state.journalItems,
-            state.focused,
-          );
-
-          if (focusedValue === null) {
-            return state.searchTerm;
-          }
-
-          // Use appropriate update function based on which type of items are showing
-          if (state.uatItems.length > 0) {
-            return updateUATSearchTerm(state.searchTerm, focusedValue);
-          } else if (state.journalItems.length > 0) {
-            return updateJournalSearchTerm(state.searchTerm, focusedValue, journalSearchParams?.fieldType);
-          } else {
-            return getPreview(state.searchTerm, focusedValue);
-          }
-        })();
+  const handleBlur = useCallback(() => {
+    dispatch({ type: 'COMMIT_PREVIEW' });
+  }, [dispatch]);
 
   return (
     <Popover isOpen={state.isOpen} placement="bottom" gutter={0} matchWidth autoFocus={false} strategy="fixed">
@@ -149,7 +157,8 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
               data-tour="search-input"
               maxLength={SEARCHBAR_MAX_LENGTH}
               onSelect={handleOnSelect}
-              value={value}
+              onBlur={handleBlur}
+              value={effectiveValue}
               aria-owns="search-listbox"
               aria-haspopup="listbox"
               aria-expanded={state.isOpen}

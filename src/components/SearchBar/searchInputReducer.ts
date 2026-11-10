@@ -22,6 +22,7 @@ export interface ISearchInputState {
   focused: number;
   cursorPosition: number;
   selectedRange?: [number, number];
+  focusRequestId: number;
 }
 
 export type SearchInputAction =
@@ -31,6 +32,7 @@ export type SearchInputAction =
   | { type: 'SET_SEARCH_TERM_ADDITION'; payload: { queryAddition: string; cursorPos?: number } }
   | { type: 'SET_SELECTED_RANGE'; payload: [number, number] }
   | { type: 'CLICK_ITEM' }
+  | { type: 'COMMIT_PREVIEW' }
   | { type: 'FOCUS_ITEM'; index: number }
   | { type: 'KEYDOWN_ENTER' }
   | { type: 'KEYDOWN_ESCAPE' }
@@ -39,6 +41,29 @@ export type SearchInputAction =
   | { type: 'KEYDOWN_ARROW_DOWN' }
   | { type: 'KEYDOWN_ARROW_UP' }
   | { type: 'KEYDOWN_TAB' };
+
+const commitFocusedPreview = (state: ISearchInputState): ISearchInputState => {
+  if (state.focused === -1) {
+    return state;
+  }
+
+  if (state.items.length > 0) {
+    const searchTerm = updateSearchTerm(state.searchTerm, state.items[state.focused].value);
+    return { ...state, isOpen: false, focused: -1, searchTerm, cursorPosition: getCursorPosition(searchTerm) };
+  }
+
+  if (state.uatItems.length > 0) {
+    const searchTerm = updateUATSearchTerm(state.searchTerm, state.uatItems[state.focused].value);
+    return { ...state, isOpen: false, focused: -1, searchTerm, cursorPosition: getCursorPosition(searchTerm) };
+  }
+
+  if (state.journalItems.length > 0) {
+    const searchTerm = updateJournalSearchTerm(state.searchTerm, state.journalItems[state.focused].value);
+    return { ...state, isOpen: false, focused: -1, searchTerm, cursorPosition: getCursorPosition(searchTerm) };
+  }
+
+  return { ...state, isOpen: false, focused: -1 };
+};
 
 export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, action) => {
   switch (action.type) {
@@ -122,24 +147,27 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
     }
     case 'SET_SEARCH_TERM_ADDITION': {
       const { queryAddition, cursorPos } = action.payload;
-      const selectedRange = state.selectedRange || [0, 0];
-      const selection = state.searchTerm.slice(selectedRange[0], selectedRange[1]);
+      const base = commitFocusedPreview(state);
+      const selectedRange = base.selectedRange || [0, 0];
+      const selection = base.searchTerm.slice(selectedRange[0], selectedRange[1]);
 
       if (typeof selection === 'string' && selection.trim().length > 0) {
         // if selection is not empty, replace it with the query addition
-        const searchTerm = wrapSelectedWithField(state.searchTerm, selectedRange[0], selectedRange[1], queryAddition);
+        const searchTerm = wrapSelectedWithField(base.searchTerm, selectedRange[0], selectedRange[1], queryAddition);
         return {
-          ...state,
+          ...base,
           searchTerm,
           cursorPosition: isNumber(cursorPos) ? searchTerm.length + cursorPos : getCursorPosition(searchTerm),
+          focusRequestId: base.focusRequestId + 1,
         };
       }
 
-      const searchTerm = appendSearchTerm(state.searchTerm, queryAddition);
+      const searchTerm = appendSearchTerm(base.searchTerm, queryAddition);
       return {
-        ...state,
+        ...base,
         searchTerm,
         cursorPosition: isNumber(cursorPos) ? searchTerm.length + cursorPos : getCursorPosition(searchTerm),
+        focusRequestId: base.focusRequestId + 1,
       };
     }
     case 'KEYDOWN_ARROW_DOWN': {
@@ -206,46 +234,16 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
 
     case 'KEYDOWN_TAB':
     case 'CLICK_ITEM':
-    case 'KEYDOWN_ENTER': {
-      // if menu is open, and we're focused on an item, select it
-      if (state.focused > -1) {
-        if (state.items.length > 0) {
-          const searchTerm = updateSearchTerm(state.searchTerm, state.items[state.focused].value);
-          return {
-            ...state,
-            isOpen: false,
-            focused: -1,
-            searchTerm,
-            cursorPosition: getCursorPosition(searchTerm),
-          };
-        } else if (state.uatItems.length > 0) {
-          const searchTerm = updateUATSearchTerm(state.searchTerm, state.uatItems[state.focused].value);
-          return {
-            ...state,
-            isOpen: false,
-            focused: -1,
-            searchTerm,
-            cursorPosition: getCursorPosition(searchTerm),
-          };
-        } else if (state.journalItems.length > 0) {
-          const searchTerm = updateJournalSearchTerm(state.searchTerm, state.journalItems[state.focused].value);
-          return {
-            ...state,
-            isOpen: false,
-            focused: -1,
-            searchTerm,
-            cursorPosition: getCursorPosition(searchTerm),
-          };
-        }
-      }
-
-      // if menu is closed, and we're not focused on an item, do nothing
+    case 'KEYDOWN_ENTER':
       return {
-        ...state,
+        ...commitFocusedPreview(state),
         isOpen: false,
         focused: -1,
+        focusRequestId: state.focusRequestId + 1,
       };
-    }
+
+    case 'COMMIT_PREVIEW':
+      return commitFocusedPreview(state);
 
     case 'KEYDOWN_ESCAPE':
       return state.isOpen ? { ...state, isOpen: false, focused: -1 } : state;
@@ -268,4 +266,5 @@ export const initialState: ISearchInputState = {
   items: [],
   focused: -1,
   cursorPosition: 0,
+  focusRequestId: 0,
 };

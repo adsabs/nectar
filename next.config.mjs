@@ -16,7 +16,6 @@ const CSP = `
   manifest-src 'self';
   media-src 'none';
   worker-src 'self' blob:;
-  report-uri https://o1060269.ingest.sentry.io/api/6049652/security/?sentry_key=e87ef8ec678b4ad5a2193c5463d386fd;
 `
   .replace(/\s{2,}/g, ' ')
   .trim();

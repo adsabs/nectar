@@ -2,6 +2,7 @@ import { ColorModeScript } from '@chakra-ui/react';
 import { theme } from '@/theme';
 import { COLOR_MODE_NO_FLASH_CSS } from '@/color-mode-no-flash';
 import { getGtmSnippet, getGtmUserId } from '@/gtm-snippet';
+import { getSentryEnvironmentSnippet } from '@/lib/sentryEnvironment';
 import Document, { Head, Html, Main, NextScript } from 'next/document';
 import { ReactElement } from 'react';
 import { IUserData } from '@/api/user/types';
@@ -17,6 +18,7 @@ class MyDocument extends Document {
     return (
       <Html lang="en">
         <Head>
+          <script dangerouslySetInnerHTML={{ __html: getSentryEnvironmentSnippet(process.env.SENTRY_ENVIRONMENT) }} />
           {gtmId ? <script dangerouslySetInnerHTML={{ __html: getGtmSnippet(gtmId, getGtmUserId(user)) }} /> : null}
           <style dangerouslySetInnerHTML={{ __html: COLOR_MODE_NO_FLASH_CSS }} />
         </Head>
