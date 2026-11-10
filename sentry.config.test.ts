@@ -114,4 +114,22 @@ describe('sentry.client.config', () => {
 
     expect(matchesAny(denyUrls, url)).toBe(false);
   });
+
+  test('reports the environment the server injected into the page', async () => {
+    vi.stubGlobal('document', { cookie: '' });
+    vi.stubGlobal('window', { __scixSentryEnvironment: 'ads-prod' });
+
+    const options = await loadInitOptions('./sentry.client.config');
+
+    expect(options.environment).toBe('ads-prod');
+  });
+
+  test('falls back to production when the page injected nothing', async () => {
+    vi.stubGlobal('document', { cookie: '' });
+    vi.stubGlobal('window', {});
+
+    const options = await loadInitOptions('./sentry.client.config');
+
+    expect(options.environment).toBe('production');
+  });
 });
