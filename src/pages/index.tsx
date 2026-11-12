@@ -363,14 +363,14 @@ const Stats = () => {
         <StatLabel color="brand.200">
           <Icon as={FolderIcon} w={{ base: 10, md: 50 }} h={{ base: 10, md: 50 }} />
         </StatLabel>
-        <StatNumber>30M+</StatNumber>
+        <StatNumber>39M+</StatNumber>
         <StatHelpText>Scientific Documents</StatHelpText>
       </Stat>
       <Stat textAlign="center">
         <StatLabel color="brand.300">
           <Icon as={ChatBubbleBottomCenterIcon} w={{ base: 10, md: 50 }} h={{ base: 10, md: 50 }} />
         </StatLabel>
-        <StatNumber>300M+</StatNumber>
+        <StatNumber>400M+</StatNumber>
         <StatHelpText>Citations</StatHelpText>
       </Stat>
       <Stat textAlign="center">
