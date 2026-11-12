@@ -4,6 +4,7 @@ export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
+  grepInvert: process.env.CI ? /@wip/ : undefined,
   retries: 0,
   workers: process.env.CI ? 1 : '50%',
   reporter: 'list',

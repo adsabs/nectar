@@ -1,4 +1,4 @@
-import { test } from '../../fixtures/nectar.fixture';
+import { test, expect } from '../../fixtures/nectar.fixture';
 
 test.describe('Navigation Smoke Tests', () => {
   test.beforeEach(async ({ homePage, resetStub }) => {
@@ -6,28 +6,31 @@ test.describe('Navigation Smoke Tests', () => {
     await resetStub();
   });
 
-  test('Home page loads successfully', async ({ homePage }) => {
+  test('Home page loads successfully', async ({ page, homePage }) => {
     await homePage.addSessionCookie('anonymous-session');
     await homePage.setScenarioHeader('bootstrap-anonymous');
 
     await homePage.goto();
 
-    homePage.urlEquals(`${homePage.baseUrl}/`);
+    await expect(page).toHaveURL(`${homePage.baseUrl}/`);
   });
 
-  test('Search page loads for authenticated user', async ({ searchPage }) => {
+  test('Search page loads for authenticated user', async ({ page, searchPage }) => {
     await searchPage.addSessionCookie('authenticated-session');
     await searchPage.setScenarioHeader('bootstrap-authenticated');
 
-    await searchPage.gotoAndExpect();
-    searchPage.urlContains('/search');
+    const response = await searchPage.goto();
+
+    expect(response?.status()).toBe(200);
+    await expect(page).toHaveURL(/\/search/);
   });
 
-  test('Login page loads for anonymous user', async ({ loginPage }) => {
+  test('Login page loads for anonymous user', async ({ page, loginPage }) => {
     await loginPage.addSessionCookie('anonymous-session');
     await loginPage.setScenarioHeader('bootstrap-anonymous');
 
     await loginPage.goto();
-    loginPage.urlContains('/user/account/login');
+
+    await expect(page).toHaveURL(/\/user\/account\/login/);
   });
 });

@@ -21,7 +21,12 @@ const VIEWPORTS = [
   { label: 'mobile', width: 390, height: 844 },
 ] as const;
 
-const MENU_BUTTON_NAMES = ['Full text sources', 'References and citations', 'Data products', 'share options'] as const;
+const MENU_BUTTON_NAMES = [
+  'Full text sources',
+  'References and citations',
+  'Linked data products',
+  'share options',
+] as const;
 
 interface OverlayProbe {
   insideRow: boolean;

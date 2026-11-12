@@ -1,15 +1,23 @@
-import { Page, BrowserContext } from '@playwright/test';
+import { Page, BrowserContext, Locator } from '@playwright/test';
 import { BasePage } from './base.page';
 
 export class LoginPage extends BasePage {
   protected readonly path = '/user/account/login';
 
-  private readonly emailInput = 'input[name="email"]';
-  private readonly passwordInput = 'input[name="password"]';
-  private readonly submitButton = 'button[type="submit"]';
-
   constructor(page: Page, context: BrowserContext, baseUrl: string) {
     super(page, context, baseUrl);
+  }
+
+  get emailInput(): Locator {
+    return this.page.getByTestId('login-email');
+  }
+
+  get passwordInput(): Locator {
+    return this.page.getByTestId('login-password');
+  }
+
+  get submitButton(): Locator {
+    return this.page.getByTestId('login-submit');
   }
 
   async gotoWithNext(nextUrl: string): Promise<void> {
@@ -17,16 +25,16 @@ export class LoginPage extends BasePage {
   }
 
   async fillCredentials(email: string, password: string): Promise<void> {
-    await this.page.fill(this.emailInput, email);
-    await this.page.fill(this.passwordInput, password);
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
   }
 
   async submit(): Promise<void> {
-    await this.page.click(this.submitButton);
+    await this.submitButton.click();
   }
 
   async mockLoginSuccess(): Promise<void> {
-    await this.interceptRoute('**/api/auth/login', async (route) => {
+    await this.page.route('**/api/auth/login', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

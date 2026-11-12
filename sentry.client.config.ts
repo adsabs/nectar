@@ -6,13 +6,28 @@ import * as Sentry from '@sentry/nextjs';
 
 import { beforeSendApiSpan } from '@/lib/normalizeApiSpan';
 import { readAuthTag, SENTRY_AUTH_TAG_NAME } from '@/lib/sentryAuthTag';
+import { readSentryEnvironment } from '@/lib/sentryEnvironment';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
+  environment: readSentryEnvironment(),
+
   tunnel: '/api/monitor',
   sendDefaultPii: false,
   enableLogs: true,
+
+  ignoreErrors: [
+    /\b(?:_vwo_code|pintrk|googletag|fbq|ttq|twq|snaptr|_satellite)\b is not defined/,
+    'NS_ERROR_NOT_INITIALIZED',
+  ],
+
+  denyUrls: [
+    /^chrome(?:-extension)?:\/\//,
+    /^moz-extension:\/\//,
+    /^safari-(?:web-)?extension:\/\//,
+    /\.translate\.goog/,
+  ],
 
   // Tag /v1/* API spans with normalized api.domain / api.endpoint for grouping.
   beforeSendSpan: beforeSendApiSpan,

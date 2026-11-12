@@ -9,6 +9,7 @@ WORKDIR /app
 RUN npm install express
 
 COPY server.js search-docs.js ./
+COPY fixtures ./fixtures
 
 EXPOSE 18080
 

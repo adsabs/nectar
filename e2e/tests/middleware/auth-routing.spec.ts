@@ -10,15 +10,19 @@ test.describe('Auth Routing (Suite C)', () => {
     await loginPage.addSessionCookie('anonymous-session');
     await loginPage.setScenarioViaRoute('bootstrap-anonymous');
 
-    const response = await page.goto(`${loginPage.baseUrl}/user/libraries`, { waitUntil: 'commit' });
+    await page.goto(`${loginPage.baseUrl}/user/libraries`, { waitUntil: 'commit' });
 
-    const finalUrl = response?.url() || page.url();
-    expect(finalUrl).toContain('/user/account/login');
-    expect(finalUrl).toContain('next=');
-    expect(finalUrl).toContain('notify=login-required');
+    await page.waitForURL((url) => {
+      const target = new URL(url);
+      return (
+        target.pathname === '/user/account/login' &&
+        target.searchParams.has('next') &&
+        target.searchParams.get('notify') === 'login-required'
+      );
+    });
   });
 
-  test('C2: Protected route authenticated allows access', async ({ settingsPage, searchPage }) => {
+  test('C2: Protected route authenticated allows access', async ({ page, settingsPage, searchPage }) => {
     await searchPage.addSessionCookie('authenticated-session');
     await searchPage.setScenarioHeader('bootstrap-authenticated');
 
@@ -26,10 +30,11 @@ test.describe('Auth Routing (Suite C)', () => {
     const response = await settingsPage.goto();
 
     expect(response?.status()).toBe(200);
-    settingsPage.urlContains('/user/settings');
+    await expect(page).toHaveURL(/\/user\/settings/);
   });
 
   test('C3: Login route authenticated redirects based on next param - valid relative path', async ({
+    page,
     loginPage,
     searchPage,
   }) => {
@@ -39,11 +44,11 @@ test.describe('Auth Routing (Suite C)', () => {
     await searchPage.goto();
     await loginPage.gotoWithNext('/user/settings');
 
-    loginPage.urlContains('/user/settings');
-    loginPage.urlContains('notify=account-login-success');
+    await page.waitForURL(/\/user\/settings/);
   });
 
   test('C3b: Login route authenticated redirects to home for external next param', async ({
+    page,
     loginPage,
     searchPage,
   }) => {
@@ -53,10 +58,11 @@ test.describe('Auth Routing (Suite C)', () => {
     await searchPage.goto();
     await loginPage.gotoWithNext('https://evil.example');
 
-    loginPage.urlContains('/?notify=account-login-success');
+    await page.waitForURL(/\/\?notify=account-login-success/);
   });
 
   test('C3c: Login route authenticated redirects to home when no next param', async ({
+    page,
     loginPage,
     searchPage,
     nectarUrl,
@@ -67,20 +73,21 @@ test.describe('Auth Routing (Suite C)', () => {
     await searchPage.goto();
     await loginPage.goto();
 
-    loginPage.urlEquals(`${nectarUrl}/`);
+    await expect(page).toHaveURL(`${nectarUrl}/`);
   });
 
-  test('C4: Register route authenticated redirects to home', async ({ registerPage, searchPage, nectarUrl }) => {
+  test('C4: Register route authenticated redirects to home', async ({ page, registerPage, searchPage, nectarUrl }) => {
     await searchPage.addSessionCookie('authenticated-session');
     await searchPage.setScenarioHeader('bootstrap-authenticated');
 
     await searchPage.goto();
     await registerPage.goto();
 
-    registerPage.urlEquals(`${nectarUrl}/`);
+    await expect(page).toHaveURL(`${nectarUrl}/`);
   });
 
   test('C5: Forgot password route authenticated redirects to home', async ({
+    page,
     forgotPasswordPage,
     searchPage,
     nectarUrl,
@@ -91,26 +98,23 @@ test.describe('Auth Routing (Suite C)', () => {
     await searchPage.goto();
     await forgotPasswordPage.goto();
 
-    forgotPasswordPage.urlEquals(`${nectarUrl}/`);
+    await expect(page).toHaveURL(`${nectarUrl}/`);
   });
 
-  test('C6: Login form redirects to next param after successful login', async ({ loginPage }) => {
+  test('C6: Login form redirects to next param after successful login', async ({ page, loginPage }) => {
     await loginPage.addSessionCookie('anonymous-session');
     await loginPage.setScenarioHeader('bootstrap-anonymous');
 
     await loginPage.gotoWithNext('/search?q=test');
 
-    loginPage.urlContains('/user/account/login');
+    await expect(page).toHaveURL(/\/user\/account\/login/);
 
     await loginPage.fillCredentials('test@example.com', 'password123');
     await loginPage.mockLoginSuccess();
     await loginPage.setScenarioHeader('bootstrap-authenticated');
     await loginPage.submit();
 
-    await loginPage.waitForUrl(/\/search/);
-
-    loginPage.urlContains('/search');
-    loginPage.urlContains('q=test');
+    await page.waitForURL(/\/search\?.*q=test/);
   });
 
   test('C7: Login form falls back to reload when next param is invalid', async ({ page, loginPage, nectarUrl }) => {

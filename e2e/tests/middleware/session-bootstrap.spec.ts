@@ -11,10 +11,12 @@ test.describe('Session Bootstrap (Suite B)', () => {
     await searchPage.addSessionCookie('seed-session');
     await searchPage.setScenarioHeader('bootstrap-rotated-cookie');
 
-    const response = await searchPage.gotoAndExpect();
-    expect(response.status()).toBe(200);
+    const response = await searchPage.goto();
 
-    const setCookieHeader = response.headers()['set-cookie'];
+    expect(response, 'navigation returned no response').not.toBeNull();
+    expect(response?.status()).toBe(200);
+
+    const setCookieHeader = response?.headers()['set-cookie'];
     const adsSessionCookie = extractCookie(setCookieHeader, 'ads_session');
 
     if (adsSessionCookie) {
@@ -31,15 +33,18 @@ test.describe('Session Bootstrap (Suite B)', () => {
     await searchPage.addSessionCookie('unchanged-session');
     await searchPage.setScenarioHeader('bootstrap-unchanged-cookie');
 
-    const response = await searchPage.gotoAndExpect();
-    expect(response.status()).toBe(200);
+    const response = await searchPage.goto();
 
-    const setCookieHeader = response.headers()['set-cookie'];
+    expect(response, 'navigation returned no response').not.toBeNull();
+    expect(response?.status()).toBe(200);
+
+    const setCookieHeader = response?.headers()['set-cookie'];
     const adsSessionCookie = extractCookie(setCookieHeader, 'ads_session');
     expect(adsSessionCookie).toBeUndefined();
   });
 
   test('B3: Force refresh via header triggers bootstrap even with valid session', async ({
+    page,
     searchPage,
     resetStub,
     request,
@@ -49,9 +54,9 @@ test.describe('Session Bootstrap (Suite B)', () => {
 
     await resetStub();
 
-    await searchPage.setExtraHeaders({ 'x-refresh-token': '1' });
+    await page.setExtraHTTPHeaders({ 'x-refresh-token': '1' });
     await searchPage.gotoWithParams('?_refresh=1', { waitUntil: 'load' });
-    await searchPage.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle');
 
     const stubUrl = process.env.STUB_URL || 'http://127.0.0.1:18080';
     const response = await request.get(`${stubUrl}/__test__/calls`);
@@ -61,15 +66,12 @@ test.describe('Session Bootstrap (Suite B)', () => {
     expect(data.calls.some((call: { endpoint: string }) => call.endpoint === '/accounts/bootstrap')).toBe(true);
   });
 
-  test('B4: Bootstrap failure redirects to home with notify param', async ({ searchPage }) => {
+  test('B4: Bootstrap failure redirects to home with notify param', async ({ page, searchPage }) => {
     await searchPage.addSessionCookie('test-session');
     await searchPage.setScenarioHeader('bootstrap-failure');
 
     await searchPage.goto({ waitUntil: 'load' });
-    await searchPage.waitForUrl('**/?notify=api-connect-failed', {
-      timeout: 5000,
-    });
 
-    searchPage.urlContains('/?notify=api-connect-failed');
+    await page.waitForURL(/\/\?notify=api-connect-failed/);
   });
 });
