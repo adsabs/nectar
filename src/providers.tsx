@@ -19,6 +19,7 @@ import {
   getPageNumber,
   sendQueryAsTags,
 } from '@/lib/performance';
+import { PRIMER_ROWS } from '@/config';
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 import { useTrackUserId } from './lib/useTrackUserId';
 import { ShepherdJourneyProvider } from 'react-shepherd';
@@ -68,12 +69,14 @@ const QCProvider: FC = ({ children }) => {
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
 
-const Telemetry: FC = () => {
+export const Telemetry: FC = () => {
   const latestQuery = useStore((state) => state.latestQuery, shallow);
   const user = useStore((state) => state.user, shallow);
   const docs = useStore((state) => state.docs.current, shallow);
   const searchSpanRef = useRef<ReturnType<typeof Sentry.startInactiveSpan> | null>(null);
   const paginationSpanRef = useRef<ReturnType<typeof Sentry.startInactiveSpan> | null>(null);
+  const requestedRowsRef = useRef<number | undefined>(undefined);
+  requestedRowsRef.current = latestQuery?.rows;
 
   useGlobalErrorHandler();
   useOrcidExpiryWatcher();
@@ -131,12 +134,15 @@ const Telemetry: FC = () => {
     }
     logger.debug({ count: docs.length }, 'Telemetry: docs');
     try {
-      const bucket = getResultCountBucket(docs.length);
+      const bucket = getResultCountBucket(
+        docs.length < PRIMER_ROWS ? docs.length : requestedRowsRef.current ?? docs.length,
+      );
       if (searchSpanRef.current) {
         searchSpanRef.current.setAttributes({ result_count_bucket: bucket });
         searchSpanRef.current.setStatus({ code: 1 });
         searchSpanRef.current.end();
         searchSpanRef.current = null;
+        openFullTextTimingSpan();
       }
       if (paginationSpanRef.current) {
         paginationSpanRef.current.setAttributes({ result_count_bucket: bucket });
@@ -144,7 +150,6 @@ const Telemetry: FC = () => {
         paginationSpanRef.current.end();
         paginationSpanRef.current = null;
       }
-      openFullTextTimingSpan();
     } catch (err) {
       logger.error({ err }, 'Telemetry: docs span error');
     }

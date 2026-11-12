@@ -29,6 +29,8 @@ export const APP_DEFAULTS = {
   PREFERRED_LIB_SORT: 'time',
 } as const;
 
+export const PRIMER_ROWS = 25;
+
 export const GOOGLE_RECAPTCHA_KEY = '6Lex_aQUAAAAAMwJFbdGFeigshN7mRQdbXoGQ7-N';
 
 export const HL_MAX_ANALYZED_CHARS = parseInt(process.env.NEXT_PUBLIC_SOLR_HL_MAX_ANALYZED_CHARS ?? '1000000', 10);

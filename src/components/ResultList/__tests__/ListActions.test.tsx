@@ -18,6 +18,43 @@ const mocks = vi.hoisted(() => ({
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
 vi.mock('@/lib/useSession', () => ({ useSession: mocks.useSession }));
 
+describe('ListActions select-all gating', () => {
+  const selectAllProps = {
+    onSortChange: vi.fn(),
+    onOpenAddToLibrary: vi.fn(),
+    onOpenRemoveFromLibrary: vi.fn(),
+    isLoading: false,
+  };
+
+  test('select all is available once the whole result set has loaded', () => {
+    const { getByRole } = render(<ListActions {...selectAllProps} isFullSetLoaded />);
+
+    expect(getByRole('checkbox', { name: 'select all' })).toBeEnabled();
+  });
+
+  test('select all is unavailable while the result set is still filling', () => {
+    const { getByRole } = render(<ListActions {...selectAllProps} isFullSetLoaded={false} />);
+
+    expect(getByRole('checkbox', { name: 'select all' })).toBeDisabled();
+  });
+
+  test('a disabled select all explains itself on hover', async () => {
+    const { user, getByRole, findByText } = render(<ListActions {...selectAllProps} isFullSetLoaded={false} />);
+
+    await user.hover(getByRole('checkbox', { name: 'select all' }));
+
+    expect(await findByText('Loading all results')).toBeInTheDocument();
+  });
+
+  test('a loaded select all has no explanatory tooltip', async () => {
+    const { user, getByRole, queryByText } = render(<ListActions {...selectAllProps} isFullSetLoaded />);
+
+    await user.hover(getByRole('checkbox', { name: 'select all' }));
+
+    expect(queryByText('Loading all results')).not.toBeInTheDocument();
+  });
+});
+
 describe('ListActions notification bell button', () => {
   const defaultProps = {
     onSortChange: vi.fn(),

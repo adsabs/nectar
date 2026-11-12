@@ -4,6 +4,7 @@ import { isString } from '@/utils/common/guards';
 
 export enum SEARCH_API_KEYS {
   primary = 'search/primary',
+  primaryPrimer = 'search/primary-primer',
   preview = 'search/preview',
   infinite = 'search/infinite',
   highlight = 'search/highlight',

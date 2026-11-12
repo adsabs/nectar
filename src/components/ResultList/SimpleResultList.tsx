@@ -22,6 +22,8 @@ export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   // Opt-in: this list is also used off the search page (abstract refs, library
   // lists), which must not emit search.*.render spans.
   measureRenderSpan?: boolean;
+  renderSpanKey?: string;
+  renderSpanTotal?: number;
 }
 
 const propTypes = {
@@ -68,13 +70,15 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
     allowAbstracts = true,
     useNormCite = false,
     measureRenderSpan = false,
+    renderSpanKey,
+    renderSpanTotal,
     ...divProps
   } = props;
 
   const isClient = useIsClient();
   const start = indexStart + 1;
 
-  useResultsRenderSpan(docs, measureRenderSpan);
+  useResultsRenderSpan({ docs, enabled: measureRenderSpan, resultSetKey: renderSpanKey, totalCount: renderSpanTotal });
 
   const { highlights, showHighlights, isFetchingHighlights } = useHighlights();
   const resultsHaveAbstracts = docs.some((doc) => typeof doc.abstract === 'string');
