@@ -95,6 +95,13 @@ const JournalSearch = () => {
     return [];
   }, [sort, data]);
 
+  const createQueryFromBibstem = (bibstem: string) => {
+    const match = bibstem.match(/^(\d{4})(?!\d)/);
+    const year = match ? match[1] : null;
+    const name = bibstem.replace(/^\d{4}(?!\d)/, '');
+    return year ? `bibstem:"${name}" year:${year}` : `bibstem:"${name}"`;
+  };
+
   return (
     <>
       <InputGroup mt={4}>
@@ -190,7 +197,7 @@ const JournalSearch = () => {
                         <Td>
                           <SimpleLink
                             href={`${router.basePath}/search?${makeSearchParams({
-                              q: `bibstem:"${bibstem}"`,
+                              q: createQueryFromBibstem(bibstem),
                               sort: ['date desc'],
                             })}`}
                             newTab
