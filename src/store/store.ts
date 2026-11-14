@@ -16,7 +16,6 @@ import {
 import { AppSerializableState, AppState } from './types';
 import { isPlainObject, isPrimitive } from 'ramda-adjunct';
 import { logger } from '@/logger';
-import { IUserData } from '@/api/user/types';
 import { isAuthenticated } from '@/auth-utils';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
@@ -28,7 +27,9 @@ export const APP_STORAGE_KEY = 'nectar-app-state';
  * in-session expiry, so no toast.
  */
 export const mergePersistedState = (persistedState: Partial<AppState>, currentState: AppState): AppState => {
-  const merged = mergeDeepLeft(persistedState, currentState) as AppState;
+  const { user: persistedUser, ...rest } = persistedState;
+  const sanitizedPersistedState = persistedUser === null ? rest : persistedState;
+  const merged = mergeDeepLeft(sanitizedPersistedState, currentState) as AppState;
   if (merged.orcid?.active) {
     // Persisted data from before lastActivityAt existed (or otherwise
     // malformed) has no usable timestamp — treat that as stale too, or
@@ -136,7 +137,7 @@ export const useCreateStore = (incomingState: Partial<AppState> = {}): (() => St
       // searchMode is owned by setSearchMode (user action) and createStore (initial SSR seed).
       // Merging it here on navigation would restore ADS_COMPAT even after the user explicitly
       // cleared it by switching disciplines. Exclude it so user changes are sticky.
-      const { searchMode: _s, ...rest } = incomingState;
+      const { searchMode: _s, user: _u, ...rest } = incomingState;
       store.setState(mergeDeepLeft(rest, store.getState()) as AppState);
     }
   }, [incomingState]);
@@ -148,11 +149,6 @@ const appContext = createContext<AppState>();
 export const StoreProvider = appContext.Provider;
 export const useStore = appContext.useStore;
 export const useStoreApi = appContext.useStoreApi;
-
-// handler to be used outside react (non-hook)
-export const updateAppUser = (user: IUserData): void => {
-  store?.setState({ user });
-};
 
 // Fire a global notification (toast) from outside React, e.g. the axios
 // interceptor surfacing a background 429. No-op server-side (store is unset).
