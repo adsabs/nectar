@@ -29,6 +29,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 
 import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
+import { containsMath } from '@/utils/common/mathjax';
 import { IDocsEntity } from '@/api/search/types';
 import { keys, toPairs } from 'ramda';
 import { sendGTMEvent } from '@next/third-parties/google';
@@ -90,6 +91,7 @@ export const Item = (props: IItemProps): ReactElement => {
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
   const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
+  const titleHtml = unwrapStringValue(title);
   const formattedPubDate = getFormattedNumericPubdate(pubdate);
   const isClient = useIsClient();
   const maxAuthors = useAuthorsPerResult();
@@ -189,7 +191,11 @@ export const Item = (props: IItemProps): ReactElement => {
             data-testid="result-title"
             onClick={handleAbstractClick}
           >
-            <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
+            {containsMath(titleHtml) ? (
+              <Text as={MathJax} dangerouslySetInnerHTML={{ __html: titleHtml }} />
+            ) : (
+              <Text dangerouslySetInnerHTML={{ __html: titleHtml }} />
+            )}
           </SimpleLink>
           <Flex alignItems="start" ml={isMobile ? 0 : 1} order={isMobile ? -1 : 0} my={isMobile ? 2 : 0}>
             {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} rank={index} />}
