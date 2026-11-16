@@ -3,6 +3,58 @@ import { useEffect, useRef } from 'react';
 import { logger } from '@/logger';
 
 const SCROLL_POSITION_KEY = 'search-scroll-position';
+const SCROLL_ROW_INDEX_KEY = 'search-scroll-row-index';
+
+const topVisibleRowIndex = (): number | null => {
+  const rows = Array.from(document.querySelectorAll<HTMLElement>('#results [data-index]'));
+  let best: { index: number; top: number } | null = null;
+  for (const row of rows) {
+    const index = Number(row.getAttribute('data-index'));
+    if (!Number.isFinite(index)) {
+      continue;
+    }
+    const top = row.getBoundingClientRect().top;
+    if (top >= -row.offsetHeight / 2 && (best === null || top < best.top)) {
+      best = { index, top };
+    }
+  }
+  return best?.index ?? null;
+};
+
+export const saveScrollPosition = (): void => {
+  if (typeof window === 'undefined' || window.location.pathname !== '/search') {
+    return;
+  }
+  const rowIndex = topVisibleRowIndex();
+  if (rowIndex !== null) {
+    sessionStorage.setItem(SCROLL_ROW_INDEX_KEY, rowIndex.toString());
+    sessionStorage.removeItem(SCROLL_POSITION_KEY);
+    return;
+  }
+  const scrollPosition = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+  sessionStorage.setItem(SCROLL_POSITION_KEY, scrollPosition.toString());
+  sessionStorage.removeItem(SCROLL_ROW_INDEX_KEY);
+};
+
+export const takeSavedRowIndex = (): number | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const raw = sessionStorage.getItem(SCROLL_ROW_INDEX_KEY);
+  if (raw === null) {
+    return null;
+  }
+  sessionStorage.removeItem(SCROLL_ROW_INDEX_KEY);
+  const index = parseInt(raw, 10);
+  return Number.isFinite(index) ? index : null;
+};
+
+export const clearScrollPosition = (): void => {
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem(SCROLL_POSITION_KEY);
+    sessionStorage.removeItem(SCROLL_ROW_INDEX_KEY);
+  }
+};
 
 /**
  * Hook to manage scroll position restoration when navigating between search results and abstract pages
@@ -39,27 +91,6 @@ export const useScrollRestoration = () => {
       });
     }
   }, [router.pathname]);
-
-  /**
-   * Save current scroll position to sessionStorage
-   * Call this before navigating away from the search page
-   */
-  const saveScrollPosition = () => {
-    if (typeof window !== 'undefined' && router.pathname === '/search') {
-      const scrollPosition = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-      sessionStorage.setItem(SCROLL_POSITION_KEY, scrollPosition.toString());
-    }
-  };
-
-  /**
-   * Clear saved scroll position
-   * Useful if you want to prevent restoration in certain cases
-   */
-  const clearScrollPosition = () => {
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem(SCROLL_POSITION_KEY);
-    }
-  };
 
   return {
     saveScrollPosition,
