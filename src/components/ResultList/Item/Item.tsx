@@ -15,7 +15,7 @@ import { AuthorList } from '@/components/AllAuthorsModal';
 import { APP_DEFAULTS } from '@/config';
 import { useAuthorsPerResult } from '@/lib/useAuthorsPerResult';
 import { useIsClient } from '@/lib/useIsClient';
-import { useScrollRestoration } from '@/lib/useScrollRestoration';
+import { saveScrollPosition } from '@/lib/useScrollRestoration';
 import { useStore } from '@/store';
 import { MathJax } from 'better-react-mathjax';
 import dynamic from 'next/dynamic';
@@ -69,6 +69,7 @@ export interface IItemProps {
   abstract?: string;
   isFetchingAbstract?: boolean;
   allowAbstracts?: boolean;
+  containment?: boolean;
 }
 
 export const Item = (props: IItemProps): ReactElement => {
@@ -85,6 +86,7 @@ export const Item = (props: IItemProps): ReactElement => {
     abstract,
     isFetchingAbstract,
     allowAbstracts = true,
+    containment = true,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
   const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
@@ -100,9 +102,6 @@ export const Item = (props: IItemProps): ReactElement => {
   const colors = useColorModeColors();
 
   const isMobile = useBreakpointValue({ base: true, md: false });
-
-  // Scroll restoration - save position when navigating to abstract
-  const { saveScrollPosition } = useScrollRestoration();
 
   const handleAbstractClick = () => {
     saveScrollPosition();
@@ -153,7 +152,7 @@ export const Item = (props: IItemProps): ReactElement => {
       mb={1}
       borderRadius="md"
       id={bibcode}
-      sx={ROW_CONTAINMENT_SX}
+      sx={containment ? ROW_CONTAINMENT_SX : undefined}
       data-testid="result-item"
     >
       <Flex
