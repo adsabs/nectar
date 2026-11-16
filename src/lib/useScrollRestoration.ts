@@ -1,9 +1,21 @@
 import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
 import { logger } from '@/logger';
+import { ADS_COMPAT_URL_PARAM } from '@/utils/common/search-mode-constants';
 
 const SCROLL_POSITION_KEY = 'search-scroll-position';
 const SCROLL_ROW_INDEX_KEY = 'search-scroll-row-index';
+const SEARCH_PATHNAME = '/search';
+const VOLATILE_SEARCH_PARAMS = ['d', ADS_COMPAT_URL_PARAM];
+
+const isSearchPage = (): boolean => typeof window !== 'undefined' && window.location.pathname === SEARCH_PATHNAME;
+
+const searchIdentity = (): string => {
+  const params = new URLSearchParams(window.location.search);
+  VOLATILE_SEARCH_PARAMS.forEach((param) => params.delete(param));
+  params.sort();
+  return params.toString();
+};
 
 const topVisibleRowIndex = (): number | null => {
   const rows = Array.from(document.querySelectorAll<HTMLElement>('#results [data-index]'));
@@ -22,12 +34,12 @@ const topVisibleRowIndex = (): number | null => {
 };
 
 export const saveScrollPosition = (): void => {
-  if (typeof window === 'undefined' || window.location.pathname !== '/search') {
+  if (!isSearchPage()) {
     return;
   }
   const rowIndex = topVisibleRowIndex();
   if (rowIndex !== null) {
-    sessionStorage.setItem(SCROLL_ROW_INDEX_KEY, rowIndex.toString());
+    sessionStorage.setItem(SCROLL_ROW_INDEX_KEY, JSON.stringify({ index: rowIndex, search: searchIdentity() }));
     sessionStorage.removeItem(SCROLL_POSITION_KEY);
     return;
   }
@@ -37,23 +49,29 @@ export const saveScrollPosition = (): void => {
 };
 
 export const takeSavedRowIndex = (): number | null => {
-  if (typeof window === 'undefined') {
+  if (!isSearchPage()) {
     return null;
   }
   const raw = sessionStorage.getItem(SCROLL_ROW_INDEX_KEY);
   if (raw === null) {
     return null;
   }
-  sessionStorage.removeItem(SCROLL_ROW_INDEX_KEY);
-  const index = parseInt(raw, 10);
-  return Number.isFinite(index) ? index : null;
-};
-
-export const clearScrollPosition = (): void => {
-  if (typeof window !== 'undefined') {
-    sessionStorage.removeItem(SCROLL_POSITION_KEY);
+  let saved: { index?: unknown; search?: unknown };
+  try {
+    saved = JSON.parse(raw) as { index?: unknown; search?: unknown };
+  } catch {
     sessionStorage.removeItem(SCROLL_ROW_INDEX_KEY);
+    return null;
   }
+  if (typeof saved.index !== 'number' || !Number.isFinite(saved.index)) {
+    sessionStorage.removeItem(SCROLL_ROW_INDEX_KEY);
+    return null;
+  }
+  if (saved.search !== searchIdentity()) {
+    return null;
+  }
+  sessionStorage.removeItem(SCROLL_ROW_INDEX_KEY);
+  return saved.index;
 };
 
 /**
@@ -91,9 +109,4 @@ export const useScrollRestoration = () => {
       });
     }
   }, [router.pathname]);
-
-  return {
-    saveScrollPosition,
-    clearScrollPosition,
-  };
 };

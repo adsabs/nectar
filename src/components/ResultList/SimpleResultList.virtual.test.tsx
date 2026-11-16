@@ -27,14 +27,10 @@ const docsFor = (count: number): IDocsEntity[] =>
   Array.from({ length: count }, (_, i) => ({ bibcode: `bib-${i}`, title: [`Title ${i}`] } as IDocsEntity));
 
 const originalOffsetHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight');
-let scrollTo: ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
   Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
-  scrollTo = vi.fn();
-  window.scrollTo = scrollTo as unknown as typeof window.scrollTo;
-  window.history.pushState({}, '', '/search?q=star');
-  sessionStorage.clear();
+  window.scrollTo = (() => undefined) as typeof window.scrollTo;
 
   Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
     configurable: true,
