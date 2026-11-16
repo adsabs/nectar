@@ -77,14 +77,13 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   const isClient = useIsClient();
   const start = indexStart + 1;
   const isPrinting = useIsPrinting();
+  const isWindowed = isClient && !isPrinting && docs.length > VIRTUALIZE_ABOVE_ROWS;
 
-  useResultsRenderSpan(docs, measureRenderSpan);
+  useResultsRenderSpan(docs, measureRenderSpan, isWindowed);
 
   const { highlights, showHighlights, isFetchingHighlights } = useHighlights();
   const resultsHaveAbstracts = docs.some((doc) => typeof doc.abstract === 'string');
   const { abstracts, isFetchingAbstracts } = useAbstracts({ enabled: allowAbstracts && !resultsHaveAbstracts });
-
-  const isWindowed = isClient && !isPrinting && docs.length > VIRTUALIZE_ABOVE_ROWS;
 
   const renderRow = (doc: IDocsEntity, index: number): ReactNode => (
     <SafeItem
