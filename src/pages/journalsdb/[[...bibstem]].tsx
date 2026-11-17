@@ -95,6 +95,13 @@ const JournalSearch = () => {
     return [];
   }, [sort, data]);
 
+  const createQueryFromBibstem = (bibstem: string) => {
+    const match = bibstem.match(/^(\d{4})(?!\d)/);
+    const year = match ? match[1] : null;
+    const name = bibstem.replace(/^\d{4}(?!\d)/, '');
+    return year && name ? `bibstem:"${name}" year:${year}` : name ? `bibstem:"${name}"` : year ? `year:${year}` : '';
+  };
+
   return (
     <>
       <InputGroup mt={4}>
@@ -184,33 +191,40 @@ const JournalSearch = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {sortedJournals.map(({ bibstem, name }, index) => (
-                      <Tr key={bibstem}>
-                        <Td>{index + 1}</Td>
-                        <Td>
-                          <SimpleLink
-                            href={`${router.basePath}/search?${makeSearchParams({
-                              q: `bibstem:"${bibstem}"`,
-                              sort: ['date desc'],
-                            })}`}
-                            newTab
-                            fontWeight="bold"
-                          >
-                            {bibstem}
-                          </SimpleLink>
-                        </Td>
-                        <Td>
-                          <Button
-                            variant="link"
-                            onClick={() => router.push(`/journalsdb/${bibstem}`)}
-                            fontWeight="medium"
-                            _hover={{ textDecoration: 'none' }}
-                          >
-                            {name}
-                          </Button>
-                        </Td>
-                      </Tr>
-                    ))}
+                    {sortedJournals.map(({ bibstem, name }, index) => {
+                      const query = createQueryFromBibstem(bibstem);
+                      return (
+                        <Tr key={bibstem}>
+                          <Td>{index + 1}</Td>
+                          <Td>
+                            {query === '' ? (
+                              `${bibstem}`
+                            ) : (
+                              <SimpleLink
+                                href={`${router.basePath}/search?${makeSearchParams({
+                                  q: query,
+                                  sort: ['date desc'],
+                                })}`}
+                                newTab
+                                fontWeight="bold"
+                              >
+                                {bibstem}
+                              </SimpleLink>
+                            )}
+                          </Td>
+                          <Td>
+                            <Button
+                              variant="link"
+                              onClick={() => router.push(`/journalsdb/${bibstem}`)}
+                              fontWeight="medium"
+                              _hover={{ textDecoration: 'none' }}
+                            >
+                              {name}
+                            </Button>
+                          </Td>
+                        </Tr>
+                      );
+                    })}
                   </Tbody>
                 </Table>
               </TableContainer>
