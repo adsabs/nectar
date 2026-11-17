@@ -2,7 +2,6 @@ import type { CustomFormat, JournalFormatName } from '@/api/user/types';
 
 export type UserDataSetterEvent =
   | { type: 'SET_DEFAULT_EXPORT_FORMAT'; payload: string }
-  | { type: 'SET_DEFAULT_CITATION_FORMAT'; payload: string }
   | { type: 'ADD_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; name: string; code: string } }
   | { type: 'EDIT_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; id: string; name: string; code: string } }
   | { type: 'DELETE_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; id: string } }

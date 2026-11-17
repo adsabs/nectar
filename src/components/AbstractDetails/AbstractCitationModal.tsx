@@ -1,6 +1,7 @@
 import { useGetExportCitation } from '@/api/export/export';
 import { getBibtexExportParams } from '@/api/export/getBibtexExportParams';
 import { ExportApiFormatKey, MostUsedExportFormats } from '@/api/export/types';
+import { useCitationFormat } from '@/lib/useCitationFormat';
 import { useExportFormats } from '@/lib/useExportFormats';
 import { useSession } from '@/lib/useSession';
 import { useSettings } from '@/lib/useSettings';
@@ -27,7 +28,7 @@ import {
 } from '@chakra-ui/react';
 import { SettingsIcon } from '@chakra-ui/icons';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { LabeledCopyButton } from '../CopyButton';
 import { LoadingMessage } from '../Feedbacks';
 import { Select } from '../Select';
@@ -46,27 +47,27 @@ export const AbstractCitationModal = ({
 
   const { isAuthenticated } = useSession();
 
+  const { format } = useCitationFormat();
+
   const { formatOptions, getFormatOptionById } = useExportFormats();
 
-  const options = formatOptions.filter((o) => MostUsedExportFormats.includes(o.id));
+  const options = useMemo(() => formatOptions.filter((o) => MostUsedExportFormats.includes(o.id)), [formatOptions]);
 
-  const defaultOption = settings.defaultCitationFormat
-    ? getFormatOptionById(settings.defaultCitationFormat)
+  const defaultOption = options.some((o) => o.id === format.id)
+    ? getFormatOptionById(format.id)
     : getFormatOptionById(ExportApiFormatKey.agu);
 
   const [selectedOption, setSelectedOption] = useState(defaultOption);
 
-  // Reset to the user's saved default each time the modal opens, since useState
-  // only captures the initial value at mount and settings may load asynchronously.
   useEffect(() => {
     if (isOpen) {
       setSelectedOption(
-        settings.defaultCitationFormat
-          ? getFormatOptionById(settings.defaultCitationFormat)
+        options.some((o) => o.id === format.id)
+          ? getFormatOptionById(format.id)
           : getFormatOptionById(ExportApiFormatKey.agu),
       );
     }
-  }, [isOpen, settings.defaultCitationFormat, getFormatOptionById]);
+  }, [isOpen, format.id, options, getFormatOptionById]);
 
   const { data, isLoading, isError, error } = useGetExportCitation(
     {
@@ -127,7 +128,7 @@ export const AbstractCitationModal = ({
           <Divider />
           <Flex justifyContent="space-between" alignItems="flex-start" mt={6}>
             <SimpleLink
-              href={`/abs/${bibcode}/exportcitation/bibtex`}
+              href={`/abs/${encodeURIComponent(bibcode)}/exportcitation/${format.id}`}
               icon={<Icon as={ArrowTopRightOnSquareIcon} boxSize={4} mr={1} />}
               display="flex"
               alignItems="center"

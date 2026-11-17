@@ -22,8 +22,6 @@ import {
   useDisclosure,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { equals } from 'ramda';
 import { isNilOrEmpty } from 'ramda-adjunct';
@@ -33,6 +31,7 @@ import { SimpleCopyButton } from '../CopyButton';
 import { SearchQueryLink } from '../SearchQueryLink';
 import { SimpleLink } from '../SimpleLink';
 import { AbstractCitationModal } from './AbstractCitationModal';
+import { CitationCopyButton } from './CitationCopyButton';
 import { UATDropdown } from './UATDropdown';
 import { useRouter } from 'next/router';
 import { feedbackItems } from '../NavBar';
@@ -87,19 +86,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
             {(pub_raw) => (
               <>
                 <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>
-                <Tooltip label="Copy citation">
-                  <Button
-                    aria-label="Copy citation"
-                    variant="outline"
-                    mx={2}
-                    cursor="pointer"
-                    size="xs"
-                    onClick={onCitationOpen}
-                    data-tour="quick-citation-copy"
-                  >
-                    <FontAwesomeIcon icon={faQuoteLeft} size="xs" />
-                  </Button>
-                </Tooltip>
+                <CitationCopyButton bibcode={doc.bibcode} onOpenModal={onCitationOpen} />
               </>
             )}
           </Detail>

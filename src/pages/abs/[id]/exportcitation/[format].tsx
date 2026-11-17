@@ -6,6 +6,8 @@ import { useSettings } from '@/lib/useSettings';
 import { CitationExporter } from '@/components/CitationExporter';
 import { JournalFormatMap } from '@/components/Settings';
 import { ExportApiFormatKey } from '@/api/export/types';
+import { resolveRouteFormat } from '@/lib/citationFormat';
+import { useCitationFormat } from '@/lib/useCitationFormat';
 import { useExportFormats } from '@/lib/useExportFormats';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { feedbackItems } from '@/components/NavBar';
@@ -16,7 +18,7 @@ import { useAbsRecordState } from '@/lib/abs/useAbsRecordState';
 const ExportCitationPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }) => {
   const router = useRouter();
 
-  const { isValidFormat } = useExportFormats();
+  const { formatOptions } = useExportFormats();
 
   const id = router.query.id as string;
 
@@ -27,10 +29,13 @@ const ExportCitationPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }
     suspense: false,
   });
 
-  const format =
-    typeof router.query.format === 'string' && isValidFormat(router.query.format)
-      ? router.query.format
-      : ExportApiFormatKey.bibtex;
+  const { format: resolvedDefault } = useCitationFormat();
+
+  const format = resolveRouteFormat({
+    requested: router.query.format,
+    availableIds: formatOptions.map((o) => o.id),
+    fallbackId: resolvedDefault.id,
+  });
 
   const { keyformat, journalformat, authorcutoff, maxauthor } =
     format === ExportApiFormatKey.bibtexabs
@@ -46,6 +51,9 @@ const ExportCitationPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }
           authorcutoff: parseInt(settings.bibtexAuthorCutoff, 10),
           maxauthor: parseInt(settings.bibtexMaxAuthors, 10),
         };
+
+  const initialCustomFormatId =
+    typeof router.query.customFormatId === 'string' ? router.query.customFormatId : undefined;
 
   const handleMissingRecordFeedback = () => {
     void router.push({
@@ -65,6 +73,7 @@ const ExportCitationPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }
         <Box pt="1">
           <CitationExporter
             initialFormat={format}
+            initialCustomFormatId={initialCustomFormatId}
             keyformat={keyformat}
             journalformat={JournalFormatMap[journalformat]}
             maxauthor={maxauthor}

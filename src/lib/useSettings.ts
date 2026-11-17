@@ -6,7 +6,7 @@ import { isNotEmpty } from 'ramda-adjunct';
 import { useSession } from '@/lib/useSession';
 import { IADSApiUserDataParams, IADSApiUserDataResponse } from '@/api/user/types';
 import { useGetUserSettings, userKeys, useUpdateUserSettings } from '@/api/user/user';
-import { DEFAULT_CITATION_FORMAT, DEFAULT_EXPORT_FORMAT, DEFAULT_USER_DATA } from '@/api/user/models';
+import { DEFAULT_EXPORT_FORMAT, DEFAULT_USER_DATA } from '@/api/user/models';
 import { useExportFormats } from './useExportFormats';
 
 export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>, hideToast?: boolean) => {
@@ -43,17 +43,13 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>, 
     },
   });
 
-  const { isValidFormatLabel, isValidCitationFormatId } = useExportFormats();
+  const { isValidFormatLabel } = useExportFormats();
 
-  // validate settings data
   const settings = {
     ...settingsdata,
     defaultExportFormat: isValidFormatLabel(settingsdata.defaultExportFormat)
       ? settingsdata.defaultExportFormat
       : DEFAULT_EXPORT_FORMAT,
-    defaultCitationFormat: isValidCitationFormatId(settingsdata.defaultCitationFormat)
-      ? settingsdata.defaultCitationFormat
-      : DEFAULT_CITATION_FORMAT,
   };
 
   const updateSettings = useDebouncedCallback((params: IADSApiUserDataParams) => {
