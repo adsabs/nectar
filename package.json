@@ -65,7 +65,7 @@
     "@nivo/core": "^0.80.0",
     "@nivo/line": "^0.80.0",
     "@nivo/tooltip": "^0.80.0",
-    "@sentry/nextjs": "^10.27.0",
+    "@sentry/nextjs": "^10.75.2",
     "@tanstack/react-query": "^4.29.17",
     "@tanstack/react-table": "^8.9.2",
     "@xstate/fsm": "^2.0.0",
@@ -105,7 +105,7 @@
     "pino": "^8.16.2",
     "pino-pretty": "^10.2.3",
     "prop-types": "^15.8.1",
-    "qs": "^6.16.0",
+    "qs": "^6.16.1",
     "ramda": "^0.28.0",
     "ramda-adjunct": "^3.3.0",
     "react": "^18.3.1",
@@ -121,7 +121,7 @@
     "shepherd.js": "^14.5.1",
     "use-debounce": "^7.0.1",
     "uuid": "^14.0.2",
-    "zod": "^3.22.3",
+    "zod": "^4.6.6",
     "zustand": "^3.7.1"
   },
   "devDependencies": {
