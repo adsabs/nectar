@@ -3,6 +3,21 @@ import { createStore, mergePersistedState } from '@/store/store';
 import { AppState } from '@/store';
 import { ORCID_MODE_TIMEOUT } from '@/config';
 import mockOrcidUser from '@/mocks/responses/orcid/exchangeOAuthCode.json';
+import { IUserData } from '@/api/user/types';
+
+const seededUser: IUserData = {
+  username: 'test@example.com',
+  access_token: 'seeded-token',
+  anonymous: false,
+  expires_at: '9999999999999999',
+};
+
+const persistedUser: IUserData = {
+  username: 'test@example.com',
+  access_token: 'persisted-token',
+  anonymous: false,
+  expires_at: '9999999999999999',
+};
 
 describe('mergePersistedState', () => {
   test('silently clears stale orcid mode from persisted state', () => {
@@ -83,5 +98,23 @@ describe('mergePersistedState', () => {
 
     expect(merged.orcid.active).toBe(false);
     expect(merged.orcid.lastActivityAt).toBeNull();
+  });
+
+  test('ignores a persisted null user so the seeded session survives', () => {
+    const currentState = createStore({ user: seededUser }).getState();
+    const persistedState = { user: null } as unknown as Partial<AppState>;
+
+    const merged = mergePersistedState(persistedState, currentState);
+
+    expect(merged.user).toEqual(seededUser);
+  });
+
+  test('keeps a valid persisted user over the seeded session', () => {
+    const currentState = createStore({ user: seededUser }).getState();
+    const persistedState: Partial<AppState> = { user: persistedUser };
+
+    const merged = mergePersistedState(persistedState, currentState);
+
+    expect(merged.user).toEqual(persistedUser);
   });
 });

@@ -101,7 +101,7 @@ test('leaves the store alone when the fetched token is expired', async ({ server
   expect(store.getState().user.access_token).toBeUndefined();
 });
 
-test('does not re-apply a cached token after the api rejects the identity', async () => {
+test('does not re-apply a cached token to a null store user', async () => {
   const store = createStore({ user: mockUserData });
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -114,8 +114,6 @@ test('does not re-apply a cached token after the api rejects the identity', asyn
 
   await waitFor(() => expect(store.getState().user).toEqual(mockUserData));
 
-  // Api.invalidateUserData() clears the store user to null on a 401 but leaves
-  // the ['user'] cache entry in place.
   act(() => {
     store.setState({ user: null });
   });

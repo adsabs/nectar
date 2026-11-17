@@ -1,4 +1,4 @@
-import { APP_STORAGE_KEY, notifyRateLimit, updateAppUser } from '@/store';
+import { APP_STORAGE_KEY, notifyRateLimit } from '@/store';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { defaultRequestConfig } from './config';
 import type { ApiRequestConfig } from './types';
@@ -350,7 +350,6 @@ class Api {
   }
 
   private invalidateUserData() {
-    updateAppUser(null);
     this.userData = null;
     this.udInvalidated = true;
   }
