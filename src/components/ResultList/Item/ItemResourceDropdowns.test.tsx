@@ -1,5 +1,5 @@
 import { render, waitFor } from '@/test-utils';
-import { beforeEach, describe, expect, it, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
 import { IDocsEntity } from '@/api/search/types';
 import { IADSApiUserDataResponse, JournalFormatName } from '@/api/user/types';
@@ -177,7 +177,7 @@ describe('ItemResourceDropdowns', () => {
 
     const copyProps = () => mocks.copyMenuItem.mock.calls.at(-1)?.[0] as { asHtml?: boolean; text?: string };
 
-    it.each([
+    test.each([
       { id: 'agu', name: 'AGU', asHtml: true },
       { id: 'ieee', name: 'IEEE', asHtml: true },
       { id: 'apsj', name: 'APS Journals', asHtml: true },

@@ -3,7 +3,7 @@ import { ThemeProvider } from '@chakra-ui/react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { ReactNode } from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { ApiTargets } from '@/api/models';
 import { DEFAULT_USER_DATA } from '@/api/user/models';
@@ -76,7 +76,7 @@ beforeEach(() => {
 });
 
 describe('useCitationFormat through the real settings query', () => {
-  it('is ready immediately for an anonymous reader', () => {
+  test('is ready immediately for an anonymous reader', () => {
     const { result } = renderCitationFormat(AppMode.PLANET_SCIENCE);
 
     expect(result.current.isReady).toBe(true);
@@ -89,26 +89,26 @@ describe('useCitationFormat through the real settings query', () => {
       server.use(settingsHandler({ defaultExportFormat: 'APS Journals' }));
     });
 
-    it('renders rather than suspending', () => {
+    test('renders rather than suspending', () => {
       const { result } = renderCitationFormat();
 
       expect(result.current.format).toBeDefined();
     });
 
-    it('reports not ready', () => {
+    test('reports not ready', () => {
       const { result } = renderCitationFormat();
 
       expect(result.current.isReady).toBe(false);
     });
 
-    it('resolves the placeholder format, which is the whole reason isReady exists', () => {
+    test('resolves the placeholder format, which is the whole reason isReady exists', () => {
       const { result } = renderCitationFormat();
 
       expect(result.current.format.id).toBe('bibtex');
       expect(result.current.format.name).toBe('BibTeX');
     });
 
-    it('settles on the saved format afterwards, so the window is real but transient', async () => {
+    test('settles on the saved format afterwards, so the window is real but transient', async () => {
       const { result } = renderCitationFormat();
 
       expect(result.current.format.id).toBe('bibtex');
@@ -118,7 +118,7 @@ describe('useCitationFormat through the real settings query', () => {
     });
   });
 
-  it('switches to the saved format once settings arrive', async () => {
+  test('switches to the saved format once settings arrive', async () => {
     mocks.useSession.mockReturnValue({ isAuthenticated: true });
     server.use(settingsHandler({ defaultExportFormat: 'APS Journals' }));
 
@@ -129,7 +129,7 @@ describe('useCitationFormat through the real settings query', () => {
     expect(result.current.format.name).toBe('APS Journals');
   });
 
-  it('honours a saved format that the quick-copy modal cannot show', async () => {
+  test('honours a saved format that the quick-copy modal cannot show', async () => {
     mocks.useSession.mockReturnValue({ isAuthenticated: true });
     server.use(settingsHandler({ defaultExportFormat: 'APS Journals' }));
 
@@ -140,7 +140,7 @@ describe('useCitationFormat through the real settings query', () => {
     expect(result.current.format.asHtml).toBe(true);
   });
 
-  it('resolves a saved custom format with the name the reader gave it', async () => {
+  test('resolves a saved custom format with the name the reader gave it', async () => {
     mocks.useSession.mockReturnValue({ isAuthenticated: true });
     server.use(
       settingsHandler({
@@ -158,7 +158,7 @@ describe('useCitationFormat through the real settings query', () => {
     expect(result.current.format.customFormatId).toBe('format-abc');
   });
 
-  it('falls back to the discipline default when a custom default has no saved formats', async () => {
+  test('falls back to the discipline default when a custom default has no saved formats', async () => {
     mocks.useSession.mockReturnValue({ isAuthenticated: true });
     server.use(settingsHandler({ defaultExportFormat: 'custom', customFormats: [] }));
 
@@ -168,7 +168,7 @@ describe('useCitationFormat through the real settings query', () => {
     expect(result.current.format.id).toBe('icarus');
   });
 
-  it('resolves from the settings passed to resolveWithSettings, not from hook state', async () => {
+  test('resolves from the settings passed to resolveWithSettings, not from hook state', async () => {
     mocks.useSession.mockReturnValue({ isAuthenticated: true });
     server.use(settingsHandler({ defaultExportFormat: 'BibTeX' }));
 

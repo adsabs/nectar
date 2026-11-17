@@ -1,5 +1,5 @@
 import { render, within } from '@/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { IDocsEntity } from '@/api/search/types';
 import { DEFAULT_USER_DATA } from '@/api/user/models';
@@ -60,14 +60,14 @@ beforeEach(() => {
 });
 
 describe('AbstractDetails citation control (criterion 1)', () => {
-  it('renders two citation segments with distinct accessible names', () => {
+  test('renders two citation segments with distinct accessible names', () => {
     const { getByRole } = renderDetails();
 
     expect(getByRole('button', { name: 'Copy citation (BibTeX)' })).toBeInTheDocument();
     expect(getByRole('button', { name: 'Change citation format' })).toBeInTheDocument();
   });
 
-  it('groups both segments together as one control', () => {
+  test('groups both segments together as one control', () => {
     const { getByRole } = renderDetails();
 
     const group = getByRole('group', { name: /citation/i });
@@ -78,13 +78,13 @@ describe('AbstractDetails citation control (criterion 1)', () => {
     expect(buttons[1]).toHaveAccessibleName('Change citation format');
   });
 
-  it('replaces the old single quote-icon button', () => {
+  test('replaces the old single quote-icon button', () => {
     const { queryByRole } = renderDetails();
 
     expect(queryByRole('button', { name: 'Copy citation' })).not.toBeInTheDocument();
   });
 
-  it('renders the control inside the publication row', () => {
+  test('renders the control inside the publication row', () => {
     const { container, getByRole } = renderDetails();
 
     const publicationRow = container.querySelector('#publication');
@@ -92,7 +92,7 @@ describe('AbstractDetails citation control (criterion 1)', () => {
     expect(publicationRow).toContainElement(getByRole('button', { name: 'Copy citation (BibTeX)' }));
   });
 
-  it('names the segment after the resolved format rather than a fixed label', () => {
+  test('names the segment after the resolved format rather than a fixed label', () => {
     const { getByRole } = render(<AbstractDetails doc={makeDoc()} />, {
       initialStore: { mode: AppMode.PLANET_SCIENCE },
     });
@@ -102,13 +102,13 @@ describe('AbstractDetails citation control (criterion 1)', () => {
 });
 
 describe('AbstractDetails tour anchor (criterion 11)', () => {
-  it('carries exactly one quick-citation-copy anchor', () => {
+  test('carries exactly one quick-citation-copy anchor', () => {
     const { container } = renderDetails();
 
     expect(container.querySelectorAll('[data-tour="quick-citation-copy"]')).toHaveLength(1);
   });
 
-  it('anchors the tour step to the copy segment, not the chevron', () => {
+  test('anchors the tour step to the copy segment, not the chevron', () => {
     const { container, getByRole } = renderDetails();
 
     const anchor = container.querySelector('[data-tour="quick-citation-copy"]');
@@ -116,7 +116,7 @@ describe('AbstractDetails tour anchor (criterion 11)', () => {
     expect(anchor).toBe(getByRole('button', { name: 'Copy citation (BibTeX)' }));
   });
 
-  it('keeps the anchor discoverable by the selector the tour uses', () => {
+  test('keeps the anchor discoverable by the selector the tour uses', () => {
     renderDetails();
 
     expect(document.querySelector('[data-tour="quick-citation-copy"]')).not.toBeNull();

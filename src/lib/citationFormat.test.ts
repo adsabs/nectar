@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
 import { MostUsedExportFormats } from '@/api/export/types';
 import { DEFAULT_EXPORT_FORMATS } from '@/components/CitationExporter/models';
@@ -28,7 +28,7 @@ const resolve = (overrides: Partial<Parameters<typeof resolveCitationFormat>[0]>
 
 describe('resolveCitationFormat', () => {
   describe('signed out — discipline defaults (criterion 4)', () => {
-    it.each([
+    test.each([
       { appMode: AppMode.ASTROPHYSICS, id: 'bibtex', name: 'BibTeX' },
       { appMode: AppMode.HELIOPHYSICS, id: 'agu', name: 'AGU' },
       { appMode: AppMode.PLANET_SCIENCE, id: 'icarus', name: 'Icarus' },
@@ -42,7 +42,7 @@ describe('resolveCitationFormat', () => {
       expect(resolved.name).toBe(name);
     });
 
-    it('ignores a saved export preference when not authenticated', () => {
+    test('ignores a saved export preference when not authenticated', () => {
       const resolved = resolve({
         isAuthenticated: false,
         appMode: AppMode.PLANET_SCIENCE,
@@ -55,7 +55,7 @@ describe('resolveCitationFormat', () => {
   });
 
   describe('signed in — defaultExportFormat (criterion 3)', () => {
-    it('resolves a curated format by its stored label', () => {
+    test('resolves a curated format by its stored label', () => {
       const resolved = resolve({ isAuthenticated: true, defaultExportFormatLabel: 'BibTeX' });
 
       expect(resolved.id).toBe('bibtex');
@@ -63,14 +63,14 @@ describe('resolveCitationFormat', () => {
       expect(resolved.customFormat).toBeUndefined();
     });
 
-    it('honours a format outside MostUsedExportFormats rather than flooring it', () => {
+    test('honours a format outside MostUsedExportFormats rather than flooring it', () => {
       const resolved = resolve({ isAuthenticated: true, defaultExportFormatLabel: 'APS Journals' });
 
       expect(resolved.id).toBe('apsj');
       expect(resolved.name).toBe('APS Journals');
     });
 
-    it('resolves the first saved custom format, carrying its template and id', () => {
+    test('resolves the first saved custom format, carrying its template and id', () => {
       const resolved = resolve({
         isAuthenticated: true,
         defaultExportFormatLabel: 'custom',
@@ -82,7 +82,7 @@ describe('resolveCitationFormat', () => {
       expect(resolved.customFormatId).toBe('format-aaaa');
     });
 
-    it('names a custom format by the name the user gave it, not "custom"', () => {
+    test('names a custom format by the name the user gave it, not "custom"', () => {
       const resolved = resolve({
         isAuthenticated: true,
         defaultExportFormatLabel: 'custom',
@@ -92,7 +92,7 @@ describe('resolveCitationFormat', () => {
       expect(resolved.name).toBe('My Format');
     });
 
-    it('takes the first saved format in array order, not alphabetical order', () => {
+    test('takes the first saved format in array order, not alphabetical order', () => {
       const resolved = resolve({
         isAuthenticated: true,
         defaultExportFormatLabel: 'custom',
@@ -104,7 +104,7 @@ describe('resolveCitationFormat', () => {
   });
 
   describe('fallbacks resolve to the discipline default, never a hardcoded format', () => {
-    it('falls back silently when the custom default has no saved formats', () => {
+    test('falls back silently when the custom default has no saved formats', () => {
       const resolved = resolve({
         isAuthenticated: true,
         defaultExportFormatLabel: 'custom',
@@ -117,7 +117,7 @@ describe('resolveCitationFormat', () => {
       expect(resolved.customFormatId).toBeUndefined();
     });
 
-    it('falls back to the discipline default for an unrecognised stored label', () => {
+    test('falls back to the discipline default for an unrecognised stored label', () => {
       const resolved = resolve({
         isAuthenticated: true,
         defaultExportFormatLabel: 'Not A Real Format',
@@ -127,7 +127,7 @@ describe('resolveCitationFormat', () => {
       expect(resolved.id).toBe('bibtex');
     });
 
-    it('does not floor a broken preference to AGU when the discipline default differs', () => {
+    test('does not floor a broken preference to AGU when the discipline default differs', () => {
       const resolved = resolve({
         isAuthenticated: true,
         defaultExportFormatLabel: 'custom',
@@ -141,7 +141,7 @@ describe('resolveCitationFormat', () => {
   });
 
   describe('derived flags', () => {
-    it.each([
+    test.each([
       { label: 'AGU', id: 'agu', asHtml: true },
       { label: 'IEEE', id: 'ieee', asHtml: true },
       { label: 'APS Journals', id: 'apsj', asHtml: true },
@@ -155,7 +155,7 @@ describe('resolveCitationFormat', () => {
       expect(resolved.asHtml).toBe(asHtml);
     });
 
-    it('treats a custom template as plain text', () => {
+    test('treats a custom template as plain text', () => {
       const resolved = resolve({
         isAuthenticated: true,
         defaultExportFormatLabel: 'custom',
@@ -165,7 +165,7 @@ describe('resolveCitationFormat', () => {
       expect(resolved.asHtml).toBe(false);
     });
 
-    it.each([
+    test.each([
       { label: 'BibTeX', isInModal: true },
       { label: 'AGU', isInModal: true },
       { label: 'Icarus', isInModal: true },
@@ -177,7 +177,7 @@ describe('resolveCitationFormat', () => {
       expect(resolved.isInModal).toBe(isInModal);
     });
 
-    it('reports a custom default as outside the modal list', () => {
+    test('reports a custom default as outside the modal list', () => {
       const resolved = resolve({
         isAuthenticated: true,
         defaultExportFormatLabel: 'custom',
@@ -189,18 +189,18 @@ describe('resolveCitationFormat', () => {
   });
 
   describe('the discipline map itself', () => {
-    it('covers every AppMode', () => {
+    test('covers every AppMode', () => {
       const modes = Object.values(AppMode);
 
       expect(Object.keys(DISCIPLINE_CITATION_DEFAULTS).sort()).toEqual([...modes].sort());
     });
 
-    it('maps BIO_PHYSICAL by its enum value, which is not "BIO_PHYSICAL"', () => {
+    test('maps BIO_PHYSICAL by its enum value, which is not "BIO_PHYSICAL"', () => {
       expect(AppMode.BIO_PHYSICAL).toBe('BIO_PHYSICAL_SCIENCE');
       expect(DISCIPLINE_CITATION_DEFAULTS['BIO_PHYSICAL_SCIENCE']).toBe('apsj');
     });
 
-    it('only names ids that exist in the export manifest', () => {
+    test('only names ids that exist in the export manifest', () => {
       const manifestIds = DEFAULT_EXPORT_FORMATS.map((f) => f.route.substring(1));
 
       Object.values(DISCIPLINE_CITATION_DEFAULTS).forEach((id) => {
@@ -208,7 +208,7 @@ describe('resolveCitationFormat', () => {
       });
     });
 
-    it('names exactly one id outside MostUsedExportFormats, so the deep link stays covered', () => {
+    test('names exactly one id outside MostUsedExportFormats, so the deep link stays covered', () => {
       const outside = Object.values(DISCIPLINE_CITATION_DEFAULTS).filter(
         (id) => !MostUsedExportFormats.includes(id as never),
       );
@@ -218,7 +218,7 @@ describe('resolveCitationFormat', () => {
   });
 
   describe('a manifest that lacks the resolved format', () => {
-    it('falls back to AGU when the discipline default is absent from the manifest', () => {
+    test('falls back to AGU when the discipline default is absent from the manifest', () => {
       const resolved = resolve({
         isAuthenticated: false,
         appMode: AppMode.BIO_PHYSICAL,
@@ -229,7 +229,7 @@ describe('resolveCitationFormat', () => {
       expect(resolved.name).toBe('AGU');
     });
 
-    it('returns the discipline id itself when neither it nor AGU is in the manifest', () => {
+    test('returns the discipline id itself when neither it nor AGU is in the manifest', () => {
       const resolved = resolve({
         isAuthenticated: false,
         appMode: AppMode.BIO_PHYSICAL,
@@ -242,7 +242,7 @@ describe('resolveCitationFormat', () => {
       expect(resolved.isInModal).toBe(false);
     });
 
-    it('does not throw on an empty manifest', () => {
+    test('does not throw on an empty manifest', () => {
       expect(() => resolve({ isAuthenticated: false, formats: [] })).not.toThrow();
       expect(() => resolve({ isAuthenticated: true, defaultExportFormatLabel: 'BibTeX', formats: [] })).not.toThrow();
     });
@@ -250,7 +250,7 @@ describe('resolveCitationFormat', () => {
 });
 
 describe('disciplineCitationFormatId', () => {
-  it.each([
+  test.each([
     { mode: AppMode.ASTROPHYSICS, id: 'bibtex' },
     { mode: AppMode.HELIOPHYSICS, id: 'agu' },
     { mode: AppMode.PLANET_SCIENCE, id: 'icarus' },
@@ -261,11 +261,11 @@ describe('disciplineCitationFormatId', () => {
     expect(disciplineCitationFormatId(mode)).toBe(id);
   });
 
-  it('accepts the raw cookie string for bio and physical sciences', () => {
+  test('accepts the raw cookie string for bio and physical sciences', () => {
     expect(disciplineCitationFormatId('BIO_PHYSICAL_SCIENCE')).toBe('apsj');
   });
 
-  it.each([{ mode: undefined }, { mode: 'CHEMISTRY' }, { mode: 'nonsense' }])(
+  test.each([{ mode: undefined }, { mode: 'CHEMISTRY' }, { mode: 'nonsense' }])(
     'falls back to AGU for $mode',
     ({ mode }) => {
       expect(disciplineCitationFormatId(mode)).toBe('agu');
@@ -276,11 +276,11 @@ describe('disciplineCitationFormatId', () => {
 describe('resolveRouteFormat', () => {
   const availableIds = ['bibtex', 'agu', 'icarus', 'apsj', 'custom'];
 
-  it('keeps a route format the manifest knows', () => {
+  test('keeps a route format the manifest knows', () => {
     expect(resolveRouteFormat({ requested: 'icarus', availableIds, fallbackId: 'agu' })).toBe('icarus');
   });
 
-  it.each([
+  test.each([
     { label: 'an unknown format', requested: 'nonsense', ids: availableIds, fallbackId: 'apsj' },
     { label: 'a missing format', requested: undefined, ids: availableIds, fallbackId: 'icarus' },
     { label: 'an array of formats', requested: ['agu', 'bibtex'], ids: availableIds, fallbackId: 'icarus' },
@@ -288,10 +288,20 @@ describe('resolveRouteFormat', () => {
   ])('falls back to the caller’s id for $label', ({ requested, ids, fallbackId }) => {
     expect(resolveRouteFormat({ requested, availableIds: ids, fallbackId })).toBe(fallbackId);
   });
+
+  test('does not hand back a fallback the manifest does not offer', () => {
+    expect(resolveRouteFormat({ requested: 'nonsense', availableIds: ['bibtex', 'agu'], fallbackId: 'apsj' })).toBe(
+      'agu',
+    );
+  });
+
+  test('returns the caller’s id when neither it nor AGU is in the manifest', () => {
+    expect(resolveRouteFormat({ requested: 'nonsense', availableIds: ['bibtex'], fallbackId: 'apsj' })).toBe('apsj');
+  });
 });
 
 describe('a settings object with fields missing (panel finding 3)', () => {
-  it('falls back to the discipline default when customFormats is absent entirely', () => {
+  test('falls back to the discipline default when customFormats is absent entirely', () => {
     const resolved = resolveCitationFormat({
       isAuthenticated: true,
       defaultExportFormatLabel: 'custom',

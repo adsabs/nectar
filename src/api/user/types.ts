@@ -120,7 +120,7 @@ export enum UserDataKeys {
   ABS_MAX_AUTHORS = 'bibtexABSMaxAuthors',
   BIBTEX_JOURNAL_FORMAT = 'bibtexJournalFormat',
   DEFAULT_EXPORT_FORMAT = 'defaultExportFormat',
-  DEFAULT_CITATION_FORMAT = 'defaultCitationFormat', // this is for the one click citation
+  DEFAULT_CITATION_FORMAT = 'defaultCitationFormat',
   DEFAULT_HIDE_SIDEBARS = 'defaultHideSidebars',
   MIN_AUTHOR_RESULT = 'minAuthorsPerResult',
   ABS_AUTHOR_CUTOFF = 'bibtexABSAuthorCutoff',

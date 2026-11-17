@@ -1,5 +1,5 @@
 import { render, waitFor } from '@/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { IADSApiLibraryEntityResponse } from '@/api/biblib/types';
 
@@ -68,7 +68,7 @@ beforeEach(() => {
 });
 
 describe('LibraryEntityPane export menu (criterion 8)', () => {
-  it('routes "Other Formats" using the resolved format id rather than a hardcoded bibtex', async () => {
+  test('routes "Other Formats" using the resolved format id rather than a hardcoded bibtex', async () => {
     const { getByRole, user } = render(<LibraryEntityPane id="lib-1" publicView={false} />);
 
     await user.click(getByRole('button', { name: 'Export' }));

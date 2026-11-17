@@ -1,5 +1,5 @@
 import { render } from '@/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { IDocsEntity } from '@/api/search/types';
 
@@ -33,19 +33,19 @@ beforeEach(() => {
 });
 
 describe('DocumentList', () => {
-  it('renders one item per document', () => {
+  test('renders one item per document', () => {
     renderList();
 
     expect(mocks.documentItem).toHaveBeenCalledTimes(2);
   });
 
-  it('requests no citations for the list (criterion 10)', () => {
+  test('requests no citations for the list (criterion 10)', () => {
     renderList();
 
     expect(mocks.useGetExportCitation).not.toHaveBeenCalled();
   });
 
-  it('hands no citation down to its items', () => {
+  test('hands no citation down to its items', () => {
     renderList();
 
     mocks.documentItem.mock.calls.forEach(([props]) => {

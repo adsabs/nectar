@@ -28,9 +28,12 @@ export interface ResolveCitationFormatInput {
   formats: IExportFormat[];
 }
 
+const FALLBACK_CITATION_FORMAT_ID = 'agu';
+
 const disciplineDefaultsById = DISCIPLINE_CITATION_DEFAULTS as Record<string, string>;
 
-export const disciplineCitationFormatId = (mode?: string): string => disciplineDefaultsById[mode ?? ''] ?? 'agu';
+export const disciplineCitationFormatId = (mode?: string): string =>
+  disciplineDefaultsById[mode ?? ''] ?? FALLBACK_CITATION_FORMAT_ID;
 
 export interface ResolveRouteFormatInput {
   requested?: string | string[];
@@ -38,8 +41,17 @@ export interface ResolveRouteFormatInput {
   fallbackId: string;
 }
 
-export const resolveRouteFormat = ({ requested, availableIds, fallbackId }: ResolveRouteFormatInput): string =>
-  typeof requested === 'string' && availableIds.includes(requested) ? requested : fallbackId;
+export const resolveRouteFormat = ({ requested, availableIds, fallbackId }: ResolveRouteFormatInput): string => {
+  if (typeof requested === 'string' && availableIds.includes(requested)) {
+    return requested;
+  }
+
+  if (availableIds.length === 0 || availableIds.includes(fallbackId)) {
+    return fallbackId;
+  }
+
+  return availableIds.includes(FALLBACK_CITATION_FORMAT_ID) ? FALLBACK_CITATION_FORMAT_ID : fallbackId;
+};
 
 const findByName = (formats: IExportFormat[], name: string): IExportFormat | undefined =>
   formats.find((format) => format.name === name);
@@ -68,7 +80,7 @@ const disciplineDefault = (appMode: AppMode, formats: IExportFormat[]): Resolved
     return fromManifest(option);
   }
 
-  const aguOption = findById(formats, 'agu');
+  const aguOption = findById(formats, FALLBACK_CITATION_FORMAT_ID);
 
   if (aguOption) {
     return fromManifest(aguOption);

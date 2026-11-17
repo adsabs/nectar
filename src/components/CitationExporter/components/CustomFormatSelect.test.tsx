@@ -1,5 +1,5 @@
 import { render, waitFor } from '@/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { CustomFormat, IADSApiUserDataResponse } from '@/api/user/types';
 
@@ -39,13 +39,13 @@ beforeEach(() => {
 
 describe('CustomFormatSelect', () => {
   describe('without an initial id, today’s behaviour is unchanged', () => {
-    it('uses the first saved format in array order', async () => {
+    test('uses the first saved format in array order', async () => {
       render(<CustomFormatSelect dispatch={mocks.dispatch} />);
 
       await waitFor(() => expect(templates()).toContain('%1H:%Y:%q'));
     });
 
-    it('does not throw when nothing is saved', () => {
+    test('does not throw when nothing is saved', () => {
       withSaved([]);
 
       expect(() => render(<CustomFormatSelect dispatch={mocks.dispatch} />)).not.toThrow();
@@ -53,20 +53,20 @@ describe('CustomFormatSelect', () => {
   });
 
   describe('honouring a deep link’s customFormatId (criterion 7)', () => {
-    it('selects the format the id names, not the first saved one', async () => {
+    test('selects the format the id names, not the first saved one', async () => {
       render(<CustomFormatSelect dispatch={mocks.dispatch} initialCustomFormatId="format-bbbb" />);
 
       await waitFor(() => expect(templates()).toContain('%ZEncoding:latex\\bibitem{%R}'));
     });
 
-    it('does not use the first saved format when the id names another', async () => {
+    test('does not use the first saved format when the id names another', async () => {
       render(<CustomFormatSelect dispatch={mocks.dispatch} initialCustomFormatId="format-bbbb" />);
 
       await waitFor(() => expect(mocks.dispatch).toHaveBeenCalled());
       expect(templates()).not.toContain('%1H:%Y:%q');
     });
 
-    it('shows that format’s name in the selector', async () => {
+    test('shows that format’s name in the selector', async () => {
       const { findByText } = render(
         <CustomFormatSelect dispatch={mocks.dispatch} initialCustomFormatId="format-bbbb" />,
       );
@@ -74,7 +74,7 @@ describe('CustomFormatSelect', () => {
       expect(await findByText('Alpha Format')).toBeInTheDocument();
     });
 
-    it('still submits so the citation is fetched', async () => {
+    test('still submits so the citation is fetched', async () => {
       render(<CustomFormatSelect dispatch={mocks.dispatch} initialCustomFormatId="format-bbbb" />);
 
       await waitFor(() => expect(mocks.dispatch.mock.calls.some(([event]) => event.type === 'SUBMIT')).toBe(true));
@@ -82,13 +82,13 @@ describe('CustomFormatSelect', () => {
   });
 
   describe('an id that cannot be honoured falls back without error', () => {
-    it('falls back to the first saved format for an unknown id', async () => {
+    test('falls back to the first saved format for an unknown id', async () => {
       render(<CustomFormatSelect dispatch={mocks.dispatch} initialCustomFormatId="format-nope" />);
 
       await waitFor(() => expect(templates()).toContain('%1H:%Y:%q'));
     });
 
-    it('falls back for a stale id whose format was deleted', async () => {
+    test('falls back for a stale id whose format was deleted', async () => {
       withSaved([SAVED[0]]);
 
       render(<CustomFormatSelect dispatch={mocks.dispatch} initialCustomFormatId="format-bbbb" />);
@@ -96,7 +96,7 @@ describe('CustomFormatSelect', () => {
       await waitFor(() => expect(templates()).toContain('%1H:%Y:%q'));
     });
 
-    it('does not throw for an unknown id with nothing saved', () => {
+    test('does not throw for an unknown id with nothing saved', () => {
       withSaved([]);
 
       expect(() =>
@@ -106,7 +106,7 @@ describe('CustomFormatSelect', () => {
   });
 
   describe('settings that arrive after the first render', () => {
-    it('picks up the named format once the saved formats load', async () => {
+    test('picks up the named format once the saved formats load', async () => {
       withSaved([]);
       const { rerender } = render(<CustomFormatSelect dispatch={mocks.dispatch} initialCustomFormatId="format-bbbb" />);
 

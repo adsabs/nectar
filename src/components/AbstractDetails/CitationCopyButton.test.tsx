@@ -1,5 +1,5 @@
 import { act, render, waitFor } from '@/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ReactElement } from 'react';
 
 import { DEFAULT_USER_DATA } from '@/api/user/models';
@@ -175,14 +175,14 @@ beforeEach(() => {
 });
 
 describe('the copy segment copies immediately (criterion 2)', () => {
-  it('names the resolved format in both segments’ accessible names (criterion 1)', () => {
+  test('names the resolved format in both segments’ accessible names (criterion 1)', () => {
     const { getByRole } = renderButton();
 
     expect(getByRole('button', { name: 'Copy citation (BibTeX)' })).toBeInTheDocument();
     expect(getByRole('button', { name: CHEVRON })).toBeInTheDocument();
   });
 
-  it('requests the record on screen and hands the citation to the clipboard', async () => {
+  test('requests the record on screen and hands the citation to the clipboard', async () => {
     const { clickCopy } = renderButton();
 
     await clickCopy();
@@ -194,7 +194,7 @@ describe('the copy segment copies immediately (criterion 2)', () => {
     await waitFor(() => expect(titles()).toContain('Copied BibTeX citation to clipboard.'));
   });
 
-  it('never opens the modal from the copy segment', async () => {
+  test('never opens the modal from the copy segment', async () => {
     const { clickCopy } = renderButton();
 
     await clickCopy();
@@ -205,7 +205,7 @@ describe('the copy segment copies immediately (criterion 2)', () => {
 });
 
 describe('signed-out resolution follows the app mode (criterion 4)', () => {
-  it.each([
+  test.each([
     { mode: AppMode.ASTROPHYSICS, id: 'bibtex', name: 'BibTeX', asHtml: false },
     { mode: AppMode.HELIOPHYSICS, id: 'agu', name: 'AGU', asHtml: true },
     { mode: AppMode.PLANET_SCIENCE, id: 'icarus', name: 'Icarus', asHtml: false },
@@ -226,7 +226,7 @@ describe('signed-out resolution follows the app mode (criterion 4)', () => {
 });
 
 describe('signed-in resolution follows the saved export format (criterion 3)', () => {
-  it.each([
+  test.each([
     { label: 'BibTeX', id: 'bibtex', asHtml: false },
     { label: 'AGU', id: 'agu', asHtml: true },
     { label: 'APS Journals', id: 'apsj', asHtml: true },
@@ -242,7 +242,7 @@ describe('signed-in resolution follows the saved export format (criterion 3)', (
     expect(clipboardInput().asHtml).toBe(asHtml);
   });
 
-  it('ignores the app mode once a format is saved', async () => {
+  test('ignores the app mode once a format is saved', async () => {
     asSignedIn({ defaultExportFormat: 'APS Journals' });
     const { clickCopy } = renderButton(AppMode.PLANET_SCIENCE);
 
@@ -252,7 +252,7 @@ describe('signed-in resolution follows the saved export format (criterion 3)', (
     expect(exportParams().format).toBe('apsj');
   });
 
-  it('sends a saved custom format as its template, as plain text, under its own name', async () => {
+  test('sends a saved custom format as its template, as plain text, under its own name', async () => {
     asSignedIn({ defaultExportFormat: 'custom', customFormats: [CUSTOM_FORMAT] });
     const { clickCopy } = renderButton();
 
@@ -266,7 +266,7 @@ describe('signed-in resolution follows the saved export format (criterion 3)', (
     expect(titles()).not.toContain('Copied custom citation to clipboard.');
   });
 
-  it('falls back to the discipline default when no custom format is saved', async () => {
+  test('falls back to the discipline default when no custom format is saved', async () => {
     asSignedIn({ defaultExportFormat: 'custom', customFormats: [] });
     const { clickCopy } = renderButton(AppMode.PLANET_SCIENCE);
 
@@ -279,7 +279,7 @@ describe('signed-in resolution follows the saved export format (criterion 3)', (
 });
 
 describe('a copy that fails does not report success (criterion 13)', () => {
-  it('raises an error toast and no success toast when the write is rejected', async () => {
+  test('raises an error toast and no success toast when the write is rejected', async () => {
     mocks.copyToClipboard.mockRejectedValue(new Error('NotAllowedError'));
     const { clickCopy } = renderButton();
 
@@ -290,7 +290,7 @@ describe('a copy that fails does not report success (criterion 13)', () => {
     expect(titles()).not.toContain('Copied BibTeX citation to clipboard.');
   });
 
-  it('raises no success toast when the citation request fails', async () => {
+  test('raises no success toast when the citation request fails', async () => {
     mocks.fetchExportCitation.mockRejectedValue(new Error('export service down'));
     mocks.copyToClipboard.mockRejectedValue(new Error('content failed'));
     const { clickCopy } = renderButton();
@@ -300,10 +300,25 @@ describe('a copy that fails does not report success (criterion 13)', () => {
 
     expect(titles()).not.toContain('Copied BibTeX citation to clipboard.');
   });
+
+  test.each([{ label: 'empty', export: '' }, { label: 'blank', export: '   \n' }, { label: 'absent' }])(
+    'reports an error rather than success when the service returns an $label citation',
+    async ({ export: citation }) => {
+      mocks.fetchExportCitation.mockResolvedValue({ export: citation } as { export: string });
+      const { clickCopy, queryByTestId } = renderButton();
+
+      await clickCopy();
+      await settle();
+
+      expect(hasErrorToast()).toBe(true);
+      expect(titles()).not.toContain('Copied BibTeX citation to clipboard.');
+      expect(queryByTestId(CONFIRMATION)).not.toBeInTheDocument();
+    },
+  );
 });
 
 describe('settings still loading for a signed-in user (criterion 3, the placeholder window)', () => {
-  it('copies the real saved format rather than the placeholder', async () => {
+  test('copies the real saved format rather than the placeholder', async () => {
     asPlaceholder({ defaultExportFormat: 'APS Journals' });
     const { clickCopy } = renderButton();
 
@@ -315,7 +330,7 @@ describe('settings still loading for a signed-in user (criterion 3, the placehol
     await waitFor(() => expect(titles()).toContain('Copied APS Journals citation to clipboard.'));
   });
 
-  it('reports an error when the settings request fails', async () => {
+  test('reports an error when the settings request fails', async () => {
     asPlaceholder();
     mocks.fetchUserSettings.mockRejectedValue(new Error('settings unavailable'));
     const { clickCopy } = renderButton();
@@ -327,7 +342,7 @@ describe('settings still loading for a signed-in user (criterion 3, the placehol
     expect(mocks.fetchExportCitation).not.toHaveBeenCalled();
   });
 
-  it('reads settings from the cache rather than the network once they are ready', async () => {
+  test('reads settings from the cache rather than the network once they are ready', async () => {
     asSignedIn({ defaultExportFormat: 'APS Journals' });
     const { clickCopy } = renderButton();
 
@@ -340,7 +355,7 @@ describe('settings still loading for a signed-in user (criterion 3, the placehol
 });
 
 describe('the chevron routes by whether the format is in the modal list (criteria 5 and 6)', () => {
-  it('opens the quick-copy modal for a format the modal can show', async () => {
+  test('opens the quick-copy modal for a format the modal can show', async () => {
     const { clickChevron } = renderButton(AppMode.ASTROPHYSICS);
 
     await clickChevron();
@@ -349,7 +364,7 @@ describe('the chevron routes by whether the format is in the modal list (criteri
     expect(mocks.push).not.toHaveBeenCalled();
   });
 
-  it('deep-links to Export Citation for a format the modal cannot show', async () => {
+  test('deep-links to Export Citation for a format the modal cannot show', async () => {
     const { clickChevron } = renderButton(AppMode.BIO_PHYSICAL);
 
     await clickChevron();
@@ -358,7 +373,7 @@ describe('the chevron routes by whether the format is in the modal list (criteri
     expect(onOpenModal).not.toHaveBeenCalled();
   });
 
-  it('carries customFormatId when the default is a saved custom format', async () => {
+  test('carries customFormatId when the default is a saved custom format', async () => {
     asSignedIn({ defaultExportFormat: 'custom', customFormats: [CUSTOM_FORMAT] });
     const { clickChevron } = renderButton();
 
@@ -368,7 +383,7 @@ describe('the chevron routes by whether the format is in the modal list (criteri
     expect(onOpenModal).not.toHaveBeenCalled();
   });
 
-  it('escapes the bibcode in the deep link', async () => {
+  test('escapes the bibcode in the deep link', async () => {
     const { clickChevron } = renderButton(AppMode.BIO_PHYSICAL, '2003A&A...1..1X');
 
     await clickChevron();
@@ -376,7 +391,7 @@ describe('the chevron routes by whether the format is in the modal list (criteri
     expect(mocks.push).toHaveBeenCalledWith('/abs/2003A%26A...1..1X/exportcitation/apsj');
   });
 
-  it('never copies anything from the chevron', async () => {
+  test('never copies anything from the chevron', async () => {
     const { clickChevron } = renderButton(AppMode.BIO_PHYSICAL);
 
     await clickChevron();
@@ -387,7 +402,7 @@ describe('the chevron routes by whether the format is in the modal list (criteri
 });
 
 describe('the chevron during the placeholder window (panel finding 1)', () => {
-  it('deep-links to the real out-of-list default instead of opening the modal', async () => {
+  test('deep-links to the real out-of-list default instead of opening the modal', async () => {
     asPlaceholder({ defaultExportFormat: 'APS Journals' });
     const { clickChevron } = renderButton();
 
@@ -397,7 +412,7 @@ describe('the chevron during the placeholder window (panel finding 1)', () => {
     expect(onOpenModal).not.toHaveBeenCalled();
   });
 
-  it('carries customFormatId for a real custom default', async () => {
+  test('carries customFormatId for a real custom default', async () => {
     asPlaceholder({ defaultExportFormat: 'custom', customFormats: [CUSTOM_FORMAT] });
     const { clickChevron } = renderButton();
 
@@ -409,7 +424,7 @@ describe('the chevron during the placeholder window (panel finding 1)', () => {
     expect(onOpenModal).not.toHaveBeenCalled();
   });
 
-  it('opens the modal when the real default is one the modal can show', async () => {
+  test('opens the modal when the real default is one the modal can show', async () => {
     asPlaceholder({ defaultExportFormat: 'AGU' });
     const { clickChevron } = renderButton();
 
@@ -421,7 +436,7 @@ describe('the chevron during the placeholder window (panel finding 1)', () => {
 });
 
 describe('a partial settings response does not break the copy (panel finding 3)', () => {
-  it('falls back to the discipline default when the fresh response omits customFormats', async () => {
+  test('falls back to the discipline default when the fresh response omits customFormats', async () => {
     asPlaceholder();
     mocks.fetchUserSettings.mockResolvedValue({
       defaultExportFormat: 'custom',
@@ -434,7 +449,7 @@ describe('a partial settings response does not break the copy (panel finding 3)'
     expect(exportParams().format).toBe('icarus');
   });
 
-  it('sends no NaN author bounds for a partial fresh response', async () => {
+  test('sends no NaN author bounds for a partial fresh response', async () => {
     asPlaceholder();
     mocks.fetchUserSettings.mockResolvedValue({
       defaultExportFormat: 'BibTeX',
@@ -455,7 +470,7 @@ describe('a partial settings response does not break the copy (panel finding 3)'
 });
 
 describe('the clipboard write stays inside the user gesture (criterion 12a)', () => {
-  it('calls the clipboard with a promise before the citation request resolves', async () => {
+  test('calls the clipboard with a promise before the citation request resolves', async () => {
     const citation = pendingCitation();
     const { clickCopy } = renderButton();
 
@@ -472,7 +487,7 @@ describe('the clipboard write stays inside the user gesture (criterion 12a)', ()
 });
 
 describe('a copy in flight when the reader moves on (criterion 12b)', () => {
-  it('still completes the copy the reader asked for', async () => {
+  test('still completes the copy the reader asked for', async () => {
     const citation = pendingCitation();
     const { clickCopy, rerender } = renderButton();
 
@@ -484,7 +499,7 @@ describe('a copy in flight when the reader moves on (criterion 12b)', () => {
     expect(mocks.copyToClipboard).toHaveBeenCalledTimes(1);
   });
 
-  it('does not announce the copy against the record the reader is now on', async () => {
+  test('does not announce the copy against the record the reader is now on', async () => {
     const citation = pendingCitation();
     const { clickCopy, rerender, queryByTestId } = renderButton();
 
@@ -497,7 +512,7 @@ describe('a copy in flight when the reader moves on (criterion 12b)', () => {
     expect(queryByTestId(CONFIRMATION)).toBeNull();
   });
 
-  it('does not report a failure against the record the reader is now on either', async () => {
+  test('does not report a failure against the record the reader is now on either', async () => {
     const citation = pendingCitation();
     const { clickCopy, rerender } = renderButton();
 
@@ -509,7 +524,7 @@ describe('a copy in flight when the reader moves on (criterion 12b)', () => {
     expect(mocks.toast).not.toHaveBeenCalled();
   });
 
-  it('does report a failure when the reader is still on the record', async () => {
+  test('does report a failure when the reader is still on the record', async () => {
     const citation = pendingCitation();
     const { clickCopy } = renderButton();
 
@@ -521,7 +536,7 @@ describe('a copy in flight when the reader moves on (criterion 12b)', () => {
 });
 
 describe('the chevron in flight when the reader moves on (REV finding 1)', () => {
-  it.each([
+  test.each([
     { outcome: 'a deep link', real: 'APS Journals' },
     { outcome: 'the modal', real: 'AGU' },
   ])('does not route to $outcome against a record the reader has left', async ({ real }) => {
@@ -538,7 +553,7 @@ describe('the chevron in flight when the reader moves on (REV finding 1)', () =>
     expect(onOpenModal).not.toHaveBeenCalled();
   });
 
-  it('does not route when the settings request fails after the reader moves on', async () => {
+  test('does not route when the settings request fails after the reader moves on', async () => {
     asPlaceholder();
     const settings = pendingSettings();
     const { clickChevron, rerender } = renderButton();
@@ -552,7 +567,7 @@ describe('the chevron in flight when the reader moves on (REV finding 1)', () =>
     expect(onOpenModal).not.toHaveBeenCalled();
   });
 
-  it('still routes when the reader stays on the record', async () => {
+  test('still routes when the reader stays on the record', async () => {
     asPlaceholder({ defaultExportFormat: 'APS Journals' });
     const { clickChevron } = renderButton();
 
@@ -563,7 +578,7 @@ describe('the chevron in flight when the reader moves on (REV finding 1)', () =>
 });
 
 describe('a failed citation request does not brick later copies (criterion 12c)', () => {
-  it('issues a fresh request on the next click and succeeds', async () => {
+  test('issues a fresh request on the next click and succeeds', async () => {
     mocks.fetchExportCitation.mockRejectedValueOnce(new Error('export service down'));
     mocks.copyToClipboard.mockRejectedValueOnce(new Error('content failed'));
     const { clickCopy } = renderButton();
@@ -581,7 +596,7 @@ describe('a failed citation request does not brick later copies (criterion 12c)'
 });
 
 describe('the copy segment confirms in place as well as by toast', () => {
-  it('shows the confirmation only after the write resolves, then clears it', async () => {
+  test('shows the confirmation only after the write resolves, then clears it', async () => {
     const { clickCopy, findByTestId, queryByTestId } = renderButton();
 
     expect(queryByTestId(CONFIRMATION)).toBeNull();
@@ -592,7 +607,7 @@ describe('the copy segment confirms in place as well as by toast', () => {
     await waitFor(() => expect(queryByTestId(CONFIRMATION)).toBeNull(), { timeout: 3000 });
   });
 
-  it('shows no confirmation when the write is refused', async () => {
+  test('shows no confirmation when the write is refused', async () => {
     mocks.copyToClipboard.mockRejectedValue(new Error('NotAllowedError'));
     const { clickCopy, queryByTestId } = renderButton();
 
@@ -602,7 +617,7 @@ describe('the copy segment confirms in place as well as by toast', () => {
     expect(queryByTestId(CONFIRMATION)).toBeNull();
   });
 
-  it('keeps the segment usable so a second copy still works', async () => {
+  test('keeps the segment usable so a second copy still works', async () => {
     const { clickCopy, findByTestId } = renderButton();
 
     await clickCopy();

@@ -64,9 +64,15 @@ export const CitationCopyButton = ({ bibcode, onOpenModal }: ICitationCopyButton
       .then((data) => data.export ?? '');
     content.catch((): void => undefined);
 
-    copyToClipboard({ content, asHtml: resolvedFormat.asHtml })
-      .then(() => {
+    const written = copyToClipboard({ content, asHtml: resolvedFormat.asHtml });
+
+    Promise.all([written, content])
+      .then(([, citation]) => {
         if (currentBibcodeRef.current !== requestedBibcode) {
+          return;
+        }
+        if (citation.trim() === '') {
+          toast({ title: 'Could not copy the citation.', status: 'error' });
           return;
         }
         toast({ title: `Copied ${resolvedFormat.name} citation to clipboard.`, status: 'success' });
@@ -114,7 +120,9 @@ export const CitationCopyButton = ({ bibcode, onOpenModal }: ICitationCopyButton
       onOpenModal();
       return;
     }
-    const query = resolvedFormat.customFormatId ? `?customFormatId=${resolvedFormat.customFormatId}` : '';
+    const query = resolvedFormat.customFormatId
+      ? `?customFormatId=${encodeURIComponent(resolvedFormat.customFormatId)}`
+      : '';
     void router.push(`/abs/${encodeURIComponent(bibcode)}/exportcitation/${resolvedFormat.id}${query}`);
   };
 
