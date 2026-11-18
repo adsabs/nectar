@@ -123,10 +123,7 @@ const gotoStubbedSearch = async (
   await stubSearchResults(page, rowCount);
 
   await page.goto(`/search?q=${encodeURIComponent('synthetic')}`, { waitUntil: 'commit' });
-  await page
-    .locator(ROW_SELECTOR)
-    .nth(rowCount - 1)
-    .waitFor({ state: 'attached' });
+  await page.locator(ROW_SELECTOR).nth(PROBE_ROW_INDEX).waitFor({ state: 'attached' });
 
   return page.locator(ROW_SELECTOR).nth(PROBE_ROW_INDEX);
 };
@@ -217,71 +214,47 @@ for (const viewport of VIEWPORTS) {
       expect(printed, 'containment must be off in print so every row is printable').toBe('visible');
     });
 
-    test(`all ${FULL_ROW_COUNT} rows stay in the DOM`, async ({ page, context }) => {
+    test(`a ${FULL_ROW_COUNT}-row page mounts only a viewport-sized window of rows`, async ({ page, context }) => {
       test.setTimeout(FULL_LIST_TIMEOUT_MS);
       await gotoStubbedSearch(page, context, viewport, FULL_ROW_COUNT);
 
-      await expect(page.locator(ROW_SELECTOR)).toHaveCount(FULL_ROW_COUNT);
+      const mounted = await page.locator(ROW_SELECTOR).count();
+      expect(mounted, 'at least one row must render').toBeGreaterThan(0);
+      expect(mounted, 'a windowed list must not mount the whole page').toBeLessThan(FULL_ROW_COUNT / 4);
 
-      const lastRow = page.locator(ROW_SELECTOR).nth(FULL_ROW_COUNT - 1);
-      await expect(lastRow).toContainText(`Synthetic result ${FULL_ROW_COUNT}`);
+      const reserved = await page.locator('#results > div').evaluate((el) => el.getBoundingClientRect().height);
+      expect(reserved, 'the scroller must reserve height for every row so the scrollbar is honest').toBeGreaterThan(
+        FULL_ROW_COUNT * 50,
+      );
     });
 
-    test('offscreen rows stay reachable to select-all, find-in-page and print', async ({ page, context }) => {
+    test(`printing a windowed page puts all ${FULL_ROW_COUNT} rows in the document`, async ({ page, context }) => {
       test.setTimeout(FULL_LIST_TIMEOUT_MS);
       await gotoStubbedSearch(page, context, viewport, FULL_ROW_COUNT);
 
-      const needle = `${SEARCH_RESULT_TITLE_PREFIX} ${FULL_ROW_COUNT}:`;
-      const lastRow = page.locator(ROW_SELECTOR).nth(FULL_ROW_COUNT - 1);
-
-      const titleIsRendered = (el: SVGElement | HTMLElement) => {
-        const title = el.querySelector('.article-title');
-        if (title === null) {
-          throw new Error('row has no title element');
-        }
-        const check = (
-          title as Element & {
-            checkVisibility?: (options: { contentVisibilityAuto: boolean }) => boolean;
-          }
-        ).checkVisibility;
-        if (typeof check !== 'function') {
-          throw new Error('checkVisibility({ contentVisibilityAuto }) is unavailable');
-        }
-        return check.call(title, { contentVisibilityAuto: true });
-      };
-
-      const renderedOnScreen = await lastRow.evaluate(titleIsRendered);
+      expect(await page.locator(ROW_SELECTOR).count()).toBeLessThan(FULL_ROW_COUNT);
 
       await page.emulateMedia({ media: 'print' });
-      const renderedInPrint = await lastRow.evaluate(titleIsRendered);
+      await expect(page.locator(ROW_SELECTOR)).toHaveCount(FULL_ROW_COUNT, { timeout: FULL_LIST_TIMEOUT_MS / 2 });
+
+      const lastRow = page.locator(ROW_SELECTOR).nth(FULL_ROW_COUNT - 1);
+      await expect(lastRow).toContainText(`${SEARCH_RESULT_TITLE_PREFIX} ${FULL_ROW_COUNT}`);
+
       await page.emulateMedia({ media: 'screen' });
-
-      expect(renderedOnScreen, 'a row far below the fold must have its rendering skipped').toBe(false);
-      expect(renderedInPrint, 'print must render the contents of an offscreen row').toBe(true);
-
-      const selectedText = await page.evaluate(() => {
-        const selection = window.getSelection();
-        if (selection === null) {
-          return '';
-        }
-        selection.removeAllRanges();
-        const range = document.createRange();
-        range.selectNodeContents(document.body);
-        selection.addRange(range);
-        return selection.toString();
+      await expect(page.locator(ROW_SELECTOR)).not.toHaveCount(FULL_ROW_COUNT, {
+        timeout: FULL_LIST_TIMEOUT_MS / 2,
       });
-      expect(selectedText, 'select-all must reach the last offscreen row').toContain(needle);
+    });
 
-      const found = await page.evaluate((text) => {
-        const finder = (window as unknown as { find?: (needle: string) => boolean }).find;
-        window.getSelection()?.removeAllRanges();
-        window.scrollTo(0, 0);
-        return typeof finder === 'function' ? finder.call(window, text) : null;
-      }, needle);
-      expect(found, 'window.find is unavailable, so find-in-page cannot be verified here').not.toBeNull();
-      expect(found, 'find-in-page must reach the last offscreen row').toBe(true);
+    test(`select-all reaches every row on a windowed ${FULL_ROW_COUNT}-row page`, async ({ page, context }) => {
+      test.setTimeout(FULL_LIST_TIMEOUT_MS);
+      await gotoStubbedSearch(page, context, viewport, FULL_ROW_COUNT);
 
-      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.getByTestId('listactions-checkbox').click();
+
+      await expect(page.getByTestId('listactions-selected')).toHaveText(`${FULL_ROW_COUNT} Selected`, {
+        timeout: FULL_LIST_TIMEOUT_MS / 2,
+      });
     });
 
     test.describe('visual regression', () => {

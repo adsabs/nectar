@@ -15,7 +15,7 @@ import { AuthorList } from '@/components/AllAuthorsModal';
 import { APP_DEFAULTS } from '@/config';
 import { useAuthorsPerResult } from '@/lib/useAuthorsPerResult';
 import { useIsClient } from '@/lib/useIsClient';
-import { useScrollRestoration } from '@/lib/useScrollRestoration';
+import { saveScrollPosition } from '@/lib/useScrollRestoration';
 import { useStore } from '@/store';
 import { MathJax } from 'better-react-mathjax';
 import dynamic from 'next/dynamic';
@@ -29,6 +29,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 
 import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
+import { containsMath } from '@/utils/common/mathjax';
 import { IDocsEntity } from '@/api/search/types';
 import { keys, toPairs } from 'ramda';
 import { sendGTMEvent } from '@next/third-parties/google';
@@ -69,6 +70,7 @@ export interface IItemProps {
   abstract?: string;
   isFetchingAbstract?: boolean;
   allowAbstracts?: boolean;
+  containment?: boolean;
 }
 
 export const Item = (props: IItemProps): ReactElement => {
@@ -85,9 +87,11 @@ export const Item = (props: IItemProps): ReactElement => {
     abstract,
     isFetchingAbstract,
     allowAbstracts = true,
+    containment = true,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
   const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
+  const titleHtml = unwrapStringValue(title);
   const formattedPubDate = getFormattedNumericPubdate(pubdate);
   const isClient = useIsClient();
   const maxAuthors = useAuthorsPerResult();
@@ -100,9 +104,6 @@ export const Item = (props: IItemProps): ReactElement => {
   const colors = useColorModeColors();
 
   const isMobile = useBreakpointValue({ base: true, md: false });
-
-  // Scroll restoration - save position when navigating to abstract
-  const { saveScrollPosition } = useScrollRestoration();
 
   const handleAbstractClick = () => {
     saveScrollPosition();
@@ -153,7 +154,7 @@ export const Item = (props: IItemProps): ReactElement => {
       mb={1}
       borderRadius="md"
       id={bibcode}
-      sx={ROW_CONTAINMENT_SX}
+      sx={containment ? ROW_CONTAINMENT_SX : undefined}
       data-testid="result-item"
     >
       <Flex
@@ -190,7 +191,11 @@ export const Item = (props: IItemProps): ReactElement => {
             data-testid="result-title"
             onClick={handleAbstractClick}
           >
-            <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
+            {containsMath(titleHtml) ? (
+              <Text as={MathJax} dangerouslySetInnerHTML={{ __html: titleHtml }} />
+            ) : (
+              <Text dangerouslySetInnerHTML={{ __html: titleHtml }} />
+            )}
           </SimpleLink>
           <Flex alignItems="start" ml={isMobile ? 0 : 1} order={isMobile ? -1 : 0} my={isMobile ? 2 : 0}>
             {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} rank={index} />}

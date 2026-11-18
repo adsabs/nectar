@@ -15,10 +15,12 @@ const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : us
 // Opt-in via `enabled`: SimpleResultList is shared (abstract refs, library
 // lists), and only search should emit search.* spans. The list mounts only
 // after a search completes, so a zero-result render still counts.
-export function useResultsRenderSpan(docs: IDocsEntity[], enabled = false): void {
+export function useResultsRenderSpan(docs: IDocsEntity[], enabled = false, windowed = false): void {
   const resultsSpanRef = useRef<ReturnType<typeof Sentry.startInactiveSpan> | null>(null);
   const facetsSpanRef = useRef<ReturnType<typeof Sentry.startInactiveSpan> | null>(null);
   const rafRef = useRef<number | null>(null);
+  const windowedRef = useRef(windowed);
+  windowedRef.current = windowed;
 
   // Open after DOM commit, before the browser paints.
   useIsomorphicLayoutEffect(() => {
@@ -61,7 +63,7 @@ export function useResultsRenderSpan(docs: IDocsEntity[], enabled = false): void
       rafRef.current = null;
       try {
         if (resultsSpanRef.current) {
-          resultsSpanRef.current.setAttributes({ doc_count: docs.length });
+          resultsSpanRef.current.setAttributes({ doc_count: docs.length, windowed: windowedRef.current });
           resultsSpanRef.current.setStatus({ code: 1 });
           resultsSpanRef.current.end();
           resultsSpanRef.current = null;
