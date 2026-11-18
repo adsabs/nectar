@@ -33,6 +33,7 @@
     "test:e2e:docker:down": "docker compose -f e2e/docker-compose.yml down -v",
     "test:e2e:docker:logs": "docker compose -f e2e/docker-compose.yml logs -f",
     "build-bibstem-index": "node ./scripts/gen-bibstem-index",
+    "analytics:contract": "tsx scripts/export-analytics-contract.mts",
     "lint": "eslint src/",
     "prepare": "husky"
   },
@@ -183,6 +184,7 @@
     "string.prototype.replaceall": "^1.0.7",
     "tsconfig-paths-webpack-plugin": "^3.5.2",
     "tslib": "^2.3.1",
+    "tsx": "4.23.12",
     "typescript": "^5.9.3",
     "vite": "^7.3.7",
     "vite-tsconfig-paths": "^5.1.4",

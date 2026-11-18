@@ -1,0 +1,238 @@
+{
+  "abstract_tab_view": {
+    "params": {
+      "bibcode": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      },
+      "tab": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      }
+    }
+  },
+  "author_list_exported": {
+    "params": {}
+  },
+  "author_list_opened": {
+    "params": {}
+  },
+  "discipline_change": {
+    "params": {
+      "discipline": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      }
+    }
+  },
+  "export": {
+    "params": {
+      "export_format": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      },
+      "export_type": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      }
+    }
+  },
+  "facet_applied": {
+    "params": {
+      "facet_field": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      },
+      "facet_logic": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      }
+    }
+  },
+  "full_text_click": {
+    "params": {
+      "bibcode": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      },
+      "is_open_access": {
+        "nullable": false,
+        "required": true,
+        "type": "boolean"
+      },
+      "rank": {
+        "nullable": true,
+        "required": false,
+        "type": "number"
+      },
+      "source_name": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      }
+    }
+  },
+  "result_click": {
+    "params": {
+      "bibcode": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      },
+      "rank": {
+        "nullable": false,
+        "required": true,
+        "type": "number"
+      }
+    }
+  },
+  "search_example_click": {
+    "params": {
+      "search_example": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      }
+    }
+  },
+  "search_no_results": {
+    "params": {
+      "query": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      },
+      "query_type": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      }
+    }
+  },
+  "tour_cancel": {
+    "params": {
+      "step_id": {
+        "nullable": true,
+        "required": true,
+        "type": "string"
+      },
+      "tour_type": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      }
+    }
+  },
+  "tour_complete": {
+    "params": {
+      "tour_type": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      }
+    }
+  },
+  "tour_start": {
+    "params": {
+      "is_mobile": {
+        "nullable": false,
+        "required": true,
+        "type": "boolean"
+      },
+      "tour_type": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      }
+    }
+  },
+  "tour_step": {
+    "params": {
+      "step_id": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      },
+      "tour_type": {
+        "nullable": false,
+        "required": true,
+        "type": "string"
+      }
+    }
+  },
+  "user_update": {
+    "params": {
+      "user_id": {
+        "nullable": true,
+        "required": true,
+        "type": "string"
+      }
+    }
+  },
+  "view_item": {
+    "params": {
+      "ecommerce": {
+        "nullable": false,
+        "params": {
+          "items": {
+            "nullable": false,
+            "params": {
+              "item_brand": {
+                "nullable": true,
+                "required": false,
+                "type": "string"
+              },
+              "item_category": {
+                "nullable": true,
+                "required": false,
+                "type": "string"
+              },
+              "item_category2": {
+                "nullable": true,
+                "required": false,
+                "type": "string"
+              },
+              "item_category3": {
+                "nullable": true,
+                "required": false,
+                "type": "string"
+              },
+              "item_id": {
+                "nullable": false,
+                "required": true,
+                "type": "string"
+              },
+              "item_name": {
+                "nullable": false,
+                "required": true,
+                "type": "string"
+              },
+              "item_variant": {
+                "nullable": true,
+                "required": false,
+                "type": "string"
+              },
+              "quantity": {
+                "nullable": false,
+                "required": true,
+                "type": "number"
+              }
+            },
+            "required": true,
+            "type": "object[]"
+          }
+        },
+        "required": true,
+        "type": "object"
+      }
+    }
+  }
+}
