@@ -92,6 +92,24 @@ export const retiredNestedKey = () => {
   });
 };
 
+export const retiredKeywordCategorySlots = () => {
+  track('view_item', {
+    ecommerce: {
+      items: [
+        {
+          item_id: 'X',
+          item_name: 'X',
+          quantity: 1,
+          // @ts-expect-error keyword-level analysis is deliberately out of GA, joined on bibcode instead
+          item_category2: 'galaxies',
+          // @ts-expect-error keyword-level analysis is deliberately out of GA, joined on bibcode instead
+          item_category3: 'redshift',
+        },
+      ],
+    },
+  });
+};
+
 export const misspelledNestedKeyViaVariable = () => {
   const items = [{ item_id: 'X', item_name: 'X', quantity: 1, item_catagory: 'astronomy' }];
   // @ts-expect-error excess nested keys are rejected via a variable-held payload too

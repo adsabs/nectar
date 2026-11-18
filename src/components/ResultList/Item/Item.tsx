@@ -31,7 +31,7 @@ import { useColorModeColors } from '@/lib/useColorModeColors';
 import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
 import { IDocsEntity } from '@/api/search/types';
 import { keys, toPairs } from 'ramda';
-import { sendGTMEvent } from '@next/third-parties/google';
+import { track } from '@/lib/analytics';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () =>
@@ -106,7 +106,7 @@ export const Item = (props: IItemProps): ReactElement => {
 
   const handleAbstractClick = () => {
     saveScrollPosition();
-    sendGTMEvent({ event: 'result_click', rank: index, bibcode });
+    track('result_click', { rank: index, bibcode });
   };
 
   // citations

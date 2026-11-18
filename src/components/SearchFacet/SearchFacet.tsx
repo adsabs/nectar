@@ -47,7 +47,7 @@ import { facetConfig } from './config';
 import { applyFiltersToQuery } from './helpers';
 import { FacetLogic, OnFilterArgs, SearchFacetID } from './types';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { sendGTMEvent } from '@next/third-parties/google';
+import { track } from '@/lib/analytics';
 import { FacetField, IADSApiSearchParams, IFacetCountsFields } from '@/api/search/types';
 
 export interface ISearchFacetProps extends AccordionItemProps {
@@ -125,8 +125,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const handleOnFilter = (filterArgs: OnFilterArgs) => {
     const query = store.getState().latestQuery;
     onQueryUpdate(applyFiltersToQuery({ ...filterArgs, query }));
-    sendGTMEvent({
-      event: 'facet_applied',
+    track('facet_applied', {
       facet_field: filterArgs.field,
       facet_logic: filterArgs.logic,
     });
@@ -135,8 +134,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const handleOnBinaryFilter = ({ field, value }: { field: FacetField; value: string }) => {
     const query = store.getState().latestQuery;
     onQueryUpdate(applyFiltersToQuery({ logic: 'limit to', field, values: [value], query }));
-    sendGTMEvent({
-      event: 'facet_applied',
+    track('facet_applied', {
       facet_field: field,
       facet_logic: 'limit to',
     });

@@ -195,16 +195,6 @@
                 "required": false,
                 "type": "string"
               },
-              "item_category2": {
-                "nullable": true,
-                "required": false,
-                "type": "string"
-              },
-              "item_category3": {
-                "nullable": true,
-                "required": false,
-                "type": "string"
-              },
               "item_id": {
                 "nullable": false,
                 "required": true,

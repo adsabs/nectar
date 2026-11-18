@@ -166,8 +166,6 @@ describe('event payloads', () => {
             item_name: 'A Galaxy',
             item_brand: 'ApJ',
             item_category: 'astronomy',
-            item_category2: 'galaxies',
-            item_category3: 'redshift',
             item_variant: 'article',
             quantity: 1,
           },
@@ -184,8 +182,6 @@ describe('event payloads', () => {
             item_name: 'A Galaxy',
             item_brand: 'ApJ',
             item_category: 'astronomy',
-            item_category2: 'galaxies',
-            item_category3: 'redshift',
             item_variant: 'article',
             quantity: 1,
           },
@@ -233,7 +229,7 @@ describe('undefined is stripped, null is preserved', () => {
             item_name: 'A Galaxy',
             item_brand: undefined,
             item_category: 'astronomy',
-            item_category2: undefined,
+            item_variant: undefined,
             quantity: 1,
           },
         ],
@@ -242,7 +238,7 @@ describe('undefined is stripped, null is preserved', () => {
 
     const items = (pushed().ecommerce as { items: Record<string, unknown>[] }).items;
     expect(items[0]).not.toHaveProperty('item_brand');
-    expect(items[0]).not.toHaveProperty('item_category2');
+    expect(items[0]).not.toHaveProperty('item_variant');
     expect(items[0]).toStrictEqual({
       item_id: '2020ApJ...900L..21F',
       item_name: 'A Galaxy',
@@ -304,8 +300,6 @@ describe('exported contract', () => {
             item_name: { type: 'string', required: true, nullable: false },
             item_brand: { type: 'string', required: false, nullable: true },
             item_category: { type: 'string', required: false, nullable: true },
-            item_category2: { type: 'string', required: false, nullable: true },
-            item_category3: { type: 'string', required: false, nullable: true },
             item_variant: { type: 'string', required: false, nullable: true },
             quantity: { type: 'number', required: true, nullable: false },
           },

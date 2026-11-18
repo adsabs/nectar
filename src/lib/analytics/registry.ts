@@ -99,8 +99,6 @@ export const EVENT_REGISTRY = {
               item_name: { type: 'string', required: true, nullable: false },
               item_brand: { type: 'string', required: false, nullable: true },
               item_category: { type: 'string', required: false, nullable: true },
-              item_category2: { type: 'string', required: false, nullable: true },
-              item_category3: { type: 'string', required: false, nullable: true },
               item_variant: { type: 'string', required: false, nullable: true },
               quantity: { type: 'number', required: true, nullable: false },
             },

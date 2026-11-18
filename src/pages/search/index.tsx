@@ -62,7 +62,7 @@ import {
 } from '@/utils/common/searchMode';
 import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
 import { SEARCH_API_KEYS, useSearch } from '@/api/search/search';
-import { sendGTMEvent } from '@next/third-parties/google';
+import { track } from '@/lib/analytics';
 import { getQueryType } from '@/lib/performance';
 import { defaultParams, withAbstractField } from '@/api/search/models';
 import { solrDefaultSortDirection, SolrSort, SolrSortField } from '@/api/models';
@@ -383,7 +383,7 @@ const SearchPage: NextPage = () => {
   useEffect(() => {
     if (noResults && params.q !== lastNoResultsQuery.current) {
       lastNoResultsQuery.current = params.q ?? null;
-      sendGTMEvent({ event: 'search_no_results', query: params.q, query_type: getQueryType(params.q ?? '') });
+      track('search_no_results', { query: params.q, query_type: getQueryType(params.q ?? '') });
     }
     if (!noResults) {
       lastNoResultsQuery.current = null;

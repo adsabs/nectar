@@ -4,7 +4,7 @@ import { offset } from '@floating-ui/react-dom';
 import { useRouter } from 'next/router';
 import { useBreakpointValue } from '@chakra-ui/react';
 import * as Sentry from '@sentry/nextjs';
-import { sendGTMEvent } from '@next/third-parties/google';
+import { track } from '@/lib/analytics';
 import { LocalSettings } from '@/types';
 import { useStore } from '@/store';
 import { useMemo } from 'react';
@@ -67,7 +67,7 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
 
       document.addEventListener('click', listener);
 
-      sendGTMEvent({ event: 'tour_start', tour_type: tourType, is_mobile: !!isMobile });
+      track('tour_start', { tour_type: tourType, is_mobile: !!isMobile });
       Sentry.addBreadcrumb({ category: 'tour', message: 'tour_start', level: 'info', data: { tourType, isMobile } });
     });
 
@@ -78,14 +78,14 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
         return;
       }
 
-      sendGTMEvent({ event: 'tour_step', tour_type: tourType, step_id: stepId });
+      track('tour_step', { tour_type: tourType, step_id: stepId });
       Sentry.addBreadcrumb({ category: 'tour', message: 'tour_step', level: 'info', data: { tourType, stepId } });
     });
 
     tour.on('complete', () => {
       tour.options.keyboardNavigation = false;
       document.removeEventListener('click', listener);
-      sendGTMEvent({ event: 'tour_complete', tour_type: tourType });
+      track('tour_complete', { tour_type: tourType });
       Sentry.addBreadcrumb({ category: 'tour', message: 'tour_complete', level: 'info', data: { tourType } });
 
       // give focus back to search input after shepherd cleaned up
@@ -98,7 +98,7 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
       tour.options.keyboardNavigation = false;
       document.removeEventListener('click', listener);
       const stepId = tour.currentStep?.id;
-      sendGTMEvent({ event: 'tour_cancel', tour_type: tourType, step_id: stepId });
+      track('tour_cancel', { tour_type: tourType, step_id: stepId });
       Sentry.addBreadcrumb({ category: 'tour', message: 'tour_cancel', level: 'info', data: { tourType, stepId } });
 
       // give focus back to search input after shepherd cleaned up

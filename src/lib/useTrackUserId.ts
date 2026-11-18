@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { sendGTMEvent } from '@next/third-parties/google';
+import { track } from '@/lib/analytics';
 import { isTrackableSession } from '@/utils/session-identity';
 import { logger } from '@/logger';
 import { useStore } from '@/store';
@@ -25,7 +25,7 @@ export const useTrackUserId = () => {
     if (!username) {
       if (lastSentRef.current !== null) {
         lastSentRef.current = null;
-        sendGTMEvent({ event: 'user_update', user_id: null });
+        track('user_update', { user_id: null });
       }
       return;
     }
@@ -38,7 +38,7 @@ export const useTrackUserId = () => {
           return;
         }
         lastSentRef.current = userId;
-        sendGTMEvent({ event: 'user_update', user_id: userId });
+        track('user_update', { user_id: userId });
       })
       .catch((err: unknown) => {
         // Reset, or GA keeps attributing hits to whoever was last hashed.

@@ -45,7 +45,7 @@ import {
   useState,
 } from 'react';
 import { useGetAuthors } from './useGetAuthors';
-import { sendGTMEvent } from '@next/third-parties/google';
+import { track } from '@/lib/analytics';
 import { unwrapStringValue } from '@/utils/common/formatters';
 import { useGetAffiliations } from '@/api/search/search';
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
@@ -63,9 +63,7 @@ export interface IAllAuthorsModalProps {
 export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): ReactElement => {
   const { isOpen, onOpen, onClose } = useDisclosure({
     onOpen() {
-      sendGTMEvent({
-        event: 'author_list_open',
-      });
+      track('author_list_opened');
     },
   });
   const initialRef = useRef<HTMLInputElement>(null);
@@ -226,9 +224,7 @@ const AuthorsTable = forwardRef<
       { type: 'text/csv;charset=utf-8' },
     );
     saveAs(csvBlob, `${doc.bibcode}-authors.csv`);
-    sendGTMEvent({
-      event: 'author_list_export',
-    });
+    track('author_list_exported');
   };
 
   const renderRows = () => {

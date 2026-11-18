@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as Sentry from '@sentry/nextjs';
-import { sendGTMEvent } from '@next/third-parties/google';
+import { track } from '@/lib/analytics';
 import { IDocsEntity } from '@/api/search/types';
 
 /**
@@ -14,7 +14,7 @@ export const useTrackAbstractView = (doc: IDocsEntity | undefined | null) => {
       return;
     }
 
-    const { bibcode, title, pub: journal, doctype, keyword, database = [] } = doc;
+    const { bibcode, title, pub: journal, doctype, database = [] } = doc;
 
     database.forEach((db) => {
       const payload = {
@@ -22,17 +22,12 @@ export const useTrackAbstractView = (doc: IDocsEntity | undefined | null) => {
         item_name: title?.[0] ?? bibcode,
         item_brand: journal,
         item_category: db,
-        item_category2: keyword?.[0],
-        item_category3: keyword?.[1],
         item_variant: doctype,
         quantity: 1,
       };
 
-      sendGTMEvent({
-        event: 'view_item',
+      track('view_item', {
         ecommerce: {
-          value: 0,
-          currency: 'USD',
           items: [payload],
         },
       });
