@@ -120,7 +120,7 @@ describe('Sentry identity', () => {
     renderHook(() => useTrackUserId());
 
     await waitFor(() => expect(sendGTMEvent).not.toHaveBeenCalled());
-    expect(setUser).not.toHaveBeenCalledWith({ id: expect.anything() as unknown as string });
+    expect(setUser).not.toHaveBeenCalled();
   });
 
   test('clears the Sentry user on logout', async () => {

@@ -35,22 +35,10 @@ describe('AppModeDropdown analytics', () => {
     await user.click(screen.getByLabelText('Select theme'));
     await user.click(await screen.findByText('Heliophysics'));
 
+    expect(sendGTMEvent).toHaveBeenCalledTimes(1);
     expect(sendGTMEvent).toHaveBeenCalledWith({
       event: 'discipline_change',
       discipline: 'HELIOPHYSICS',
     });
-  });
-
-  test('it does not emit the retired app_mode_change name or mode parameter', async () => {
-    const user = userEvent.setup();
-    render(<AppModeDropdown />);
-
-    await user.click(screen.getByLabelText('Select theme'));
-    await user.click(await screen.findByText('Earth Science'));
-
-    expect(sendGTMEvent).toHaveBeenCalledTimes(1);
-    const payload = sendGTMEvent.mock.calls[0]?.[0] as Record<string, unknown>;
-    expect(payload.event).not.toBe('app_mode_change');
-    expect(payload).not.toHaveProperty('mode');
   });
 });

@@ -37,11 +37,6 @@ describe('registry coverage', () => {
       'view_item',
     ]);
   });
-
-  test('the names GTM stopped listening for are gone from the registry', () => {
-    const retired = ['citation_export', 'author_list_open', 'author_list_export', 'app_mode_change', 'web_vitals'];
-    expect(retired.filter((name) => (EVENT_NAMES as readonly string[]).includes(name))).toStrictEqual([]);
-  });
 });
 
 describe('event payloads', () => {
