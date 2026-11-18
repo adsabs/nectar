@@ -21,6 +21,7 @@ import {
 } from '@/lib/performance';
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 import { useTrackUserId } from './lib/useTrackUserId';
+import { useSentryDisciplineTag } from './lib/useSentryDisciplineTag';
 import { ShepherdJourneyProvider } from 'react-shepherd';
 import type { AppPageProps } from '@/pages/_app';
 import { useOrcidExpiryWatcher } from '@/lib/orcid/useOrcid';
@@ -78,6 +79,7 @@ const Telemetry: FC = () => {
   useGlobalErrorHandler();
   useOrcidExpiryWatcher();
   useTrackUserId();
+  useSentryDisciplineTag();
 
   useEffect(() => {
     try {

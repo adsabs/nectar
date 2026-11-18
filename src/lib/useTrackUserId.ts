@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { track } from '@/lib/analytics';
 import { isTrackableSession } from '@/utils/session-identity';
 import { logger } from '@/logger';
@@ -26,6 +27,7 @@ export const useTrackUserId = () => {
       if (lastSentRef.current !== null) {
         lastSentRef.current = null;
         track('user_update', { user_id: null });
+        Sentry.setUser(null);
       }
       return;
     }
@@ -39,10 +41,15 @@ export const useTrackUserId = () => {
         }
         lastSentRef.current = userId;
         track('user_update', { user_id: userId });
+        Sentry.setUser({ id: userId });
       })
       .catch((err: unknown) => {
-        // Reset, or GA keeps attributing hits to whoever was last hashed.
+        if (cancelled) {
+          return;
+        }
         lastSentRef.current = null;
+        track('user_update', { user_id: null });
+        Sentry.setUser(null);
         logger.error({ err }, 'useTrackUserId: hash error');
       });
 
