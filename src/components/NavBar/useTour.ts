@@ -98,7 +98,7 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
       tour.options.keyboardNavigation = false;
       document.removeEventListener('click', listener);
       const stepId = tour.currentStep?.id;
-      track('tour_cancel', { tour_type: tourType, step_id: stepId });
+      track('tour_cancel', { tour_type: tourType, step_id: stepId ?? null });
       Sentry.addBreadcrumb({ category: 'tour', message: 'tour_cancel', level: 'info', data: { tourType, stepId } });
 
       // give focus back to search input after shepherd cleaned up
