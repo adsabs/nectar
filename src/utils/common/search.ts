@@ -132,7 +132,7 @@ export const parseQueryFromUrl = <TExtra extends Record<string, string | number 
   const queryString = url.indexOf('?') === -1 ? '' : url.split('?')[1];
   const params = parseSearchParams(queryString) as Record<string, string | string[]>;
   const normalizedParams = normalizeURLParams(params, ['fq']);
-  const q = decodeURIComponent(normalizedParams?.q ?? '');
+  const q = normalizedParams?.q ?? '';
   return {
     ...normalizedParams,
     q: q === '' ? APP_DEFAULTS.EMPTY_QUERY : q,
