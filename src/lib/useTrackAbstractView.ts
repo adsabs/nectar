@@ -7,39 +7,37 @@ import { IDocsEntity } from '@/api/search/types';
  * Hook to fire GTM + Sentry analytics when viewing an abstract detail page.
  */
 export const useTrackAbstractView = (doc: IDocsEntity | undefined | null) => {
-  const hasTracked = useRef(false);
+  const lastTrackedBibcode = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!doc || hasTracked.current) {
+    if (!doc || lastTrackedBibcode.current === doc.bibcode) {
       return;
     }
+    lastTrackedBibcode.current = doc.bibcode;
 
-    const { bibcode, title, pub: journal, doctype, database = [] } = doc;
+    const { bibcode, title, pub: journal, doctype, database } = doc;
+    const item_category = database && database.length > 0 ? [...database].sort()[0] : undefined;
 
-    database.forEach((db) => {
-      const payload = {
-        item_id: bibcode,
-        item_name: title?.[0] ?? bibcode,
-        item_brand: journal,
-        item_category: db,
-        item_variant: doctype,
-        quantity: 1,
-      };
+    const payload = {
+      item_id: bibcode,
+      item_name: title?.[0] ?? bibcode,
+      item_brand: journal,
+      item_category,
+      item_variant: doctype,
+      quantity: 1,
+    };
 
-      track('view_item', {
-        ecommerce: {
-          items: [payload],
-        },
-      });
-
-      Sentry.addBreadcrumb({
-        category: 'navigation',
-        message: `view_item fired for ${bibcode}`,
-        level: 'info',
-        data: payload,
-      });
+    track('view_item', {
+      ecommerce: {
+        items: [payload],
+      },
     });
 
-    hasTracked.current = true;
+    Sentry.addBreadcrumb({
+      category: 'navigation',
+      message: `view_item fired for ${bibcode}`,
+      level: 'info',
+      data: payload,
+    });
   }, [doc]);
 };
