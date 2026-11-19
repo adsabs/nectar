@@ -1,6 +1,8 @@
 import { DragHandleIcon } from '@chakra-ui/icons';
 import {
   AccordionItemProps,
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Center,
@@ -13,6 +15,8 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { handleBoundaryError } from '@/lib/errorHandler';
 import { FacetList } from '@/components/SearchFacet/FacetList';
 import { FacetStoreProvider, selectors, useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { Toggler } from '@/components/Toggler';
@@ -77,6 +81,16 @@ export interface ISearchFacetProps extends AccordionItemProps {
   isLowerCase: boolean;
   isBinary?: boolean;
 }
+
+const FacetRenderErrorFallback = ({ onRetry }: { onRetry: () => void }) => (
+  <Alert status="error" borderRadius="md" fontSize="sm">
+    <AlertIcon />
+    <Box flex="1">Unable to load this filter.</Box>
+    <Button size="xs" colorScheme="blue" onClick={onRetry}>
+      Try Again
+    </Button>
+  </Alert>
+);
 
 export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const store = useStoreApi();
@@ -250,17 +264,26 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
           borderBottomRadius="md"
           mt="0"
         >
-          {isBinary ? (
-            <FacetList
-              noLoadMore={noLoadMore}
-              onFilter={handleOnFilter}
-              onError={handleOnError}
-              label={label}
-              onSelectNode={(value: string) => handleOnBinaryFilter({ field, value })}
-            />
-          ) : (
-            <FacetList noLoadMore={noLoadMore} onFilter={handleOnFilter} onError={handleOnError} label={label} />
-          )}
+          <ErrorBoundary
+            onError={(error, errorInfo) => {
+              handleBoundaryError(error, errorInfo, { component: 'SearchFacet', field });
+              setHasError(true);
+            }}
+            onReset={() => setHasError(false)}
+            fallbackRender={({ resetErrorBoundary }) => <FacetRenderErrorFallback onRetry={resetErrorBoundary} />}
+          >
+            {isBinary ? (
+              <FacetList
+                noLoadMore={noLoadMore}
+                onFilter={handleOnFilter}
+                onError={handleOnError}
+                label={label}
+                onSelectNode={(value: string) => handleOnBinaryFilter({ field, value })}
+              />
+            ) : (
+              <FacetList noLoadMore={noLoadMore} onFilter={handleOnFilter} onError={handleOnError} label={label} />
+            )}
+          </ErrorBoundary>
         </Box>
       )}
     </ListItem>
