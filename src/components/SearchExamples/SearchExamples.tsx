@@ -22,7 +22,6 @@ export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
 
       track('search_example_click', { search_example: text });
 
-      // fire select callback
       onSelectExample(text);
     },
     [onSelectExample],

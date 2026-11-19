@@ -109,7 +109,6 @@ export const Item = (props: IItemProps): ReactElement => {
     track('result_click', { rank: index, bibcode });
   };
 
-  // citations
   const cite = useNormCite ? (
     typeof doc.citation_count_norm === 'number' && doc.citation_count_norm > 0 ? (
       <SimpleLink

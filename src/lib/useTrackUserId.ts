@@ -14,7 +14,6 @@ const hashUsername = async (username: string): Promise<string> => {
     .join('');
 };
 
-/** Sends the logged-in user's hashed id to GA; sends null on logout. */
 export const useTrackUserId = () => {
   const user = useStore((state) => state.user);
   const lastSentRef = useRef<string | null>(null);

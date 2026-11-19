@@ -3,9 +3,6 @@ import * as Sentry from '@sentry/nextjs';
 import { track } from '@/lib/analytics';
 import { IDocsEntity } from '@/api/search/types';
 
-/**
- * Hook to fire GTM + Sentry analytics when viewing an abstract detail page.
- */
 export const useTrackAbstractView = (doc: IDocsEntity | undefined | null) => {
   const lastTrackedBibcode = useRef<string | null>(null);
 
