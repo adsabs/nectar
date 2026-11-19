@@ -10,8 +10,14 @@ vi.mock('@next/third-parties/google', () => ({
   sendGTMEvent: (...args: unknown[]) => sendGTMEvent(...args),
 }));
 
+const loggerWarn = vi.fn();
+vi.mock('@/logger', () => ({
+  logger: { warn: (...args: unknown[]) => loggerWarn(...args), error: vi.fn() },
+}));
+
 afterEach(() => {
   sendGTMEvent.mockReset();
+  loggerWarn.mockReset();
 });
 
 const pushed = () => sendGTMEvent.mock.calls[0]?.[0] as Record<string, unknown>;
@@ -215,25 +221,57 @@ describe('event payloads', () => {
   });
 });
 
-describe('undefined is stripped, null is preserved', () => {
-  test('an undefined optional parameter is absent from the push, not undefined', () => {
+describe('a required parameter is always on the wire', () => {
+  test('a required nullable parameter given undefined is emitted as null, not stripped', () => {
     track('full_text_click', {
       source_name: 'Publisher',
-      is_open_access: false,
+      is_open_access: true,
       bibcode: '2020ApJ...900L..21F',
       rank: undefined,
     });
 
-    expect(pushed()).not.toHaveProperty('rank');
-    expect(pushed()).toStrictEqual({
-      event: 'full_text_click',
-      source_name: 'Publisher',
-      is_open_access: false,
-      bibcode: '2020ApJ...900L..21F',
-    });
+    expect(pushed()).toHaveProperty('rank');
+    expect(pushed().rank).toBeNull();
   });
 
-  test('an undefined value nested inside an ecommerce item is stripped too', () => {
+  test('tour_cancel without a step still clears, even if the caller forgets ?? null', () => {
+    track('tour_cancel', { tour_type: 'home', step_id: undefined });
+
+    expect(pushed()).toStrictEqual({ event: 'tour_cancel', tour_type: 'home', step_id: null });
+  });
+
+  test('user_update given undefined clears the identity rather than leaving the old one', () => {
+    track('user_update', { user_id: undefined });
+
+    expect(pushed()).toStrictEqual({ event: 'user_update', user_id: null });
+  });
+
+  test('a required non-nullable parameter given undefined is nulled and warned about', () => {
+    track('tour_start', { tour_type: undefined, is_mobile: false });
+
+    expect(pushed()).toStrictEqual({ event: 'tour_start', tour_type: null, is_mobile: false });
+    expect(loggerWarn).toHaveBeenCalledTimes(1);
+  });
+
+  test('a required nested parameter given undefined is nulled too', () => {
+    track('view_item', {
+      ecommerce: { items: [{ item_id: undefined, item_name: 'A Galaxy', quantity: 1 }] },
+    });
+
+    const items = (pushed().ecommerce as { items: Record<string, unknown>[] }).items;
+    expect(items[0]).toHaveProperty('item_id');
+    expect(items[0].item_id).toBeNull();
+  });
+
+  test('a legitimate value is never warned about', () => {
+    track('tour_start', { tour_type: 'home', is_mobile: false });
+
+    expect(loggerWarn).not.toHaveBeenCalled();
+  });
+});
+
+describe('undefined is stripped, null is preserved', () => {
+  test('an undefined optional parameter is absent from the push, not undefined', () => {
     track('view_item', {
       ecommerce: {
         items: [
