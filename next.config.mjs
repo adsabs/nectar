@@ -107,6 +107,12 @@ const nextConfig = {
         permanent: true,
       },
 
+      {
+        source: '/abs/:id/figures',
+        destination: '/abs/:id/graphics',
+        permanent: true,
+      },
+
       // redirect base export routes to bibtex by default
       {
         source: '/abs/:id/exportcitation',
