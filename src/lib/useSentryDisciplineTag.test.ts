@@ -8,6 +8,11 @@ vi.mock('@sentry/nextjs', () => ({
   setTag: (...args: unknown[]) => setTag(...args),
 }));
 
+const loggerError = vi.fn();
+vi.mock('@/logger', () => ({
+  logger: { error: (...args: unknown[]) => loggerError(...args) },
+}));
+
 let mode: AppMode = AppMode.GENERAL;
 vi.mock('@/store', () => ({
   useStore: (selector: (state: { mode: AppMode }) => unknown) => selector({ mode }),
@@ -15,6 +20,7 @@ vi.mock('@/store', () => ({
 
 afterEach(() => {
   setTag.mockReset();
+  loggerError.mockReset();
   mode = AppMode.GENERAL;
 });
 
@@ -42,5 +48,14 @@ describe('useSentryDisciplineTag', () => {
 
     expect(setTag).toHaveBeenCalledTimes(1);
     expect(setTag).toHaveBeenCalledWith('discipline', AppMode.GENERAL);
+  });
+
+  test('a throwing setTag is logged rather than taking down the render', () => {
+    setTag.mockImplementation(() => {
+      throw new Error('sentry not initialised');
+    });
+
+    expect(() => renderHook(() => useSentryDisciplineTag())).not.toThrow();
+    expect(loggerError).toHaveBeenCalledTimes(1);
   });
 });

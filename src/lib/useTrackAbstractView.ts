@@ -10,7 +10,10 @@ export const useTrackAbstractView = (doc: IDocsEntity | undefined | null) => {
   const lastTrackedBibcode = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!doc || lastTrackedBibcode.current === doc.bibcode) {
+    if (!doc?.bibcode) {
+      return;
+    }
+    if (lastTrackedBibcode.current === doc.bibcode) {
       return;
     }
     lastTrackedBibcode.current = doc.bibcode;

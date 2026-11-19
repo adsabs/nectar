@@ -116,6 +116,24 @@ describe('useTrackAbstractView', () => {
     expect(itemsOf(viewItemCalls()[0])[0]).not.toHaveProperty('item_category');
   });
 
+  test('a doc with no bibcode emits nothing, rather than an item GA4 would discard', () => {
+    renderHook(() => useTrackAbstractView(doc({ bibcode: undefined, title: undefined })));
+
+    expect(viewItemCalls()).toHaveLength(0);
+  });
+
+  test('a bibcode-less doc does not poison the dedupe for the next real doc', () => {
+    const { rerender } = renderHook(({ d }: { d: IDocsEntity }) => useTrackAbstractView(d), {
+      initialProps: { d: doc({ bibcode: undefined }) },
+    });
+    expect(viewItemCalls()).toHaveLength(0);
+
+    rerender({ d: doc({ bibcode: 'A' }) });
+
+    expect(viewItemCalls()).toHaveLength(1);
+    expect(itemsOf(viewItemCalls()[0])[0]).toMatchObject({ item_id: 'A' });
+  });
+
   test('no doc emits nothing', () => {
     renderHook(() => useTrackAbstractView(undefined));
 

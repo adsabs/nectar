@@ -34,6 +34,7 @@
     "test:e2e:docker:logs": "docker compose -f e2e/docker-compose.yml logs -f",
     "build-bibstem-index": "node ./scripts/gen-bibstem-index",
     "analytics:contract": "tsx scripts/export-analytics-contract.mts",
+    "analytics:typecheck": "./scripts/typecheck-analytics.sh",
     "lint": "eslint src/",
     "prepare": "husky"
   },

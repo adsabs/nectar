@@ -21,7 +21,7 @@ type ValueOf<D> = D extends { readonly type: 'string' }
   : D extends { readonly type: 'object'; readonly params: infer P }
   ? PayloadFromParams<P>
   : D extends { readonly type: 'object[]'; readonly params: infer P }
-  ? PayloadFromParams<P>[]
+  ? readonly PayloadFromParams<P>[]
   : never;
 
 type FieldType<D> = D extends { readonly nullable: true } ? ValueOf<D> | null : ValueOf<D>;
@@ -45,7 +45,7 @@ export type NoPayloadEventName = {
 
 type ExactDeep<P, Target> = P extends readonly (infer PItem)[]
   ? Target extends readonly (infer TItem)[]
-    ? ExactDeep<PItem, TItem>[]
+    ? readonly ExactDeep<PItem, TItem>[]
     : never
   : P extends object
   ? Target extends object

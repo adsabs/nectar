@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { track } from './track';
-import { exportContract } from './contract';
+import { contractToJson, exportContract } from './contract';
 import { EVENT_NAMES } from './registry';
 
 const sendGTMEvent = vi.fn();
@@ -98,6 +98,24 @@ describe('event payloads', () => {
       is_open_access: true,
       bibcode: '2020ApJ...900L..21F',
       rank: 3,
+    });
+  });
+
+  test('full_text_click with no rank sends an explicit null, so GTM cannot reuse a search rank', () => {
+    track('full_text_click', {
+      source_name: 'Publisher',
+      is_open_access: true,
+      bibcode: '2020ApJ...900L..21F',
+      rank: null,
+    });
+
+    expect(pushed()).toHaveProperty('rank');
+    expect(pushed()).toStrictEqual({
+      event: 'full_text_click',
+      source_name: 'Publisher',
+      is_open_access: true,
+      bibcode: '2020ApJ...900L..21F',
+      rank: null,
     });
   });
 
@@ -305,6 +323,28 @@ describe('exported contract', () => {
 
   test('covers every registered event', () => {
     expect(Object.keys(exportContract()).sort()).toStrictEqual([...EVENT_NAMES].sort());
+  });
+});
+
+describe('contractToJson', () => {
+  test('sorts keys at every depth so the committed artifact does not churn', () => {
+    const json = contractToJson();
+    const eventOrder = Object.keys(JSON.parse(json) as Record<string, unknown>);
+
+    expect(eventOrder).toStrictEqual([...eventOrder].sort());
+    const itemKeys = Object.keys(
+      (JSON.parse(json) as { view_item: { params: { ecommerce: { params: { items: { params: object } } } } } })
+        .view_item.params.ecommerce.params.items.params,
+    );
+    expect(itemKeys).toStrictEqual([...itemKeys].sort());
+    expect(itemKeys.length).toBeGreaterThan(0);
+  });
+
+  test('ends with a newline and round-trips to the contract', () => {
+    const json = contractToJson();
+
+    expect(json.endsWith('\n')).toBe(true);
+    expect(JSON.parse(json)).toStrictEqual(JSON.parse(JSON.stringify(exportContract())));
   });
 });
 

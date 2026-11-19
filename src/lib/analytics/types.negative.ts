@@ -29,6 +29,25 @@ export const missingRequiredParameter = () => {
   track('result_click');
 };
 
+export const omittedClearableParameter = () => {
+  // @ts-expect-error 'rank' is required so a caller cannot leave GTM holding a previous rank
+  track('full_text_click', {
+    source_name: 'Publisher',
+    is_open_access: true,
+    bibcode: '2020ApJ...900L..21F',
+  });
+};
+
+export const readonlyPayloadsCompile = () => {
+  const items = [{ item_id: 'X', item_name: 'X', quantity: 1 }] as const;
+  track('view_item', { ecommerce: { items } });
+
+  const readonlyItems: ReadonlyArray<{ item_id: string; item_name: string; quantity: number }> = [
+    { item_id: 'Y', item_name: 'Y', quantity: 1 },
+  ];
+  track('view_item', { ecommerce: { items: readonlyItems } });
+};
+
 export const payloadPairedWithWrongEvent = () => {
   // @ts-expect-error a tour payload does not belong to a facet event
   track('facet_applied', { tour_type: 'home', step_id: 'welcome' });

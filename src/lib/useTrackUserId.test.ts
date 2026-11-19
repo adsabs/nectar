@@ -141,6 +141,7 @@ describe('Sentry identity', () => {
 
     user = { ...authed('user@example.com'), access_token: 'refreshed' };
     rerender();
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(setTag).not.toHaveBeenCalled();
   });

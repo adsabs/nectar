@@ -70,7 +70,7 @@
       },
       "rank": {
         "nullable": true,
-        "required": false,
+        "required": true,
         "type": "number"
       },
       "source_name": {

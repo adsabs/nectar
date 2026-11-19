@@ -35,7 +35,7 @@ export const EVENT_REGISTRY = {
       source_name: { type: 'string', required: true, nullable: false },
       is_open_access: { type: 'boolean', required: true, nullable: false },
       bibcode: { type: 'string', required: true, nullable: false },
-      rank: { type: 'number', required: false, nullable: true },
+      rank: { type: 'number', required: true, nullable: true },
     },
   },
   result_click: {

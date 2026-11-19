@@ -143,7 +143,7 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
         source_name: item.name,
         is_open_access: item.isOpen ?? false,
         bibcode: doc.bibcode,
-        rank,
+        rank: rank ?? null,
       });
       closeFullTextTimingSpan();
       window.open(item.path, '_blank', 'noopener');
