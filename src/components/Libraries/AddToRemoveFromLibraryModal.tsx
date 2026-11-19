@@ -37,11 +37,26 @@ import {
   useEditLibraryDocuments,
   useGetLibraries,
 } from '@/api/biblib/libraries';
+import { getFQs } from '@/query-utils';
+import { IADSApiSearchParams } from '@/api/search/types';
 import { ILibraryListTableSort, LibraryListTable } from './LibraryListTable';
 import { NumPerPageType } from '@/types';
 import { TableSkeleton } from './TableSkeleton';
 
 export type SelectionType = 'all' | 'selected';
+
+const aqpHeaderPattern = /^\{!type=aqp v=\$fq_/;
+
+const getLibraryQueryParams = (query: IADSApiSearchParams): IADSApiSearchParams => {
+  const rawFQs = Array.isArray(query.fq)
+    ? query.fq.filter((clause): clause is string => typeof clause === 'string')
+    : [];
+  const fq = [
+    ...getFQs(query).map(([, value]) => value),
+    ...rawFQs.filter((clause) => !aqpHeaderPattern.test(clause)),
+  ].filter((clause) => clause !== '');
+  return fq.length > 0 ? { q: query.q, fq } : { q: query.q };
+};
 
 export const AddToRemoveFromLibraryModal = ({
   action,
@@ -56,7 +71,7 @@ export const AddToRemoveFromLibraryModal = ({
 }) => {
   const selectedDocs = useStore((state) => state.docs.selected);
 
-  const query = useStore((state) => state.query);
+  const latestQuery = useStore((state) => state.latestQuery);
 
   const clearSelections = useStore((state) => state.clearSelected);
 
@@ -79,7 +94,7 @@ export const AddToRemoveFromLibraryModal = ({
         : ids.map((id) =>
             addDocsByQuery({
               id,
-              params: { q: query.q },
+              params: getLibraryQueryParams(latestQuery),
               action,
             }),
           );
