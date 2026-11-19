@@ -19,6 +19,7 @@ import { Layout } from '@/components/Layout/Layout';
 import { useIsClient } from '@/lib/useIsClient';
 import { Providers } from '@/providers';
 import { UserSync } from '@/components/UserSync/UserSync';
+import { LegacyHashRedirect } from '@/components/LegacyHashRedirect/LegacyHashRedirect';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -64,6 +65,7 @@ function NectarApp({ Component, pageProps }: AppProps): ReactElement {
         <title>{BRAND_NAME_FULL}</title>
         <DefaultMeta />
       </Head>
+      <LegacyHashRedirect />
       <Providers pageProps={pageProps as AppPageProps}>
         <AppModeRouter />
         <TopProgressBar />
