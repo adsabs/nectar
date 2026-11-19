@@ -1,25 +1,17 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi, TestContext } from 'vitest';
+import { rest } from 'msw';
 import { ErrorBoundary } from 'react-error-boundary';
 import { fireEvent, render, screen, waitFor, within } from '@/test-utils';
 import { defaultQueryParams } from '@/store/slices/search';
-import { IUseGetFacetDataProps, useGetFacetData } from '../useGetFacetData';
+import { ApiTargets } from '@/api/models';
+import { apiHandlerRoute } from '@/mocks/mockHelpers';
+import { generateSearchResponse } from '@/mocks/generators/search';
+import { IADSApiSearchResponse } from '@/api/search/types';
+import { IUseGetFacetDataProps } from '../useGetFacetData';
 import { SearchFacets } from '../SearchFacet';
 
 const SIDEBAR_FALLBACK = 'Unable to load filters';
 const FACET_FALLBACK = 'Unable to load this filter.';
-
-const emptyFacetData = {
-  treeData: [],
-  totalResults: 0,
-  isFetching: false,
-  isLoading: false,
-  isSearchLoading: false,
-  isError: false,
-  canLoadMore: false,
-  handlePrevious: vi.fn(),
-  handleLoadMore: vi.fn(),
-  handlePageChange: vi.fn(),
-} as unknown as ReturnType<typeof useGetFacetData>;
 
 vi.mock('@/components/SearchFacet/useGetFacetData', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../useGetFacetData')>();
@@ -29,24 +21,41 @@ vi.mock('@/components/SearchFacet/useGetFacetData', async (importOriginal) => {
       if (props.field === 'simbad_object_facet_hier') {
         throw new TypeError("Cannot read properties of undefined (reading 'canonical')");
       }
-      return emptyFacetData;
+      return actual.useGetFacetData(props);
     },
   };
 });
 
-const renderSidebar = () =>
-  render(
+const mockEmptyFacets = (server: TestContext['server']) =>
+  server.use(
+    rest.get(apiHandlerRoute(ApiTargets.SEARCH), (req, res, ctx) => {
+      const requested = req.url.searchParams.get('json.facet');
+      const fields = requested ? Object.keys(JSON.parse(requested) as Record<string, unknown>) : [];
+      const facets = fields.reduce<IADSApiSearchResponse['facets']>(
+        (acc, field) => ({ ...acc, [field]: { numBuckets: 0, buckets: [] } }),
+        {},
+      );
+
+      return res(ctx.status(200), ctx.json(generateSearchResponse({ facets })));
+    }),
+  );
+
+const renderSidebar = (server: TestContext['server']) => {
+  mockEmptyFacets(server);
+
+  return render(
     <ErrorBoundary fallbackRender={() => <div>{SIDEBAR_FALLBACK}</div>}>
       <SearchFacets onQueryUpdate={vi.fn()} />
     </ErrorBoundary>,
     { initialStore: { searchStatus: 'success', latestQuery: { ...defaultQueryParams, q: 'star' } } },
   );
+};
 
 const facetToggle = (label: string) => screen.getByRole('button', { name: new RegExp(`Toggle (On|Off) ${label}$`) });
 
 describe('SearchFacets — error containment', () => {
-  test('a facet that throws does not take down its siblings', async () => {
-    renderSidebar();
+  test('a facet that throws does not take down its siblings', async ({ server }: TestContext) => {
+    renderSidebar(server);
 
     fireEvent.click(facetToggle('SIMBAD Objects'));
 
@@ -60,13 +69,18 @@ describe('SearchFacets — error containment', () => {
     expect(facetToggle('NED Objects')).toBeInTheDocument();
   });
 
-  test('a sibling facet still expands and renders its own list after another facet throws', async () => {
-    renderSidebar();
+  test('a sibling facet still expands and renders its own list after another facet throws', async ({
+    server,
+  }: TestContext) => {
+    renderSidebar(server);
 
     const collectionsFacet = () => within(facetToggle('Collections').closest('li') as HTMLElement);
     const keywordsFacet = () => within(facetToggle('Keywords').closest('li') as HTMLElement);
 
-    expect(collectionsFacet().getByTestId('search-facet-no-results')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(collectionsFacet().getByTestId('search-facet-no-results')).toBeInTheDocument();
+    });
+
     expect(screen.getByRole('button', { name: /Toggle On Keywords$/ })).toBeInTheDocument();
 
     fireEvent.click(facetToggle('SIMBAD Objects'));
