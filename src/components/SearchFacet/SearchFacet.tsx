@@ -82,13 +82,10 @@ export interface ISearchFacetProps extends AccordionItemProps {
   isBinary?: boolean;
 }
 
-const FacetRenderErrorFallback = ({ onRetry }: { onRetry: () => void }) => (
+const FacetRenderErrorFallback = () => (
   <Alert status="error" borderRadius="md" fontSize="sm">
     <AlertIcon />
     <Box flex="1">Unable to load this filter.</Box>
-    <Button size="xs" colorScheme="blue" onClick={onRetry}>
-      Try Again
-    </Button>
   </Alert>
 );
 
@@ -179,6 +176,8 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
     padding: isDragging ? '4px' : undefined,
   };
 
+  const latestQuery = useStore((state: AppState) => state.latestQuery);
+
   const setKeyboardFocused = useFacetStore(selectors.setKeyboardFocused);
 
   const handleFacetKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
@@ -265,12 +264,13 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
           mt="0"
         >
           <ErrorBoundary
+            resetKeys={[latestQuery]}
             onError={(error, errorInfo) => {
               handleBoundaryError(error, errorInfo, { component: 'SearchFacet', field });
               setHasError(true);
             }}
             onReset={() => setHasError(false)}
-            fallbackRender={({ resetErrorBoundary }) => <FacetRenderErrorFallback onRetry={resetErrorBoundary} />}
+            fallbackRender={() => <FacetRenderErrorFallback />}
           >
             {isBinary ? (
               <FacetList
