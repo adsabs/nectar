@@ -1,17 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { edgeLogger as logger } from '@/logger';
-
-const SEARCH_SUB_ROUTES = new Set([
-  'exportcitation',
-  'authoraffiliations',
-  'citation_helper',
-  'author_network',
-  'concept_cloud',
-  'overview',
-  'paper_network',
-  'results_graph',
-  'metrics',
-]);
+import { SEARCH_SUB_ROUTES, splitLegacySearchTail, translateLegacySearchParams } from '@/lib/legacyRoutes';
 
 /**
  * Determines whether this is a legacy-style /search/q=... path
@@ -47,13 +36,14 @@ export function legacySearchURLMiddleware(req: NextRequest): NextResponse {
   const rawSearch = req.nextUrl.search;
 
   const afterSearch = pathname.slice('/search/'.length);
-  const rawLegacy = afterSearch + (rawSearch || '');
-  const decodedParams = new URLSearchParams(
+  const { paramString, subRoute } = splitLegacySearchTail(afterSearch);
+  const rawLegacy = paramString + (rawSearch || '');
+  const decodedParams = translateLegacySearchParams(
     rawLegacy.startsWith('?') ? rawLegacy : `?${rawLegacy.replace(/\+/g, ' ')}`,
   );
 
   const url = req.nextUrl.clone();
-  url.pathname = '/search';
+  url.pathname = subRoute ? `/search/${subRoute}` : '/search';
   url.search = decodedParams.toString();
 
   logger.debug({ redirectTo: url.toString() }, 'Redirecting legacy /search URL to canonical /search');

@@ -1,4 +1,5 @@
 import { Box, Heading, Stack, Text } from '@chakra-ui/react';
+import { ABS_VIEWS } from '@/lib/legacyRoutes';
 
 import { MathJax } from 'better-react-mathjax';
 import Head from 'next/head';
@@ -19,6 +20,8 @@ interface IAbsLayoutProps {
   children?: ReactNode;
 }
 
+const REDUNDANT_VIEW_HASH = new RegExp(`^#/?(?:${[...ABS_VIEWS].join('|')})`);
+
 export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription, label }) => {
   const rawTitle = doc ? unwrapStringValue(doc.title) : '';
 
@@ -27,12 +30,7 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
     // browser as a fragment, the browser re-attaches the original fragment to the redirect
     // destination (RFC 9110). Strip it when it's just a redundant view name.
     const hash = window.location.hash;
-    if (
-      hash &&
-      /^#\/?(?:abstract|citations|references|credits|mentions|coreads|similar|graphics|metrics|toc|exportcitation)/.test(
-        hash,
-      )
-    ) {
+    if (hash && REDUNDANT_VIEW_HASH.test(hash)) {
       history.replaceState(null, '', window.location.pathname + window.location.search);
     }
   }, []);
