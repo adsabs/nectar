@@ -13,12 +13,152 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
 
+const FQ_AUTHOR_CLAUSE = '(author_facet_hier:"0\\/Henning, T")';
+
+const filteredLatestQuery = {
+  q: 'star',
+  fq: ['{!type=aqp v=$fq_author}'],
+  fq_author: FQ_AUTHOR_CLAUSE,
+  fl: ['bibcode', 'title', 'author'],
+  sort: ['date desc'],
+  start: 0,
+  rows: 10,
+};
+
+interface CapturedQueryBody {
+  id?: string;
+  action?: string;
+  params?: Record<string, unknown>;
+}
+
+const interceptLibraryQuery = async () => {
+  const { server } = await import('@/mocks/server');
+  const { rest } = await import('msw');
+  const { ApiTargets } = await import('@/api/models');
+
+  const bodies: CapturedQueryBody[] = [];
+
+  server.use(
+    rest.post(`*${ApiTargets.LIBRARY_QUERY}/:id`, async (req, res, ctx) => {
+      bodies.push((await req.json()) as CapturedQueryBody);
+      return res(ctx.status(200), ctx.json({ number_added: 1, bibcodes: ['2021ApJ...000A...1X'] }));
+    }),
+  );
+
+  return bodies;
+};
+
 describe('AddToRemoveFromLibraryModal', () => {
   const defaultProps = {
     bibcodes: ['2021ApJ...000A...1X'],
     isOpen: true,
     onClose: vi.fn(),
   };
+
+  const submitWithNoSelection = async (
+    action: 'add' | 'remove',
+    initialStore: Record<string, unknown>,
+    libraryName = '001',
+  ) => {
+    const { user, findByRole, findByText } = render(
+      <AddToRemoveFromLibraryModal action={action} isOpen onClose={vi.fn()} />,
+      { initialStore },
+    );
+
+    await findByRole('table');
+    await user.click(await findByText(libraryName));
+    await user.click(await findByRole('button', { name: /submit/i }));
+  };
+
+  test('add all sends the applied filters as resolved fq clauses', async () => {
+    const bodies = await interceptLibraryQuery();
+
+    await submitWithNoSelection('add', { latestQuery: filteredLatestQuery });
+
+    await waitFor(() => expect(bodies).toHaveLength(1));
+
+    const [body] = bodies;
+    expect(body.params).toEqual({ q: 'star', fq: [FQ_AUTHOR_CLAUSE] });
+    expect(JSON.stringify(body)).not.toContain('{!type=aqp');
+  });
+
+  test('add all sources the payload from the submitted query, not the search bar', async () => {
+    const bodies = await interceptLibraryQuery();
+
+    await submitWithNoSelection('add', {
+      latestQuery: { q: 'star' },
+      query: { q: 'star AND half-typed' },
+    });
+
+    await waitFor(() => expect(bodies).toHaveLength(1));
+
+    expect(bodies[0].params.q).toBe('star');
+  });
+
+  test('remove all sends the applied filters as resolved fq clauses', async () => {
+    const bodies = await interceptLibraryQuery();
+
+    await submitWithNoSelection('remove', { latestQuery: filteredLatestQuery });
+
+    await waitFor(() => expect(bodies).toHaveLength(1));
+
+    const [body] = bodies;
+    expect(body.action).toBe('remove');
+    expect(body.params).toEqual({ q: 'star', fq: [FQ_AUTHOR_CLAUSE] });
+  });
+
+  test('add all forwards a raw fq clause that has no fq_ companion', async () => {
+    const bodies = await interceptLibraryQuery();
+
+    await submitWithNoSelection('add', { latestQuery: { q: 'star', fq: ['(year:2024)'] } });
+
+    await waitFor(() => expect(bodies).toHaveLength(1));
+
+    expect(bodies[0].params).toEqual({ q: 'star', fq: ['(year:2024)'] });
+  });
+
+  test('add all sends both resolved and raw clauses, never the aqp header', async () => {
+    const bodies = await interceptLibraryQuery();
+
+    await submitWithNoSelection('add', {
+      latestQuery: {
+        q: 'star',
+        fq: ['{!type=aqp v=$fq_author}', '(year:2024)'],
+        fq_author: FQ_AUTHOR_CLAUSE,
+      },
+    });
+
+    await waitFor(() => expect(bodies).toHaveLength(1));
+
+    const [body] = bodies;
+    expect(body.params.fq).toEqual(expect.arrayContaining([FQ_AUTHOR_CLAUSE, '(year:2024)']));
+    expect(body.params.fq).toHaveLength(2);
+    expect(JSON.stringify(body)).not.toContain('{!type=aqp');
+  });
+
+  test('add all drops an empty fq_ value instead of sending a blank clause', async () => {
+    const bodies = await interceptLibraryQuery();
+
+    await submitWithNoSelection('add', { latestQuery: { q: 'star', fq_author: '' } });
+
+    await waitFor(() => expect(bodies).toHaveLength(1));
+
+    const [body] = bodies;
+    expect(body.params).toEqual({ q: 'star' });
+    expect(body.params).not.toHaveProperty('fq');
+  });
+
+  test('add all on an unfiltered search omits fq entirely', async () => {
+    const bodies = await interceptLibraryQuery();
+
+    await submitWithNoSelection('add', { latestQuery: { q: 'star' } });
+
+    await waitFor(() => expect(bodies).toHaveLength(1));
+
+    const [body] = bodies;
+    expect(body.params).toEqual({ q: 'star' });
+    expect(body.params).not.toHaveProperty('fq');
+  });
 
   test('read-only library cannot be selected', async () => {
     const { user, findByRole, findByText } = render(<AddToRemoveFromLibraryModal {...defaultProps} action="add" />);
