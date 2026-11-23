@@ -35,13 +35,13 @@ import {
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import { isNilOrEmpty, isObject } from 'ramda-adjunct';
 import { BRAND_NAME_FULL, BRAND_NAME_SHORT, ORCID_ADS_SOURCE_NAME } from '@/config';
-import { formatAbsoluteDateTime, formatRelativeDate } from '@/utils/common/dates';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useOrcidProfile } from '@/lib/orcid/useOrcidProfile';
 import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 import DOMPurify from 'isomorphic-dompurify';
 import { PaginationControls } from '@/components/Pagination';
+import { TimeSince } from '@/components/TimeSince';
 
 export const WorksTable = () => {
   return (
@@ -308,10 +308,8 @@ const getTitle = (work: IOrcidProfileEntry): ReactElement => {
   return <Text>{work.title}</Text>;
 };
 
-export const getUpdated = (date: string) => {
-  const dateStr = new Date(date);
-  const formatted = formatRelativeDate(dateStr);
-  return <Tooltip label={formatAbsoluteDateTime(dateStr)}>{formatted}</Tooltip>;
+export const getUpdated = (date: IOrcidProfileEntry['updated']) => {
+  return <TimeSince date={date} emptyLabel="—" />;
 };
 
 const getSource = (sources: IOrcidProfileEntry['source']) => {

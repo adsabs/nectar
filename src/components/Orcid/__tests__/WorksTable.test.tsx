@@ -10,6 +10,7 @@ import orcidProfileResponse from '@/mocks/responses/orcid/orcid-profile_full.jso
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
 import { ApiTargets } from '@/api/models';
 import { IADSApiSearchResponse } from '@/api/search/types';
+import { mergeOrcidMissingRecords } from '@/lib/orcid/helpers';
 
 const ORCID_UPDATED = '2024-03-15T12:00:00+00:00';
 const EN_US_DATETIME = /^[A-Z][a-z]{2} \d{1,2}, \d{4}, \d{2}:\d{2}:\d{2}$/;
@@ -30,10 +31,24 @@ test('Updated cell renders its relative label in English', () => {
 test('Updated cell renders its absolute tooltip in English', async () => {
   const { user, container, findByRole } = render(<>{getUpdated(ORCID_UPDATED)}</>);
 
-  await user.hover(container.querySelector('span'));
+  await user.hover(container.querySelector('[tabindex="-1"]'));
   const tooltip = await findByRole('tooltip');
 
   expect(tooltip.textContent.trim()).toMatch(EN_US_DATETIME);
+});
+
+test('Updated cell renders a dash for an ADS paper not yet on the ORCID record', () => {
+  const merged = mergeOrcidMissingRecords(
+    [{ identifier: ['2024BAAS...56b.001A'], title: ['not yet claimed'], pubdate: '2024/01' }],
+    {},
+  );
+  const entry = merged['2024BAAS...56b.001A'];
+
+  expect(entry.updated).toBeNull();
+
+  const { container } = render(<>{getUpdated(entry.updated)}</>);
+
+  expect(container.textContent.trim()).toBe('—');
 });
 
 test.skip('triggers call to profile on mount', async ({ server }: TestContext) => {

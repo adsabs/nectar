@@ -12,7 +12,7 @@ export interface IOrcidProfileEntry {
   title: string;
   pubyear: string | null;
   pubmonth: string | null;
-  updated: string;
+  updated: string | null;
   putcode: string | number;
   source: string[];
 }
