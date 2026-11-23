@@ -222,6 +222,8 @@ export const AllSearchTermsModal = ({ onSelect }: IAllSearchTermsModalProps): Re
                 px={4}
                 py={3}
                 minH="90px"
+                maxH="360px"
+                overflowY="auto"
                 data-testid="allSearchTermsDetail"
               >
                 {current ? (
