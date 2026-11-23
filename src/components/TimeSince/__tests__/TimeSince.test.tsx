@@ -117,6 +117,28 @@ describe('TimeSince', () => {
     });
   });
 
+  describe('emptyLabel', () => {
+    const missingOrInvalid: [string, string | null | undefined][] = [
+      ['null', null],
+      ['undefined', undefined],
+      ['empty string', ''],
+      ['whitespace-only string', '   '],
+      ['unparseable string', 'not-a-date'],
+      ['out-of-range date', '2024-99-99T25:61:61'],
+    ];
+
+    test.each(missingOrInvalid)('renders emptyLabel for %s', (_name, date) => {
+      const { container } = render(<TimeSince date={date} emptyLabel="—" />);
+      expect(container.textContent).toBe('—');
+    });
+
+    test('ignores emptyLabel when the date is valid', () => {
+      const { container } = render(<TimeSince date="2024-03-15T11:00:00+00:00" emptyLabel="—" />);
+      expect(container.textContent).not.toContain('—');
+      expect(container.textContent).toMatch(/hour|ago/i);
+    });
+  });
+
   describe('accessibility', () => {
     test('box element is keyboard focusable with tabIndex', () => {
       const date = '2024-03-15T10:00:00+00:00';

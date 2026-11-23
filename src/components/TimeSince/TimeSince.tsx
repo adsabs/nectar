@@ -1,13 +1,15 @@
+import { ReactNode } from 'react';
 import { Box, Tooltip } from '@chakra-ui/react';
 import { formatAbsoluteDateTime, formatRelativeDate } from '@/utils/common/dates';
 
 export interface TimeSinceProps {
   date: string | null | undefined;
+  emptyLabel?: ReactNode;
 }
 
-export const TimeSince = ({ date }: TimeSinceProps) => {
+export const TimeSince = ({ date, emptyLabel }: TimeSinceProps) => {
   if (!date?.trim()) {
-    return null;
+    return <>{emptyLabel ?? null}</>;
   }
 
   const hasTimezone = /[+-]\d{2}:\d{2}$/.test(date);
@@ -25,7 +27,7 @@ export const TimeSince = ({ date }: TimeSinceProps) => {
   const dateStr = new Date(dateString);
 
   if (isNaN(dateStr.getTime())) {
-    return null;
+    return <>{emptyLabel ?? null}</>;
   }
 
   const formatted = formatRelativeDate(dateStr);
