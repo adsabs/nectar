@@ -315,7 +315,30 @@ export const allSearchTerms: SearchTermOption[] = [
     id: 'doctype',
     value: 'doctype:',
     title: 'doctype',
-    description: 'Limit search to records corresponding to data catalogs',
+    description: `Limit search to records corresponding to data catalogs.<br><br>
+      <code>article</code>: Journal Article<br>
+      <code>proceedings</code>: Proceedings<br>
+      <code>inproceedings</code>: Proceedings Article<br>
+      <code>book</code>: Book<br>
+      <code>inbook</code>: Book Chapter<br>
+      <code>techreport</code>: Tech Report<br>
+      <code>intechreport</code>: In Tech Report<br>
+      <code>eprint</code>: e-print<br>
+      <code>abstract</code>: Abstract<br>
+      <code>mastersthesis</code>: Masters Thesis<br>
+      <code>phdthesis</code>: PhD Thesis<br>
+      <code>talk</code>: Talk<br>
+      <code>software</code>: Software<br>
+      <code>proposal</code>: Proposal<br>
+      <code>pressrelease</code>: Press Release<br>
+      <code>circular</code>: Circular<br>
+      <code>newsletter</code>: Newsletter<br>
+      <code>catalog</code>: Catalog<br>
+      <code>editorial</code>: Editorial<br>
+      <code>dataset</code>: Dataset<br>
+      <code>instrument</code>: Instrument<br>
+      <code>service</code>: Service<br>
+      <code>misc</code>: Other<br>`,
     syntax: ['doctype:type'],
     example: ['doctype:catalog'],
   },

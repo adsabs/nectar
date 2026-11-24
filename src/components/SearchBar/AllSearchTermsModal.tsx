@@ -125,7 +125,16 @@ export const AllSearchTermsModal = ({ onSelect }: IAllSearchTermsModalProps): Re
       </Tooltip>
       {/* On select the reducer refocuses the search input; Chakra's default
           focus-return would steal it back to the trigger. */}
-      <Modal isOpen={isOpen} onClose={onClose} size="3xl" scrollBehavior="inside" returnFocusOnClose={false}>
+      <Modal
+        isOpen={isOpen}
+        onClose={() => {
+          setQuery('');
+          onClose();
+        }}
+        size="3xl"
+        scrollBehavior="inside"
+        returnFocusOnClose={false}
+      >
         <ModalOverlay />
         <ModalContent color={colors.text} backgroundColor={colors.background}>
           <ModalBody p={0}>
@@ -222,6 +231,8 @@ export const AllSearchTermsModal = ({ onSelect }: IAllSearchTermsModalProps): Re
                 px={4}
                 py={3}
                 minH="90px"
+                maxH="360px"
+                overflowY="auto"
                 data-testid="allSearchTermsDetail"
               >
                 {current ? (
