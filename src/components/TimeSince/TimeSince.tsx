@@ -12,7 +12,7 @@ export const TimeSince = ({ date, emptyLabel }: TimeSinceProps) => {
     return <>{emptyLabel ?? null}</>;
   }
 
-  const hasTimezone = /[+-]\d{2}:\d{2}$/.test(date);
+  const hasTimezone = /([+-]\d{2}:?\d{2}|Z)$/i.test(date);
   const hasTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(date);
 
   let dateString = date;

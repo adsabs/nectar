@@ -132,6 +132,15 @@ describe('TimeSince', () => {
       expect(container.textContent).toBe('—');
     });
 
+    test.each(['2024-03-15T11:00:00Z', '2024-03-15T11:00:00.000Z', '2024-03-15T11:00:00+0000'])(
+      'treats %s as an explicit UTC offset, not a missing date',
+      (date) => {
+        const { container } = render(<TimeSince date={date} emptyLabel="—" />);
+        expect(container.textContent).not.toBe('—');
+        expect(container.textContent).toMatch(/hour|ago/i);
+      },
+    );
+
     test('ignores emptyLabel when the date is valid', () => {
       const { container } = render(<TimeSince date="2024-03-15T11:00:00+00:00" emptyLabel="—" />);
       expect(container.textContent).not.toContain('—');
