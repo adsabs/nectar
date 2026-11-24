@@ -63,7 +63,7 @@ export const useColorModeColors = (): ColorModeColors => {
         brand: 'blue.300',
         tableHighlightBackgroud: 'gray.700',
         disabledInput: 'gray.700',
-        pill: 'blue.200',
+        pill: 'blue.400',
         pillText: 'white',
       };
 };
@@ -109,7 +109,7 @@ export const useColorModeColorVars = (): ColorModeColors => {
         brand: 'var(--chakra-colors-blue-600)',
         tableHighlightBackgroud: 'blue.50',
         disabledInput: 'var(--chakra-colors-gray-50)',
-        pill: 'var(--chakra-colors-blue-200)',
+        pill: 'var(--chakra-colors-blue-400)',
         pillText: 'var(--chakra-colors-white)',
       };
 };
