@@ -4,12 +4,25 @@ import { logger } from '@/logger';
 
 const SCROLL_POSITION_KEY = 'search-scroll-position';
 
-/**
- * Hook to manage scroll position restoration when navigating between search results and abstract pages
- */
+export const useSaveScrollPosition = () => {
+  const router = useRouter();
+
+  const saveScrollPosition = () => {
+    if (typeof window !== 'undefined' && router.pathname === '/search') {
+      const scrollPosition = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+      sessionStorage.setItem(SCROLL_POSITION_KEY, scrollPosition.toString());
+    }
+  };
+
+  return {
+    saveScrollPosition,
+  };
+};
+
 export const useScrollRestoration = () => {
   const router = useRouter();
   const shouldRestoreRef = useRef(false);
+  const { saveScrollPosition } = useSaveScrollPosition();
 
   useEffect(() => {
     // Only run on client side
@@ -39,17 +52,6 @@ export const useScrollRestoration = () => {
       });
     }
   }, [router.pathname]);
-
-  /**
-   * Save current scroll position to sessionStorage
-   * Call this before navigating away from the search page
-   */
-  const saveScrollPosition = () => {
-    if (typeof window !== 'undefined' && router.pathname === '/search') {
-      const scrollPosition = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-      sessionStorage.setItem(SCROLL_POSITION_KEY, scrollPosition.toString());
-    }
-  };
 
   /**
    * Clear saved scroll position
