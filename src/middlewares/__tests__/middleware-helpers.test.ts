@@ -164,6 +164,47 @@ describe('legacy search helpers', () => {
     expect(redirected.searchParams.get('q')).toBe('foo bar');
     expect(redirected.searchParams.get('fl')).toBe('abstract');
   });
+
+  test('keeps a sub-route that trails the legacy param list', () => {
+    const req = new NextRequest('https://example.com/search/q=star&sort=date%20desc/metrics');
+    const redirected = new URL(legacySearchURLMiddleware(req).headers.get('Location')!);
+
+    expect(redirected.pathname).toBe('/search/metrics');
+    expect(redirected.searchParams.get('q')).toBe('star');
+    expect(redirected.searchParams.get('sort')).toBe('date desc');
+  });
+
+  test('translates a bumblebee visualization sub-route', () => {
+    const req = new NextRequest('https://example.com/search/q=star/show-paper-network');
+    const redirected = new URL(legacySearchURLMiddleware(req).headers.get('Location')!);
+
+    expect(redirected.pathname).toBe('/search/paper_network');
+    expect(redirected.searchParams.get('q')).toBe('star');
+  });
+
+  test('keeps an export format on the exportcitation sub-route', () => {
+    const req = new NextRequest('https://example.com/search/q=star/export-bibtex');
+    const redirected = new URL(legacySearchURLMiddleware(req).headers.get('Location')!);
+
+    expect(redirected.pathname).toBe('/search/exportcitation/bibtex');
+    expect(redirected.searchParams.get('q')).toBe('star');
+  });
+
+  test('converts the zero-based p_ index the same way the hash form does', () => {
+    const req = new NextRequest('https://example.com/search/q=star&p_=2');
+    const redirected = new URL(legacySearchURLMiddleware(req).headers.get('Location')!);
+
+    expect(redirected.searchParams.get('p')).toBe('3');
+    expect(redirected.searchParams.has('p_')).toBe(false);
+  });
+
+  test('leaves slashes inside a param value alone when there is no sub-route', () => {
+    const req = new NextRequest('https://example.com/search/q=doi:10.1093/mnras/stz1234');
+    const redirected = new URL(legacySearchURLMiddleware(req).headers.get('Location')!);
+
+    expect(redirected.pathname).toBe('/search');
+    expect(redirected.searchParams.get('q')).toBe('doi:10.1093/mnras/stz1234');
+  });
 });
 
 describe('referer helpers', () => {

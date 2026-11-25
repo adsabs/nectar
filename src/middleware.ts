@@ -6,6 +6,7 @@ import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit, RATE_LIMIT_RETRY_AFTER_SECONDS } from '@/rateLimit';
 import { isLegacySearchURL, legacySearchURLMiddleware } from '@/middlewares/legacySearchURLMiddleware';
+import { ABS_VIEWS } from '@/lib/legacyRoutes';
 import { ErrorSource, handleError } from '@/lib/errorHandler.edge';
 import { getUserLogId, sanitizeHeaderValue } from '@/utils/logging';
 import { mapDisciplineParamToAppMode, mapPathToDisciplineParam } from '@/utils/appMode';
@@ -199,19 +200,7 @@ export const normalizeAbsPath = (
     return { shouldRewrite: false };
   }
 
-  const knownViews = new Set([
-    'abstract',
-    'citations',
-    'references',
-    'credits',
-    'mentions',
-    'coreads',
-    'similar',
-    'graphics',
-    'metrics',
-    'toc',
-    'exportcitation',
-  ]);
+  const knownViews = ABS_VIEWS;
 
   let view = 'abstract';
   let idSegments: string[] = [];

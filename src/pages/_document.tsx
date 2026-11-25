@@ -2,6 +2,7 @@ import { ColorModeScript } from '@chakra-ui/react';
 import { theme } from '@/theme';
 import { COLOR_MODE_NO_FLASH_CSS } from '@/color-mode-no-flash';
 import { getGtmSnippet, getGtmUserId } from '@/gtm-snippet';
+import { getLegacyHashSnippet, LEGACY_REDIRECT_CSS } from '@/legacy-hash-snippet';
 import { getSentryEnvironmentSnippet } from '@/lib/sentryEnvironment';
 import Document, { Head, Html, Main, NextScript } from 'next/document';
 import { ReactElement } from 'react';
@@ -18,6 +19,8 @@ class MyDocument extends Document {
     return (
       <Html lang="en">
         <Head>
+          <style dangerouslySetInnerHTML={{ __html: LEGACY_REDIRECT_CSS }} />
+          <script dangerouslySetInnerHTML={{ __html: getLegacyHashSnippet() }} />
           <script dangerouslySetInnerHTML={{ __html: getSentryEnvironmentSnippet(process.env.SENTRY_ENVIRONMENT) }} />
           {gtmId ? <script dangerouslySetInnerHTML={{ __html: getGtmSnippet(gtmId, getGtmUserId(user)) }} /> : null}
           <style dangerouslySetInnerHTML={{ __html: COLOR_MODE_NO_FLASH_CSS }} />
