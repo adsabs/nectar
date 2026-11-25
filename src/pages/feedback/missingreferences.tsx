@@ -4,6 +4,7 @@ import { FeedbackAlert, MissingReferenceForm } from '@/components/FeedbackForms'
 import { NextPage } from 'next';
 import { useMemo, useState } from 'react';
 import { FeedbackLayout } from '@/components/Layout';
+import { ReCaptchaProvider } from '@/components/ReCaptcha/ReCaptchaProvider';
 import { SimpleLink } from '@/components/SimpleLink';
 import { feedbackItems } from '@/components/NavBar';
 
@@ -47,22 +48,24 @@ const MissingReferences: NextPage = () => {
   };
 
   return (
-    <FeedbackLayout title="Submit missing references for SciX Abstract Service" alert={alert}>
-      <Text my={2}>Please use this form to submit one or more citations currently missing from our databases.</Text>
-      <Text my={2}>
-        In order to use this form you will need to know the bibcodes of the citing and cited papers, and enter them in
-        the appropriate fields.
-      </Text>
-      <Text my={2}>
-        If either the citing or cited paper is not in SciX you should
-        <SimpleLink href={feedbackItems.record.path} display="inline">
-          {' '}
-          submit a record{' '}
-        </SimpleLink>
-        for it first.
-      </Text>
-      <MissingReferenceForm onOpenAlert={handleOnOpenAlert} />
-    </FeedbackLayout>
+    <ReCaptchaProvider>
+      <FeedbackLayout title="Submit missing references for SciX Abstract Service" alert={alert}>
+        <Text my={2}>Please use this form to submit one or more citations currently missing from our databases.</Text>
+        <Text my={2}>
+          In order to use this form you will need to know the bibcodes of the citing and cited papers, and enter them in
+          the appropriate fields.
+        </Text>
+        <Text my={2}>
+          If either the citing or cited paper is not in SciX you should
+          <SimpleLink href={feedbackItems.record.path} display="inline">
+            {' '}
+            submit a record{' '}
+          </SimpleLink>
+          for it first.
+        </Text>
+        <MissingReferenceForm onOpenAlert={handleOnOpenAlert} />
+      </FeedbackLayout>
+    </ReCaptchaProvider>
   );
 };
 

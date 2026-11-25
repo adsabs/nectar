@@ -8,6 +8,7 @@ import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { logger } from '@/logger';
 import { FeedbackLayout } from '@/components/Layout';
+import { ReCaptchaProvider } from '@/components/ReCaptcha/ReCaptchaProvider';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { getSingleRecordParams } from '@/api/search/models';
 import { fetchSearch, searchKeys } from '@/api/search/search';
@@ -70,38 +71,45 @@ const Record: NextPage = () => {
   };
 
   return (
-    <FeedbackLayout title="Submit or Correct an Abstract for the SciX Abstract Service" alert={alert}>
-      <Text my={2}>
-        Please use the following form to submit a new bibliographic record to ADS or correct an existing record.
-      </Text>
+    <ReCaptchaProvider>
+      <FeedbackLayout title="Submit or Correct an Abstract for the SciX Abstract Service" alert={alert}>
+        <Text my={2}>
+          Please use the following form to submit a new bibliographic record to ADS or correct an existing record.
+        </Text>
 
-      <Flex direction="column" gap={4} my={2}>
-        <Tabs variant="enclosed-colored" onChange={handleTabChange} mt={5} size="lg" index={isNew ? 0 : 1}>
-          <TabList role="tablist">
-            <Tab role="tab" aria-selected={isNew}>
-              New Record
-            </Tab>
-            <Tab role="tab" aria-selected={!isNew}>
-              Edit Record
-            </Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel px={{ base: 0, sm: 5 }} pt={8} role="tabpanel">
-              <RecordPanel isNew onOpenAlert={handleOnOpenAlert} isFocused={isNew} onCloseAlert={handleOnCloseAlert} />
-            </TabPanel>
-            <TabPanel px={{ base: 0, sm: 5 }} pt={8} role="tabpanel">
-              <RecordPanel
-                isNew={false}
-                onOpenAlert={handleOnOpenAlert}
-                isFocused={!isNew}
-                onCloseAlert={handleOnCloseAlert}
-                bibcode={bibcode as string}
-              />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </Flex>
-    </FeedbackLayout>
+        <Flex direction="column" gap={4} my={2}>
+          <Tabs variant="enclosed-colored" onChange={handleTabChange} mt={5} size="lg" index={isNew ? 0 : 1}>
+            <TabList role="tablist">
+              <Tab role="tab" aria-selected={isNew}>
+                New Record
+              </Tab>
+              <Tab role="tab" aria-selected={!isNew}>
+                Edit Record
+              </Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel px={{ base: 0, sm: 5 }} pt={8} role="tabpanel">
+                <RecordPanel
+                  isNew
+                  onOpenAlert={handleOnOpenAlert}
+                  isFocused={isNew}
+                  onCloseAlert={handleOnCloseAlert}
+                />
+              </TabPanel>
+              <TabPanel px={{ base: 0, sm: 5 }} pt={8} role="tabpanel">
+                <RecordPanel
+                  isNew={false}
+                  onOpenAlert={handleOnOpenAlert}
+                  isFocused={!isNew}
+                  onCloseAlert={handleOnCloseAlert}
+                  bibcode={bibcode as string}
+                />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </Flex>
+      </FeedbackLayout>
+    </ReCaptchaProvider>
   );
 };
 
