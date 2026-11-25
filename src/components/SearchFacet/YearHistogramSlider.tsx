@@ -3,6 +3,7 @@ import { Box, Center, CircularProgress, Flex, Heading, Icon, IconButton, Text, V
 import { getYearsGraph } from '@/components/Visualizations/utils';
 import { getFQValue, removeFQ, setFQ } from '@/query-utils';
 import { useStore } from '@/store';
+import { omit } from 'ramda';
 import { memo, useMemo } from 'react';
 import { withErrorBoundary } from '@/hocs/withErrorBoundary';
 import { ArrowsOutIcon } from '@/components/icons/ArrowsOut';
@@ -29,7 +30,7 @@ const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHi
 
   // query without the year range filter, to show all years on the histogram
   const cleanedQuery = useMemo(() => {
-    const q = JSON.parse(JSON.stringify(query)) as IADSApiSearchParams;
+    const q = omit(['fl', 'start', 'rows'], JSON.parse(JSON.stringify(query))) as IADSApiSearchParams;
 
     return q.fq ? (removeFQ(fqNameYearRange, q) as IADSApiSearchParams) : q;
   }, [query]);

@@ -195,11 +195,13 @@ export const getSearchFacetParams = (params: IADSApiSearchParams): IADSApiSearch
   ...params,
   fl: ['id'],
   facet: true,
+  rows: 0,
 });
 
 export const getSearchFacetJSONParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
   ...params,
   fl: ['id'],
+  rows: 0,
 });
 
 export const getSearchFacetYearsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
@@ -209,6 +211,7 @@ export const getSearchFacetYearsParams = (params: IADSApiSearchParams): IADSApiS
   facet: true,
   'facet.mincount': 1,
   'facet.limit': SOLR_FACET_LIMIT,
+  rows: 0,
 });
 
 export const getSearchFacetCitationsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
@@ -217,6 +220,7 @@ export const getSearchFacetCitationsParams = (params: IADSApiSearchParams): IADS
   stats: true,
   'stats.field': 'citation_count',
   'json.facet': `{"citation_count":{"type":"terms","field":"citation_count","sort":{"index":"desc"},"limit":${SOLR_FACET_LIMIT}}}`,
+  rows: 0,
 });
 
 export const getSearchFacetReadsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
@@ -225,6 +229,7 @@ export const getSearchFacetReadsParams = (params: IADSApiSearchParams): IADSApiS
   stats: true,
   'stats.field': 'read_count',
   'json.facet': `{"read_count":{"type":"terms","field":"read_count","sort":{"index":"desc"},"limit":${SOLR_FACET_LIMIT}}}`,
+  rows: 0,
 });
 
 export const getSearchStatsParams = (params: IADSApiSearchParams, field: string): IADSApiSearchParams => ({
@@ -232,6 +237,7 @@ export const getSearchStatsParams = (params: IADSApiSearchParams, field: string)
   fl: ['id'],
   stats: true,
   'stats.field': field.replace(/\s(asc|desc)$/, ''),
+  rows: 0,
 });
 
 export const getHighlightParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
