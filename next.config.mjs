@@ -184,7 +184,6 @@ const nextConfig = {
   skipTrailingSlashRedirect: true,
 };
 
-/** @type {import('@sentry/cli').SentryCliOptions} */
 const sentrySettings = {
   silent: true,
   org: 'adsabs',

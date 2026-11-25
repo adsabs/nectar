@@ -42,6 +42,7 @@ describe('useScrollRestoration', () => {
       await flushFrame();
 
       expect(scrollTo).not.toHaveBeenCalled();
+      expect(sessionStorage.getItem(SCROLL_POSITION_KEY)).toBeNull();
     });
 
     test('does not scroll when the route is not /search', async () => {
