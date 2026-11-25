@@ -46,7 +46,7 @@ import { useSession } from '@/lib/useSession';
 import { AddNotificationModal } from '@/components/EmailNotifications/AddNotificationModal';
 import { solrSortOptions } from '@/components/Sort/model';
 import { ISortProps, Sort } from '@/components/Sort';
-import { sections } from '@/components/Visualizations';
+import { sections } from '@/components/Visualizations/VisualizationTabs';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { noop } from '@/utils/common/noop';
@@ -57,6 +57,9 @@ import { ExportApiFormatKey } from '@/api/export/types';
 import { useCitationFormat } from '@/lib/useCitationFormat';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAlignLeft, faHighlighter } from '@fortawesome/free-solid-svg-icons';
+import { config } from '@fortawesome/fontawesome-svg-core';
+
+config.autoAddCss = false;
 
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];

@@ -8,11 +8,14 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { useGetGraphics } from '@/api/graphics/graphics';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
+import { config } from '@fortawesome/fontawesome-svg-core';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { feedbackItems } from '@/components/NavBar';
 import { AbsRecordBoundary } from '@/components/AbsRecordBoundary';
 import { AbsPageProps } from '@/lib/abs/absRecordState';
 import { useAbsRecordState } from '@/lib/abs/useAbsRecordState';
+
+config.autoAddCss = false;
 
 const GraphicsPage: NextPage<AbsPageProps> = ({ ssr, queryId, initialDoc }) => {
   const router = useRouter();
