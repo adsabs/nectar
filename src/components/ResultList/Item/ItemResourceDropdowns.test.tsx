@@ -54,6 +54,7 @@ describe('ItemResourceDropdowns', () => {
     mocks.useGetExportCitation.mockReturnValue({ data: undefined });
     mocks.useSettings.mockReturnValue({ settings: {} });
     mocks.copyMenuItem.mockClear();
+    mocks.useCitationFormat.mockClear();
     mocks.useCitationFormat.mockReturnValue({
       format: { id: 'agu', name: 'AGU', asHtml: true, isInModal: true },
       isReady: true,
@@ -64,15 +65,13 @@ describe('ItemResourceDropdowns', () => {
   test('does not fetch citation on mount', () => {
     render(<ItemResourceDropdowns doc={makeDoc()} />);
 
-    // The hook should be called with enabled: false on initial render
-    // because isShareOpen starts as false
-    expect(mocks.useGetExportCitation).toHaveBeenCalledWith(
-      expect.objectContaining({
-        format: 'agu',
-        bibcode: ['2020ApJ...123..456A'],
-      }),
-      expect.objectContaining({ enabled: false }),
-    );
+    expect(mocks.useGetExportCitation).not.toHaveBeenCalled();
+  });
+
+  test('a closed row holds no citation-format subscription either', () => {
+    render(<ItemResourceDropdowns doc={makeDoc()} />);
+
+    expect(mocks.useCitationFormat).not.toHaveBeenCalled();
   });
 
   test('fetches citation when share menu is opened', async () => {
