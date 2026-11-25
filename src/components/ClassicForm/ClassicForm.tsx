@@ -3,11 +3,11 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  Box,
   Button,
   Checkbox,
   CheckboxGroup,
   Code,
-  Divider,
   Flex,
   FormControl,
   FormHelperText,
@@ -25,6 +25,8 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { CalendarIcon, ExternalLinkIcon, InfoOutlineIcon } from '@chakra-ui/icons';
+
+import { Global } from '@emotion/react';
 
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { useErrorMessage } from '@/lib/useErrorMessage';
@@ -73,13 +75,15 @@ export interface IClassicFormProps {
   ssrError: string;
 }
 
+export const ACTION_TRAY_CLEARANCE = '5.5rem';
+
 export const ClassicForm = (props: IClassicFormProps) => {
   const isClient = useIsClient();
   const router = useRouter();
   const [queryError, setQueryError] = useErrorMessage<string>(props.ssrError);
   const mode = useStore((state) => state.mode);
   const setMode = useStore((state) => state.setMode);
-  const { border, lightText } = useColorModeColors();
+  const { border, panel } = useColorModeColors();
 
   const { register, control, handleSubmit, reset } = useForm<IClassicFormState>({
     defaultValues: defaultClassicFormState,
@@ -119,6 +123,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
 
   return (
     <form method="post" action={router.route} onSubmit={formSubmit} aria-describedby="form-title">
+      <Global styles={{ html: { scrollPaddingBottom: ACTION_TRAY_CLEARANCE } }} />
       <Stack direction="column" spacing={5} aria-describedby="form-title">
         <VisuallyHidden as="h2" id="form-title">
           Classic Form
@@ -214,18 +219,6 @@ export const ClassicForm = (props: IClassicFormProps) => {
             />
           </FormControl>
         </Stack>
-
-        <FormControl>
-          <Button type="submit">Search</Button>
-        </FormControl>
-
-        <HStack spacing={3}>
-          <Divider flex={1} borderColor={border} />
-          <Text flexShrink={0} fontSize="xs" color={lightText} whiteSpace="nowrap">
-            Additional search options
-          </Text>
-          <Divider flex={1} borderColor={border} />
-        </HStack>
 
         {/* Publication dates */}
         <Stack
@@ -354,14 +347,30 @@ export const ClassicForm = (props: IClassicFormProps) => {
           </Alert>
         )}
 
-        <Stack direction="row">
-          <Button type="submit">Search</Button>
-          <Button type="reset" variant="outline" onClick={handleReset}>
-            Reset
-          </Button>
-        </Stack>
-
         <CurrentQuery control={control} />
+
+        <Box
+          position="sticky"
+          bottom={0}
+          zIndex={3}
+          mx={-4}
+          px={4}
+          py={3}
+          bg={panel}
+          borderTopWidth="1px"
+          borderTopStyle="solid"
+          borderColor={border}
+          borderTopRadius="md"
+          boxShadow="0 -2px 6px rgba(0, 0, 0, 0.08)"
+          data-testid="classic-form-actions"
+        >
+          <Stack direction="row" spacing={3}>
+            <Button type="submit">Search</Button>
+            <Button type="reset" variant="outline" onClick={handleReset}>
+              Reset Form
+            </Button>
+          </Stack>
+        </Box>
       </Stack>
     </form>
   );

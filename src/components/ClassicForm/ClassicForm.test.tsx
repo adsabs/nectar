@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@/test-utils';
 import { AppMode } from '@/types';
-import { ClassicForm, defaultClassicFormState } from './ClassicForm';
+import { ACTION_TRAY_CLEARANCE, ClassicForm, defaultClassicFormState } from './ClassicForm';
 import { readClassicFormSnapshot, saveClassicFormSnapshot } from './form-snapshot';
 
 const router = {
@@ -17,6 +17,12 @@ vi.mock('next/router', () => ({
 }));
 
 const searchButtons = (): HTMLElement[] => screen.getAllByRole('button', { name: 'Search' });
+
+const zIndexOf = (el: Element): number => {
+  const value = getComputedStyle(el).zIndex;
+  expect(value).toMatch(/^-?[0-9]+$/);
+  return Number(value);
+};
 
 const submittedSearch = (call = 0): string => (router.push.mock.calls[call][0] as { search: string }).search;
 
@@ -54,69 +60,109 @@ describe('ClassicForm', () => {
     expect(arg.search).not.toContain('ads_compat');
   });
 
-  describe('early Search button', () => {
-    test('renders a second Search button between the Object row and Publication Date Start', () => {
+  describe('sticky action tray', () => {
+    const tray = (): HTMLElement => screen.getByTestId('classic-form-actions');
+
+    test('renders a single Search button, inside the tray', () => {
       render(<ClassicForm ssrError="" />);
 
       const buttons = searchButtons();
-      expect(buttons).toHaveLength(2);
-
-      const object = screen.getByLabelText(/^Object/);
-      const pubdateStart = screen.getByLabelText('Publication Date Start');
-      const [early, bottom] = buttons;
-
-      expect(object.compareDocumentPosition(early) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-      expect(early.compareDocumentPosition(pubdateStart) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-      expect(pubdateStart.compareDocumentPosition(bottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(buttons).toHaveLength(1);
+      expect(tray()).toContainElement(buttons[0]);
     });
 
-    test('gives both buttons the same submit type and variant', () => {
+    test('declares sticky positioning pinned to the bottom edge', () => {
       render(<ClassicForm ssrError="" />);
 
-      const [early, bottom] = searchButtons();
-      expect(early).toHaveAttribute('type', 'submit');
-      expect(bottom).toHaveAttribute('type', 'submit');
-      expect(early.className).toEqual(bottom.className);
+      const style = getComputedStyle(tray());
+      expect(style.position).toBe('sticky');
+      expect(style.bottom).toBe('0px');
     });
 
-    test('leaves both submit buttons without a name or value', () => {
+    test('has no clipping ancestor between it and the form, which would kill sticky', () => {
       render(<ClassicForm ssrError="" />);
 
-      for (const button of searchButtons()) {
-        expect(button).not.toHaveAttribute('name');
-        expect(button).not.toHaveAttribute('value');
+      const form = screen.getByLabelText(/^Author/).closest('form');
+      const clipping = ['hidden', 'auto', 'scroll', 'clip', 'overlay'];
+
+      for (let el = tray().parentElement; el && el !== form.parentElement; el = el.parentElement) {
+        const { overflow, overflowX, overflowY } = getComputedStyle(el);
+        for (const value of [overflow, overflowX, overflowY]) {
+          expect(clipping).not.toContain(value);
+        }
       }
     });
 
-    test('submits the whole form from either button, including fields below the early one', async () => {
+    test('clears a focused field from under itself via scroll-padding', () => {
+      render(<ClassicForm ssrError="" />);
+
+      expect(getComputedStyle(document.documentElement).scrollPaddingBottom).toBe(ACTION_TRAY_CLEARANCE);
+    });
+
+    test('is the last element in the form, after the generated query', () => {
+      render(<ClassicForm ssrError="" />);
+
+      const form = screen.getByLabelText(/^Author/).closest('form');
+      const generatedQuery = screen.getByText('Generated Query');
+
+      expect(tray().nextElementSibling).toBeNull();
+      expect(tray().parentElement.lastElementChild).toBe(tray());
+      expect(form.contains(tray())).toBe(true);
+      expect(generatedQuery.compareDocumentPosition(tray()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    test('paints over the date field calendar icons', () => {
+      render(<ClassicForm ssrError="" />);
+
+      const icon = screen
+        .getByLabelText('Publication Date Start')
+        .closest('.chakra-input__group')
+        .querySelector('.chakra-input__left-element');
+
+      expect(icon).not.toBeNull();
+      expect(zIndexOf(icon)).toBeGreaterThan(0);
+      expect(zIndexOf(tray())).toBeGreaterThan(zIndexOf(icon));
+    });
+
+    test('stays below the Publications dropdown when it is open', async () => {
       const { user } = render(<ClassicForm ssrError="" />);
-      expect(searchButtons()).toHaveLength(2);
+
+      const picker = screen.getByLabelText('bibstem picker');
+      await user.click(picker);
+      await user.type(picker, 'ApJ');
+      const menu = (await screen.findByText('The Astrophysical Journal (ApJ)')).closest('[class*="-menu"]');
+
+      expect(menu).not.toBeNull();
+      expect(zIndexOf(menu)).toBeGreaterThan(zIndexOf(tray()));
+    });
+
+    test('leaves the submit button without a name or value', () => {
+      render(<ClassicForm ssrError="" />);
+
+      const [search] = searchButtons();
+      expect(search).toHaveAttribute('type', 'submit');
+      expect(search).not.toHaveAttribute('name');
+      expect(search).not.toHaveAttribute('value');
+    });
+
+    test('submits every field in the form, not just those near it', async () => {
+      const { user } = render(<ClassicForm ssrError="" />);
 
       await user.type(screen.getByLabelText(/^Author/), 'Smith, John');
       await user.type(screen.getByLabelText('Title'), 'gravity waves');
 
       await user.click(searchButtons()[0]);
       await waitFor(() => expect(router.push).toHaveBeenCalledTimes(1));
-      const early = (router.push.mock.calls[0][0] as { search: string }).search;
 
-      await user.click(searchButtons()[1]);
-      await waitFor(() => expect(router.push).toHaveBeenCalledTimes(2));
-      const bottom = (router.push.mock.calls[1][0] as { search: string }).search;
-
-      expect(early).toEqual(bottom);
-      const q = new URLSearchParams(early).get('q');
+      const q = new URLSearchParams(submittedSearch()).get('q');
       expect(q).toContain('Smith, John');
       expect(q).toContain('gravity waves');
     });
 
-    test.each([
-      ['early', 0],
-      ['bottom', 1],
-    ])('submits exactly once from the %s button', async (_position, index) => {
+    test('submits exactly once per click', async () => {
       const { user } = render(<ClassicForm ssrError="" />);
-      expect(searchButtons()).toHaveLength(2);
 
-      await user.click(searchButtons()[index]);
+      await user.click(searchButtons()[0]);
       await waitFor(() => expect(router.push).toHaveBeenCalledTimes(1));
 
       await new Promise((resolve) => setTimeout(resolve, 150));
@@ -201,34 +247,19 @@ describe('ClassicForm', () => {
     });
   });
 
-  describe('Additional search options separator', () => {
-    test('sits between the early Search button and Publication Date Start', () => {
+  describe('uninterrupted field list', () => {
+    test('runs from Object straight into the publication dates', () => {
       render(<ClassicForm ssrError="" />);
 
-      const label = screen.getByText('Additional search options');
-      const [early] = searchButtons();
-      const pubdateStart = screen.getByLabelText('Publication Date Start');
+      expect(screen.queryByText('Additional search options')).toBeNull();
 
-      expect(early.compareDocumentPosition(label) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-      expect(label.compareDocumentPosition(pubdateStart) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      const object = screen.getByLabelText(/^Object/);
+      const dates = screen.getByTestId('publication-dates');
 
-      const separator = label.parentElement;
-      expect(early.parentElement.nextElementSibling).toBe(separator);
-      expect(separator.nextElementSibling).toHaveAttribute('data-testid', 'publication-dates');
+      expect(dates.previousElementSibling).toContainElement(object);
     });
 
-    test('is non-interactive and adds no tab stop', () => {
-      render(<ClassicForm ssrError="" />);
-
-      const label = screen.getByText('Additional search options');
-
-      expect(label).not.toHaveAttribute('tabindex');
-      expect(label.closest('button')).toBeNull();
-      expect(label.closest('a')).toBeNull();
-      expect(label.closest('[role="button"]')).toBeNull();
-    });
-
-    test('leaves the fields below it visible and enabled', () => {
+    test('leaves every field visible and enabled', () => {
       render(<ClassicForm ssrError="" />);
 
       const below = [
@@ -249,7 +280,7 @@ describe('ClassicForm', () => {
   });
 
   describe('keyboard order', () => {
-    test('tabs from the Object textarea to the early Search button to Publication Date Start', async () => {
+    test('tabs from the Object textarea straight to Publication Date Start', async () => {
       const { user } = render(<ClassicForm ssrError="" />);
 
       const object = screen.getByLabelText(/^Object/);
@@ -257,10 +288,18 @@ describe('ClassicForm', () => {
       expect(object).toHaveFocus();
 
       await user.tab();
-      expect(searchButtons()[0]).toHaveFocus();
+      expect(screen.getByLabelText('Publication Date Start')).toHaveFocus();
+    });
+
+    test('reaches Search then Reset Form as the last two stops', async () => {
+      const { user } = render(<ClassicForm ssrError="" />);
+
+      const [search] = searchButtons();
+      search.focus();
+      expect(search).toHaveFocus();
 
       await user.tab();
-      expect(screen.getByLabelText('Publication Date Start')).toHaveFocus();
+      expect(screen.getByRole('button', { name: 'Reset Form' })).toHaveFocus();
     });
 
     test('uses no positive tabIndex anywhere in the form', () => {
@@ -273,21 +312,20 @@ describe('ClassicForm', () => {
     });
   });
 
-  describe('Reset button', () => {
-    const resetButton = (): HTMLElement => screen.getByRole('button', { name: 'Reset' });
+  describe('Reset Form button', () => {
+    const resetButton = (): HTMLElement => screen.getByRole('button', { name: 'Reset Form' });
 
-    test('renders exactly one Reset button, after the bottom Search button', () => {
+    test('renders exactly one Reset Form button, beside Search in the tray', () => {
       render(<ClassicForm ssrError="" />);
 
-      expect(screen.getAllByRole('button', { name: 'Reset' })).toHaveLength(1);
+      expect(screen.getAllByRole('button', { name: 'Reset Form' })).toHaveLength(1);
 
-      const [early, bottom] = searchButtons();
+      const [search] = searchButtons();
       const reset = resetButton();
-      const pubdateStart = screen.getByLabelText('Publication Date Start');
 
-      expect(bottom.compareDocumentPosition(reset) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-      expect(early.compareDocumentPosition(reset) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-      expect(pubdateStart.compareDocumentPosition(reset) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(screen.getByTestId('classic-form-actions')).toContainElement(reset);
+      expect(reset.parentElement).toBe(search.parentElement);
+      expect(search.nextElementSibling).toBe(reset);
     });
 
     test('is a native reset button, so it still works without JS', () => {
@@ -296,24 +334,11 @@ describe('ClassicForm', () => {
       expect(resetButton()).toHaveAttribute('type', 'reset');
     });
 
-    test('is the immediate next sibling of the bottom Search button', () => {
+    test('is styled as a secondary action, unlike the primary Search button', () => {
       render(<ClassicForm ssrError="" />);
 
-      const bottom = searchButtons().at(-1);
-      const reset = resetButton();
-
-      expect(reset.parentElement).toBe(bottom.parentElement);
-      expect(bottom.nextElementSibling).toBe(reset);
-    });
-
-    test('is styled as a secondary action, unlike the primary Search buttons', () => {
-      render(<ClassicForm ssrError="" />);
-
-      const [early, bottom] = searchButtons();
-      const reset = resetButton();
-
-      expect(early.className).toEqual(bottom.className);
-      expect(reset.className).not.toEqual(bottom.className);
+      const [search] = searchButtons();
+      expect(resetButton().className).not.toEqual(search.className);
     });
 
     test('restores defaultClassicFormState and does not navigate', async () => {
