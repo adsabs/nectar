@@ -185,7 +185,7 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
       <SimpleAction doc={doc} />
       {/* full resources menu */}
 
-      <Menu variant="compact" onOpen={() => setIsFullTextOpen(true)} onClose={() => setIsFullTextOpen(false)}>
+      <Menu variant="compact" isLazy onOpen={() => setIsFullTextOpen(true)} onClose={() => setIsFullTextOpen(false)}>
         <Tooltip label="Full text sources" isDisabled={isFullTextOpen}>
           <MenuButton
             as={IconButton}
@@ -210,7 +210,7 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
       </Menu>
 
       {/* reference and citation items menu */}
-      <Menu variant="compact" onOpen={() => setIsRefsOpen(true)} onClose={() => setIsRefsOpen(false)}>
+      <Menu variant="compact" isLazy onOpen={() => setIsRefsOpen(true)} onClose={() => setIsRefsOpen(false)}>
         <Tooltip label="References and citations" isDisabled={isRefsOpen}>
           <MenuButton
             as={IconButton}
@@ -235,7 +235,7 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
       </Menu>
 
       {/* data product items menu */}
-      <Menu variant="compact" onOpen={() => setIsDataOpen(true)} onClose={() => setIsDataOpen(false)}>
+      <Menu variant="compact" isLazy onOpen={() => setIsDataOpen(true)} onClose={() => setIsDataOpen(false)}>
         <Tooltip label="Linked data products" isDisabled={isDataOpen}>
           <MenuButton
             as={IconButton}
@@ -260,7 +260,7 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
       </Menu>
 
       {/* share menu */}
-      <Menu variant="compact" isOpen={isShareOpen} onOpen={onShareOpen} onClose={onShareClose}>
+      <Menu variant="compact" isLazy isOpen={isShareOpen} onOpen={onShareOpen} onClose={onShareClose}>
         <MenuButton
           as={IconButton}
           aria-label="share options"

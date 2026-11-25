@@ -261,6 +261,45 @@ describe('ItemResourceDropdowns', () => {
     });
   });
 
+  describe('closed menus contribute no item DOM (criterion 1)', () => {
+    const docWithEverything = makeDoc({
+      esources: ['PUB_PDF', 'EPRINT_PDF'],
+      property: ['ESOURCE', 'DATA'],
+      data: ['CDS:2', 'SIMBAD:5'],
+      reference_count: 5,
+      citation_count: 10,
+    });
+
+    const MENU_BUTTON_LABELS = [
+      'Full text sources',
+      'References and citations',
+      'Linked data products',
+      'share options',
+    ];
+
+    test('renders no menu items while every menu is closed', () => {
+      const { getByLabelText } = render(<ItemResourceDropdowns doc={docWithEverything} />);
+
+      for (const label of MENU_BUTTON_LABELS) {
+        expect(getByLabelText(label)).toBeInTheDocument();
+      }
+
+      expect(document.querySelectorAll('[role="menuitem"]')).toHaveLength(0);
+    });
+
+    test('populates menu items only once a menu is opened', async () => {
+      const { user, getByLabelText } = render(<ItemResourceDropdowns doc={docWithEverything} />);
+
+      expect(document.querySelectorAll('[role="menuitem"]')).toHaveLength(0);
+
+      await user.click(getByLabelText('Full text sources'));
+
+      await waitFor(() => {
+        expect(document.querySelectorAll('[role="menuitem"]').length).toBeGreaterThan(0);
+      });
+    });
+  });
+
   describe('tooltip dismissal when menu opens', () => {
     const docWithSources = makeDoc({
       esources: ['PUB_PDF', 'EPRINT_PDF'],
