@@ -1,7 +1,7 @@
 import { Alert, AlertIcon, Box, Flex, Text, VisuallyHidden } from '@chakra-ui/react';
 import { useIsClient } from '@/lib/useIsClient';
 import PT from 'prop-types';
-import { HTMLAttributes, ReactElement } from 'react';
+import { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { Item, IItemProps } from './Item';
 import { useHighlights } from './useHighlights';
@@ -9,6 +9,9 @@ import { useAbstracts } from './useAbstracts';
 import { IDocsEntity } from '@/api/search/types';
 import { handleBoundaryError } from '@/lib/errorHandler';
 import { useResultsRenderSpan } from '@/lib/useRenderSpan';
+import { useIsPrinting } from '@/lib/useIsPrinting';
+import { VirtualResultRows } from './VirtualResultRows';
+import { VIRTUALIZE_ABOVE_ROWS } from '@/config';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
@@ -73,12 +76,32 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
 
   const isClient = useIsClient();
   const start = indexStart + 1;
+  const isPrinting = useIsPrinting();
+  const isWindowed = isClient && !isPrinting && docs.length > VIRTUALIZE_ABOVE_ROWS;
 
-  useResultsRenderSpan(docs, measureRenderSpan);
+  useResultsRenderSpan(docs, measureRenderSpan, isWindowed);
 
   const { highlights, showHighlights, isFetchingHighlights } = useHighlights();
   const resultsHaveAbstracts = docs.some((doc) => typeof doc.abstract === 'string');
   const { abstracts, isFetchingAbstracts } = useAbstracts({ enabled: allowAbstracts && !resultsHaveAbstracts });
+
+  const renderRow = (doc: IDocsEntity, index: number): ReactNode => (
+    <SafeItem
+      doc={doc}
+      key={doc.bibcode}
+      index={start + index}
+      hideCheckbox={!isClient ? true : hideCheckboxes}
+      hideActions={hideActions}
+      showHighlights={allowHighlight && showHighlights}
+      highlights={highlights?.[index] ?? {}}
+      isFetchingHighlights={allowHighlight && isFetchingHighlights}
+      useNormCite={useNormCite}
+      abstract={doc.abstract ?? abstracts[doc.bibcode]}
+      isFetchingAbstract={isFetchingAbstracts}
+      allowAbstracts={allowAbstracts}
+      containment={!isWindowed}
+    />
+  );
 
   return (
     <Flex
@@ -92,22 +115,11 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
       <VisuallyHidden as="h3" id="results-title">
         Results
       </VisuallyHidden>
-      {docs.map((doc, index) => (
-        <SafeItem
-          doc={doc}
-          key={doc.bibcode}
-          index={start + index}
-          hideCheckbox={!isClient ? true : hideCheckboxes}
-          hideActions={hideActions}
-          showHighlights={allowHighlight && showHighlights}
-          highlights={highlights?.[index] ?? {}}
-          isFetchingHighlights={allowHighlight && isFetchingHighlights}
-          useNormCite={useNormCite}
-          abstract={doc.abstract ?? abstracts[doc.bibcode]}
-          isFetchingAbstract={isFetchingAbstracts}
-          allowAbstracts={allowAbstracts}
-        />
-      ))}
+      {isWindowed ? (
+        <VirtualResultRows docs={docs} renderRow={renderRow} />
+      ) : (
+        docs.map((doc, index) => renderRow(doc, index))
+      )}
     </Flex>
   );
 };

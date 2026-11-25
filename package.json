@@ -68,6 +68,7 @@
     "@sentry/nextjs": "^10.75.2",
     "@tanstack/react-query": "^4.29.17",
     "@tanstack/react-table": "^8.9.2",
+    "@tanstack/react-virtual": "^3.14.26",
     "@xstate/fsm": "^2.0.0",
     "@xstate/inspect": "^0.7.1",
     "@xstate/react": "^3.2.2",
