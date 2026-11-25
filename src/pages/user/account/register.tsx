@@ -16,9 +16,10 @@ import { NextPage } from 'next';
 import Head from 'next/head';
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { useFocus } from '@/lib/useFocus';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import { useRedirectWithNotification } from '@/components/Notification';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { ReCaptchaProvider } from '@/components/ReCaptcha/ReCaptchaProvider';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 import { FormMessage } from '@/components/Feedbacks/FormMessage';
 import { BRAND_NAME_FULL } from '@/config';
@@ -40,7 +41,13 @@ const initialParams: IUserRegistrationCredentials = {
   recaptcha: '',
 };
 
-const Register: NextPage = () => {
+const Register: NextPage = () => (
+  <ReCaptchaProvider>
+    <RegisterForm />
+  </ReCaptchaProvider>
+);
+
+const RegisterForm = (): ReactElement => {
   const { executeRecaptcha } = useGoogleReCaptcha();
   const redirect = useRedirectWithNotification();
   // mutate (not mutateAsync) keeps error handling through isError/error state only,

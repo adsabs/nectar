@@ -5,10 +5,11 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { useFocus } from '@/lib/useFocus';
 
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
-import { useCallback, useState } from 'react';
+import { ReactElement, useCallback, useState } from 'react';
 import { FormMessage } from '@/components/Feedbacks/FormMessage';
 import { BRAND_NAME_FULL } from '@/config';
 import { StandardAlertMessage } from '@/components/Feedbacks';
+import { ReCaptchaProvider } from '@/components/ReCaptcha/ReCaptchaProvider';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IUserForgotPasswordCredentials } from '@/api/user/types';
@@ -16,7 +17,13 @@ import { useForgotPassword } from '@/api/user/user';
 
 export { useQuery } from '@tanstack/react-query';
 
-const ForgotPassword: NextPage = () => {
+const ForgotPassword: NextPage = () => (
+  <ReCaptchaProvider>
+    <ForgotPasswordForm />
+  </ReCaptchaProvider>
+);
+
+const ForgotPasswordForm = (): ReactElement => {
   const { executeRecaptcha } = useGoogleReCaptcha();
   const [formError, setFormError] = useState<Error | string | null>(null);
   const { register, handleSubmit } = useForm<IUserForgotPasswordCredentials>({

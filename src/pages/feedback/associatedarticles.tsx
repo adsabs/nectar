@@ -4,6 +4,7 @@ import { AssociatedArticlesForm, FeedbackAlert } from '@/components/FeedbackForm
 import { NextPage } from 'next';
 import { useMemo, useState } from 'react';
 import { FeedbackLayout } from '@/components/Layout';
+import { ReCaptchaProvider } from '@/components/ReCaptcha/ReCaptchaProvider';
 
 const AssociatedArticles: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
@@ -45,29 +46,31 @@ const AssociatedArticles: NextPage = () => {
   };
 
   return (
-    <FeedbackLayout title="Submit Associated Articles for the SciX Abstract Service" alert={alert}>
-      <Text my={2}>
-        Use this form to submit correlated articles (errata, multiple part articles, etc) with other articles in SciX.
-        For instance:
-      </Text>
-      <Text my={2}>
-        <strong>1999ApJ...511L..65Y</strong>: Erratum: An X-Ray Microlensing Test of AU-Scale Accretion Disk Structure
-        in Q2237+0305
-      </Text>
-      <Text my={2}>is an erratum for: </Text>
-      <Text my={2}>
-        <strong>1998ApJ...501L..41Y</strong>: An X-Ray Microlensing Test of AU-Scale Accretion Disk Structure in
-        Q2237+0305
-      </Text>
-      <Text my={2}>
-        Such associated references are connected with links in the SciX database. If you know of any correlated
-        references (errata, multiple part articles, etc) that do not have such links, please let us know about them by
-        filling in the codes for these correlated articles in this form. The form accepts one bibcode for the main paper
-        and one or more bibcodes for the associated articles. Use the &#34;Add a Record&#34; button to enter multiple
-        records.
-      </Text>
-      <AssociatedArticlesForm onOpenAlert={handleOnOpenAlert} />
-    </FeedbackLayout>
+    <ReCaptchaProvider>
+      <FeedbackLayout title="Submit Associated Articles for the SciX Abstract Service" alert={alert}>
+        <Text my={2}>
+          Use this form to submit correlated articles (errata, multiple part articles, etc) with other articles in SciX.
+          For instance:
+        </Text>
+        <Text my={2}>
+          <strong>1999ApJ...511L..65Y</strong>: Erratum: An X-Ray Microlensing Test of AU-Scale Accretion Disk Structure
+          in Q2237+0305
+        </Text>
+        <Text my={2}>is an erratum for: </Text>
+        <Text my={2}>
+          <strong>1998ApJ...501L..41Y</strong>: An X-Ray Microlensing Test of AU-Scale Accretion Disk Structure in
+          Q2237+0305
+        </Text>
+        <Text my={2}>
+          Such associated references are connected with links in the SciX database. If you know of any correlated
+          references (errata, multiple part articles, etc) that do not have such links, please let us know about them by
+          filling in the codes for these correlated articles in this form. The form accepts one bibcode for the main
+          paper and one or more bibcodes for the associated articles. Use the &#34;Add a Record&#34; button to enter
+          multiple records.
+        </Text>
+        <AssociatedArticlesForm onOpenAlert={handleOnOpenAlert} />
+      </FeedbackLayout>
+    </ReCaptchaProvider>
   );
 };
 

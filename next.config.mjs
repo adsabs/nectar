@@ -184,7 +184,6 @@ const nextConfig = {
   skipTrailingSlashRedirect: true,
 };
 
-/** @type {import('@sentry/cli').SentryCliOptions} */
 const sentrySettings = {
   silent: true,
   org: 'adsabs',
@@ -192,24 +191,14 @@ const sentrySettings = {
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   authToken: process.env.SENTRY_AUTH_TOKEN,
   environment: process.env.NODE_ENV || 'development',
-};
-
-/** @type {import('@sentry/nextjs/types/config/types').UserSentryOptions} */
-const sentryConfig = {
-  // Upload a larger set of source maps for prettier stack traces (increases build time)
-  widenClientFileUpload: true,
-  // Transpiles SDK to be compatible with IE11 (increases bundle size)
-  transpileClientSDK: true,
-  // no source map comments
-  hideSourceMaps: false,
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
-  reactComponentAnnotation: { enabled: true },
+  reactComponentAnnotation: { enabled: false },
 };
 
 // Factory — passing the config straight in reads it as options and no-ops.
 const config = withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })(nextConfig);
-const nextConfigWithSentry = withSentryConfig(config, sentrySettings, sentryConfig);
+const nextConfigWithSentry = withSentryConfig(config, sentrySettings);
 
 // don't include sentry config in testing or CI environments
 const finalConfig = ['production', 'development'].includes(process.env.NODE_ENV) ? nextConfigWithSentry : config;

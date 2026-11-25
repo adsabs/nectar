@@ -54,6 +54,7 @@ describe('ItemResourceDropdowns', () => {
     mocks.useGetExportCitation.mockReturnValue({ data: undefined });
     mocks.useSettings.mockReturnValue({ settings: {} });
     mocks.copyMenuItem.mockClear();
+    mocks.useCitationFormat.mockClear();
     mocks.useCitationFormat.mockReturnValue({
       format: { id: 'agu', name: 'AGU', asHtml: true, isInModal: true },
       isReady: true,
@@ -64,15 +65,13 @@ describe('ItemResourceDropdowns', () => {
   test('does not fetch citation on mount', () => {
     render(<ItemResourceDropdowns doc={makeDoc()} />);
 
-    // The hook should be called with enabled: false on initial render
-    // because isShareOpen starts as false
-    expect(mocks.useGetExportCitation).toHaveBeenCalledWith(
-      expect.objectContaining({
-        format: 'agu',
-        bibcode: ['2020ApJ...123..456A'],
-      }),
-      expect.objectContaining({ enabled: false }),
-    );
+    expect(mocks.useGetExportCitation).not.toHaveBeenCalled();
+  });
+
+  test('a closed row holds no citation-format subscription either', () => {
+    render(<ItemResourceDropdowns doc={makeDoc()} />);
+
+    expect(mocks.useCitationFormat).not.toHaveBeenCalled();
   });
 
   test('fetches citation when share menu is opened', async () => {
@@ -258,6 +257,45 @@ describe('ItemResourceDropdowns', () => {
       const props = mocks.copyMenuItem.mock.calls.at(-1)?.[0] as { isDisabled?: boolean; text?: string };
       expect(props.text).toBe('Author, A. (2020).');
       expect(props.isDisabled).toBe(false);
+    });
+  });
+
+  describe('closed menus contribute no item DOM (criterion 1)', () => {
+    const docWithEverything = makeDoc({
+      esources: ['PUB_PDF', 'EPRINT_PDF'],
+      property: ['ESOURCE', 'DATA'],
+      data: ['CDS:2', 'SIMBAD:5'],
+      reference_count: 5,
+      citation_count: 10,
+    });
+
+    const MENU_BUTTON_LABELS = [
+      'Full text sources',
+      'References and citations',
+      'Linked data products',
+      'share options',
+    ];
+
+    test('renders no menu items while every menu is closed', () => {
+      const { getByLabelText } = render(<ItemResourceDropdowns doc={docWithEverything} />);
+
+      for (const label of MENU_BUTTON_LABELS) {
+        expect(getByLabelText(label)).toBeInTheDocument();
+      }
+
+      expect(document.querySelectorAll('[role="menuitem"]')).toHaveLength(0);
+    });
+
+    test('populates menu items only once a menu is opened', async () => {
+      const { user, getByLabelText } = render(<ItemResourceDropdowns doc={docWithEverything} />);
+
+      expect(document.querySelectorAll('[role="menuitem"]')).toHaveLength(0);
+
+      await user.click(getByLabelText('Full text sources'));
+
+      await waitFor(() => {
+        expect(document.querySelectorAll('[role="menuitem"]').length).toBeGreaterThan(0);
+      });
     });
   });
 

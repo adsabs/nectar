@@ -19,10 +19,7 @@ import { useRouter } from 'next/router';
 import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
 import { isBrowser } from '@/utils/common/guards';
 import { IDocsEntity } from '@/api/search/types';
-import { CopyMenuItem } from '@/components/CopyButton';
-import { useGetExportCitation } from '@/api/export/export';
-import { getBibtexExportParams } from '@/api/export/getBibtexExportParams';
-import { useCitationFormat } from '@/lib/useCitationFormat';
+import { CitationCopyMenuItem } from './CitationCopyMenuItem';
 import { useSettings } from '@/lib/useSettings';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { closeFullTextTimingSpan } from '@/lib/performance';
@@ -48,19 +45,6 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
   const [isRefsOpen, setIsRefsOpen] = useState(false);
   const [isDataOpen, setIsDataOpen] = useState(false);
   const { settings } = useSettings();
-  const { format } = useCitationFormat();
-
-  const { data: citationData } = useGetExportCitation(
-    {
-      format: format.id,
-      customFormat: format.customFormat,
-      bibcode: [doc.bibcode],
-      ...getBibtexExportParams(settings, format.id),
-    },
-    { enabled: isShareOpen && !!doc.bibcode },
-  );
-
-  const citation = citationData?.export ?? '';
 
   const { hasCopied, onCopy, setValue, value } = useClipboard('');
 
@@ -171,21 +155,13 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
     setValue(`${process.env.NEXT_PUBLIC_BASE_CANONICAL_URL}/abs/${encodedCanonicalID}/abstract`);
   };
 
-  const handleCitationCopied = () => {
-    if (!!citation) {
-      toast({ status: 'info', title: 'Copied to Clipboard' });
-    } else {
-      toast({ status: 'error', title: 'There was a problem fetching citation. Try reloading the page.' });
-    }
-  };
-
   return (
     <Flex direction="row" data-tour="quick-icons">
       {/* orcid menu */}
       <SimpleAction doc={doc} />
       {/* full resources menu */}
 
-      <Menu variant="compact" onOpen={() => setIsFullTextOpen(true)} onClose={() => setIsFullTextOpen(false)}>
+      <Menu variant="compact" isLazy onOpen={() => setIsFullTextOpen(true)} onClose={() => setIsFullTextOpen(false)}>
         <Tooltip label="Full text sources" isDisabled={isFullTextOpen}>
           <MenuButton
             as={IconButton}
@@ -210,7 +186,7 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
       </Menu>
 
       {/* reference and citation items menu */}
-      <Menu variant="compact" onOpen={() => setIsRefsOpen(true)} onClose={() => setIsRefsOpen(false)}>
+      <Menu variant="compact" isLazy onOpen={() => setIsRefsOpen(true)} onClose={() => setIsRefsOpen(false)}>
         <Tooltip label="References and citations" isDisabled={isRefsOpen}>
           <MenuButton
             as={IconButton}
@@ -235,7 +211,7 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
       </Menu>
 
       {/* data product items menu */}
-      <Menu variant="compact" onOpen={() => setIsDataOpen(true)} onClose={() => setIsDataOpen(false)}>
+      <Menu variant="compact" isLazy onOpen={() => setIsDataOpen(true)} onClose={() => setIsDataOpen(false)}>
         <Tooltip label="Linked data products" isDisabled={isDataOpen}>
           <MenuButton
             as={IconButton}
@@ -260,7 +236,7 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
       </Menu>
 
       {/* share menu */}
-      <Menu variant="compact" isOpen={isShareOpen} onOpen={onShareOpen} onClose={onShareClose}>
+      <Menu variant="compact" isLazy isOpen={isShareOpen} onOpen={onShareOpen} onClose={onShareClose}>
         <MenuButton
           as={IconButton}
           aria-label="share options"
@@ -275,13 +251,7 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
         <Portal>
           <MenuList>
             <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
-            <CopyMenuItem
-              text={citation}
-              onCopyComplete={handleCitationCopied}
-              label="Copy Citation"
-              asHtml={format.asHtml}
-              isDisabled={citation === ''}
-            />
+            <CitationCopyMenuItem bibcode={doc.bibcode} settings={settings} />
           </MenuList>
         </Portal>
       </Menu>

@@ -18,7 +18,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useStore } from '@/store';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { MouseEvent, useCallback, useState } from 'react';
+import { MouseEvent, ReactElement, useCallback, useState } from 'react';
 import {
   browserName,
   browserVersion,
@@ -36,6 +36,7 @@ import { FormMessage } from '@/components/Feedbacks/FormMessage';
 
 import { FeedbackLayout } from '@/components/Layout';
 import { FeedbackAlert } from '@/components/FeedbackForms';
+import { ReCaptchaProvider } from '@/components/ReCaptcha/ReCaptchaProvider';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
 import { makeSearchParams } from '@/utils/common/search';
@@ -56,7 +57,13 @@ const validationSchema = z.object({
   comments: z.string().min(1, 'Feedback is required'),
 });
 
-const General: NextPage = () => {
+const General: NextPage = () => (
+  <ReCaptchaProvider>
+    <GeneralForm />
+  </ReCaptchaProvider>
+);
+
+const GeneralForm = (): ReactElement => {
   const userEmail = useGetUserEmail();
   const currentQuery = useStore((state) => state.latestQuery);
   const [formError, setFormError] = useState<Error | string | null>(null);

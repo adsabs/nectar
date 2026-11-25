@@ -1,4 +1,3 @@
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { MathJaxProvider } from './mathjax';
 import { ChakraProvider, cookieStorageManagerSSR } from '@chakra-ui/react';
 import { StoreProvider, useCreateStore, useStore } from './store';
@@ -32,34 +31,32 @@ export const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps
   const colorModeManager = cookieStorageManagerSSR(pageProps.cookies ?? '');
 
   return (
-    <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
-      <MathJaxProvider>
-        <ShepherdJourneyProvider>
-          <ChakraProvider
-            theme={theme}
-            colorModeManager={colorModeManager}
-            toastOptions={{
-              defaultOptions: {
-                position: 'top',
-                duration: 3000,
-                isClosable: true,
-                variant: 'subtle',
-              },
-            }}
-          >
-            <StoreProvider createStore={createStore}>
-              <QCProvider>
-                <Hydrate state={pageProps.dehydratedState}>
-                  <Telemetry />
-                  {children}
-                </Hydrate>
-                <ReactQueryDevtools />
-              </QCProvider>
-            </StoreProvider>
-          </ChakraProvider>
-        </ShepherdJourneyProvider>
-      </MathJaxProvider>
-    </GoogleReCaptchaProvider>
+    <MathJaxProvider>
+      <ShepherdJourneyProvider>
+        <ChakraProvider
+          theme={theme}
+          colorModeManager={colorModeManager}
+          toastOptions={{
+            defaultOptions: {
+              position: 'top',
+              duration: 3000,
+              isClosable: true,
+              variant: 'subtle',
+            },
+          }}
+        >
+          <StoreProvider createStore={createStore}>
+            <QCProvider>
+              <Hydrate state={pageProps.dehydratedState}>
+                <Telemetry />
+                {children}
+              </Hydrate>
+              <ReactQueryDevtools />
+            </QCProvider>
+          </StoreProvider>
+        </ChakraProvider>
+      </ShepherdJourneyProvider>
+    </MathJaxProvider>
   );
 };
 

@@ -15,7 +15,7 @@ import { AuthorList } from '@/components/AllAuthorsModal';
 import { APP_DEFAULTS } from '@/config';
 import { useAuthorsPerResult } from '@/lib/useAuthorsPerResult';
 import { useIsClient } from '@/lib/useIsClient';
-import { useScrollRestoration } from '@/lib/useScrollRestoration';
+import { useSaveScrollPosition } from '@/lib/useScrollRestoration';
 import { useStore } from '@/store';
 import { MathJax } from 'better-react-mathjax';
 import dynamic from 'next/dynamic';
@@ -102,7 +102,7 @@ export const Item = (props: IItemProps): ReactElement => {
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   // Scroll restoration - save position when navigating to abstract
-  const { saveScrollPosition } = useScrollRestoration();
+  const { saveScrollPosition } = useSaveScrollPosition();
 
   const handleAbstractClick = () => {
     saveScrollPosition();
