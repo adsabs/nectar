@@ -36,6 +36,7 @@ export const VirtualResultRows = ({ docs, renderRow }: IVirtualResultRowsProps):
     estimateSize: () => ESTIMATED_ROW_HEIGHT,
     overscan: OVERSCAN_ROWS,
     scrollMargin,
+    useFlushSync: false,
     getItemKey: (index) => docs[index]?.bibcode ?? index,
   });
 
