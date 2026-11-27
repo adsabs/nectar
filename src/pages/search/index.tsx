@@ -39,6 +39,7 @@ import { FormEventHandler, RefObject, useCallback, useEffect, useLayoutEffect, u
 import { useIsClient } from '@/lib/useIsClient';
 import { useScrollRestoration } from '@/lib/useScrollRestoration';
 import { useCaptureSearchReturnUrl } from '@/lib/useSearchReturnTo';
+import { useSlowSearchNotice } from '@/lib/useSlowSearchNotice';
 import { LocalSettings, NumPerPageType } from '@/types';
 import Head from 'next/head';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
@@ -217,30 +218,7 @@ const SearchPage: NextPage = () => {
   const histogramContainerRef = useRef<HTMLDivElement>(null);
   const isClient = useIsClient();
 
-  // Track if search is taking longer than expected
-  const SLOW_SEARCH_THRESHOLD_MS = 5000;
-  const [isSlowSearch, setIsSlowSearch] = useState(false);
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout | null = null;
-    let isMounted = true;
-
-    if (isLoading || isFetching) {
-      timeoutId = setTimeout(() => {
-        if (isMounted) {
-          setIsSlowSearch(true);
-        }
-      }, SLOW_SEARCH_THRESHOLD_MS);
-    } else {
-      setIsSlowSearch(false);
-    }
-
-    return () => {
-      isMounted = false;
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [isLoading, isFetching]);
+  const isSlowSearch = useSlowSearchNotice({ isPending: isLoading || isFetching });
 
   // Scroll restoration hook - automatically restores scroll position when returning from abstract page
   useScrollRestoration();
@@ -464,7 +442,7 @@ const SearchPage: NextPage = () => {
                     {isSlowSearch && (
                       <Alert status="info" mb={2} borderRadius="md" role="status" aria-live="polite">
                         <AlertIcon />
-                        <Text>This search is taking longer than expected. Please wait...</Text>
+                        <Text>Still searching — large or complex queries can take a while.</Text>
                       </Alert>
                     )}
                     <ItemsSkeleton count={storeNumPerPage} />
