@@ -4,7 +4,7 @@ import { useDownloadFile } from '@/lib/useDownloadFile';
 import { useIsClient } from '@/lib/useIsClient';
 import { LabeledCopyButton } from '@/components/CopyButton';
 
-import { sendGTMEvent } from '@next/third-parties/google';
+import { track } from '@/lib/analytics';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { useEffect, useState } from 'react';
@@ -53,8 +53,7 @@ export const ResultArea = ({
     filename: () => `export-${format}.${formatOption.ext}`,
     type: formatOption.type === 'HTML' ? 'RTF' : 'TEXT',
     onDownloaded() {
-      sendGTMEvent({
-        event: 'citation_export',
+      track('export', {
         export_type: 'download',
         export_format: format,
       });
@@ -87,8 +86,7 @@ export const ResultArea = ({
             width={isFullWidth ? 'full' : 'auto'}
             variant="outline"
             onCopyComplete={() => {
-              sendGTMEvent({
-                event: 'citation_export',
+              track('export', {
                 export_type: 'copy',
                 export_format: format,
               });

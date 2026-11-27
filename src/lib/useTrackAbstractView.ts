@@ -1,50 +1,43 @@
 import { useEffect, useRef } from 'react';
 import * as Sentry from '@sentry/nextjs';
-import { sendGTMEvent } from '@next/third-parties/google';
+import { track } from '@/lib/analytics';
 import { IDocsEntity } from '@/api/search/types';
 
-/**
- * Hook to fire GTM + Sentry analytics when viewing an abstract detail page.
- */
 export const useTrackAbstractView = (doc: IDocsEntity | undefined | null) => {
-  const hasTracked = useRef(false);
+  const lastTrackedBibcode = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!doc || hasTracked.current) {
+    if (!doc?.bibcode) {
       return;
     }
+    if (lastTrackedBibcode.current === doc.bibcode) {
+      return;
+    }
+    lastTrackedBibcode.current = doc.bibcode;
 
-    const { bibcode, title, pub: journal, doctype, keyword, database = [] } = doc;
+    const { bibcode, title, pub: journal, doctype, database } = doc;
+    const item_category = database && database.length > 0 ? [...database].sort()[0] : undefined;
 
-    database.forEach((db) => {
-      const payload = {
-        item_id: bibcode,
-        item_name: title?.[0] ?? bibcode,
-        item_brand: journal,
-        item_category: db,
-        item_category2: keyword?.[0],
-        item_category3: keyword?.[1],
-        item_variant: doctype,
-        quantity: 1,
-      };
+    const payload = {
+      item_id: bibcode,
+      item_name: title?.[0] ?? bibcode,
+      item_brand: journal,
+      item_category,
+      item_variant: doctype,
+      quantity: 1,
+    };
 
-      sendGTMEvent({
-        event: 'view_item',
-        ecommerce: {
-          value: 0,
-          currency: 'USD',
-          items: [payload],
-        },
-      });
-
-      Sentry.addBreadcrumb({
-        category: 'navigation',
-        message: `view_item fired for ${bibcode}`,
-        level: 'info',
-        data: payload,
-      });
+    track('view_item', {
+      ecommerce: {
+        items: [payload],
+      },
     });
 
-    hasTracked.current = true;
+    Sentry.addBreadcrumb({
+      category: 'navigation',
+      message: `view_item fired for ${bibcode}`,
+      level: 'info',
+      data: payload,
+    });
   }, [doc]);
 };

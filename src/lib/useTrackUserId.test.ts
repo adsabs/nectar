@@ -7,6 +7,13 @@ vi.mock('@next/third-parties/google', () => ({
   sendGTMEvent: (...args: unknown[]) => sendGTMEvent(...args),
 }));
 
+const setUser = vi.fn();
+const setTag = vi.fn();
+vi.mock('@sentry/nextjs', () => ({
+  setUser: (...args: unknown[]) => setUser(...args),
+  setTag: (...args: unknown[]) => setTag(...args),
+}));
+
 type User = { username: string; anonymous: boolean; access_token: string; expires_at: string } | undefined;
 let user: User;
 vi.mock('@/store', () => ({
@@ -28,6 +35,7 @@ beforeEach(() => {
 
 afterEach(() => {
   sendGTMEvent.mockReset();
+  setUser.mockReset();
 });
 
 describe('useTrackUserId', () => {
@@ -96,5 +104,62 @@ describe('useTrackUserId', () => {
     rerender();
 
     await waitFor(() => expect(sendGTMEvent).toHaveBeenLastCalledWith({ event: 'user_update', user_id: null }));
+  });
+});
+
+describe('Sentry identity', () => {
+  test('sets the Sentry user to the same hash GA receives', async () => {
+    user = authed('user@example.com');
+    renderHook(() => useTrackUserId());
+
+    await waitFor(() => expect(setUser).toHaveBeenCalledWith({ id: HASH }));
+  });
+
+  test('sets no Sentry user for an anonymous session', async () => {
+    user = { ...authed('anonymous@ads'), anonymous: true };
+    renderHook(() => useTrackUserId());
+
+    await waitFor(() => expect(sendGTMEvent).not.toHaveBeenCalled());
+    expect(setUser).not.toHaveBeenCalled();
+  });
+
+  test('clears the Sentry user on logout', async () => {
+    user = authed('user@example.com');
+    const { rerender } = renderHook(() => useTrackUserId());
+    await waitFor(() => expect(setUser).toHaveBeenCalledWith({ id: HASH }));
+
+    user = undefined;
+    rerender();
+
+    await waitFor(() => expect(setUser).toHaveBeenLastCalledWith(null));
+  });
+
+  test('does not own the discipline tag, which must update independently of the identity dedupe', async () => {
+    user = authed('user@example.com');
+    const { rerender } = renderHook(() => useTrackUserId());
+    await waitFor(() => expect(setUser).toHaveBeenCalledWith({ id: HASH }));
+
+    user = { ...authed('user@example.com'), access_token: 'refreshed' };
+    rerender();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(setTag).not.toHaveBeenCalled();
+  });
+
+  test('clears both identities when hashing fails, so neither keeps attributing to the old user', async () => {
+    user = authed('user@example.com');
+    const { rerender } = renderHook(() => useTrackUserId());
+    await waitFor(() => expect(setUser).toHaveBeenCalledWith({ id: HASH }));
+    sendGTMEvent.mockReset();
+    setUser.mockReset();
+
+    const digest = vi.spyOn(globalThis.crypto.subtle, 'digest').mockRejectedValue(new Error('no subtle'));
+    user = { ...authed('other@example.com'), access_token: 'refreshed' };
+    rerender();
+
+    await waitFor(() => expect(digest).toHaveBeenCalled());
+    await waitFor(() => expect(setUser).toHaveBeenLastCalledWith(null));
+    await waitFor(() => expect(sendGTMEvent).toHaveBeenLastCalledWith({ event: 'user_update', user_id: null }));
+    digest.mockRestore();
   });
 });

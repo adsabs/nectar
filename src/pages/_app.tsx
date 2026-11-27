@@ -1,6 +1,6 @@
 import { AppState, useStore, useStoreApi } from '@/store';
 import { AppMode } from '@/types';
-import App, { AppContext, AppProps, NextWebVitalsMetric } from 'next/app';
+import App, { AppContext, AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
@@ -10,7 +10,6 @@ import '../styles/styles.css';
 import '../styles/page-loader.css';
 import 'shepherd.js/dist/css/shepherd.css';
 import { logger } from '@/logger';
-import { sendGTMEvent } from '@next/third-parties/google';
 import Head from 'next/head';
 import { BRAND_NAME_FULL } from '@/config';
 // Not the barrel: it re-exports VizPageLayout, which drags the charts
@@ -143,18 +142,6 @@ const AppModeRouter = (): ReactElement => {
   }, [isClient]);
 
   return <></>;
-};
-
-export const reportWebVitals = (metric: NextWebVitalsMetric) => {
-  logger.debug('Web Vitals', { metric });
-
-  sendGTMEvent({
-    event: 'web_vitals',
-    web_vitals_name: metric.name,
-    web_vitals_value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
-    web_vitals_label: metric.id,
-    non_interaction: true,
-  });
 };
 
 const DefaultMeta = () => {

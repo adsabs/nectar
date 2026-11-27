@@ -4,7 +4,7 @@ import { FC, HTMLAttributes, MouseEventHandler, useCallback, useMemo } from 'rea
 import { examples } from './examples';
 import { useIsClient } from '@/lib/useIsClient';
 
-import { sendGTMEvent } from '@next/third-parties/google';
+import { track } from '@/lib/analytics';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { noop } from '@/utils/common/noop';
 
@@ -20,12 +20,8 @@ export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
     (e) => {
       const text = e.currentTarget.dataset['text'];
 
-      sendGTMEvent({
-        event: 'search_example_click',
-        search_example: text,
-      });
+      track('search_example_click', { search_example: text });
 
-      // fire select callback
       onSelectExample(text);
     },
     [onSelectExample],

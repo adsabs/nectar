@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { sendGTMEvent } from '@next/third-parties/google';
+import * as Sentry from '@sentry/nextjs';
+import { track } from '@/lib/analytics';
 import { isTrackableSession } from '@/utils/session-identity';
 import { logger } from '@/logger';
 import { useStore } from '@/store';
@@ -13,7 +14,6 @@ const hashUsername = async (username: string): Promise<string> => {
     .join('');
 };
 
-/** Sends the logged-in user's hashed id to GA; sends null on logout. */
 export const useTrackUserId = () => {
   const user = useStore((state) => state.user);
   const lastSentRef = useRef<string | null>(null);
@@ -25,7 +25,8 @@ export const useTrackUserId = () => {
     if (!username) {
       if (lastSentRef.current !== null) {
         lastSentRef.current = null;
-        sendGTMEvent({ event: 'user_update', user_id: null });
+        track('user_update', { user_id: null });
+        Sentry.setUser(null);
       }
       return;
     }
@@ -38,11 +39,16 @@ export const useTrackUserId = () => {
           return;
         }
         lastSentRef.current = userId;
-        sendGTMEvent({ event: 'user_update', user_id: userId });
+        track('user_update', { user_id: userId });
+        Sentry.setUser({ id: userId });
       })
       .catch((err: unknown) => {
-        // Reset, or GA keeps attributing hits to whoever was last hashed.
+        if (cancelled) {
+          return;
+        }
         lastSentRef.current = null;
+        track('user_update', { user_id: null });
+        Sentry.setUser(null);
         logger.error({ err }, 'useTrackUserId: hash error');
       });
 

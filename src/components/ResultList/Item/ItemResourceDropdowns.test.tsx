@@ -18,6 +18,11 @@ const mocks = vi.hoisted(() => ({
   useGetExportCitation: vi.fn(() => ({ data: undefined as { export: string } | undefined })),
 }));
 
+const sendGTMEvent = vi.fn();
+vi.mock('@next/third-parties/google', () => ({
+  sendGTMEvent: (...args: unknown[]) => sendGTMEvent(...args),
+}));
+
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
 vi.mock('@/lib/useSettings', () => ({ useSettings: mocks.useSettings }));
 vi.mock('@/lib/useCitationFormat', () => ({ useCitationFormat: mocks.useCitationFormat }));
@@ -58,6 +63,38 @@ describe('ItemResourceDropdowns', () => {
       format: { id: 'agu', name: 'AGU', asHtml: true, isInModal: true },
       isReady: true,
       resolveWithSettings: vi.fn(),
+    });
+  });
+
+  describe('full_text_click rank', () => {
+    const docWithFullText = () => makeDoc({ esources: ['PUB_HTML'] } as unknown as Partial<IDocsEntity>);
+
+    const clickFirstFullTextSource = async (ui: ReturnType<typeof render>) => {
+      await ui.user.click(ui.getByLabelText('Full text sources'));
+      const items = await ui.findAllByRole('menuitem');
+      await ui.user.click(items[0]);
+    };
+
+    test('a library list, which passes no rank, sends rank null so GTM cannot reuse a search rank', async () => {
+      sendGTMEvent.mockClear();
+      const ui = render(<ItemResourceDropdowns doc={docWithFullText()} />);
+
+      await clickFirstFullTextSource(ui);
+
+      const payload = sendGTMEvent.mock.calls.at(-1)?.[0] as Record<string, unknown>;
+      expect(payload.event).toBe('full_text_click');
+      expect(payload).toHaveProperty('rank');
+      expect(payload.rank).toBeNull();
+    });
+
+    test('a search result passes its rank through unchanged, including rank zero', async () => {
+      sendGTMEvent.mockClear();
+      const ui = render(<ItemResourceDropdowns doc={docWithFullText()} rank={0} />);
+
+      await clickFirstFullTextSource(ui);
+
+      const payload = sendGTMEvent.mock.calls.at(-1)?.[0] as Record<string, unknown>;
+      expect(payload.rank).toBe(0);
     });
   });
 

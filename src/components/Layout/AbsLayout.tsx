@@ -11,7 +11,7 @@ import { AbstractSideNav } from '@/components/AbstractSideNav';
 import { stripHtml, unwrapStringValue } from '@/utils/common/formatters';
 import { IDocsEntity } from '@/api/search/types';
 import { AbstractSearchForm } from '@/components/AbstractSearchForm';
-import { sendGTMEvent } from '@next/third-parties/google';
+import { track } from '@/lib/analytics';
 
 interface IAbsLayoutProps {
   doc?: IDocsEntity;
@@ -39,7 +39,7 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
     if (!doc?.bibcode) {
       return;
     }
-    sendGTMEvent({ event: 'abstract_tab_view', tab: label.toLowerCase(), bibcode: doc.bibcode });
+    track('abstract_tab_view', { tab: label.toLowerCase(), bibcode: doc.bibcode });
   }, [label, doc?.bibcode]);
   const title = stripHtml(rawTitle);
   const suffix = `${BRAND_NAME_FULL} ${label}`;

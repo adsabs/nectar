@@ -24,7 +24,7 @@ import { useGetExportCitation } from '@/api/export/export';
 import { getBibtexExportParams } from '@/api/export/getBibtexExportParams';
 import { useCitationFormat } from '@/lib/useCitationFormat';
 import { useSettings } from '@/lib/useSettings';
-import { sendGTMEvent } from '@next/third-parties/google';
+import { track } from '@/lib/analytics';
 import { closeFullTextTimingSpan } from '@/lib/performance';
 
 export interface IItemResourceDropdownsProps {
@@ -139,12 +139,11 @@ export const ItemResourceDropdowns = ({ doc, rank }: IItemResourceDropdownsProps
     const id = e.currentTarget.dataset['id'];
     const item = fullSourceItems.find((i) => id === i.id);
     if (isBrowser() && item?.path) {
-      sendGTMEvent({
-        event: 'full_text_click',
+      track('full_text_click', {
         source_name: item.name,
         is_open_access: item.isOpen ?? false,
         bibcode: doc.bibcode,
-        ...(rank !== undefined && { rank }),
+        rank: rank ?? null,
       });
       closeFullTextTimingSpan();
       window.open(item.path, '_blank', 'noopener');

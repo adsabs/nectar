@@ -5,7 +5,7 @@ import { AppMode } from '@/types';
 import { ReactElement, useMemo } from 'react';
 import shallow from 'zustand/shallow';
 import { modes } from './models';
-import { sendGTMEvent } from '@next/third-parties/google';
+import { track } from '@/lib/analytics';
 import { Select, SelectOption } from '@/components/Select';
 import { appModeToDisciplineParam, syncUrlDisciplineParam } from '@/utils/appMode';
 import { useRouter } from 'next/router';
@@ -53,9 +53,8 @@ export const AppModeDropdown = (): ReactElement => {
     dismissModeNotice();
     setMode(nextMode);
     void syncUrlDisciplineParam(router, nextMode);
-    sendGTMEvent({
-      event: 'app_mode_change',
-      mode: nextMode,
+    track('discipline_change', {
+      discipline: nextMode,
     });
   };
 
