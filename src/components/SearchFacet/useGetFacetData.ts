@@ -110,7 +110,9 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     if (objects && treeData) {
       return treeData.map((data) => {
         const id = data.val.split('/')[data.val.split('/').length - 1];
-        return { ...data, val: data.val.replace(id, objects[id].canonical) };
+        const resolved = objects[id]?.canonical;
+        const canonical = isNonEmptyString(resolved) && resolved.trim().length > 0 ? resolved : id;
+        return { ...data, val: data.val.replace(id, canonical) };
       });
     } else {
       return treeData;
